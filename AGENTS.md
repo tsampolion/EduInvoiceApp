@@ -3,7 +3,7 @@
 
 ## 1. Project Overview
 TutorBillingApp is a Jetpack-Compose Android app that tracks tutoring sessions and issues invoices.  
-Tech stack: **Kotlin 2.1.10**, **Android Gradle Plugin 8.1.0**, **Room**, **Hilt**, **DataStore**, **Robolectric** for JVM tests.  
+Tech stack: **Kotlin 2.1.10**, **Android Gradle Plugin 8.8.0**, **Room**, **Hilt**, **DataStore**, **Robolectric** for JVM tests.
 Agents must prioritise reproducible builds, test-first commits, and Jetpack security best practices.
 
 ## 2. Environment Setup
@@ -72,7 +72,7 @@ Checklist:
 ## 7. Common Pitfalls
 
 1. **ANDROID_HOME not set** – always source the profile written by `setup-android-sdk.sh`.
-2. **Out-of-date Gradle wrapper** – update with `./gradlew wrapper --gradle-version 8.1.0` when bumping AGP.
+2. **Out-of-date Gradle wrapper** – update with `./gradlew wrapper --gradle-version 8.10.2` when bumping AGP.
 3. **Room schema drift** – run `./gradlew test` after changing entities to auto-regenerate `/app/schemas`.
 4. **Accidentally committed build output** – confirm `.gitignore` still excludes `build/`, `.gradle/`, `.idea/`.
 5. **Robolectric memory leaks** – never keep global state in test classes; use `@Config` with `sdk = 34`.
