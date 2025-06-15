@@ -28,3 +28,4 @@ out/ # Default output directory for IntelliJ
 *.dex
 captures/
 
+release.jks
