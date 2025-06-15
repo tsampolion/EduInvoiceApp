@@ -21,7 +21,8 @@ The project cannot be built until the Android SDK is installed. Use the provided
 
 ```bash
 bash setup-android-sdk.sh
-source ~/.bashrc   # or the profile file printed by the script
+source ~/.profile
+java -version
 ```
 
 Running the script once will download the command line tools and create a `local.properties` file pointing Gradle to the SDK. Make sure to source your profile before invoking any Gradle tasks so that the `ANDROID_HOME` variables are available.
