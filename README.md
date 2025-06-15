@@ -37,6 +37,21 @@ Use the Gradle wrapper to build, lint and test the app:
 ./gradlew lintDebug
 ```
 
+### Signing release builds
+
+Release variants require a keystore so the generated APK/AAB can be uploaded to
+Google Play with Play App Signing. Provide the keystore path and credentials via
+Gradle properties or environment variables before running `assembleRelease`:
+
+```bash
+export RELEASE_STORE_FILE=/path/to/keystore.jks
+export RELEASE_STORE_PASSWORD=keystorePassword
+export RELEASE_KEY_ALIAS=releaseKey
+export RELEASE_KEY_PASSWORD=keyPassword
+```
+
+Gradle will pick up these values when assembling the `release` variant.
+
 ## Modules overview
 
 - **app** – main Compose application module containing UI, Hilt dependency injection and Room database code.
