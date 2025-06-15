@@ -73,6 +73,14 @@ echo ">>>> 6 · Exporting ANDROID_* vars"
 export ANDROID_HOME="${ANDROID_SDK_ROOT}"
 export PATH=$PATH:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/platform-tools
 
+echo ">>>> 6 · Java version check"
+java_version_output=$(java -version 2>&1 | head -n 1)
+echo "$java_version_output"
+java_major=$(echo "$java_version_output" | grep -oE '[0-9]+' | head -n 1)
+if [ "${java_major:-0}" -lt 17 ]; then
+  echo "WARNING: JDK 17+ required. Run 'source ~/.profile' or reopen the shell." >&2
+fi
+
 
 ###############################################################################
 # 7 · Helper: run sdkmanager safely, swallow benign SIGPIPE 141
