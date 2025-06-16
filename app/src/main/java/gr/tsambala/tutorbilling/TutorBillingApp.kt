@@ -2,6 +2,7 @@ package gr.tsambala.tutorbilling
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -21,7 +22,7 @@ import gr.tsambala.tutorbilling.ui.settings.SettingsScreen
 import gr.tsambala.tutorbilling.navigation.studentGraph
 
 @Composable
-fun TutorBillingApp() {
+fun TutorBillingApp(signInClient: GoogleSignInClient) {
     val navController = rememberNavController()
 
     NavHost(
@@ -104,7 +105,10 @@ fun TutorBillingApp() {
 
         // Settings screen
         composable(Screen.Settings.route) {
-            SettingsScreen(onBack = { navController.popBackStack() })
+            SettingsScreen(
+                onBack = { navController.popBackStack() },
+                signInClient = signInClient
+            )
         }
 
         // Lesson Detail/Edit Screen
