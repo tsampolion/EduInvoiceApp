@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -21,6 +22,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 fun SettingsScreen(
     onBack: () -> Unit,
     signInClient: GoogleSignInClient,
+    onPrivacyPolicy: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
@@ -83,6 +85,10 @@ fun SettingsScreen(
                 Button(onClick = viewModel::signOut) {
                     Text("Sign out")
                 }
+            }
+
+            TextButton(onClick = onPrivacyPolicy) {
+                Text(stringResource(R.string.privacy_policy))
             }
         }
     }

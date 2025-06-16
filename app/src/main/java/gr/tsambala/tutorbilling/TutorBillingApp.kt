@@ -19,6 +19,7 @@ import gr.tsambala.tutorbilling.ui.invoice.InvoiceScreen
 import gr.tsambala.tutorbilling.ui.invoice.PastInvoicesScreen
 import gr.tsambala.tutorbilling.ui.invoice.InvoiceViewModel
 import gr.tsambala.tutorbilling.ui.settings.SettingsScreen
+import gr.tsambala.tutorbilling.ui.settings.PrivacyPolicyScreen
 import gr.tsambala.tutorbilling.navigation.studentGraph
 
 @Composable
@@ -107,8 +108,13 @@ fun TutorBillingApp(signInClient: GoogleSignInClient) {
         composable(Screen.Settings.route) {
             SettingsScreen(
                 onBack = { navController.popBackStack() },
-                signInClient = signInClient
+                signInClient = signInClient,
+                onPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy.route) }
             )
+        }
+
+        composable(Screen.PrivacyPolicy.route) {
+            PrivacyPolicyScreen(onBack = { navController.popBackStack() })
         }
 
         // Lesson Detail/Edit Screen
