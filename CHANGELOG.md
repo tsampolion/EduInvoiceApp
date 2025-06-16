@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - Upgrade to Android Gradle Plugin 8.8.0 and Gradle 8.10.2.
 - Enable Play App Signing release builds with keystore placeholders.
 - Make release signingConfig conditional on keystore properties.
+- Integrate Firebase Crashlytics for runtime crash reporting.
 - Optional Google Sign-In with account persisted in DataStore.
 
 ## [0.14] - 2025-06-15

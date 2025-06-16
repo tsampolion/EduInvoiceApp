@@ -4,6 +4,8 @@ plugins {
     id 'com.google.devtools.ksp'
     id 'com.google.dagger.hilt.android'
     id 'org.jetbrains.kotlin.plugin.compose'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
@@ -130,6 +132,8 @@ android {
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0"
+    implementation platform('com.google.firebase:firebase-bom:33.15.0')
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
 }
 
 // Room schema location for ksp
