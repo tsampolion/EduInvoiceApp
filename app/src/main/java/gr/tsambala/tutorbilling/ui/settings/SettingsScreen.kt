@@ -11,14 +11,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
+    signInClient: GoogleSignInClient,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val account by viewModel.account.collectAsStateWithLifecycle()
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        if (task.isSuccessful) {
+            task.result?.let { viewModel.saveGoogleAccount(it) }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -61,6 +73,16 @@ fun SettingsScreen(
                     checked = settings.darkTheme,
                     onCheckedChange = viewModel::updateDarkTheme
                 )
+            }
+            if (account == null) {
+                Button(onClick = { launcher.launch(signInClient.signInIntent) }) {
+                    Text("Sign in with Google")
+                }
+            } else {
+                Text("Signed in as ${'$'}{account.displayName}")
+                Button(onClick = viewModel::signOut) {
+                    Text("Sign out")
+                }
             }
         }
     }
