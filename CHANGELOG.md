@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - Make release signingConfig conditional on keystore properties.
 - Integrate Firebase Crashlytics for runtime crash reporting.
 - Optional Google Sign-In with account persisted in DataStore.
+- In-app privacy policy screen linked from Settings.
 
 ## [0.14] - 2025-06-15
 ### Added
