@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 - Add CI workflow to run clean, assemble, test and lint on every push.
 - Upgrade to Android Gradle Plugin 8.8.0 and Gradle 8.10.2.
 - Enable Play App Signing release builds with keystore placeholders.
+- Make release signingConfig conditional on keystore properties.
 
 ## [0.14] - 2025-06-15
 ### Added

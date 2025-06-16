@@ -21,10 +21,23 @@ android {
 
     signingConfigs {
         release {
-            storeFile file(findProperty('RELEASE_STORE_FILE') ?: System.getenv('RELEASE_STORE_FILE') ?: '')
-            storePassword findProperty('RELEASE_STORE_PASSWORD') ?: System.getenv('RELEASE_STORE_PASSWORD')
-            keyAlias findProperty('RELEASE_KEY_ALIAS') ?: System.getenv('RELEASE_KEY_ALIAS')
-            keyPassword findProperty('RELEASE_KEY_PASSWORD') ?: System.getenv('RELEASE_KEY_PASSWORD')
+            def keystorePath = findProperty('RELEASE_STORE_FILE') ?: System.getenv('RELEASE_STORE_FILE')
+            def releaseStorePassword = findProperty('RELEASE_STORE_PASSWORD') ?: System.getenv('RELEASE_STORE_PASSWORD')
+            def releaseKeyAlias = findProperty('RELEASE_KEY_ALIAS') ?: System.getenv('RELEASE_KEY_ALIAS')
+            def releaseKeyPassword = findProperty('RELEASE_KEY_PASSWORD') ?: System.getenv('RELEASE_KEY_PASSWORD')
+
+            if (keystorePath) {
+                storeFile file(keystorePath)
+            }
+            if (releaseStorePassword) {
+                storePassword releaseStorePassword
+            }
+            if (releaseKeyAlias) {
+                keyAlias releaseKeyAlias
+            }
+            if (releaseKeyPassword) {
+                keyPassword releaseKeyPassword
+            }
         }
     }
 
