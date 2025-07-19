@@ -1,4 +1,4 @@
-package gr.tsambala.tutorbilling.di
+package gr.tsambala.tutorbilling.data.di
 
 import android.content.Context
 import dagger.Module

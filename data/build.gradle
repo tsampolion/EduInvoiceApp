@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.devtools.ksp'
+    id 'com.google.dagger.hilt.android'
 }
 
 android {
@@ -23,5 +25,18 @@ android {
 }
 
 dependencies {
-    implementation project(':domain')
+    implementation "androidx.room:room-runtime:2.7.1"
+    implementation "androidx.room:room-ktx:2.7.1"
+    ksp "androidx.room:room-compiler:2.7.1"
+
+    implementation "androidx.datastore:datastore-preferences:1.1.7"
+
+    implementation "com.google.dagger:hilt-android:2.54"
+    ksp "com.google.dagger:hilt-compiler:2.54"
+
+    implementation "com.google.android.gms:play-services-auth:21.2.0"
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
