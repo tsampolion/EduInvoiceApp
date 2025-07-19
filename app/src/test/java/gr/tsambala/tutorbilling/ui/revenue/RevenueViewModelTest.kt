@@ -1,10 +1,31 @@
 package gr.tsambala.tutorbilling.ui.revenue
 
-import gr.tsambala.tutorbilling.data.dao.LessonDao
-import gr.tsambala.tutorbilling.data.dao.StudentDao
 import gr.tsambala.tutorbilling.data.database.LessonWithStudent
 import gr.tsambala.tutorbilling.data.model.Lesson
 import gr.tsambala.tutorbilling.data.model.Student
+import gr.tsambala.tutorbilling.data.repository.StudentRepository
+import gr.tsambala.tutorbilling.data.dao.StudentDao
+import gr.tsambala.tutorbilling.data.dao.LessonDao
+import gr.tsambala.tutorbilling.domain.lesson.GetAllLessons
+import gr.tsambala.tutorbilling.domain.lesson.DeleteLesson
+import gr.tsambala.tutorbilling.domain.lesson.GetLessonById
+import gr.tsambala.tutorbilling.domain.lesson.GetLessonsByStudentId
+import gr.tsambala.tutorbilling.domain.lesson.GetLessonsWithStudents
+import gr.tsambala.tutorbilling.domain.lesson.GetLessonsWithStudentsByStudentAndDateRange
+import gr.tsambala.tutorbilling.domain.lesson.InsertLesson
+import gr.tsambala.tutorbilling.domain.lesson.LessonUseCases
+import gr.tsambala.tutorbilling.domain.lesson.UpdateLesson
+import gr.tsambala.tutorbilling.domain.lesson.UpdateLessonPaidStatus
+import gr.tsambala.tutorbilling.domain.student.StudentUseCases
+import gr.tsambala.tutorbilling.domain.student.GetActiveStudents
+import gr.tsambala.tutorbilling.domain.student.GetArchivedStudents
+import gr.tsambala.tutorbilling.domain.student.GetStudentById
+import gr.tsambala.tutorbilling.domain.student.InsertStudent
+import gr.tsambala.tutorbilling.domain.student.UpdateStudent
+import gr.tsambala.tutorbilling.domain.student.SoftDeleteStudent
+import gr.tsambala.tutorbilling.domain.student.RestoreStudent
+import gr.tsambala.tutorbilling.domain.student.GetActiveStudentCount
+import gr.tsambala.tutorbilling.domain.student.ClassNameExists
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +47,29 @@ class RevenueViewModelTest {
 
     private val studentDao = FakeStudentDao(studentFlow)
     private val lessonDao = FakeLessonDao(lessonFlow)
+    private val studentRepository = StudentRepository(studentDao)
+    private val studentUseCases = StudentUseCases(
+        getActiveStudents = GetActiveStudents(studentRepository),
+        getArchivedStudents = GetArchivedStudents(studentRepository),
+        getStudentById = GetStudentById(studentRepository),
+        insertStudent = InsertStudent(studentRepository),
+        updateStudent = UpdateStudent(studentRepository),
+        softDeleteStudent = SoftDeleteStudent(studentRepository),
+        restoreStudent = RestoreStudent(studentRepository),
+        getActiveStudentCount = GetActiveStudentCount(studentRepository),
+        classNameExists = ClassNameExists(studentRepository)
+    )
+    private val lessonUseCases = LessonUseCases(
+        getAllLessons = GetAllLessons(lessonDao),
+        getLessonById = GetLessonById(lessonDao),
+        getLessonsByStudentId = GetLessonsByStudentId(lessonDao),
+        getLessonsWithStudents = GetLessonsWithStudents(lessonDao),
+        getLessonsWithStudentsByStudentAndDateRange = GetLessonsWithStudentsByStudentAndDateRange(lessonDao),
+        insertLesson = InsertLesson(lessonDao),
+        updateLesson = UpdateLesson(lessonDao),
+        deleteLesson = DeleteLesson(lessonDao),
+        updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao)
+    )
 
     @Test
     fun debtsCalculatedAndCleared() = runTest {
@@ -40,7 +84,7 @@ class RevenueViewModelTest {
             Lesson(id = 3, studentId = 2, date = today, startTime = "12:00", durationMinutes = 120, isPaid = false)
         )
 
-        val vm = RevenueViewModel(studentDao, lessonDao)
+        val vm = RevenueViewModel(studentUseCases, lessonUseCases)
         advanceUntilIdle()
 
         val debts = vm.uiState.value.debts

@@ -3,9 +3,9 @@ package gr.tsambala.tutorbilling.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.tsambala.tutorbilling.data.dao.LessonDao
-import gr.tsambala.tutorbilling.data.dao.StudentDao
 import gr.tsambala.tutorbilling.data.model.calculateFee
+import gr.tsambala.tutorbilling.domain.lesson.LessonUseCases
+import gr.tsambala.tutorbilling.domain.student.StudentUseCases
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,8 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeMenuViewModel @Inject constructor(
-    private val studentDao: StudentDao,
-    private val lessonDao: LessonDao
+    private val studentUseCases: StudentUseCases,
+    private val lessonUseCases: LessonUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeMenuUiState())
@@ -28,8 +28,8 @@ class HomeMenuViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             combine(
-                studentDao.getAllActiveStudents(),
-                lessonDao.getAllLessons()
+                studentUseCases.getActiveStudents(),
+                lessonUseCases.getAllLessons()
             ) { students, lessons ->
                 val classCount = 0
 

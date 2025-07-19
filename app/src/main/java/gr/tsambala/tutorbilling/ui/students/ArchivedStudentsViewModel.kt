@@ -3,9 +3,9 @@ package gr.tsambala.tutorbilling.ui.students
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.tsambala.tutorbilling.data.dao.LessonDao
 import gr.tsambala.tutorbilling.data.model.StudentWithEarnings
-import gr.tsambala.tutorbilling.data.repository.StudentRepository
+import gr.tsambala.tutorbilling.domain.lesson.LessonUseCases
+import gr.tsambala.tutorbilling.domain.student.StudentUseCases
 import gr.tsambala.tutorbilling.utils.EarningsCalculator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,8 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ArchivedStudentsViewModel @Inject constructor(
-    private val studentRepository: StudentRepository,
-    private val lessonDao: LessonDao
+    private val studentUseCases: StudentUseCases,
+    private val lessonUseCases: LessonUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StudentsUiState())
@@ -46,8 +46,8 @@ class ArchivedStudentsViewModel @Inject constructor(
     private fun loadStudentsWithEarnings() {
         viewModelScope.launch {
             combine(
-                studentRepository.getArchivedStudents(),
-                lessonDao.getAllLessons(),
+                studentUseCases.getArchivedStudents(),
+                lessonUseCases.getAllLessons(),
                 searchQuery,
                 sortAscending
             ) { students, lessons, query, ascending ->
@@ -78,7 +78,7 @@ class ArchivedStudentsViewModel @Inject constructor(
 
     fun restoreStudent(studentId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            studentRepository.restoreStudent(studentId)
+            studentUseCases.restoreStudent(studentId)
         }
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import gr.tsambala.tutorbilling.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,8 +37,9 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(stringResource(R.string.privacy_policy_text))
+            val url = stringResource(R.string.privacy_policy_url)
             Button(onClick = {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(stringResource(R.string.privacy_policy_url)))
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 context.startActivity(intent)
             }) {
                 Text(stringResource(R.string.open_in_browser))

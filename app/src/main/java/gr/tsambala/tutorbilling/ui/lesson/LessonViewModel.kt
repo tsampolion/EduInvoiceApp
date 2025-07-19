@@ -6,10 +6,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.tsambala.tutorbilling.data.model.Lesson
-import gr.tsambala.tutorbilling.data.dao.LessonDao
-import gr.tsambala.tutorbilling.data.dao.StudentDao
 import gr.tsambala.tutorbilling.data.model.Student
 import gr.tsambala.tutorbilling.data.model.RateTypes
+import gr.tsambala.tutorbilling.domain.lesson.LessonUseCases
+import gr.tsambala.tutorbilling.domain.student.StudentUseCases
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -21,8 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LessonViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val lessonDao: LessonDao,
-    private val studentDao: StudentDao
+    private val lessonUseCases: LessonUseCases,
+    private val studentUseCases: StudentUseCases
 ) : ViewModel() {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
@@ -58,7 +58,7 @@ class LessonViewModel @Inject constructor(
 
     private fun loadStudentInfo() {
         viewModelScope.launch(Dispatchers.IO) {
-            studentDao.getAllActiveStudents().collect { list ->
+            studentUseCases.getActiveStudents().collect { list ->
                 val selectedId = studentId?.takeIf { it != 0L } ?: _uiState.value.selectedStudentId
                 val selectedStudent = list.firstOrNull { it.id == selectedId }
                 _uiState.update { state ->
@@ -77,7 +77,7 @@ class LessonViewModel @Inject constructor(
     private fun loadLesson() {
         viewModelScope.launch(Dispatchers.IO) {
             lessonId?.takeIf { it != 0L }?.let { id ->
-                lessonDao.getLessonById(id).collect { lesson ->
+                lessonUseCases.getLessonById(id).collect { lesson ->
                     lesson?.let { l ->
                         _uiState.update { state ->
                             state.copy(
@@ -112,7 +112,7 @@ class LessonViewModel @Inject constructor(
 
     fun updateSelectedStudent(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            studentDao.getStudentById(id).collect { student ->
+            studentUseCases.getStudentById(id).collect { student ->
                 student?.let { s ->
                     _uiState.update {
                         it.copy(
@@ -186,7 +186,7 @@ class LessonViewModel @Inject constructor(
                         notes = state.notes.ifBlank { null },
                         isPaid = state.isPaid
                     )
-                    lessonDao.insert(lesson)
+                    lessonUseCases.insertLesson(lesson)
                 } else {
                     lessonId?.let { lId ->
                         val lesson = Lesson(
@@ -198,7 +198,7 @@ class LessonViewModel @Inject constructor(
                             notes = state.notes.ifBlank { null },
                             isPaid = state.isPaid
                         )
-                        lessonDao.update(lesson)
+                        lessonUseCases.updateLesson(lesson)
                     }
                 }
             }
@@ -215,7 +215,7 @@ class LessonViewModel @Inject constructor(
     fun deleteLesson() {
         viewModelScope.launch(Dispatchers.IO) {
             lessonId?.takeIf { it != 0L }?.let { id ->
-                lessonDao.deleteById(id)
+                lessonUseCases.deleteLesson(id)
 
                 // Navigate back on main thread
                 withContext(Dispatchers.Main) {

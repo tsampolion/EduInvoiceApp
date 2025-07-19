@@ -3,9 +3,9 @@ package gr.tsambala.tutorbilling.ui.revenue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.tsambala.tutorbilling.data.dao.LessonDao
-import gr.tsambala.tutorbilling.data.dao.StudentDao
 import gr.tsambala.tutorbilling.data.model.calculateFee
+import gr.tsambala.tutorbilling.domain.lesson.LessonUseCases
+import gr.tsambala.tutorbilling.domain.student.StudentUseCases
 import kotlinx.coroutines.flow.first
 import gr.tsambala.tutorbilling.ui.revenue.StudentDebt
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,8 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RevenueViewModel @Inject constructor(
-    private val studentDao: StudentDao,
-    private val lessonDao: LessonDao
+    private val studentUseCases: StudentUseCases,
+    private val lessonUseCases: LessonUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RevenueUiState())
@@ -30,8 +30,8 @@ class RevenueViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             combine(
-                studentDao.getAllActiveStudents(),
-                lessonDao.getAllLessons()
+                studentUseCases.getActiveStudents(),
+                lessonUseCases.getAllLessons()
             ) { students, lessons ->
                 val studentMap = students.associateBy { it.id }
 
@@ -104,12 +104,12 @@ class RevenueViewModel @Inject constructor(
 
     fun markLessonsPaid(studentId: Long) {
         viewModelScope.launch {
-            val ids = lessonDao.getLessonsByStudentId(studentId)
+            val ids = lessonUseCases.getLessonsByStudentId(studentId)
                 .first()
                 .filter { !it.isPaid }
                 .map { it.id }
             if (ids.isNotEmpty()) {
-                lessonDao.updatePaidStatus(ids, true)
+                lessonUseCases.updateLessonPaidStatus(ids, true)
             }
         }
     }
