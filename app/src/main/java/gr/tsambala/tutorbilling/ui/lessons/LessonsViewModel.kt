@@ -3,8 +3,8 @@ package gr.tsambala.tutorbilling.ui.lessons
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.tsambala.tutorbilling.data.dao.LessonDao
 import gr.tsambala.tutorbilling.data.database.LessonWithStudent
+import gr.tsambala.tutorbilling.domain.lesson.LessonUseCases
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LessonsViewModel @Inject constructor(
-    private val lessonDao: LessonDao
+    private val lessonUseCases: LessonUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LessonsUiState())
@@ -22,7 +22,7 @@ class LessonsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            lessonDao.getLessonsWithStudents().collect { list ->
+            lessonUseCases.getLessonsWithStudents().collect { list ->
                 _uiState.update { it.copy(lessons = list) }
             }
         }
@@ -30,7 +30,7 @@ class LessonsViewModel @Inject constructor(
 
     fun updatePaid(lessonId: Long, paid: Boolean) {
         viewModelScope.launch {
-            lessonDao.updatePaidStatus(listOf(lessonId), paid)
+            lessonUseCases.updateLessonPaidStatus(listOf(lessonId), paid)
         }
     }
 }

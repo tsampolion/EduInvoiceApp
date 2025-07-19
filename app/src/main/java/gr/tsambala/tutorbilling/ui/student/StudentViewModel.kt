@@ -8,8 +8,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.tsambala.tutorbilling.data.model.Student
 import gr.tsambala.tutorbilling.data.model.RateTypes
 import gr.tsambala.tutorbilling.data.model.calculateFee
-import gr.tsambala.tutorbilling.data.repository.StudentRepository
-import gr.tsambala.tutorbilling.data.dao.LessonDao
+import gr.tsambala.tutorbilling.domain.student.StudentUseCases
+import gr.tsambala.tutorbilling.domain.lesson.LessonUseCases
 import gr.tsambala.tutorbilling.data.model.Lesson
 import gr.tsambala.tutorbilling.utils.EarningsCalculator
 import gr.tsambala.tutorbilling.utils.ClassOptions
@@ -22,8 +22,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StudentViewModel @Inject constructor(
-    private val studentRepository: StudentRepository,
-    private val lessonDao: LessonDao,
+    private val studentUseCases: StudentUseCases,
+    private val lessonUseCases: LessonUseCases,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -51,8 +51,8 @@ class StudentViewModel @Inject constructor(
     private fun loadData() {
         viewModelScope.launch {
             combine(
-                studentRepository.getStudentById(studentId),
-                lessonDao.getLessonsByStudentId(studentId)
+                studentUseCases.getStudentById(studentId),
+                lessonUseCases.getLessonsByStudentId(studentId)
             ) { student, lessons -> student to lessons }
                 .catch { e ->
                     _uiState.update { it.copy(errorMessage = e.message) }
@@ -160,7 +160,7 @@ class StudentViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
 
             try {
-                if (state.selectedClass == "Custom" && studentRepository.classNameExists(className)) {
+                if (state.selectedClass == "Custom" && studentUseCases.classNameExists(className)) {
                     _uiState.update {
                         it.copy(isLoading = false, errorMessage = "Class already exists")
                     }
@@ -192,9 +192,9 @@ class StudentViewModel @Inject constructor(
                 }
 
                 if (studentId > 0) {
-                    studentRepository.updateStudent(student)
+                    studentUseCases.updateStudent(student)
                 } else {
-                    studentRepository.insertStudent(student)
+                    studentUseCases.insertStudent(student)
                 }
 
                 // Navigate back on main thread
@@ -218,7 +218,7 @@ class StudentViewModel @Inject constructor(
 
             try {
                 _uiState.value.student?.let { student ->
-                    studentRepository.softDeleteStudent(student.id)
+                    studentUseCases.softDeleteStudent(student.id)
 
                     // Navigate back on main thread
                     withContext(Dispatchers.Main) {
@@ -238,7 +238,7 @@ class StudentViewModel @Inject constructor(
 
     fun deleteLesson(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            lessonDao.deleteById(id)
+            lessonUseCases.deleteLesson(id)
         }
     }
 

@@ -6,10 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import gr.tsambala.tutorbilling.data.dao.LessonDao
-import gr.tsambala.tutorbilling.data.dao.StudentDao
 import gr.tsambala.tutorbilling.data.database.TutorBillingDatabase
-import gr.tsambala.tutorbilling.data.repository.StudentRepository
 import javax.inject.Singleton
 
 @Module
@@ -24,19 +21,5 @@ object DatabaseModule {
         return TutorBillingDatabase.getDatabase(context)
     }
 
-    @Provides
-    fun provideStudentDao(database: TutorBillingDatabase): StudentDao {
-        return database.studentDao()
-    }
-
-    @Provides
-    fun provideLessonDao(database: TutorBillingDatabase): LessonDao {
-        return database.lessonDao()
-    }
-
-    @Provides
-    @Singleton
-    fun provideStudentRepository(studentDao: StudentDao): StudentRepository {
-        return StudentRepository(studentDao)
-    }
+    // DatabaseModule only provides the Room database instance.
 }

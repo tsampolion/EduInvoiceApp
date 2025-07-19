@@ -14,6 +14,8 @@ All notable changes to this project will be documented in this file.
 - Integrate Firebase Crashlytics for runtime crash reporting.
 - Optional Google Sign-In with account persisted in DataStore.
 - In-app privacy policy screen linked from Settings.
+- Provide Hilt modules for DAOs and repositories.
+- Expose domain use-cases and inject them into ViewModels.
 
 ## [0.14] - 2025-06-15
 ### Added

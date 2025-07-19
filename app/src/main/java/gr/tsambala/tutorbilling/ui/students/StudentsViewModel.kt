@@ -6,8 +6,8 @@ import kotlinx.coroutines.Dispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.tsambala.tutorbilling.data.model.Student
 import gr.tsambala.tutorbilling.data.model.StudentWithEarnings
-import gr.tsambala.tutorbilling.data.dao.StudentDao
-import gr.tsambala.tutorbilling.data.dao.LessonDao
+import gr.tsambala.tutorbilling.domain.student.StudentUseCases
+import gr.tsambala.tutorbilling.domain.lesson.LessonUseCases
 import gr.tsambala.tutorbilling.utils.EarningsCalculator
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -15,8 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StudentsViewModel @Inject constructor(
-    private val studentDao: StudentDao,
-    private val lessonDao: LessonDao
+    private val studentUseCases: StudentUseCases,
+    private val lessonUseCases: LessonUseCases
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StudentsUiState())
@@ -43,8 +43,8 @@ class StudentsViewModel @Inject constructor(
     private fun loadStudentsWithEarnings() {
         viewModelScope.launch {
             combine(
-                studentDao.getAllActiveStudents(),
-                lessonDao.getAllLessons(),
+                studentUseCases.getActiveStudents(),
+                lessonUseCases.getAllLessons(),
                 searchQuery,
                 sortAscending
             ) { students, lessons, query, ascending ->
@@ -75,7 +75,7 @@ class StudentsViewModel @Inject constructor(
 
     fun deleteStudent(studentId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            studentDao.softDeleteStudent(studentId)
+            studentUseCases.softDeleteStudent(studentId)
         }
     }
 }

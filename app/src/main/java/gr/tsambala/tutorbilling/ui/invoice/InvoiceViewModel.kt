@@ -4,10 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.tsambala.tutorbilling.data.dao.LessonDao
-import gr.tsambala.tutorbilling.data.dao.StudentDao
 import gr.tsambala.tutorbilling.data.database.LessonWithStudent
 import gr.tsambala.tutorbilling.data.model.Student
+import gr.tsambala.tutorbilling.domain.lesson.LessonUseCases
+import gr.tsambala.tutorbilling.domain.student.StudentUseCases
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,8 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class InvoiceViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val lessonDao: LessonDao,
-    private val studentDao: StudentDao
+    private val lessonUseCases: LessonUseCases,
+    private val studentUseCases: StudentUseCases
 ) : ViewModel() {
 
     private val defaultStudentId: Long? =
@@ -34,7 +34,7 @@ class InvoiceViewModel @Inject constructor(
     val endDate: StateFlow<LocalDate> = _endDate.asStateFlow()
 
     val students: StateFlow<List<Student>> =
-        studentDao.getAllActiveStudents()
+        studentUseCases.getActiveStudents()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _selectedStudentId = MutableStateFlow<Long?>(null)
@@ -55,7 +55,7 @@ class InvoiceViewModel @Inject constructor(
                         _lessons.value = emptyList()
                         _selectedLessons.value = emptySet()
                     } else {
-                        lessonDao
+                        lessonUseCases
                             .getLessonsWithStudentsByStudentAndDateRange(id, start.toString(), end.toString())
                             .collect { list ->
                                 _lessons.value = list
@@ -81,6 +81,6 @@ class InvoiceViewModel @Inject constructor(
     }
 
     fun markAsPaid(ids: List<Long>) {
-        viewModelScope.launch { lessonDao.updatePaidStatus(ids, true) }
+        viewModelScope.launch { lessonUseCases.updateLessonPaidStatus(ids, true) }
     }
 }
