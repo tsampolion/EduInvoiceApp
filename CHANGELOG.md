@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 - Add rebuild walkthrough in `rebuild.md` describing detailed steps.
+- Add domain and data modules for clean architecture foundation.
 - Fix launcher icon references in the AndroidManifest.
 - Add CI workflow to run clean, assemble, test and lint on every push.
 - Upgrade to Android Gradle Plugin 8.8.0 and Gradle 8.10.2.
