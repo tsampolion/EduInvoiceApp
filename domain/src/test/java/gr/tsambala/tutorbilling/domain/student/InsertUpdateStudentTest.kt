@@ -43,6 +43,6 @@ class InsertUpdateStudentTest {
         update(Student(id = id, name = "Alice", surname = "", parentMobile = "", className = "B", rate = 12.0))
         val student = db.studentDao().getStudentByIdAny(id).first()
         assertEquals("B", student?.className)
-        assertEquals(12.0, student?.rate, 0.0)
+        assertEquals(12.0, student?.rate ?: 0.0, 0.0)
     }
 }
