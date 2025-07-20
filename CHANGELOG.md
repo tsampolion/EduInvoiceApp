@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 - Flatten Room migrations; keep only latest schema in data/schemas.
+- Add student domain tests for insert/update and archive/restore flows.
 - Add rebuild walkthrough in `rebuild.md` describing detailed steps.
 - Add domain and data modules for clean architecture foundation.
 - Add AddLesson/GetStudentLessons use-cases and Room DAO tests.
