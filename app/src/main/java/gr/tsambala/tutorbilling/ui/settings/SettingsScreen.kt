@@ -31,7 +31,11 @@ fun SettingsScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                title = { Text("Settings") }
+                title = { Text("Settings") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             )
         }
     ) { padding ->
@@ -42,31 +46,64 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            OutlinedTextField(
-                value = settings.currencySymbol,
-                onValueChange = viewModel::updateCurrencySymbol,
-                label = { Text("Currency symbol") }
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Decimal places: ${settings.roundingDecimals}")
-                Slider(
-                    value = settings.roundingDecimals.toFloat(),
-                    onValueChange = { viewModel.updateRounding(it.toInt()) },
-                    valueRange = 0f..2f,
-                    steps = 1,
-                    modifier = Modifier.weight(1f).padding(start = 8.dp)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                OutlinedTextField(
+                    value = settings.currencySymbol,
+                    onValueChange = viewModel::updateCurrencySymbol,
+                    label = { Text("Currency symbol") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
                 )
             }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Dark theme")
-                Spacer(Modifier.width(8.dp))
-                Switch(
-                    checked = settings.darkTheme,
-                    onCheckedChange = viewModel::updateDarkTheme
-                )
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text("Decimal places: ${settings.roundingDecimals}")
+                    Slider(
+                        value = settings.roundingDecimals.toFloat(),
+                        onValueChange = { viewModel.updateRounding(it.toInt()) },
+                        valueRange = 0f..2f,
+                        steps = 1,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
+                    )
+                }
+            }
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text("Dark theme")
+                    Switch(
+                        checked = settings.darkTheme,
+                        onCheckedChange = viewModel::updateDarkTheme
+                    )
+                }
             }
 
-            TextButton(onClick = onPrivacyPolicy) {
+            OutlinedButton(
+                onClick = onPrivacyPolicy,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text(stringResource(R.string.privacy_policy))
             }
         }

@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file.
 - Reinstate Room auto-migrations up to version 9.
 - Document modules overview in README.
 - Refresh README with build commands and module layout after rebuild.
+- Align Settings screen styling with Revenue screen for consistent Material 3 design.
 
 ## [0.14] - 2025-06-15
 ### Added
