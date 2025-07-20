@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -52,7 +53,7 @@ fun HomeMenuScreen(
                 FloatingActionButton(
                     onClick = onRevenue,
                     containerColor = MaterialTheme.colorScheme.secondary
-                ) { Icon(painterResource(R.drawable.bar_chart), contentDescription = "Revenue") }
+                ) { Icon(Icons.Default.BarChart, contentDescription = "Revenue") }
 
                 // Box for the FAB and its DropdownMenu
                 Box(
