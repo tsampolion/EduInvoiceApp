@@ -40,7 +40,9 @@ Use the Gradle wrapper to build, lint and test the app:
 
 ## Modules overview
 
-- **app** – main Compose application module containing UI, Hilt dependency injection and Room database code.
+- **app** – Compose UI and navigation.
+- **domain** – business logic and use-cases.
+- **data** – Room database, repositories, DataStore.
 
 ## Database migrations
 
