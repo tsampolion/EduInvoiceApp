@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 - In-app privacy policy screen linked from Settings.
 - Provide Hilt modules for DAOs and repositories.
 - Expose domain use-cases and inject them into ViewModels.
+- Split large Compose screens and add design system shapes.
 
 ## [0.14] - 2025-06-15
 ### Added

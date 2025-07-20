@@ -37,7 +37,8 @@ fun LessonScreen(
     studentId: Long?,
     lessonId: Long,
     onNavigateBack: () -> Unit,
-    viewModel: LessonViewModel = hiltViewModel()
+    viewModel: LessonViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -85,7 +86,7 @@ fun LessonScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())

@@ -40,7 +40,8 @@ fun StudentScreen(
     onNavigateBack: () -> Unit,
     onNavigateToLesson: (Long) -> Unit,
     onAddLesson: () -> Unit,
-    viewModel: StudentViewModel = hiltViewModel()
+    viewModel: StudentViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showArchiveDialog by remember { mutableStateOf(false) }
@@ -103,14 +104,14 @@ fun StudentScreen(
                         viewModel.toggleEditMode()
                     }
                 },
-                modifier = Modifier.padding(paddingValues)
+                modifier = modifier.padding(paddingValues)
             )
         } else {
             StudentDetailView(
                 uiState = uiState,
                 viewModel = viewModel,
                 onLessonClick = onNavigateToLesson,
-                modifier = Modifier.padding(paddingValues)
+                modifier = modifier.padding(paddingValues)
             )
         }
     }
@@ -136,6 +137,56 @@ fun StudentScreen(
                 }
             }
         )
+    }
+}
+
+@Composable
+private fun StudentMetricsRow(uiState: StudentUiState, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        MetricCard(
+            label = "This week",
+            amount = uiState.weekEarnings,
+            modifier = Modifier.weight(1f),
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+        MetricCard(
+            label = "This month",
+            amount = uiState.monthEarnings,
+            modifier = Modifier.weight(1f),
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+        )
+        MetricCard(
+            label = "Total",
+            amount = uiState.totalEarnings,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun MetricCard(
+    label: String,
+    amount: Double,
+    modifier: Modifier = Modifier,
+    containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surface
+) {
+    Card(modifier = modifier, colors = CardDefaults.cardColors(containerColor)) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "€%.2f".format(amount),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Text(label, style = MaterialTheme.typography.bodySmall)
+        }
     }
 }
 
@@ -176,75 +227,7 @@ private fun StudentDetailView(
             }
         }
 
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Card(
-                    modifier = Modifier.weight(1f),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "€%.2f".format(uiState.weekEarnings),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "This week",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                }
-                Card(
-                    modifier = Modifier.weight(1f),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "€%.2f".format(uiState.monthEarnings),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "This month",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                }
-                Card(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "€%.2f".format(uiState.totalEarnings),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Total",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                }
-            }
-        }
+        item { StudentMetricsRow(uiState = uiState) }
 
         item {
             Spacer(modifier = Modifier.height(16.dp))
