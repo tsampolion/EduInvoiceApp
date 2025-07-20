@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 - Upgrade to Android Gradle Plugin 8.8.0 and Gradle 8.10.2.
 - Make release signingConfig conditional on keystore properties.
 - Integrate Firebase Crashlytics for runtime crash reporting.
-- Optional Google Sign-In with account persisted in DataStore.
+- Removed Google Sign-In feature and account persistence.
 - In-app privacy policy screen linked from Settings.
 - Provide Hilt modules for DAOs and repositories.
 - Expose domain use-cases and inject them into ViewModels.
