@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Flatten Room migrations; keep only latest schema in data/schemas.
 - Add rebuild walkthrough in `rebuild.md` describing detailed steps.
 - Add domain and data modules for clean architecture foundation.
 - Move Room and repository code into `data` module and business utilities into `domain`.
