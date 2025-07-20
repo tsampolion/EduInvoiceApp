@@ -14,7 +14,13 @@ import gr.tsambala.tutorbilling.data.model.Student
 @Database(
     entities = [Student::class, Lesson::class],
     version = 9, // Current version
-    exportSchema = true
+    exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 5, to = 6, spec = AutoMigration5To6::class),
+        AutoMigration(from = 6, to = 7),
+        AutoMigration(from = 7, to = 8),
+        AutoMigration(from = 8, to = 9)
+    ]
 )
 abstract class TutorBillingDatabase : RoomDatabase() {
     abstract fun studentDao(): StudentDao
