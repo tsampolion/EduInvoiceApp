@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - Split large Compose screens and add design system shapes.
 - Reinstate Room auto-migrations up to version 9.
 - Document modules overview in README.
+- Refresh README with build commands and module layout after rebuild.
 
 ## [0.14] - 2025-06-15
 ### Added

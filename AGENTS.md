@@ -44,9 +44,12 @@ Run these *exact* commands before proposing code changes:
 ## 5. Directory & Naming Conventions
 
 | ------------------------------ | ------------------------------------------------------ |
+| `/app`                         | Android application module |
+| `/domain`                      | Pure Kotlin business logic |
+| `/data`                        | Database and repository layer |
 | `/app/src/main`                | Production code (namespace `gr.tsambala.tutorbilling`) |
-| `/app/src/test`                | JVM unit tests (Robolectric)                           |
-| `/data/schemas`                 | Room JSON schemas (auto-generated; keep under VC)      |
+| `/app/src/test`                | JVM unit tests (Robolectric) |
+| `/data/schemas`                | Room JSON schemas (auto-generated; keep under VC) |
 | `build/`, `.gradle/`, `.idea/` | **Ignored** – see `.gitignore`                         |
 | `local.properties`             | **Ignored** – SDK path, never commit                   |
 | `CHANGELOG.md`                 | Project changelog; update the Unreleased section |
