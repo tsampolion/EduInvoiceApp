@@ -10,7 +10,6 @@ All notable changes to this project will be documented in this file.
 - Fix launcher icon references in the AndroidManifest.
 - Add CI workflow to run clean, assemble, test and lint on every push.
 - Upgrade to Android Gradle Plugin 8.8.0 and Gradle 8.10.2.
-- Enable Play App Signing release builds with keystore placeholders.
 - Make release signingConfig conditional on keystore properties.
 - Integrate Firebase Crashlytics for runtime crash reporting.
 - Optional Google Sign-In with account persisted in DataStore.
