@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file.
 - Document modules overview in README.
 - Refresh README with build commands and module layout after rebuild.
 - Align Settings screen styling with Revenue screen for consistent Material 3 design.
+- Redesign Settings screen with dropdown menus and colourful cards matching Revenue metrics.
 - Apply `primaryContainer` colors to remaining screens' top app bars.
 
 ## [0.14] - 2025-06-15

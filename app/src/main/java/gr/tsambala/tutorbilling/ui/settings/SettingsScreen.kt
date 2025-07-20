@@ -4,10 +4,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -46,51 +46,53 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
-                OutlinedTextField(
-                    value = settings.currencySymbol,
-                    onValueChange = viewModel::updateCurrencySymbol,
-                    label = { Text("Currency symbol") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                )
-            }
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text("Decimal places: ${settings.roundingDecimals}")
-                    Slider(
-                        value = settings.roundingDecimals.toFloat(),
-                        onValueChange = { viewModel.updateRounding(it.toInt()) },
-                        valueRange = 0f..2f,
-                        steps = 1,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 8.dp)
+            SettingCard(containerColor = MaterialTheme.colorScheme.primaryContainer) {
+                var expanded by remember { mutableStateOf(false) }
+                ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+                    OutlinedTextField(
+                        value = settings.currencySymbol,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Currency") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
                     )
+                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        currencies.forEach { (symbol, label) ->
+                            DropdownMenuItem(text = { Text("$symbol - $label") }, onClick = {
+                                viewModel.updateCurrencySymbol(symbol)
+                                expanded = false
+                            })
+                        }
+                    }
                 }
             }
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
+            SettingCard(containerColor = MaterialTheme.colorScheme.secondaryContainer) {
+                var expanded by remember { mutableStateOf(false) }
+                ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+                    OutlinedTextField(
+                        value = settings.roundingDecimals.toString(),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Decimal places") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        listOf(0, 1, 2).forEach { option ->
+                            DropdownMenuItem(text = { Text(option.toString()) }, onClick = {
+                                viewModel.updateRounding(option)
+                                expanded = false
+                            })
+                        }
+                    }
+                }
+            }
+            SettingCard(containerColor = MaterialTheme.colorScheme.tertiaryContainer) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Dark theme")
                     Switch(
@@ -100,12 +102,41 @@ fun SettingsScreen(
                 }
             }
 
-            OutlinedButton(
+            Button(
                 onClick = onPrivacyPolicy,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
             ) {
                 Text(stringResource(R.string.privacy_policy))
             }
         }
     }
 }
+
+@Composable
+private fun SettingCard(
+    containerColor: Color,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = containerColor)
+    ) {
+        Column(Modifier.padding(16.dp), content = content)
+    }
+}
+
+private val currencies = listOf(
+    "€" to "Euros",
+    "$" to "Dollars",
+    "£" to "Pounds",
+    "¥" to "Yen",
+    "₹" to "Rupees",
+    "₽" to "Rubles",
+    "₩" to "Won",
+    "₣" to "Francs",
+    "₺" to "Lira",
+    "₱" to "Pesos"
+)
+
