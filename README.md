@@ -59,7 +59,7 @@ Gradle will pick up these values when assembling the `release` variant.
 
 ## Database migrations
 
-Room is configured with `autoMigrations` for database version upgrades. The generated schema files are stored under `app/schemas` via the `room.schemaLocation` Gradle argument. Manual SQL scripts under `app/src/main/assets/migrations` are no longer required.
+Room is configured with `autoMigrations` for database version upgrades. The generated schema files are stored under `data/schemas` via the `room.schemaLocation` Gradle argument. Manual SQL scripts under `app/src/main/assets/migrations` are no longer required.
 
 ### Updating `AutoMigrationSpec` classes
 
@@ -70,7 +70,7 @@ When you modify an entity schema:
    - Annotate the class with helpers such as `@RenameColumn` or `@DeleteColumn`.
    - Override `onPostMigrate` for SQL statements that Room cannot generate.
 3. Register the spec in the `autoMigrations` array of `TutorBillingDatabase`.
-4. Rebuild the project so that Room outputs the updated JSON schema under `app/schemas`.
+4. Rebuild the project so that Room outputs the updated JSON schema under `data/schemas`.
 
 ## Changelog
 
