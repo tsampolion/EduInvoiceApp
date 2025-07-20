@@ -29,7 +29,8 @@ Running the script once will download the command line tools and create a `local
 
 ## Building the project
 
-Use the Gradle wrapper to build, lint and test the app:
+Use the Gradle wrapper to build, lint and test the app. Run the commands in this
+order so caches and schemas are refreshed correctly:
 
 ```bash
 ./gradlew clean
@@ -39,6 +40,9 @@ Use the Gradle wrapper to build, lint and test the app:
 ```
 
 ## Modules overview
+
+The project is structured as a set of Gradle modules so each layer can be tested
+in isolation:
 
 - **app** – Compose UI and navigation.
 - **domain** – business logic and use-cases.
