@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 - Flatten Room migrations; keep only latest schema in data/schemas.
+- Replace bar chart drawable with `Icons.Default.BarChart` for Revenue FAB.
 - Add student domain tests for insert/update and archive/restore flows.
 - Add rebuild walkthrough in `rebuild.md` describing detailed steps.
 - Add domain and data modules for clean architecture foundation.
@@ -18,12 +19,14 @@ All notable changes to this project will be documented in this file.
 - In-app privacy policy screen linked from Settings.
 - Provide Hilt modules for DAOs and repositories.
 - Expose domain use-cases and inject them into ViewModels.
+- Provide offline Robolectric artifacts and a coroutine MainDispatcherRule for tests.
 - Split large Compose screens and add design system shapes.
 - Reinstate Room auto-migrations up to version 9.
 - Document modules overview in README.
 - Refresh README with build commands and module layout after rebuild.
 - Align Settings screen styling with Revenue screen for consistent Material 3 design.
 - Redesign Settings screen with dropdown menus and colourful cards matching Revenue metrics.
+- Apply `primaryContainer` colors to remaining screens' top app bars.
 
 ## [0.14] - 2025-06-15
 ### Added
