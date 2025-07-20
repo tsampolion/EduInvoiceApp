@@ -104,7 +104,7 @@ class RevenueViewModel @Inject constructor(
 
     fun markLessonsPaid(studentId: Long) {
         viewModelScope.launch {
-            val ids = lessonUseCases.getLessonsByStudentId(studentId)
+            val ids = lessonUseCases.getStudentLessons(studentId)
                 .first()
                 .filter { !it.isPaid }
                 .map { it.id }

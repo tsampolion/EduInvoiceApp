@@ -52,7 +52,7 @@ class StudentViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 studentUseCases.getStudentById(studentId),
-                lessonUseCases.getLessonsByStudentId(studentId)
+                lessonUseCases.getStudentLessons(studentId)
             ) { student, lessons -> student to lessons }
                 .catch { e ->
                     _uiState.update { it.copy(errorMessage = e.message) }

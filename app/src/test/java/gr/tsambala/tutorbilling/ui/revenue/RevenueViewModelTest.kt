@@ -9,13 +9,14 @@ import gr.tsambala.tutorbilling.data.dao.LessonDao
 import gr.tsambala.tutorbilling.domain.lesson.GetAllLessons
 import gr.tsambala.tutorbilling.domain.lesson.DeleteLesson
 import gr.tsambala.tutorbilling.domain.lesson.GetLessonById
-import gr.tsambala.tutorbilling.domain.lesson.GetLessonsByStudentId
+import gr.tsambala.tutorbilling.domain.lesson.GetStudentLessons
 import gr.tsambala.tutorbilling.domain.lesson.GetLessonsWithStudents
 import gr.tsambala.tutorbilling.domain.lesson.GetLessonsWithStudentsByStudentAndDateRange
-import gr.tsambala.tutorbilling.domain.lesson.InsertLesson
+import gr.tsambala.tutorbilling.domain.lesson.AddLesson
 import gr.tsambala.tutorbilling.domain.lesson.LessonUseCases
 import gr.tsambala.tutorbilling.domain.lesson.UpdateLesson
 import gr.tsambala.tutorbilling.domain.lesson.UpdateLessonPaidStatus
+import gr.tsambala.tutorbilling.data.repository.TutorBillingRepository
 import gr.tsambala.tutorbilling.domain.student.StudentUseCases
 import gr.tsambala.tutorbilling.domain.student.GetActiveStudents
 import gr.tsambala.tutorbilling.domain.student.GetArchivedStudents
@@ -48,6 +49,7 @@ class RevenueViewModelTest {
     private val studentDao = FakeStudentDao(studentFlow)
     private val lessonDao = FakeLessonDao(lessonFlow)
     private val studentRepository = StudentRepository(studentDao)
+    private val tutorBillingRepository = TutorBillingRepository(studentDao, lessonDao)
     private val studentUseCases = StudentUseCases(
         getActiveStudents = GetActiveStudents(studentRepository),
         getArchivedStudents = GetArchivedStudents(studentRepository),
@@ -62,11 +64,11 @@ class RevenueViewModelTest {
     private val lessonUseCases = LessonUseCases(
         getAllLessons = GetAllLessons(lessonDao),
         getLessonById = GetLessonById(lessonDao),
-        getLessonsByStudentId = GetLessonsByStudentId(lessonDao),
+        getStudentLessons = GetStudentLessons(tutorBillingRepository),
         getLessonsWithStudents = GetLessonsWithStudents(lessonDao),
         getLessonsWithStudentsByStudentAndDateRange = GetLessonsWithStudentsByStudentAndDateRange(lessonDao),
-        insertLesson = InsertLesson(lessonDao),
-        updateLesson = UpdateLesson(lessonDao),
+        addLesson = AddLesson(tutorBillingRepository),
+        updateLesson = UpdateLesson(tutorBillingRepository),
         deleteLesson = DeleteLesson(lessonDao),
         updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao)
     )

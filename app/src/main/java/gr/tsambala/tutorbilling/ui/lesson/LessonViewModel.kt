@@ -186,7 +186,7 @@ class LessonViewModel @Inject constructor(
                         notes = state.notes.ifBlank { null },
                         isPaid = state.isPaid
                     )
-                    lessonUseCases.insertLesson(lesson)
+                    lessonUseCases.addLesson(lesson)
                 } else {
                     lessonId?.let { lId ->
                         val lesson = Lesson(
