@@ -42,6 +42,9 @@
     <string name="no_lessons_prompt">No lessons yet. Tap + to add a lesson.</string>
     <string name="no_lessons_short">No lessons</string>
     <string name="no_invoices">No invoices found</string>
+    <string name="delete_invoice">Delete Invoice</string>
+    <string name="archive_invoice">Archive Invoice</string>
+    <string name="more_options">More options</string>
     <string name="lessons">Lessons</string>
     <string name="search">Search</string>
     <string name="sort">Sort</string>

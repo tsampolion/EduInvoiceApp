@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
@@ -17,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import gr.tsambala.tutorbilling.utils.archiveInvoice
+import gr.tsambala.tutorbilling.utils.deleteInvoice
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,8 +29,12 @@ fun PastInvoicesScreen(onBack: () -> Unit) {
     val invoicesDir = remember { File(context.filesDir, "invoices") }
     var invoices by remember { mutableStateOf<List<File>>(emptyList()) }
 
-    LaunchedEffect(Unit) {
+    fun refresh() {
         invoices = invoicesDir.listFiles()?.sortedByDescending { it.lastModified() } ?: emptyList()
+    }
+
+    LaunchedEffect(Unit) {
+        refresh()
     }
 
     Scaffold(
@@ -53,6 +60,7 @@ fun PastInvoicesScreen(onBack: () -> Unit) {
         } else {
             LazyColumn(Modifier.fillMaxSize().padding(padding)) {
                 items(invoices) { file ->
+                    var expanded by remember { mutableStateOf(false) }
                     ListItem(
                         headlineContent = { Text(file.name) },
                         modifier = Modifier.clickable {
@@ -62,6 +70,29 @@ fun PastInvoicesScreen(onBack: () -> Unit) {
                                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                             }
                             context.startActivity(intent)
+                        },
+                        trailingContent = {
+                            IconButton(onClick = { expanded = true }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.more_options))
+                            }
+                            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.archive_invoice)) },
+                                    onClick = {
+                                        archiveInvoice(file)
+                                        expanded = false
+                                        refresh()
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.delete_invoice)) },
+                                    onClick = {
+                                        deleteInvoice(file)
+                                        expanded = false
+                                        refresh()
+                                    }
+                                )
+                            }
                         }
                     )
                     HorizontalDivider()
