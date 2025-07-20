@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - Fix launcher icon references in the AndroidManifest.
 - Add CI workflow to run clean, assemble, test and lint on every push.
 - Upgrade to Android Gradle Plugin 8.8.0 and Gradle 8.10.2.
+- Show student surname in all UI lists using `getFullName()` extension.
 - Make release signingConfig conditional on keystore properties.
 - Integrate Firebase Crashlytics for runtime crash reporting.
 - Removed Google Sign-In feature and account persistence.

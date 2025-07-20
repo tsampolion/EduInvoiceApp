@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import gr.tsambala.tutorbilling.R
 import gr.tsambala.tutorbilling.data.model.StudentWithEarnings
+import gr.tsambala.tutorbilling.utils.getFullName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +43,7 @@ fun ArchivedStudentCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = studentWithEarnings.student.name,
+                    text = studentWithEarnings.student.getFullName(),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
