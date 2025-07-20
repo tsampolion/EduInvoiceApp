@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 - Make release signingConfig conditional on keystore properties.
 - Integrate Firebase Crashlytics for runtime crash reporting.
 - Removed Google Sign-In feature and account persistence.
+- Show Classes button highlighted when a valid class exists.
 - In-app privacy policy screen linked from Settings.
 - Provide Hilt modules for DAOs and repositories.
 - Expose domain use-cases and inject them into ViewModels.
