@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import gr.tsambala.tutorbilling.utils.getFullName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,7 +84,7 @@ fun ClassesScreen(
                         }
                         items(students) { student ->
                             Text(
-                                text = student.name,
+                                text = student.getFullName(),
                                 modifier = Modifier
                                     .padding(horizontal = 32.dp, vertical = 8.dp)
                                     .clickable { onStudentClick(student.id) }
@@ -103,7 +104,7 @@ fun ClassesScreen(
                         }
                         items(students) { student ->
                             Text(
-                                text = student.name,
+                                text = student.getFullName(),
                                 modifier = Modifier
                                     .padding(horizontal = 32.dp, vertical = 8.dp)
                                     .clickable { onStudentClick(student.id) }
