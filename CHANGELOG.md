@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - Provide Hilt modules for DAOs and repositories.
 - Expose domain use-cases and inject them into ViewModels.
 - Split large Compose screens and add design system shapes.
+- Reinstate Room auto-migrations up to version 9.
 - Document modules overview in README.
 
 ## [0.14] - 2025-06-15
