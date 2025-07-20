@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Ensure date and time fields in Lesson screen open the appropriate picker when tapped.
 - Flatten Room migrations; keep only latest schema in data/schemas.
 - Replace bar chart drawable with `Icons.Default.BarChart` for Revenue FAB.
 - Add student domain tests for insert/update and archive/restore flows.

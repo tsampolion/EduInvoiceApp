@@ -15,6 +15,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.material3.TimePicker
+import androidx.compose.foundation.clickable
 import gr.tsambala.tutorbilling.ui.components.ClickableReadOnlyField
 import gr.tsambala.tutorbilling.utils.getFullName
 import androidx.compose.runtime.*
@@ -142,11 +143,16 @@ fun LessonScreen(
             val datePickerState = rememberDatePickerState(
                 initialSelectedDateMillis = currentDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
             )
-            ClickableReadOnlyField(
-                value = uiState.date,
-                onClick = { showDatePicker = true },
-                label = { Text("Date") },
-            )
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showDatePicker = true }) {
+                ClickableReadOnlyField(
+                    value = uiState.date,
+                    onClick = { showDatePicker = true },
+                    label = { Text("Date") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             if (showDatePicker) {
                 DatePickerDialog(
                     onDismissRequest = { showDatePicker = false },
@@ -172,11 +178,16 @@ fun LessonScreen(
             val (startHour, startMinute) = uiState.startTime.split(":").mapNotNull { it.toIntOrNull() }
                 .let { if (it.size == 2) it[0] to it[1] else LocalTime.now().hour to LocalTime.now().minute }
             val timePickerState = rememberTimePickerState(startHour, startMinute, true)
-            ClickableReadOnlyField(
-                value = uiState.startTime,
-                onClick = { showTimePicker = true },
-                label = { Text("Start Time") },
-            )
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showTimePicker = true }) {
+                ClickableReadOnlyField(
+                    value = uiState.startTime,
+                    onClick = { showTimePicker = true },
+                    label = { Text("Start Time") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             if (showTimePicker) {
                 AlertDialog(
                     onDismissRequest = { showTimePicker = false },
