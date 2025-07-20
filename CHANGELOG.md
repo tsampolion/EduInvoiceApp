@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 - Flatten Room migrations; keep only latest schema in data/schemas.
 - Add rebuild walkthrough in `rebuild.md` describing detailed steps.
 - Add domain and data modules for clean architecture foundation.
+- Add AddLesson/GetStudentLessons use-cases and Room DAO tests.
 - Move Room and repository code into `data` module and business utilities into `domain`.
 - Fix launcher icon references in the AndroidManifest.
 - Add CI workflow to run clean, assemble, test and lint on every push.

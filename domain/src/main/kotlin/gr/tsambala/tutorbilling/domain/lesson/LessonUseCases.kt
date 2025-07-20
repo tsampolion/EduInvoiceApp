@@ -5,10 +5,10 @@ import javax.inject.Inject
 data class LessonUseCases @Inject constructor(
     val getAllLessons: GetAllLessons,
     val getLessonById: GetLessonById,
-    val getLessonsByStudentId: GetLessonsByStudentId,
+    val getStudentLessons: GetStudentLessons,
     val getLessonsWithStudents: GetLessonsWithStudents,
     val getLessonsWithStudentsByStudentAndDateRange: GetLessonsWithStudentsByStudentAndDateRange,
-    val insertLesson: InsertLesson,
+    val addLesson: AddLesson,
     val updateLesson: UpdateLesson,
     val deleteLesson: DeleteLesson,
     val updateLessonPaidStatus: UpdateLessonPaidStatus
