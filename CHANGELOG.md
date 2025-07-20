@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 - In-app privacy policy screen linked from Settings.
 - Provide Hilt modules for DAOs and repositories.
 - Expose domain use-cases and inject them into ViewModels.
+- Provide offline Robolectric artifacts and a coroutine MainDispatcherRule for tests.
 - Split large Compose screens and add design system shapes.
 - Reinstate Room auto-migrations up to version 9.
 - Document modules overview in README.
