@@ -29,6 +29,8 @@ fun LessonsScreen(
     onBack: () -> Unit,
     onLessonClick: (Long, Long) -> Unit,
     onAddLesson: () -> Unit,
+    onInvoice: (Long?) -> Unit,
+    onPastInvoices: () -> Unit,
     viewModel: LessonsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -82,6 +84,49 @@ fun LessonsScreen(
                 }
             }
         }
+    }
+
+    when (val dialog = uiState.dialog) {
+        is LessonDialog.AlreadyInvoiced -> {
+            AlertDialog(
+                onDismissRequest = { viewModel.dismissDialog() },
+                title = { Text(stringResource(R.string.already_invoiced_title)) },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.applyPaidStatus(dialog.lessonId, dialog.paid) }) {
+                        Text(stringResource(R.string.force_toggle))
+                    }
+                },
+                dismissButton = {
+                    Row {
+                        TextButton(onClick = { onPastInvoices(); viewModel.dismissDialog() }) {
+                            Text(stringResource(R.string.view_past_invoice))
+                        }
+                        TextButton(onClick = { viewModel.dismissDialog() }) {
+                            Text(stringResource(R.string.cancel))
+                        }
+                    }
+                }
+            )
+        }
+        is LessonDialog.GenerateInvoice -> {
+            AlertDialog(
+                onDismissRequest = { viewModel.dismissDialog() },
+                title = { Text(stringResource(R.string.generate_invoice)) },
+                text = { Text(stringResource(R.string.generate_invoice_prompt)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.applyPaidStatus(dialog.lessonId, true)
+                        onInvoice(dialog.studentId)
+                    }) { Text(stringResource(R.string.generate_invoice)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { viewModel.applyPaidStatus(dialog.lessonId, true) }) {
+                        Text(stringResource(R.string.cancel))
+                    }
+                }
+            )
+        }
+        null -> {}
     }
 }
 

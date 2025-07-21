@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Add domain and data modules for clean architecture foundation.
 - Add AddLesson/GetStudentLessons use-cases and Room DAO tests.
 - Move Room and repository code into `data` module and business utilities into `domain`.
+- Track invoicing state on lessons and prompt when toggling paid status.
 - Fix launcher icon references in the AndroidManifest.
 - Add CI workflow to run clean, assemble, test and lint on every push.
 - Upgrade to Android Gradle Plugin 8.8.0 and Gradle 8.10.2.
