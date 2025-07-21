@@ -31,7 +31,17 @@ class LessonViewModel @Inject constructor(
     private val studentId: Long? = savedStateHandle.get<Long>("studentId")
     private val lessonId: Long? = savedStateHandle.get<Long>("lessonId")
 
-    private val _uiState = MutableStateFlow(LessonUiState())
+    private fun initialState(): LessonUiState {
+        val nowDate = LocalDate.now().format(dateFormatter)
+        val nowTime = LocalTime.now().withSecond(0).withNano(0).format(timeFormatter)
+        return if (lessonId == null || lessonId == 0L) {
+            LessonUiState(date = nowDate, startTime = nowTime)
+        } else {
+            LessonUiState()
+        }
+    }
+
+    private val _uiState = MutableStateFlow(initialState())
     val uiState: StateFlow<LessonUiState> = _uiState.asStateFlow()
 
     // Navigation callback
@@ -45,14 +55,6 @@ class LessonViewModel @Inject constructor(
         loadStudentInfo()
         if (lessonId != null && lessonId != 0L) {
             loadLesson()
-        } else {
-            // Set default values for new lesson
-            _uiState.update {
-                it.copy(
-                    date = LocalDate.now().format(dateFormatter),
-                    startTime = LocalTime.now().withSecond(0).withNano(0).format(timeFormatter)
-                )
-            }
         }
     }
 

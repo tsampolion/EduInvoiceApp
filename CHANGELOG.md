@@ -2,8 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.15] - 2025-07-21
+### Added
 - Introduce per-pull-request version bump policy; each PR increments the project version.
+- Replace `+=` updates on MutableStateFlows in unit tests for clarity.
 - Ensure date and time fields in Lesson screen open the appropriate picker when tapped.
 - Flatten Room migrations; keep only latest schema in data/schemas.
 - Replace bar chart drawable with `Icons.Default.BarChart` for Revenue FAB.
@@ -14,6 +16,7 @@ All notable changes to this project will be documented in this file.
 - Add context menu actions to delete or archive past invoices.
 - Add domain and data modules for clean architecture foundation.
 - Add AddLesson/GetStudentLessons use-cases and Room DAO tests.
+* Add logging for lesson pickers and provide date/time defaults in LessonViewModel.
 - Move Room and repository code into `data` module and business utilities into `domain`.
 - Reintroduce LessonsViewModel.updatePaid tests for invoicing prompts.
 - Track invoicing state on lessons and prompt when toggling paid status.
@@ -38,6 +41,7 @@ All notable changes to this project will be documented in this file.
 - Align Settings screen styling with Revenue screen for consistent Material 3 design.
 - Redesign Settings screen with dropdown menus and colourful cards matching Revenue metrics.
 - Apply `primaryContainer` colors to remaining screens' top app bars.
+- Refine parent's mobile validation to require digits only.
 
 ## [0.14] - 2025-06-15
 ### Added
