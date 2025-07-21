@@ -89,7 +89,7 @@ class LessonsScreenTest {
         assertTrue(clicked)
         composeRule.onAllNodes(isToggleable())[0].performClick()
         advanceUntilIdle()
-        assertTrue(vm.uiState.value.lessons[1L]!!.first().lesson.isPaid)
+        assertTrue(vm.uiState.value.lessons.first().lesson.isPaid)
     }
 
     class FakeStudentDao : StudentDao {
