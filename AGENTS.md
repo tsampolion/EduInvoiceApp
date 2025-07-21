@@ -65,7 +65,7 @@ Run these *exact* commands before proposing code changes:
 ```
 
 Checklist:
-* [ ] `CHANGELOG.md` updated
+* [ ] Version bumped and `CHANGELOG.md` updated
 
 * [ ] Unit tests passing
 * [ ] Lint shows **0** new warnings
@@ -81,7 +81,7 @@ Checklist:
 5. **Robolectric memory leaks** – never keep global state in test classes; use `@Config` with `sdk = 34`.
 
 ## 8. Changelog
-Update `CHANGELOG.md` under the repository root with a bullet for each pull request under the **Unreleased** section.
+Update `CHANGELOG.md` under the repository root with a bullet for each pull request under the **Unreleased** section and bump the version before merging.
 
 ---
 
