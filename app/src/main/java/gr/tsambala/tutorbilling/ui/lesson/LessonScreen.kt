@@ -290,9 +290,6 @@ fun LessonScreen(
                 Button(
                     onClick = {
                         viewModel.saveLesson()
-                        if (lessonId == 0L) {
-                            onNavigateBack()
-                        }
                     },
                     modifier = Modifier.weight(1f),
                     enabled = viewModel.isFormValid()

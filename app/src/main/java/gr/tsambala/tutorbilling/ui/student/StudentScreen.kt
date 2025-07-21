@@ -56,7 +56,7 @@ fun StudentScreen(
                 title = when {
                     uiState.isEditMode && viewModel.studentId == 0L -> "Add Student"
                     uiState.isEditMode -> "Edit Student"
-                    else -> uiState.name
+                    else -> "${uiState.name} ${uiState.surname}".trim()
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -89,9 +89,6 @@ fun StudentScreen(
                 viewModel = viewModel,
                 onSave = {
                     viewModel.saveStudent()
-                    if (viewModel.studentId == 0L) {
-                        onNavigateBack()
-                    }
                 },
                 onCancel = {
                     if (viewModel.studentId == 0L) {
@@ -188,7 +185,7 @@ private fun StudentDetailView(
                     modifier = Modifier.padding(Dimensions.PaddingMedium)
                 ) {
                     Text(
-                        text = uiState.name,
+                        text = "${uiState.name} ${uiState.surname}".trim(),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     )

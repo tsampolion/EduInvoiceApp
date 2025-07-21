@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.19] - 2025-07-24
+### Fixed
+- Prevent double navigation when saving new students or lessons.
+- Display full student name in headers without extra spaces.
+
 ## [0.18] - 2025-07-23
 ### Changed
 - Date and time fields in Lesson screen are now directly clickable to open their pickers.
