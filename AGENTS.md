@@ -52,7 +52,7 @@ Run these *exact* commands before proposing code changes:
 | `/data/schemas`                | Room JSON schemas (auto-generated; keep under VC) |
 | `build/`, `.gradle/`, `.idea/` | **Ignored** – see `.gitignore`                         |
 | `local.properties`             | **Ignored** – SDK path, never commit                   |
-| `CHANGELOG.md`                 | Project changelog; update the Unreleased section |
+| `CHANGELOG.md`                 | Project changelog; start a new versioned section for each pull request |
 
 ## 6. Pull-Request Messaging Template
 
@@ -65,7 +65,7 @@ Run these *exact* commands before proposing code changes:
 ```
 
 Checklist:
-* [ ] `CHANGELOG.md` updated
+* [ ] Version bumped and `CHANGELOG.md` updated
 
 * [ ] Unit tests passing
 * [ ] Lint shows **0** new warnings
@@ -81,7 +81,7 @@ Checklist:
 5. **Robolectric memory leaks** – never keep global state in test classes; use `@Config` with `sdk = 34`.
 
 ## 8. Changelog
-Update `CHANGELOG.md` under the repository root with a bullet for each pull request under the **Unreleased** section.
+Update `CHANGELOG.md` by creating a new `[0.x]` section dated for your pull request. Bump `versionName` in `app/build.gradle` to match (current version is `0.16`).
 
 ---
 

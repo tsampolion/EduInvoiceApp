@@ -79,7 +79,7 @@ All tests and lint checks must pass before committing.
 
 1. Update `README.md` to reflect the new module layout and the build commands above.
 2. Document any additional project rules in `AGENTS.md` if required.
-3. Mention this rebuild guide in `CHANGELOG.md` under the **Unreleased** section.
+3. Mention this rebuild guide in `CHANGELOG.md` under the appropriate version entry.
 
 ## 9. Final verification
 
