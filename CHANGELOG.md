@@ -38,6 +38,7 @@ All notable changes to this project will be documented in this file.
 - Align Settings screen styling with Revenue screen for consistent Material 3 design.
 - Redesign Settings screen with dropdown menus and colourful cards matching Revenue metrics.
 - Apply `primaryContainer` colors to remaining screens' top app bars.
+- Refine parent's mobile validation to require digits only.
 
 ## [0.14] - 2025-06-15
 ### Added
