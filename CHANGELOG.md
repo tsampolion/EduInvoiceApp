@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 - Add context menu actions to delete or archive past invoices.
 - Add domain and data modules for clean architecture foundation.
 - Add AddLesson/GetStudentLessons use-cases and Room DAO tests.
+* Add logging for lesson pickers and provide date/time defaults in LessonViewModel.
 - Move Room and repository code into `data` module and business utilities into `domain`.
 - Reintroduce LessonsViewModel.updatePaid tests for invoicing prompts.
 - Track invoicing state on lessons and prompt when toggling paid status.
