@@ -7,6 +7,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
+import gr.tsambala.tutorbilling.ui.design.AppColors
+import gr.tsambala.tutorbilling.ui.design.Dimensions
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -34,19 +36,13 @@ fun HomeMenuScreen(
     var showFabMenu by remember { mutableStateOf(false) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val studentsColor = if (uiState.studentCount > 0)
-        MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
-    val classesColor = if (uiState.classCount > 0)
-        MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.secondaryContainer
-    val lessonsColor = if (uiState.lessonCount > 0)
-        MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.tertiaryContainer
 
     Scaffold(
         bottomBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(Dimensions.PaddingMedium),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically // Added for better alignment
             ) {
@@ -95,7 +91,7 @@ fun HomeMenuScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 32.dp, vertical = 16.dp),
+                .padding(horizontal = 32.dp, vertical = Dimensions.PaddingMedium),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(32.dp))
@@ -110,23 +106,23 @@ fun HomeMenuScreen(
             )
             Spacer(modifier = Modifier.weight(1f))
             Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
                     onClick = onNavigateToStudent,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = studentsColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryContainer)
                 ) { Text("Students") }
                 Button(
                     onClick = onClassesClick,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = classesColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.secondaryContainer)
                 ) { Text("Classes") }
                 Button(
                     onClick = onNavigateToLesson,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = lessonsColor)
+                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.tertiaryContainer)
                 ) { Text("Lessons") }
             }
             Spacer(modifier = Modifier.weight(1f))

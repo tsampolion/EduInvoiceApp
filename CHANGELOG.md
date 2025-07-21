@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.17] - 2025-07-22
+### Changed
+- Unified theme utilities and replaced per-screen colors.
 ## [0.16] - 2025-07-21
 ### Added
 - Introduce per-pull-request version bump policy; each PR increments the project version.

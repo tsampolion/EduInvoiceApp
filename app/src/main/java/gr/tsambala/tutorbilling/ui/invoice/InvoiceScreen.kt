@@ -9,6 +9,9 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
+import gr.tsambala.tutorbilling.ui.design.AppColors
+import gr.tsambala.tutorbilling.ui.design.AppTopBar
+import gr.tsambala.tutorbilling.ui.design.Dimensions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.rememberDatePickerState
@@ -59,24 +62,20 @@ fun InvoiceScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Invoice") },
+            AppTopBar(
+                title = "Invoice",
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
+                }
             )
         },
         bottomBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(Dimensions.PaddingMedium),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) { Text("Back") }
@@ -88,7 +87,7 @@ fun InvoiceScreen(
             }
         }
     ) { padding ->
-        Column(Modifier.padding(padding).padding(16.dp)) {
+        Column(Modifier.padding(padding).padding(Dimensions.PaddingMedium)) {
             StudentDropdown(students, selectedStudentId, onSelect = viewModel::selectStudent)
             DateField("Start", startDate) { date -> viewModel.updateStartDate(date) }
             DateField("End", endDate) { date -> viewModel.updateEndDate(date) }

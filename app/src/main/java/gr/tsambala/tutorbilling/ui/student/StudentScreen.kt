@@ -48,15 +48,11 @@ fun StudentScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = when {
-                            uiState.isEditMode && viewModel.studentId == 0L -> "Add Student"
-                            uiState.isEditMode -> "Edit Student"
-                            else -> uiState.name
-                        }
-                    )
+            AppTopBar(
+                title = when {
+                    uiState.isEditMode && viewModel.studentId == 0L -> "Add Student"
+                    uiState.isEditMode -> "Edit Student"
+                    else -> uiState.name
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
@@ -72,11 +68,7 @@ fun StudentScreen(
                             Icon(Icons.Default.Archive, contentDescription = stringResource(R.string.archive))
                         }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                }
             )
         },
         floatingActionButton = {
@@ -145,48 +137,26 @@ private fun StudentMetricsRow(uiState: StudentUiState, modifier: Modifier = Modi
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = Dimensions.PaddingMedium),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         MetricCard(
             label = "This week",
-            amount = uiState.weekEarnings,
+            value = "€%.2f".format(uiState.weekEarnings),
             modifier = Modifier.weight(1f),
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
+            containerColor = AppColors.successContainer
         )
         MetricCard(
             label = "This month",
-            amount = uiState.monthEarnings,
+            value = "€%.2f".format(uiState.monthEarnings),
             modifier = Modifier.weight(1f),
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+            containerColor = AppColors.tertiaryContainer
         )
         MetricCard(
             label = "Total",
-            amount = uiState.totalEarnings,
+            value = "€%.2f".format(uiState.totalEarnings),
             modifier = Modifier.weight(1f)
         )
-    }
-}
-
-@Composable
-private fun MetricCard(
-    label: String,
-    amount: Double,
-    modifier: Modifier = Modifier,
-    containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surface
-) {
-    Card(modifier = modifier, colors = CardDefaults.cardColors(containerColor)) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "€%.2f".format(amount),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Text(label, style = MaterialTheme.typography.bodySmall)
-        }
     }
 }
 
@@ -205,13 +175,13 @@ private fun StudentDetailView(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(Dimensions.PaddingMedium),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(Dimensions.PaddingMedium)
                 ) {
                     Text(
                         text = uiState.name,
@@ -235,7 +205,7 @@ private fun StudentDetailView(
                 text = "Lessons",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
             )
             HorizontalDivider()
         }
@@ -295,7 +265,7 @@ private fun LessonCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(Dimensions.PaddingMedium),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -378,8 +348,8 @@ private fun StudentEditForm(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .imePadding()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(Dimensions.PaddingMedium),
+        verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
     ) {
         OutlinedTextField(
             value = uiState.name,

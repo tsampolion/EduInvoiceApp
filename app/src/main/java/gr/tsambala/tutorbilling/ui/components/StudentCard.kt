@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import gr.tsambala.tutorbilling.ui.design.Dimensions
 import androidx.compose.ui.res.stringResource
 import gr.tsambala.tutorbilling.R
 import gr.tsambala.tutorbilling.data.model.StudentWithEarnings
@@ -36,7 +37,7 @@ fun StudentCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(Dimensions.PaddingMedium),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(

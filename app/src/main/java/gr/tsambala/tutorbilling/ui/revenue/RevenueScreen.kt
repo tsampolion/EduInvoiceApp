@@ -6,6 +6,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
+import gr.tsambala.tutorbilling.ui.design.AppColors
+import gr.tsambala.tutorbilling.ui.design.AppTopBar
+import gr.tsambala.tutorbilling.ui.design.Dimensions
+import gr.tsambala.tutorbilling.ui.design.MetricCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,17 +37,13 @@ fun RevenueScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Revenue") },
+            AppTopBar(
+                title = "Revenue",
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                }
             )
         }
     ) { padding ->
@@ -51,39 +51,39 @@ fun RevenueScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(Dimensions.PaddingMedium),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                MetricTile(
+                MetricCard(
                     label = "Daily",
                     value = uiState.dailyRevenue.formatAsCurrency(
                         settings.currencySymbol,
                         settings.roundingDecimals
                     ),
                     modifier = Modifier.weight(1f),
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                    containerColor = AppColors.primaryContainer
                 )
-                MetricTile(
+                MetricCard(
                     label = "Weekly",
                     value = uiState.weeklyRevenue.formatAsCurrency(
                         settings.currencySymbol,
                         settings.roundingDecimals
                     ),
                     modifier = Modifier.weight(1f),
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    containerColor = AppColors.successContainer
                 )
-                MetricTile(
+                MetricCard(
                     label = "Monthly",
                     value = uiState.monthlyRevenue.formatAsCurrency(
                         settings.currencySymbol,
                         settings.roundingDecimals
                     ),
                     modifier = Modifier.weight(1f),
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                    containerColor = AppColors.tertiaryContainer
                 )
             }
 
@@ -91,29 +91,29 @@ fun RevenueScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                MetricTile(
+                MetricCard(
                     label = "Unpaid",
                     value = uiState.monthlyUnpaid.formatAsCurrency(
                         settings.currencySymbol,
                         settings.roundingDecimals
                     ),
                     modifier = Modifier.weight(1f),
-                    containerColor = MaterialTheme.colorScheme.errorContainer
+                    containerColor = AppColors.errorContainer
                 )
-                MetricTile(
+                MetricCard(
                     label = "Paid",
                     value = uiState.monthlyPaid.formatAsCurrency(
                         settings.currencySymbol,
                         settings.roundingDecimals
                     ),
                     modifier = Modifier.weight(1f),
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    containerColor = AppColors.successContainer
                 )
             }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
@@ -145,20 +145,6 @@ fun RevenueScreen(
     }
 }
 
-@Composable
-private fun MetricTile(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier,
-    containerColor: androidx.compose.ui.graphics.Color
-) {
-    Card(modifier = modifier, colors = CardDefaults.cardColors(containerColor = containerColor)) {
-        Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(label, style = MaterialTheme.typography.labelSmall)
-            Text(value, style = MaterialTheme.typography.titleMedium)
-        }
-    }
-}
 
 @Composable
 private fun StudentDebtRow(
@@ -169,7 +155,7 @@ private fun StudentDebtRow(
 ) {
     val context = LocalContext.current
     Card(modifier = modifier) {
-        Column(Modifier.padding(16.dp)) {
+        Column(Modifier.padding(Dimensions.PaddingMedium)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
