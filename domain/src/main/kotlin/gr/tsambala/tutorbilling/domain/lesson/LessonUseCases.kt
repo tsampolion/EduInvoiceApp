@@ -9,6 +9,7 @@ data class LessonUseCases @Inject constructor(
     val getLessonsWithStudents: GetLessonsWithStudents,
     val getLessonsWithStudentsByStudentAndDateRange: GetLessonsWithStudentsByStudentAndDateRange,
     val addLesson: AddLesson,
+    val addGroupLesson: AddGroupLesson,
     val updateLesson: UpdateLesson,
     val deleteLesson: DeleteLesson,
     val updateLessonPaidStatus: UpdateLessonPaidStatus,

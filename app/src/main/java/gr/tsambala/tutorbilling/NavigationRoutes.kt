@@ -21,4 +21,8 @@ sealed class Screen(val route: String) {
     object Settings : Screen("settings")
     object PrivacyPolicy : Screen("privacyPolicy")
     object ArchivedStudents : Screen("archivedStudents")
+    object Groups : Screen("groups")
+    object Group : Screen("group/{groupId}") {
+        fun createRoute(groupId: Long) = "group/$groupId"
+    }
 }
