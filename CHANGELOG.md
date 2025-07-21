@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 - Bump version to 0.7 and integrate latest Google Services plugin and Crashlytics library.
+- Add LessonScreen Compose tests for date and time pickers.
 
 ## [0.15] - 2025-07-21
 ### Added
