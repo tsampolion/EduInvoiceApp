@@ -65,4 +65,7 @@ When you modify an entity schema:
 
 ## Changelog
 
-A high level summary of changes lives in [`CHANGELOG.md`](CHANGELOG.md). Update the **Unreleased** section with a bullet point when opening a pull request.
+A high level summary of changes lives in [`CHANGELOG.md`](CHANGELOG.md).
+This project is still unreleased, so each pull request should bump the
+version to the next `0.x` value before merge and add a bullet to the
+**Unreleased** section describing the change.
