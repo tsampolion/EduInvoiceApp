@@ -43,6 +43,12 @@ interface LessonDao {
     @Query("UPDATE lessons SET isPaid = :paid WHERE id IN (:ids)")
     suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean)
 
+    @Query("UPDATE lessons SET isInvoiced = :invoiced WHERE id IN (:ids)")
+    suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean)
+
+    @Query("SELECT isInvoiced FROM lessons WHERE id = :lessonId")
+    fun isLessonInvoiced(lessonId: Long): Flow<Boolean?>
+
     @Transaction
     @Query(
         """
@@ -53,6 +59,7 @@ interface LessonDao {
                lessons.durationMinutes AS lesson_durationMinutes,
                lessons.notes AS lesson_notes,
                lessons.isPaid AS lesson_isPaid,
+               lessons.isInvoiced AS lesson_isInvoiced,
                students.id AS student_id,
                students.name AS student_name,
                students.surname AS student_surname,
@@ -78,6 +85,7 @@ interface LessonDao {
                lessons.durationMinutes AS lesson_durationMinutes,
                lessons.notes AS lesson_notes,
                lessons.isPaid AS lesson_isPaid,
+               lessons.isInvoiced AS lesson_isInvoiced,
                students.id AS student_id,
                students.name AS student_name,
                students.surname AS student_surname,
@@ -104,6 +112,7 @@ interface LessonDao {
                lessons.durationMinutes AS lesson_durationMinutes,
                lessons.notes AS lesson_notes,
                lessons.isPaid AS lesson_isPaid,
+               lessons.isInvoiced AS lesson_isInvoiced,
                students.id AS student_id,
                students.name AS student_name,
                students.surname AS student_surname,
@@ -130,6 +139,7 @@ interface LessonDao {
                lessons.durationMinutes AS lesson_durationMinutes,
                lessons.notes AS lesson_notes,
                lessons.isPaid AS lesson_isPaid,
+               lessons.isInvoiced AS lesson_isInvoiced,
                students.id AS student_id,
                students.name AS student_name,
                students.surname AS student_surname,

@@ -63,9 +63,9 @@ fun TutorBillingApp() {
                         Screen.Lesson.createRoute(lessonId, studentId)
                     )
                 },
-                onAddLesson = {
-                    navController.navigate(Screen.Lesson.createRoute(0))
-                }
+                onAddLesson = { navController.navigate(Screen.Lesson.createRoute(0)) },
+                onInvoice = { id -> navController.navigate(Screen.Invoice.createRoute(id)) },
+                onPastInvoices = { navController.navigate(Screen.PastInvoices.route) }
             )
         }
 
