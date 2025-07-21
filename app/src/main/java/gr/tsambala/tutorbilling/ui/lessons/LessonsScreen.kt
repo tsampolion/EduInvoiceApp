@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -72,13 +73,30 @@ fun LessonsScreen(
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                items(uiState.lessons, key = { it.lesson.id }) { item ->
-                    LessonItem(
-                        lessonWithStudent = item,
-                        onClick = { onLessonClick(item.student.id, item.lesson.id) },
-                        onPaidChange = { viewModel.updatePaid(item.lesson.id, it) }
-                    )
-                    HorizontalDivider()
+                uiState.lessons.forEach { (studentId, lessons) ->
+                    val studentName = lessons.first().student.getFullName()
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                                .testTag("header_${'$'}studentId")
+                        ) {
+                            Text(
+                                text = studentName,
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                    }
+                    items(lessons, key = { it.lesson.id }) { item ->
+                        LessonItem(
+                            lessonWithStudent = item,
+                            onClick = { onLessonClick(item.student.id, item.lesson.id) },
+                            onPaidChange = { viewModel.updatePaid(item.lesson.id, it) }
+                        )
+                        HorizontalDivider()
+                    }
                 }
             }
         }

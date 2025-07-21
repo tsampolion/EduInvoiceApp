@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - Replace bar chart drawable with `Icons.Default.BarChart` for Revenue FAB.
 - Add student domain tests for insert/update and archive/restore flows.
 - Add rebuild walkthrough in `rebuild.md` describing detailed steps.
+- Group lessons by student in Lessons screen with headers.
 - Add context menu actions to delete or archive past invoices.
 - Add domain and data modules for clean architecture foundation.
 - Add AddLesson/GetStudentLessons use-cases and Room DAO tests.
