@@ -17,6 +17,8 @@ import gr.tsambala.tutorbilling.ui.revenue.RevenueScreen
 import gr.tsambala.tutorbilling.ui.invoice.InvoiceScreen
 import gr.tsambala.tutorbilling.ui.invoice.PastInvoicesScreen
 import gr.tsambala.tutorbilling.ui.invoice.InvoiceViewModel
+import gr.tsambala.tutorbilling.ui.groups.GroupsScreen
+import gr.tsambala.tutorbilling.ui.groups.GroupScreen
 import gr.tsambala.tutorbilling.ui.settings.SettingsScreen
 import gr.tsambala.tutorbilling.ui.settings.PrivacyPolicyScreen
 import gr.tsambala.tutorbilling.navigation.studentGraph

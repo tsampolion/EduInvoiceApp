@@ -10,6 +10,7 @@ import gr.tsambala.tutorbilling.data.repository.TutorBillingRepository
 import gr.tsambala.tutorbilling.data.repository.GroupRepository
 import gr.tsambala.tutorbilling.domain.lesson.*
 import gr.tsambala.tutorbilling.domain.student.*
+import gr.tsambala.tutorbilling.domain.group.*
 import javax.inject.Singleton
 
 @Module
