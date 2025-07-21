@@ -30,6 +30,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.tsambala.tutorbilling.data.model.RateTypes
 import gr.tsambala.tutorbilling.data.model.Lesson
 import gr.tsambala.tutorbilling.utils.ClassOptions
+import gr.tsambala.tutorbilling.ui.design.AppTopBar
+import gr.tsambala.tutorbilling.ui.design.Dimensions
+import gr.tsambala.tutorbilling.ui.design.AppColors
+import gr.tsambala.tutorbilling.ui.design.MetricCard
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
