@@ -148,8 +148,6 @@ class StudentViewModel @Inject constructor(
         val state = _uiState.value
         val rate = state.rate.toDoubleOrNull()?.takeIf { it > 0 } ?: return
 
-        if (state.parentMobile.length != 10) return
-
         if (state.parentEmail.isNotBlank() &&
             !Patterns.EMAIL_ADDRESS.matcher(state.parentEmail).matches()) {
             return
@@ -166,12 +164,13 @@ class StudentViewModel @Inject constructor(
                     }
                     return@launch
                 }
+                val mobile = if (state.parentMobile.length == 10) state.parentMobile else ""
                 val student = if (studentId > 0) {
                     Student(
                         id = studentId,
                         name = state.name,
                         surname = state.surname,
-                        parentMobile = state.parentMobile,
+                        parentMobile = mobile,
                         parentEmail = state.parentEmail.ifBlank { null },
                         className = className,
                         rate = rate,
@@ -182,7 +181,7 @@ class StudentViewModel @Inject constructor(
                     Student(
                         name = state.name,
                         surname = state.surname,
-                        parentMobile = state.parentMobile,
+                        parentMobile = mobile,
                         parentEmail = state.parentEmail.ifBlank { null },
                         className = className,
                         rate = rate,

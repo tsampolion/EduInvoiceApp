@@ -62,6 +62,9 @@
     <string name="validation_error_empty_name">Please enter a student name</string>
     <string name="validation_error_invalid_rate">Please enter a valid rate</string>
     <string name="validation_error_invalid_duration">Please enter a valid duration</string>
+    <string name="contact_details_missing_title">No Contact Details</string>
+    <string name="contact_details_missing_message">This student has no phone number or email. Continue anyway?</string>
+    <string name="proceed">Proceed</string>
     <string name="app_logo_desc">App logo</string>
 
     <!-- Privacy policy -->
