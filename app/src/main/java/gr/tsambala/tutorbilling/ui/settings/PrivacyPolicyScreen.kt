@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
+import gr.tsambala.tutorbilling.ui.design.AppTopBar
+import gr.tsambala.tutorbilling.ui.design.Dimensions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -19,17 +21,13 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.privacy_policy)) },
+            AppTopBar(
+                title = stringResource(R.string.privacy_policy),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
+                }
             )
         }
     ) { padding ->
@@ -37,8 +35,8 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(Dimensions.PaddingMedium),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
             Text(stringResource(R.string.privacy_policy_text))
             val url = stringResource(R.string.privacy_policy_url)

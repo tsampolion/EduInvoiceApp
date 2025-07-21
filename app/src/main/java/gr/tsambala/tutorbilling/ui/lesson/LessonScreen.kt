@@ -11,6 +11,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
+import gr.tsambala.tutorbilling.ui.design.AppColors
+import gr.tsambala.tutorbilling.ui.design.AppTopBar
+import gr.tsambala.tutorbilling.ui.design.Dimensions
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.DatePicker
@@ -46,12 +49,8 @@ fun LessonScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = if (lessonId == 0L) "Add Lesson" else "Edit Lesson"
-                    )
-                },
+            AppTopBar(
+                title = if (lessonId == 0L) "Add Lesson" else "Edit Lesson",
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -83,11 +82,7 @@ fun LessonScreen(
                             }
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
+                }
             )
         }
     ) { paddingValues ->
@@ -97,8 +92,8 @@ fun LessonScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
                 .imePadding()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(Dimensions.PaddingMedium),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
             // Student picker
             var expanded by remember { mutableStateOf(false) }
@@ -260,7 +255,7 @@ fun LessonScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(Dimensions.PaddingMedium),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {

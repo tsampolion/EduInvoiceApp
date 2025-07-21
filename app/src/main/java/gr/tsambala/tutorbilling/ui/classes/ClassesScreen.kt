@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
+import gr.tsambala.tutorbilling.ui.design.AppTopBar
+import gr.tsambala.tutorbilling.ui.design.Dimensions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -37,17 +39,13 @@ fun ClassesScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
-            TopAppBar(
-                title = { Text("Classes") },
+            AppTopBar(
+                title = "Classes",
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                }
             )
         }
     ) { padding ->
@@ -78,7 +76,7 @@ fun ClassesScreen(
                             Text(
                                 text = className,
                                 style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(16.dp)
+                                modifier = Modifier.padding(Dimensions.PaddingMedium)
                             )
                             HorizontalDivider()
                         }
@@ -98,7 +96,7 @@ fun ClassesScreen(
                             Text(
                                 text = "Unassigned",
                                 style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(16.dp)
+                                modifier = Modifier.padding(Dimensions.PaddingMedium)
                             )
                             HorizontalDivider()
                         }

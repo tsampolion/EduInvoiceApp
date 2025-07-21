@@ -8,6 +8,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
+import gr.tsambala.tutorbilling.ui.design.AppColors
+import gr.tsambala.tutorbilling.ui.design.AppTopBar
+import gr.tsambala.tutorbilling.ui.design.Dimensions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,17 +41,13 @@ fun LessonsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Lessons") },
+            AppTopBar(
+                title = "Lessons",
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                }
             )
         },
         floatingActionButton = {
@@ -92,7 +91,7 @@ fun LessonsScreen(
                             Text(
                                 text = studentName,
                                 style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(16.dp)
+                                modifier = Modifier.padding(Dimensions.PaddingMedium)
                             )
                         }
                     }
@@ -173,7 +172,7 @@ private fun LessonItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(Dimensions.PaddingMedium),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {

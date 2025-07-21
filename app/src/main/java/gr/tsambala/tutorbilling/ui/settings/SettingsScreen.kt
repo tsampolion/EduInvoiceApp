@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
+import gr.tsambala.tutorbilling.ui.design.AppColors
+import gr.tsambala.tutorbilling.ui.design.AppTopBar
+import gr.tsambala.tutorbilling.ui.design.Dimensions
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -25,17 +28,13 @@ fun SettingsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            AppTopBar(
+                title = "Settings",
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                },
-                title = { Text("Settings") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                }
             )
         }
     ) { padding ->
@@ -43,8 +42,8 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(Dimensions.PaddingMedium),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
             SettingCard(containerColor = MaterialTheme.colorScheme.primaryContainer) {
                 var expanded by remember { mutableStateOf(false) }
@@ -123,7 +122,7 @@ private fun SettingCard(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
-        Column(Modifier.padding(16.dp), content = content)
+        Column(Modifier.padding(Dimensions.PaddingMedium), content = content)
     }
 }
 
