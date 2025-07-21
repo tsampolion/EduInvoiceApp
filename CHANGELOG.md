@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+- Bump version to 0.7 and integrate latest Google Services plugin and Crashlytics library.
+
 ## [0.15] - 2025-07-21
 ### Added
 - Introduce per-pull-request version bump policy; each PR increments the project version.
