@@ -17,6 +17,8 @@ import gr.tsambala.tutorbilling.ui.revenue.RevenueScreen
 import gr.tsambala.tutorbilling.ui.invoice.InvoiceScreen
 import gr.tsambala.tutorbilling.ui.invoice.PastInvoicesScreen
 import gr.tsambala.tutorbilling.ui.invoice.InvoiceViewModel
+import gr.tsambala.tutorbilling.ui.groups.GroupsScreen
+import gr.tsambala.tutorbilling.ui.groups.GroupScreen
 import gr.tsambala.tutorbilling.ui.settings.SettingsScreen
 import gr.tsambala.tutorbilling.ui.settings.PrivacyPolicyScreen
 import gr.tsambala.tutorbilling.navigation.studentGraph
@@ -35,6 +37,7 @@ fun TutorBillingApp() {
                 onNavigateToStudent = { navController.navigate(Screen.Students.route) },
                 onClassesClick = { navController.navigate(Screen.Classes.route) },
                 onNavigateToLesson = { navController.navigate(Screen.Lessons.route) },
+                onNavigateToGroups = { navController.navigate(Screen.Groups.route) },
                 onNavigateToNewStudent = { navController.navigate(Screen.Student.createRoute(0)) },
                 onNavigateToNewLesson = { navController.navigate(Screen.Lesson.createRoute(0)) },
                 onRevenue = { navController.navigate(Screen.Revenue.route) },
@@ -43,6 +46,21 @@ fun TutorBillingApp() {
         }
 
         studentGraph(navController)
+
+        composable(Screen.Groups.route) {
+            GroupsScreen(
+                onBack = { navController.popBackStack() },
+                onGroupClick = { id -> navController.navigate(Screen.Group.createRoute(id)) },
+                onAddGroup = { navController.navigate(Screen.Group.createRoute(0)) }
+            )
+        }
+
+        composable(
+            route = Screen.Group.route,
+            arguments = listOf(navArgument("groupId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            GroupScreen(onBack = { navController.popBackStack() })
+        }
 
         // Classes list screen
         composable(Screen.Classes.route) {

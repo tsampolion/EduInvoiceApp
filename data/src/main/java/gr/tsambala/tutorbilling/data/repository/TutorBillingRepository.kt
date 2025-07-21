@@ -30,7 +30,8 @@ import javax.inject.Singleton
 @Singleton
 class TutorBillingRepository @Inject constructor(
     private val studentDao: StudentDao,
-    private val lessonDao: LessonDao
+    private val lessonDao: LessonDao,
+    private val groupDao: gr.tsambala.tutorbilling.data.dao.GroupDao
 ) {
 
     // ===== Student Operations =====
@@ -92,6 +93,19 @@ class TutorBillingRepository @Inject constructor(
         checkNotNull(student) { "Cannot add lesson for a non-existent student" }
         check(student.isActive) { "Cannot add lesson for an inactive student" }
         return lessonDao.insert(lesson)
+    }
+
+    suspend fun addGroupLesson(groupId: Long, lesson: Lesson): List<Long> {
+        require(lesson.durationMinutes > 0) { "Lesson duration must be positive" }
+        val students = groupDao.getStudentsForGroup(groupId).first()
+        return students.map { student ->
+            lessonDao.insert(
+                lesson.copy(
+                    studentId = student.id,
+                    groupId = groupId
+                )
+            )
+        }
     }
 
     /**

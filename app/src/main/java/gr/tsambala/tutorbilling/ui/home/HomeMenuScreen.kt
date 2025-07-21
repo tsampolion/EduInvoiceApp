@@ -26,6 +26,7 @@ import gr.tsambala.tutorbilling.R
 fun HomeMenuScreen(
     onNavigateToStudent: () -> Unit,
     onClassesClick: () -> Unit,
+    onNavigateToGroups: () -> Unit,
     onNavigateToLesson: () -> Unit,
     onNavigateToNewStudent: () -> Unit,
     onNavigateToNewLesson: () -> Unit,
@@ -119,6 +120,11 @@ fun HomeMenuScreen(
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = AppColors.secondaryContainer)
                 ) { Text("Classes") }
+                Button(
+                    onClick = onNavigateToGroups,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.secondaryContainer)
+                ) { Text("Groups") }
                 Button(
                     onClick = onNavigateToLesson,
                     modifier = Modifier.fillMaxWidth(),

@@ -54,6 +54,7 @@ interface LessonDao {
         """
         SELECT lessons.id AS lesson_id,
                lessons.studentId AS lesson_studentId,
+               lessons.groupId AS lesson_groupId,
                lessons.date AS lesson_date,
                lessons.startTime AS lesson_startTime,
                lessons.durationMinutes AS lesson_durationMinutes,
@@ -78,9 +79,10 @@ interface LessonDao {
     @Transaction
     @Query(
         """
-        SELECT lessons.id AS lesson_id,
-               lessons.studentId AS lesson_studentId,
-               lessons.date AS lesson_date,
+       SELECT lessons.id AS lesson_id,
+              lessons.studentId AS lesson_studentId,
+              lessons.groupId AS lesson_groupId,
+              lessons.date AS lesson_date,
                lessons.startTime AS lesson_startTime,
                lessons.durationMinutes AS lesson_durationMinutes,
                lessons.notes AS lesson_notes,
@@ -105,9 +107,10 @@ interface LessonDao {
     @Transaction
     @Query(
         """
-        SELECT lessons.id AS lesson_id,
-               lessons.studentId AS lesson_studentId,
-               lessons.date AS lesson_date,
+       SELECT lessons.id AS lesson_id,
+              lessons.studentId AS lesson_studentId,
+              lessons.groupId AS lesson_groupId,
+              lessons.date AS lesson_date,
                lessons.startTime AS lesson_startTime,
                lessons.durationMinutes AS lesson_durationMinutes,
                lessons.notes AS lesson_notes,
@@ -132,9 +135,10 @@ interface LessonDao {
     @Transaction
     @Query(
         """
-        SELECT lessons.id AS lesson_id,
-               lessons.studentId AS lesson_studentId,
-               lessons.date AS lesson_date,
+       SELECT lessons.id AS lesson_id,
+              lessons.studentId AS lesson_studentId,
+              lessons.groupId AS lesson_groupId,
+              lessons.date AS lesson_date,
                lessons.startTime AS lesson_startTime,
                lessons.durationMinutes AS lesson_durationMinutes,
                lessons.notes AS lesson_notes,
