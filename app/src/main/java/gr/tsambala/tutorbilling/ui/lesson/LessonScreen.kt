@@ -2,6 +2,7 @@ package gr.tsambala.tutorbilling.ui.lesson
 
 import gr.tsambala.tutorbilling.R
 import androidx.compose.foundation.layout.*
+import android.util.Log
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
@@ -145,10 +146,16 @@ fun LessonScreen(
             )
             Box(modifier = Modifier
                 .fillMaxWidth()
-                .clickable { showDatePicker = true }) {
+                .clickable {
+                    Log.d("LessonScreen", "Date box clicked -> showDatePicker from $showDatePicker to true")
+                    showDatePicker = true
+                }) {
                 ClickableReadOnlyField(
                     value = uiState.date,
-                    onClick = { showDatePicker = true },
+                    onClick = {
+                        Log.d("LessonScreen", "Date field clicked -> showDatePicker from $showDatePicker to true")
+                        showDatePicker = true
+                    },
                     label = { Text("Date") },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -161,12 +168,17 @@ fun LessonScreen(
                             datePickerState.selectedDateMillis?.let { millis ->
                                 val date = java.time.Instant.ofEpochMilli(millis).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
                                 viewModel.updateDate(date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")))
+                                Log.d("LessonScreen", "Date selected -> ${'$'}date")
                             }
+                            Log.d("LessonScreen", "Date picker dismissed -> showDatePicker false")
                             showDatePicker = false
                         }) { Text("OK") }
                     },
                     dismissButton = {
-                        TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+                        TextButton(onClick = {
+                            Log.d("LessonScreen", "Date picker canceled -> showDatePicker false")
+                            showDatePicker = false
+                        }) { Text("Cancel") }
                     }
                 ) {
                     DatePicker(state = datePickerState)
@@ -180,10 +192,16 @@ fun LessonScreen(
             val timePickerState = rememberTimePickerState(startHour, startMinute, true)
             Box(modifier = Modifier
                 .fillMaxWidth()
-                .clickable { showTimePicker = true }) {
+                .clickable {
+                    Log.d("LessonScreen", "Time box clicked -> showTimePicker from $showTimePicker to true")
+                    showTimePicker = true
+                }) {
                 ClickableReadOnlyField(
                     value = uiState.startTime,
-                    onClick = { showTimePicker = true },
+                    onClick = {
+                        Log.d("LessonScreen", "Time field clicked -> showTimePicker from $showTimePicker to true")
+                        showTimePicker = true
+                    },
                     label = { Text("Start Time") },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -199,11 +217,16 @@ fun LessonScreen(
                                     timePickerState.minute
                                 )
                             )
+                            Log.d("LessonScreen", "Time selected -> ${'$'}{timePickerState.hour}:${'$'}{timePickerState.minute}")
+                            Log.d("LessonScreen", "Time picker dismissed -> showTimePicker false")
                             showTimePicker = false
                         }) { Text("OK") }
                     },
                     dismissButton = {
-                        TextButton(onClick = { showTimePicker = false }) { Text("Cancel") }
+                        TextButton(onClick = {
+                            Log.d("LessonScreen", "Time picker canceled -> showTimePicker false")
+                            showTimePicker = false
+                        }) { Text("Cancel") }
                     },
                     title = { Text("Select time") },
                     text = {
