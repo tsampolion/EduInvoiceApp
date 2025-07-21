@@ -38,7 +38,7 @@ class LessonsViewModel @Inject constructor(
     fun updatePaid(lessonId: Long, paid: Boolean) {
         viewModelScope.launch {
             val invoiced = lessonUseCases.isLessonInvoiced(lessonId).first() ?: false
-            val lesson = _uiState.value.lessons.find { it.lesson.id == lessonId }
+            val lesson = _uiState.value.lessons.values.flatten().find { it.lesson.id == lessonId }
             if (invoiced) {
                 _uiState.update { it.copy(dialog = LessonDialog.AlreadyInvoiced(lessonId, paid)) }
             } else if (paid && lesson != null) {
@@ -60,7 +60,7 @@ class LessonsViewModel @Inject constructor(
 }
 
 data class LessonsUiState(
-    val lessons: List<LessonWithStudent> = emptyList(),
+    val lessons: Map<Long, List<LessonWithStudent>> = emptyMap(),
     val dialog: LessonDialog? = null
 )
 

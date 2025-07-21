@@ -16,6 +16,8 @@ import gr.tsambala.tutorbilling.domain.lesson.AddLesson
 import gr.tsambala.tutorbilling.domain.lesson.LessonUseCases
 import gr.tsambala.tutorbilling.domain.lesson.UpdateLesson
 import gr.tsambala.tutorbilling.domain.lesson.UpdateLessonPaidStatus
+import gr.tsambala.tutorbilling.domain.lesson.UpdateLessonInvoicedStatus
+import gr.tsambala.tutorbilling.domain.lesson.IsLessonInvoiced
 import gr.tsambala.tutorbilling.data.repository.TutorBillingRepository
 import gr.tsambala.tutorbilling.domain.student.StudentUseCases
 import gr.tsambala.tutorbilling.domain.student.GetActiveStudents
@@ -75,7 +77,9 @@ class RevenueViewModelTest {
         addLesson = AddLesson(tutorBillingRepository),
         updateLesson = UpdateLesson(tutorBillingRepository),
         deleteLesson = DeleteLesson(lessonDao),
-        updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao)
+        updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao),
+        updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(lessonDao),
+        isLessonInvoiced = IsLessonInvoiced(lessonDao)
     )
 
     @Test
@@ -134,6 +138,12 @@ class RevenueViewModelTest {
         override fun getUnpaidLessonsInDateRange(startDate: String, endDate: String): Flow<List<Lesson>> = flowOf(emptyList())
         override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean) {
             flow.value = flow.value.map { if (it.id in ids) it.copy(isPaid = paid) else it }
+        }
+        override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean) {
+            flow.value = flow.value.map { if (it.id in ids) it.copy(isInvoiced = invoiced) else it }
+        }
+        override fun isLessonInvoiced(lessonId: Long): Flow<Boolean?> = flow.map { list ->
+            list.find { it.id == lessonId }?.isInvoiced
         }
         override fun getLessonsWithStudents(): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsByStudent(studentId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
