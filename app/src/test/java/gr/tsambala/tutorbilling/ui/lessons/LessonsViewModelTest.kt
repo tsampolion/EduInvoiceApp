@@ -43,7 +43,9 @@ class LessonsViewModelTest {
         addLesson = AddLesson(repository),
         updateLesson = UpdateLesson(repository),
         deleteLesson = DeleteLesson(lessonDao),
-        updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao)
+        updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao),
+        updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(lessonDao),
+        isLessonInvoiced = IsLessonInvoiced(lessonDao)
     )
 
     @Test
@@ -65,6 +67,40 @@ class LessonsViewModelTest {
         assertEquals(listOf(1L, 2L), map.keys.toList())
         assertEquals(2, map[1L]?.size)
         assertEquals(1, map[2L]?.size)
+    }
+
+    @Test
+    fun updatePaidShowsGenerateInvoiceForUninvoicedLesson() = runTest {
+        val student = Student(id = 1, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
+        val today = LocalDate.now().toString()
+        lessonFlow.value = listOf(
+            LessonWithStudent(Lesson(1, 1, today, "10:00", 60), student)
+        )
+
+        val vm = LessonsViewModel(lessonUseCases)
+        advanceUntilIdle()
+
+        vm.updatePaid(1, true)
+        advanceUntilIdle()
+
+        assertEquals(LessonDialog.GenerateInvoice(1, 1), vm.uiState.value.dialog)
+    }
+
+    @Test
+    fun updatePaidShowsAlreadyInvoicedDialogWhenLessonInvoiced() = runTest {
+        val student = Student(id = 1, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
+        val today = LocalDate.now().toString()
+        lessonFlow.value = listOf(
+            LessonWithStudent(Lesson(1, 1, today, "10:00", 60, isInvoiced = true), student)
+        )
+
+        val vm = LessonsViewModel(lessonUseCases)
+        advanceUntilIdle()
+
+        vm.updatePaid(1, true)
+        advanceUntilIdle()
+
+        assertEquals(LessonDialog.AlreadyInvoiced(1, true), vm.uiState.value.dialog)
     }
 
     class FakeStudentDao(private val flow: MutableStateFlow<List<Student>>) : StudentDao {
@@ -95,6 +131,12 @@ class LessonsViewModelTest {
         override fun getUnpaidLessonsInDateRange(startDate: String, endDate: String): Flow<List<Lesson>> = flowOf(emptyList())
         override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean) {
             flow.value = flow.value.map { if (it.lesson.id in ids) it.copy(lesson = it.lesson.copy(isPaid = paid)) else it }
+        }
+        override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean) {
+            flow.value = flow.value.map { if (it.lesson.id in ids) it.copy(lesson = it.lesson.copy(isInvoiced = invoiced)) else it }
+        }
+        override fun isLessonInvoiced(lessonId: Long): Flow<Boolean?> = flow.map { list ->
+            list.find { it.lesson.id == lessonId }?.lesson?.isInvoiced
         }
         override fun getLessonsWithStudents(): Flow<List<LessonWithStudent>> = flow.asStateFlow()
         override fun getLessonsWithStudentsByStudent(studentId: Long): Flow<List<LessonWithStudent>> = flow.map { list -> list.filter { it.student.id == studentId } }

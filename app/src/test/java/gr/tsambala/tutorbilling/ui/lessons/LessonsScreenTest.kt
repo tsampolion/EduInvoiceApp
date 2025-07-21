@@ -47,7 +47,9 @@ class LessonsScreenTest {
         addLesson = AddLesson(TutorBillingRepository(FakeStudentDao(), lessonDao)),
         updateLesson = UpdateLesson(TutorBillingRepository(FakeStudentDao(), lessonDao)),
         deleteLesson = DeleteLesson(lessonDao),
-        updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao)
+        updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao),
+        updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(lessonDao),
+        isLessonInvoiced = IsLessonInvoiced(lessonDao)
     )
 
     @Test
@@ -61,7 +63,7 @@ class LessonsScreenTest {
         )
         val vm = LessonsViewModel(lessonUseCases)
         composeRule.setContent {
-            LessonsScreen(onBack = {}, onLessonClick = { _, _ -> }, onAddLesson = {}, viewModel = vm)
+            LessonsScreen(onBack = {}, onLessonClick = { _, _ -> }, onAddLesson = {}, onInvoice = {}, onPastInvoices = {}, viewModel = vm)
         }
         composeRule.waitForIdle()
         val header1 = composeRule.onNodeWithTag("header_1").fetchSemanticsNode().positionInRoot.y
@@ -79,7 +81,7 @@ class LessonsScreenTest {
         val vm = LessonsViewModel(lessonUseCases)
         var clicked = false
         composeRule.setContent {
-            LessonsScreen(onBack = {}, onLessonClick = { _, _ -> clicked = true }, onAddLesson = {}, viewModel = vm)
+            LessonsScreen(onBack = {}, onLessonClick = { _, _ -> clicked = true }, onAddLesson = {}, onInvoice = {}, onPastInvoices = {}, viewModel = vm)
         }
         composeRule.waitForIdle()
         composeRule.onNodeWithText("10:00 • 60 min").performClick()
@@ -118,6 +120,12 @@ class LessonsScreenTest {
         override fun getUnpaidLessonsInDateRange(startDate: String, endDate: String): Flow<List<Lesson>> = flowOf(emptyList())
         override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean) {
             flow.value = flow.value.map { if (it.lesson.id in ids) it.copy(lesson = it.lesson.copy(isPaid = paid)) else it }
+        }
+        override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean) {
+            flow.value = flow.value.map { if (it.lesson.id in ids) it.copy(lesson = it.lesson.copy(isInvoiced = invoiced)) else it }
+        }
+        override fun isLessonInvoiced(lessonId: Long): Flow<Boolean?> = flow.map { list ->
+            list.find { it.lesson.id == lessonId }?.lesson?.isInvoiced
         }
         override fun getLessonsWithStudents(): Flow<List<LessonWithStudent>> = flow.asStateFlow()
         override fun getLessonsWithStudentsByStudent(studentId: Long): Flow<List<LessonWithStudent>> = flow.map { list -> list.filter { it.student.id == studentId } }

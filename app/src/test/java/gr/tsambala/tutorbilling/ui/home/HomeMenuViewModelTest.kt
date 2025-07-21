@@ -18,6 +18,8 @@ import gr.tsambala.tutorbilling.domain.lesson.GetStudentLessons
 import gr.tsambala.tutorbilling.domain.lesson.LessonUseCases
 import gr.tsambala.tutorbilling.domain.lesson.UpdateLesson
 import gr.tsambala.tutorbilling.domain.lesson.UpdateLessonPaidStatus
+import gr.tsambala.tutorbilling.domain.lesson.UpdateLessonInvoicedStatus
+import gr.tsambala.tutorbilling.domain.lesson.IsLessonInvoiced
 import gr.tsambala.tutorbilling.domain.student.ClassNameExists
 import gr.tsambala.tutorbilling.domain.student.GetActiveStudentCount
 import gr.tsambala.tutorbilling.domain.student.GetActiveStudents
@@ -74,7 +76,9 @@ class HomeMenuViewModelTest {
         addLesson = AddLesson(tutorBillingRepository),
         updateLesson = UpdateLesson(tutorBillingRepository),
         deleteLesson = DeleteLesson(lessonDao),
-        updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao)
+        updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao),
+        updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(lessonDao),
+        isLessonInvoiced = IsLessonInvoiced(lessonDao)
     )
 
     @Test
@@ -119,6 +123,8 @@ class HomeMenuViewModelTest {
         override fun getUnpaidLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String): Flow<List<Lesson>> = flowOf(emptyList())
         override fun getUnpaidLessonsInDateRange(startDate: String, endDate: String): Flow<List<Lesson>> = flowOf(emptyList())
         override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean) {}
+        override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean) {}
+        override fun isLessonInvoiced(lessonId: Long): Flow<Boolean?> = flow.map { list -> list.find { it.id == lessonId }?.isInvoiced }
         override fun getLessonsWithStudents(): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsByStudent(studentId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String): Flow<List<LessonWithStudent>> = flowOf(emptyList())

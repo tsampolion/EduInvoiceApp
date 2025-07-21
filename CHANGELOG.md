@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - Add domain and data modules for clean architecture foundation.
 - Add AddLesson/GetStudentLessons use-cases and Room DAO tests.
 - Move Room and repository code into `data` module and business utilities into `domain`.
+- Reintroduce LessonsViewModel.updatePaid tests for invoicing prompts.
 - Track invoicing state on lessons and prompt when toggling paid status.
 - Fix launcher icon references in the AndroidManifest.
 - Add CI workflow to run clean, assemble, test and lint on every push.
