@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.20] - 2025-07-25
+### Added
+- Student group tables and DAO with repository and DI modules.
+- Auto-migration to database version 11.
+
 ## [0.19] - 2025-07-24
 ### Fixed
 - Prevent double navigation when saving new students or lessons.
