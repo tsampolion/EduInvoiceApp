@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.18] - 2025-07-23
+### Changed
+- Date and time fields in Lesson screen are now directly clickable to open their pickers.
+
 ## [0.17] - 2025-07-22
 ### Changed
 - Unified theme utilities and replaced per-screen colors.

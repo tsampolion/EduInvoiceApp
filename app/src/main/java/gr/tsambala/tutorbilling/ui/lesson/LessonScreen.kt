@@ -139,22 +139,15 @@ fun LessonScreen(
             val datePickerState = rememberDatePickerState(
                 initialSelectedDateMillis = currentDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
             )
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    Log.d("LessonScreen", "Date box clicked -> showDatePicker from $showDatePicker to true")
+            ClickableReadOnlyField(
+                value = uiState.date,
+                onClick = {
+                    Log.d("LessonScreen", "Date field clicked -> showDatePicker from $showDatePicker to true")
                     showDatePicker = true
-                }) {
-                ClickableReadOnlyField(
-                    value = uiState.date,
-                    onClick = {
-                        Log.d("LessonScreen", "Date field clicked -> showDatePicker from $showDatePicker to true")
-                        showDatePicker = true
-                    },
-                    label = { Text("Date") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+                },
+                label = { Text("Date") },
+                modifier = Modifier.fillMaxWidth()
+            )
             if (showDatePicker) {
                 DatePickerDialog(
                     onDismissRequest = { showDatePicker = false },
@@ -185,22 +178,15 @@ fun LessonScreen(
             val (startHour, startMinute) = uiState.startTime.split(":").mapNotNull { it.toIntOrNull() }
                 .let { if (it.size == 2) it[0] to it[1] else LocalTime.now().hour to LocalTime.now().minute }
             val timePickerState = rememberTimePickerState(startHour, startMinute, true)
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    Log.d("LessonScreen", "Time box clicked -> showTimePicker from $showTimePicker to true")
+            ClickableReadOnlyField(
+                value = uiState.startTime,
+                onClick = {
+                    Log.d("LessonScreen", "Time field clicked -> showTimePicker from $showTimePicker to true")
                     showTimePicker = true
-                }) {
-                ClickableReadOnlyField(
-                    value = uiState.startTime,
-                    onClick = {
-                        Log.d("LessonScreen", "Time field clicked -> showTimePicker from $showTimePicker to true")
-                        showTimePicker = true
-                    },
-                    label = { Text("Start Time") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+                },
+                label = { Text("Start Time") },
+                modifier = Modifier.fillMaxWidth()
+            )
             if (showTimePicker) {
                 AlertDialog(
                     onDismissRequest = { showTimePicker = false },
