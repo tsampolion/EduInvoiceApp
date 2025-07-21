@@ -33,6 +33,7 @@ All notable changes to this project will be documented in this file.
 - Reinstate Room auto-migrations up to version 9.
 - Document modules overview in README.
 - Refresh README with build commands and module layout after rebuild.
+- Relax phone validation when saving students; accept any non-blank value.
 - Align Settings screen styling with Revenue screen for consistent Material 3 design.
 - Redesign Settings screen with dropdown menus and colourful cards matching Revenue metrics.
 - Apply `primaryContainer` colors to remaining screens' top app bars.

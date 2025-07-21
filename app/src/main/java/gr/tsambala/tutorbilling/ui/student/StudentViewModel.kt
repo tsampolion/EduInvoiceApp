@@ -164,7 +164,7 @@ class StudentViewModel @Inject constructor(
                     }
                     return@launch
                 }
-                val mobile = if (state.parentMobile.length == 10) state.parentMobile else ""
+                val mobile = state.parentMobile.ifBlank { "" }
                 val student = if (studentId > 0) {
                     Student(
                         id = studentId,
