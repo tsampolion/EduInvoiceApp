@@ -49,24 +49,21 @@ class LessonsViewModelTest {
     )
 
     @Test
-    fun groupsLessonsByStudentId() = runTest {
+    fun sortsLessonsByStudentName() = runTest {
         val s1 = Student(id = 1, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
         val s2 = Student(id = 2, name = "Bob", surname = "B", parentMobile = "", className = "", rate = 10.0)
         val today = LocalDate.now().toString()
         lessonFlow.value = listOf(
-            LessonWithStudent(Lesson(1, 1, today, "10:00", 60, null, false), s1),
-            LessonWithStudent(Lesson(2, 2, today, "11:00", 60, null, false), s2),
-            LessonWithStudent(Lesson(3, 1, today, "09:00", 60, null, true), s1)
+            LessonWithStudent(Lesson(1, 2, today, "10:00", 60, null, false), s2),
+            LessonWithStudent(Lesson(2, 1, today, "11:00", 60, null, false), s1)
         )
 
         val vm = LessonsViewModel(lessonUseCases)
         advanceUntilIdle()
 
-        val map = vm.uiState.value.lessons
-        assertEquals(2, map.size)
-        assertEquals(listOf(1L, 2L), map.keys.toList())
-        assertEquals(2, map[1L]?.size)
-        assertEquals(1, map[2L]?.size)
+        val list = vm.uiState.value.lessons
+        assertEquals(2, list.size)
+        assertEquals(listOf(s1.id, s2.id), list.map { it.student.id })
     }
 
     @Test

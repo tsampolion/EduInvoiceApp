@@ -25,12 +25,8 @@ class LessonsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             lessonUseCases.getLessonsWithStudents().collect { list ->
-                val grouped = list
-                    .groupBy { it.student.id }
-                    .toList()
-                    .sortedBy { (_, lessons) -> lessons.first().student.getFullName() }
-                    .associate { it.first to it.second }
-                _uiState.update { it.copy(lessons = grouped) }
+                val sorted = list.sortedBy { it.student.getFullName() }
+                _uiState.update { it.copy(lessons = sorted) }
             }
         }
     }
@@ -38,7 +34,7 @@ class LessonsViewModel @Inject constructor(
     fun updatePaid(lessonId: Long, paid: Boolean) {
         viewModelScope.launch {
             val invoiced = lessonUseCases.isLessonInvoiced(lessonId).first() ?: false
-            val lesson = _uiState.value.lessons.values.flatten().find { it.lesson.id == lessonId }
+            val lesson = _uiState.value.lessons.find { it.lesson.id == lessonId }
             if (invoiced) {
                 _uiState.update { it.copy(dialog = LessonDialog.AlreadyInvoiced(lessonId, paid)) }
             } else if (paid && lesson != null) {
@@ -60,7 +56,7 @@ class LessonsViewModel @Inject constructor(
 }
 
 data class LessonsUiState(
-    val lessons: Map<Long, List<LessonWithStudent>> = emptyMap(),
+    val lessons: List<LessonWithStudent> = emptyList(),
     val dialog: LessonDialog? = null
 )
 

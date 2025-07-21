@@ -70,12 +70,17 @@ fun LessonsScreen(
                 Text(text = stringResource(R.string.no_lessons))
             }
         } else {
+            val grouped = uiState.lessons
+                .groupBy { it.student.id }
+                .toList()
+                .sortedBy { (_, lessons) -> lessons.first().student.getFullName() }
+
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                uiState.lessons.forEach { (studentId, lessons) ->
+                grouped.forEach { (studentId, lessons) ->
                     val studentName = lessons.first().student.getFullName()
                     item {
                         Card(
