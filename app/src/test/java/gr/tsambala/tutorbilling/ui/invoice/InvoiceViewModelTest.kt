@@ -32,7 +32,10 @@ class InvoiceViewModelTest {
     private val lessonFlow = MutableStateFlow<List<Lesson>>(emptyList())
 
     private val studentDao = object : StudentDao {
-        override suspend fun insert(student: Student): Long { studentFlow.value += student; return student.id }
+        override suspend fun insert(student: Student): Long {
+            studentFlow.value = studentFlow.value + student
+            return student.id
+        }
         override suspend fun update(student: Student) {}
         override suspend fun delete(student: Student) {}
         override suspend fun softDeleteStudent(studentId: Long) {}
@@ -46,7 +49,10 @@ class InvoiceViewModelTest {
     }
 
     private val lessonDao = object : LessonDao {
-        override suspend fun insert(lesson: Lesson): Long { lessonFlow.value += lesson; return lesson.id }
+        override suspend fun insert(lesson: Lesson): Long {
+            lessonFlow.value = lessonFlow.value + lesson
+            return lesson.id
+        }
         override suspend fun update(lesson: Lesson) {}
         override suspend fun delete(lesson: Lesson) {}
         override suspend fun deleteById(lessonId: Long) {}
