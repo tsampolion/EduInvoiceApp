@@ -3,49 +3,46 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-- Bump version to 0.7 and integrate latest Google Services plugin and Crashlytics library.
-- Add LessonScreen Compose tests for date and time pickers.
 
-## [0.15] - 2025-07-21
+## [0.16] - 2025-07-21
 ### Added
 - Introduce per-pull-request version bump policy; each PR increments the project version.
-- Replace `+=` updates on MutableStateFlows in unit tests for clarity.
-- Ensure date and time fields in Lesson screen open the appropriate picker when tapped.
-- Flatten Room migrations; keep only latest schema in data/schemas.
-- Replace bar chart drawable with `Icons.Default.BarChart` for Revenue FAB.
 - Add student domain tests for insert/update and archive/restore flows.
 - Add rebuild walkthrough in `rebuild.md` describing detailed steps.
-- Simplify LessonsUiState.lessons to a list and group in the screen.
 - Group lessons by student in Lessons screen with headers.
 - Add context menu actions to delete or archive past invoices.
 - Add domain and data modules for clean architecture foundation.
 - Add AddLesson/GetStudentLessons use-cases and Room DAO tests.
-* Add logging for lesson pickers and provide date/time defaults in LessonViewModel.
-- Move Room and repository code into `data` module and business utilities into `domain`.
 - Reintroduce LessonsViewModel.updatePaid tests for invoicing prompts.
-- Track invoicing state on lessons and prompt when toggling paid status.
-- Fix launcher icon references in the AndroidManifest.
 - Add CI workflow to run clean, assemble, test and lint on every push.
-- Upgrade to Android Gradle Plugin 8.8.0 and Gradle 8.10.2.
-- Show student surname in all UI lists using `getFullName()` extension.
-- Make release signingConfig conditional on keystore properties.
 - Integrate Firebase Crashlytics for runtime crash reporting.
-- Allow saving students without a phone number and warn if no contact details are provided.
-- Removed Google Sign-In feature and account persistence.
-- Show Classes button highlighted when a valid class exists.
 - In-app privacy policy screen linked from Settings.
 - Provide Hilt modules for DAOs and repositories.
 - Expose domain use-cases and inject them into ViewModels.
 - Provide offline Robolectric artifacts and a coroutine MainDispatcherRule for tests.
+- Document modules overview in README.
+
+### Changed
+- Ensure date and time fields in Lesson screen open the appropriate picker when tapped.
+- Flatten Room migrations; keep only latest schema in data/schemas.
+- Replace bar chart drawable with `Icons.Default.BarChart` for Revenue FAB.
+- Simplify LessonsUiState.lessons to a list and group in the screen.
+- Move Room and repository code into `data` module and business utilities into `domain`.
+- Track invoicing state on lessons and prompt when toggling paid status.
+- Fix launcher icon references in the AndroidManifest.
+- Upgrade to Android Gradle Plugin 8.8.0 and Gradle 8.10.2.
+- Show student surname in all UI lists using `getFullName()` extension.
+- Make release signingConfig conditional on keystore properties.
+- Allow saving students without a phone number and warn if no contact details are provided.
+- Removed Google Sign-In feature and account persistence.
+- Show Classes button highlighted when a valid class exists.
 - Split large Compose screens and add design system shapes.
 - Reinstate Room auto-migrations up to version 9.
-- Document modules overview in README.
 - Refresh README with build commands and module layout after rebuild.
 - Relax phone validation when saving students; accept any non-blank value.
 - Align Settings screen styling with Revenue screen for consistent Material 3 design.
 - Redesign Settings screen with dropdown menus and colourful cards matching Revenue metrics.
 - Apply `primaryContainer` colors to remaining screens' top app bars.
-- Refine parent's mobile validation to require digits only.
 
 ## [0.14] - 2025-06-15
 ### Added
