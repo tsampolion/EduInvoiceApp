@@ -44,6 +44,8 @@ object DomainModule {
             addLesson = AddLesson(repository),
             updateLesson = UpdateLesson(repository),
             deleteLesson = DeleteLesson(dao),
-            updateLessonPaidStatus = UpdateLessonPaidStatus(dao)
+            updateLessonPaidStatus = UpdateLessonPaidStatus(dao),
+            updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(dao),
+            isLessonInvoiced = IsLessonInvoiced(dao)
         )
 }

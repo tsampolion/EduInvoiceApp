@@ -33,7 +33,9 @@ data class Lesson(
     val durationMinutes: Int,
     val notes: String? = null,
     @ColumnInfo(defaultValue = "0")
-    val isPaid: Boolean = false // Default to false (0 in database)
+    val isPaid: Boolean = false, // Default to false (0 in database)
+    @ColumnInfo(defaultValue = "0")
+    val isInvoiced: Boolean = false
 ) {
     // Helper functions for date/time conversion
     fun getLocalDate(): LocalDate = LocalDate.parse(date)
@@ -46,7 +48,8 @@ data class Lesson(
             startTime: LocalTime,
             durationMinutes: Int,
             notes: String? = null,
-            isPaid: Boolean = false
+            isPaid: Boolean = false,
+            isInvoiced: Boolean = false
         ): Lesson {
             return Lesson(
                 studentId = studentId,
@@ -54,7 +57,8 @@ data class Lesson(
                 startTime = startTime.toString(),
                 durationMinutes = durationMinutes,
                 notes = notes,
-                isPaid = isPaid
+                isPaid = isPaid,
+                isInvoiced = isInvoiced
             )
         }
     }

@@ -81,6 +81,9 @@ class InvoiceViewModel @Inject constructor(
     }
 
     fun markAsPaid(ids: List<Long>) {
-        viewModelScope.launch { lessonUseCases.updateLessonPaidStatus(ids, true) }
+        viewModelScope.launch {
+            lessonUseCases.updateLessonPaidStatus(ids, true)
+            lessonUseCases.updateLessonInvoicedStatus(ids, true)
+        }
     }
 }

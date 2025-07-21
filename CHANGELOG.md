@@ -13,12 +13,14 @@ All notable changes to this project will be documented in this file.
 - Add domain and data modules for clean architecture foundation.
 - Add AddLesson/GetStudentLessons use-cases and Room DAO tests.
 - Move Room and repository code into `data` module and business utilities into `domain`.
+- Track invoicing state on lessons and prompt when toggling paid status.
 - Fix launcher icon references in the AndroidManifest.
 - Add CI workflow to run clean, assemble, test and lint on every push.
 - Upgrade to Android Gradle Plugin 8.8.0 and Gradle 8.10.2.
 - Show student surname in all UI lists using `getFullName()` extension.
 - Make release signingConfig conditional on keystore properties.
 - Integrate Firebase Crashlytics for runtime crash reporting.
+- Allow saving students without a phone number and warn if no contact details are provided.
 - Removed Google Sign-In feature and account persistence.
 - Show Classes button highlighted when a valid class exists.
 - In-app privacy policy screen linked from Settings.

@@ -62,7 +62,15 @@
     <string name="validation_error_empty_name">Please enter a student name</string>
     <string name="validation_error_invalid_rate">Please enter a valid rate</string>
     <string name="validation_error_invalid_duration">Please enter a valid duration</string>
+    <string name="contact_details_missing_title">No Contact Details</string>
+    <string name="contact_details_missing_message">This student has no phone number or email. Continue anyway?</string>
+    <string name="proceed">Proceed</string>
     <string name="app_logo_desc">App logo</string>
+    <string name="already_invoiced_title">Lesson already invoiced</string>
+    <string name="view_past_invoice">View Past Invoice</string>
+    <string name="force_toggle">Force Toggle</string>
+    <string name="generate_invoice_prompt">Generate invoice for this lesson?</string>
+    <string name="generate_invoice">Generate Invoice</string>
 
     <!-- Privacy policy -->
     <string name="privacy_policy">Privacy Policy</string>
