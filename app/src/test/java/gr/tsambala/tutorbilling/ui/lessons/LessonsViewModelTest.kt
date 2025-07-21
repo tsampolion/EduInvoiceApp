@@ -101,7 +101,10 @@ class LessonsViewModelTest {
     }
 
     class FakeStudentDao(private val flow: MutableStateFlow<List<Student>>) : StudentDao {
-        override suspend fun insert(student: Student): Long { flow.value += student; return student.id }
+        override suspend fun insert(student: Student): Long {
+            flow.value = flow.value + student
+            return student.id
+        }
         override suspend fun update(student: Student) {}
         override suspend fun delete(student: Student) {}
         override suspend fun softDeleteStudent(studentId: Long) {}
