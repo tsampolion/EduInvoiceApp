@@ -403,7 +403,8 @@ private fun StudentEditForm(
         )
 
         val mobileError = uiState.parentMobile.isNotBlank() &&
-            uiState.parentMobile.length != 10
+            (uiState.parentMobile.length != 10 ||
+                uiState.parentMobile.any { !it.isDigit() })
         OutlinedTextField(
             value = uiState.parentMobile,
             onValueChange = viewModel::updateParentMobile,
