@@ -35,6 +35,7 @@ fun TutorBillingApp() {
                 onNavigateToStudent = { navController.navigate(Screen.Students.route) },
                 onClassesClick = { navController.navigate(Screen.Classes.route) },
                 onNavigateToLesson = { navController.navigate(Screen.Lessons.route) },
+                onNavigateToGroups = { navController.navigate(Screen.Groups.route) },
                 onNavigateToNewStudent = { navController.navigate(Screen.Student.createRoute(0)) },
                 onNavigateToNewLesson = { navController.navigate(Screen.Lesson.createRoute(0)) },
                 onRevenue = { navController.navigate(Screen.Revenue.route) },
@@ -43,6 +44,21 @@ fun TutorBillingApp() {
         }
 
         studentGraph(navController)
+
+        composable(Screen.Groups.route) {
+            GroupsScreen(
+                onBack = { navController.popBackStack() },
+                onGroupClick = { id -> navController.navigate(Screen.Group.createRoute(id)) },
+                onAddGroup = { navController.navigate(Screen.Group.createRoute(0)) }
+            )
+        }
+
+        composable(
+            route = Screen.Group.route,
+            arguments = listOf(navArgument("groupId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            GroupScreen(onBack = { navController.popBackStack() })
+        }
 
         // Classes list screen
         composable(Screen.Classes.route) {

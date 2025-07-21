@@ -29,6 +29,7 @@ object RepositoryModule {
     @Singleton
     fun provideTutorBillingRepository(
         studentDao: StudentDao,
-        lessonDao: LessonDao
-    ): TutorBillingRepository = TutorBillingRepository(studentDao, lessonDao)
+        lessonDao: LessonDao,
+        groupDao: GroupDao
+    ): TutorBillingRepository = TutorBillingRepository(studentDao, lessonDao, groupDao)
 }

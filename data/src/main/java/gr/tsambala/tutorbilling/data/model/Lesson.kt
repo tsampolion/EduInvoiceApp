@@ -28,6 +28,8 @@ data class Lesson(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val studentId: Long,
+    @ColumnInfo(defaultValue = "NULL")
+    val groupId: Long? = null,
     val date: String, // Store as ISO date string (yyyy-MM-dd)
     val startTime: String, // Store as time string (HH:mm)
     val durationMinutes: Int,
@@ -44,6 +46,7 @@ data class Lesson(
     companion object {
         fun create(
             studentId: Long,
+            groupId: Long? = null,
             date: LocalDate,
             startTime: LocalTime,
             durationMinutes: Int,
@@ -53,6 +56,7 @@ data class Lesson(
         ): Lesson {
             return Lesson(
                 studentId = studentId,
+                groupId = groupId,
                 date = date.toString(),
                 startTime = startTime.toString(),
                 durationMinutes = durationMinutes,
