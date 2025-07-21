@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import gr.tsambala.tutorbilling.data.dao.LessonDao
+import gr.tsambala.tutorbilling.data.dao.GroupDao
 import gr.tsambala.tutorbilling.data.dao.StudentDao
 import gr.tsambala.tutorbilling.data.database.TutorBillingDatabase
 
@@ -16,4 +17,7 @@ object DaoModule {
 
     @Provides
     fun provideLessonDao(db: TutorBillingDatabase): LessonDao = db.lessonDao()
+
+    @Provides
+    fun provideGroupDao(db: TutorBillingDatabase): GroupDao = db.groupDao()
 }
