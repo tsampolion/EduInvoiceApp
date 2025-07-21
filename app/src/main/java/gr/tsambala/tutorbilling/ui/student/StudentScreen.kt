@@ -371,6 +371,7 @@ private fun StudentEditForm(
     val nameError = uiState.name.isBlank()
     val rateValue = uiState.rate.toDoubleOrNull()
     val rateError = rateValue == null || rateValue <= 0.0
+    var showContactWarning by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -401,12 +402,12 @@ private fun StudentEditForm(
             singleLine = true
         )
 
-        val mobileError =
-            uiState.parentMobile.length != 10 || uiState.parentMobile.any { !it.isDigit() }
+        val mobileError = uiState.parentMobile.isNotBlank() &&
+            uiState.parentMobile.length != 10
         OutlinedTextField(
             value = uiState.parentMobile,
             onValueChange = viewModel::updateParentMobile,
-            label = { Text("Parent's Mobile*") },
+            label = { Text("Parent's Mobile") },
             isError = mobileError,
             supportingText = { if (mobileError) Text("10-digit number") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -532,12 +533,16 @@ private fun StudentEditForm(
                 Text("Cancel")
             }
             Button(
-                onClick = onSave,
+                onClick = {
+                    if (uiState.parentMobile.isBlank() && uiState.parentEmail.isBlank()) {
+                        showContactWarning = true
+                    } else {
+                        onSave()
+                    }
+                },
                 modifier = Modifier.weight(1f),
                 enabled = uiState.name.isNotBlank() &&
                     uiState.surname.isNotBlank() &&
-                    uiState.parentMobile.length == 10 &&
-                    uiState.parentMobile.all { it.isDigit() } &&
                     rateValue != null && rateValue > 0 &&
                     uiState.selectedClass.isNotBlank() &&
                     (uiState.selectedClass != "Custom" || uiState.customClass.isNotBlank()) &&
@@ -546,6 +551,22 @@ private fun StudentEditForm(
             ) {
                 Text("Save")
             }
+        }
+        if (showContactWarning) {
+            AlertDialog(
+                onDismissRequest = { showContactWarning = false },
+                title = { Text(stringResource(R.string.contact_details_missing_title)) },
+                text = { Text(stringResource(R.string.contact_details_missing_message)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showContactWarning = false
+                        onSave()
+                    }) { Text(stringResource(R.string.proceed)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showContactWarning = false }) { Text(stringResource(R.string.cancel)) }
+                }
+            )
         }
     }
 }

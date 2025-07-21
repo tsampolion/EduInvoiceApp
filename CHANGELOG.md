@@ -18,6 +18,7 @@ All notable changes to this project will be documented in this file.
 - Show student surname in all UI lists using `getFullName()` extension.
 - Make release signingConfig conditional on keystore properties.
 - Integrate Firebase Crashlytics for runtime crash reporting.
+- Allow saving students without a phone number and warn if no contact details are provided.
 - Removed Google Sign-In feature and account persistence.
 - Show Classes button highlighted when a valid class exists.
 - In-app privacy policy screen linked from Settings.
