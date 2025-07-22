@@ -57,11 +57,11 @@ Room is configured with `autoMigrations` for database version upgrades. The gene
 
 When you modify an entity schema:
 
-1. Bump the `version` in `TutorBillingDatabase`.
+1. Bump the `version` in `EduInvoiceDatabase`.
 2. Update the existing `AutoMigrationSpec` in `AutoMigrations.kt` or create a new one.
    - Annotate the class with helpers such as `@RenameColumn` or `@DeleteColumn`.
    - Override `onPostMigrate` for SQL statements that Room cannot generate.
-3. Register the spec in the `autoMigrations` array of `TutorBillingDatabase`.
+3. Register the spec in the `autoMigrations` array of `EduInvoiceDatabase`.
 4. Rebuild the project so that Room outputs the updated JSON schema under `data/schemas`.
 
 ## Changelog

@@ -39,7 +39,7 @@ Run these *exact* commands before proposing code changes:
 * **Formatting**: Use `ktfmt` or IntelliJ default; no tabs; 120-char line cap.
 * **Compose**: Prefer `@Stable` data classes; pass `Modifier` as first optional param.
 * **Room**: DAO methods return `Flow<>`; migrations handled via `autoMigrations`.
-* **Dependency-Injection**: All ViewModels live under `gr.tutorbilling.ui.*` and are Hilt-annotated.
+* **Dependency-Injection**: All ViewModels live under `gr.eduinvoice.ui.*` and are Hilt-annotated.
 
 ## 5. Directory & Naming Conventions
 
@@ -47,7 +47,7 @@ Run these *exact* commands before proposing code changes:
 | `/app`                         | Android application module |
 | `/domain`                      | Pure Kotlin business logic |
 | `/data`                        | Database and repository layer |
-| `/app/src/main`                | Production code (namespace `gr.tutorbilling`) |
+| `/app/src/main`                | Production code (namespace `gr.eduinvoice`) |
 | `/app/src/test`                | JVM unit tests (Robolectric) |
 | `/data/schemas`                | Room JSON schemas (auto-generated; keep under VC) |
 | `build/`, `.gradle/`, `.idea/` | **Ignored** – see `.gitignore`                         |

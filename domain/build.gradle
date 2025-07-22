@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'gr.tutorbilling.domain'
+    namespace 'gr.eduinvoice.domain'
     compileSdk 35
 
     defaultConfig {
