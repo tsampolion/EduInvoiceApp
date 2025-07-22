@@ -65,6 +65,7 @@ class LessonViewModelGroupTest {
         getLessonsWithStudents = GetLessonsWithStudents(lessonDao),
         getLessonsWithStudentsByStudentAndDateRange = GetLessonsWithStudentsByStudentAndDateRange(lessonDao),
         addLesson = AddLesson(repository),
+        addGroupLesson = AddGroupLesson(repository),
         updateLesson = UpdateLesson(repository),
         deleteLesson = DeleteLesson(lessonDao),
         updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao),

@@ -3,12 +3,16 @@ package gr.tsambala.tutorbilling.ui.home
 import gr.tsambala.tutorbilling.MainDispatcherRule
 import gr.tsambala.tutorbilling.data.dao.LessonDao
 import gr.tsambala.tutorbilling.data.dao.StudentDao
+import gr.tsambala.tutorbilling.data.dao.GroupDao
+import gr.tsambala.tutorbilling.data.model.StudentGroup
+import gr.tsambala.tutorbilling.data.model.GroupStudentCrossRef
 import gr.tsambala.tutorbilling.data.database.LessonWithStudent
 import gr.tsambala.tutorbilling.data.model.Lesson
 import gr.tsambala.tutorbilling.data.model.Student
 import gr.tsambala.tutorbilling.data.repository.StudentRepository
 import gr.tsambala.tutorbilling.data.repository.TutorBillingRepository
 import gr.tsambala.tutorbilling.domain.lesson.AddLesson
+import gr.tsambala.tutorbilling.domain.lesson.AddGroupLesson
 import gr.tsambala.tutorbilling.domain.lesson.DeleteLesson
 import gr.tsambala.tutorbilling.domain.lesson.GetAllLessons
 import gr.tsambala.tutorbilling.domain.lesson.GetLessonById
@@ -54,8 +58,9 @@ class HomeMenuViewModelTest {
 
     private val studentDao = FakeStudentDao(studentFlow)
     private val lessonDao = FakeLessonDao(lessonFlow)
+    private val groupDao = FakeGroupDao()
     private val studentRepository = StudentRepository(studentDao)
-    private val tutorBillingRepository = TutorBillingRepository(studentDao, lessonDao)
+    private val tutorBillingRepository = TutorBillingRepository(studentDao, lessonDao, groupDao)
     private val studentUseCases = StudentUseCases(
         getActiveStudents = GetActiveStudents(studentRepository),
         getArchivedStudents = GetArchivedStudents(studentRepository),
@@ -74,6 +79,7 @@ class HomeMenuViewModelTest {
         getLessonsWithStudents = GetLessonsWithStudents(lessonDao),
         getLessonsWithStudentsByStudentAndDateRange = GetLessonsWithStudentsByStudentAndDateRange(lessonDao),
         addLesson = AddLesson(tutorBillingRepository),
+        addGroupLesson = AddGroupLesson(tutorBillingRepository),
         updateLesson = UpdateLesson(tutorBillingRepository),
         deleteLesson = DeleteLesson(lessonDao),
         updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao),
@@ -135,5 +141,16 @@ class HomeMenuViewModelTest {
         override fun getLessonsWithStudentsByStudent(studentId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String): Flow<List<LessonWithStudent>> = flowOf(emptyList())
+    }
+
+    class FakeGroupDao : GroupDao {
+        override suspend fun insertGroup(group: StudentGroup): Long = 0L
+        override suspend fun updateGroup(group: StudentGroup) {}
+        override suspend fun deleteGroup(group: StudentGroup) {}
+        override fun getAllGroups(): Flow<List<StudentGroup>> = flowOf(emptyList())
+        override fun getGroupById(id: Long): Flow<StudentGroup?> = flowOf(null)
+        override suspend fun insertCrossRef(crossRef: GroupStudentCrossRef) {}
+        override suspend fun deleteCrossRef(groupId: Long, studentId: Long) {}
+        override fun getStudentsForGroup(groupId: Long): Flow<List<Student>> = flowOf(emptyList())
     }
 }
