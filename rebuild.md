@@ -46,7 +46,7 @@ Keep using Hilt but provide modules in the data layer to expose DAOs and reposit
 
 ## 5. Database revisions
 
-1. Review the migration history in `TutorBillingDatabase` and flatten earlier migrations into a single schema representing the latest version.
+1. Review the migration history in `EduInvoiceDatabase` and flatten earlier migrations into a single schema representing the latest version.
 2. Keep `AutoMigrationSpec` classes for users upgrading from an older version.
 3. Store generated schema JSON under `data/schemas` so it is tracked in version control.
 
