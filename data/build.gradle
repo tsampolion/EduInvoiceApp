@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace 'gr.tsambala.tutorbilling.data'
+    namespace 'gr.tutorbilling.data'
     compileSdk 35
 
     defaultConfig {

@@ -13,7 +13,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'TutorBillingApp'
+rootProject.name = 'EduInvoice'
 include ':app'
 include ':domain'
 include ':data'

@@ -1,6 +1,6 @@
-# TutorBillingApp
+# EduInvoice
 
-TutorBillingApp is an Android application for managing tutoring sessions and invoices. It uses Jetpack Compose for the UI and Room as the local database.
+EduInvoice is an Android application for managing tutoring sessions and invoices. It uses Jetpack Compose for the UI and Room as the local database.
 
 -## Features
 
@@ -57,16 +57,16 @@ Room is configured with `autoMigrations` for database version upgrades. The gene
 
 When you modify an entity schema:
 
-1. Bump the `version` in `TutorBillingDatabase`.
+1. Bump the `version` in `EduInvoiceDatabase`.
 2. Update the existing `AutoMigrationSpec` in `AutoMigrations.kt` or create a new one.
    - Annotate the class with helpers such as `@RenameColumn` or `@DeleteColumn`.
    - Override `onPostMigrate` for SQL statements that Room cannot generate.
-3. Register the spec in the `autoMigrations` array of `TutorBillingDatabase`.
+3. Register the spec in the `autoMigrations` array of `EduInvoiceDatabase`.
 4. Rebuild the project so that Room outputs the updated JSON schema under `data/schemas`.
 
 ## Changelog
 
 A high level summary of changes lives in [`CHANGELOG.md`](CHANGELOG.md).
-This project is still unreleased and currently version `0.16`. Each
+This project is still unreleased and currently version `0.20.6`. Each
 pull request should bump the version to the next `0.x` value and add a
 changelog entry before merge.

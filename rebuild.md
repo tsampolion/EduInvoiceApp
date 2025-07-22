@@ -1,6 +1,6 @@
 # Rebuild Walkthrough
 
-This document describes a step-by-step process for performing a complete rebuild of **TutorBillingApp**. It is intended for contributors who need to restructure the project while keeping builds reproducible and tests passing.
+This document describes a step-by-step process for performing a complete rebuild of **EduInvoiceApp**. It is intended for contributors who need to restructure the project while keeping builds reproducible and tests passing.
 
 ## 1. Environment preparation
 
@@ -46,7 +46,7 @@ Keep using Hilt but provide modules in the data layer to expose DAOs and reposit
 
 ## 5. Database revisions
 
-1. Review the migration history in `TutorBillingDatabase` and flatten earlier migrations into a single schema representing the latest version.
+1. Review the migration history in `EduInvoiceDatabase` and flatten earlier migrations into a single schema representing the latest version.
 2. Keep `AutoMigrationSpec` classes for users upgrading from an older version.
 3. Store generated schema JSON under `data/schemas` so it is tracked in version control.
 

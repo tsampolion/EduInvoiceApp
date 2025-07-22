@@ -1,14 +1,14 @@
 {
   "project_info": {
     "project_number": "123456789",
-    "project_id": "tutorbillingapp"
+    "project_id": "eduinvoiceapp"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:123456789:android:abcdef123456",
         "android_client_info": {
-          "package_name": "gr.tsambala.tutorbilling"
+          "package_name": "gr.tutorbilling"
         }
       },
       "api_key": [
