@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.20.3] - 2025-07-28
+### Added
+- Group lesson selection on Lesson screen with fee calculation.
+
+
 ## [0.20.2] - 2025-07-27
 ### Added
 - Record lessons for groups of students with shared billing.

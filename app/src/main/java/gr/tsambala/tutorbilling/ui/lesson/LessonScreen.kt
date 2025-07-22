@@ -95,19 +95,31 @@ fun LessonScreen(
                 .padding(Dimensions.PaddingMedium),
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
-            // Student picker
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "Group Lesson")
+                Spacer(modifier = Modifier.width(8.dp))
+                Switch(checked = uiState.isGroupLesson, onCheckedChange = viewModel::toggleGroupLesson)
+            }
+
             var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }
             ) {
-                OutlinedTextField(
-                    value = uiState.selectedStudentId?.let { id ->
+                val displayText = if (uiState.isGroupLesson) {
+                    uiState.selectedGroupId?.let { id ->
+                        uiState.availableGroups.firstOrNull { it.id == id }?.name
+                    } ?: ""
+                } else {
+                    uiState.selectedStudentId?.let { id ->
                         uiState.availableStudents.firstOrNull { it.id == id }?.getFullName()
-                    } ?: "",
+                    } ?: ""
+                }
+                OutlinedTextField(
+                    value = displayText,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Student*") },
+                    label = { Text(if (uiState.isGroupLesson) "Group*" else "Student*") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                     modifier = Modifier
                         .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
@@ -117,14 +129,26 @@ fun LessonScreen(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    uiState.availableStudents.forEach { student ->
-                        DropdownMenuItem(
-                            text = { Text(student.getFullName()) },
-                            onClick = {
-                                viewModel.updateSelectedStudent(student.id)
-                                expanded = false
-                            }
-                        )
+                    if (uiState.isGroupLesson) {
+                        uiState.availableGroups.forEach { group ->
+                            DropdownMenuItem(
+                                text = { Text(group.name) },
+                                onClick = {
+                                    viewModel.updateSelectedGroup(group.id)
+                                    expanded = false
+                                }
+                            )
+                        }
+                    } else {
+                        uiState.availableStudents.forEach { student ->
+                            DropdownMenuItem(
+                                text = { Text(student.getFullName()) },
+                                onClick = {
+                                    viewModel.updateSelectedStudent(student.id)
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
