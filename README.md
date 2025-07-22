@@ -1,6 +1,6 @@
-# TutorBillingApp
+# EduInvoice
 
-TutorBillingApp is an Android application for managing tutoring sessions and invoices. It uses Jetpack Compose for the UI and Room as the local database.
+EduInvoice is an Android application for managing tutoring sessions and invoices. It uses Jetpack Compose for the UI and Room as the local database.
 
 -## Features
 
