@@ -6,7 +6,7 @@
      3. Keep your code clean and maintainable -->
 <resources>
     <!-- The app name that appears on the device -->
-    <string name="app_name">Tutor Billing</string>
+    <string name="app_name">EduInvoice</string>
 
     <!-- Common action strings -->
     <string name="add">Add</string>

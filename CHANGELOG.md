@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.20.5] - 2025-07-30
+### Changed
+- Package renamed to `gr.tutorbilling` and app name updated to EduInvoice.
 ## [0.20.4] - 2025-07-29
 ### Added
 - Domain tests for AddGroupLesson ensuring one lesson per group member.

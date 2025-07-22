@@ -1,0 +1,169 @@
+package gr.tutorbilling
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import gr.tutorbilling.ui.home.HomeMenuScreen
+import gr.tutorbilling.ui.classes.ClassesScreen
+import gr.tutorbilling.ui.lessons.LessonsScreen
+import gr.tutorbilling.ui.lesson.LessonScreen
+import gr.tutorbilling.ui.lesson.LessonViewModel
+import gr.tutorbilling.ui.revenue.RevenueScreen
+import gr.tutorbilling.ui.invoice.InvoiceScreen
+import gr.tutorbilling.ui.invoice.PastInvoicesScreen
+import gr.tutorbilling.ui.invoice.InvoiceViewModel
+import gr.tutorbilling.ui.groups.GroupsScreen
+import gr.tutorbilling.ui.groups.GroupScreen
+import gr.tutorbilling.ui.settings.SettingsScreen
+import gr.tutorbilling.ui.settings.PrivacyPolicyScreen
+import gr.tutorbilling.navigation.studentGraph
+
+@Composable
+fun TutorBillingApp() {
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Home.route
+    ) {
+        // Home Screen
+        composable(Screen.Home.route) {
+            HomeMenuScreen(
+                onNavigateToStudent = { navController.navigate(Screen.Students.route) },
+                onClassesClick = { navController.navigate(Screen.Classes.route) },
+                onNavigateToLesson = { navController.navigate(Screen.Lessons.route) },
+                onNavigateToGroups = { navController.navigate(Screen.Groups.route) },
+                onNavigateToNewStudent = { navController.navigate(Screen.Student.createRoute(0)) },
+                onNavigateToNewLesson = { navController.navigate(Screen.Lesson.createRoute(0)) },
+                onRevenue = { navController.navigate(Screen.Revenue.route) },
+                onSettings = { navController.navigate(Screen.Settings.route) }
+            )
+        }
+
+        studentGraph(navController)
+
+        composable(Screen.Groups.route) {
+            GroupsScreen(
+                onBack = { navController.popBackStack() },
+                onGroupClick = { id -> navController.navigate(Screen.Group.createRoute(id)) },
+                onAddGroup = { navController.navigate(Screen.Group.createRoute(0)) }
+            )
+        }
+
+        composable(
+            route = Screen.Group.route,
+            arguments = listOf(navArgument("groupId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            GroupScreen(onBack = { navController.popBackStack() })
+        }
+
+        // Classes list screen
+        composable(Screen.Classes.route) {
+            ClassesScreen(
+                onBack = { navController.popBackStack() },
+                onStudentClick = { id ->
+                    navController.navigate(Screen.Student.createRoute(id))
+                }
+            )
+        }
+
+        // Lessons list screen
+        composable(Screen.Lessons.route) {
+            LessonsScreen(
+                onBack = { navController.popBackStack() },
+                onLessonClick = { studentId, lessonId ->
+                    navController.navigate(
+                        Screen.Lesson.createRoute(lessonId, studentId)
+                    )
+                },
+                onAddLesson = { navController.navigate(Screen.Lesson.createRoute(0)) },
+                onInvoice = { id -> navController.navigate(Screen.Invoice.createRoute(id)) },
+                onPastInvoices = { navController.navigate(Screen.PastInvoices.route) }
+            )
+        }
+
+        // Revenue screen
+        composable(Screen.Revenue.route) {
+            RevenueScreen(
+                onBack = { navController.popBackStack() },
+                onInvoice = { id -> navController.navigate(Screen.Invoice.createRoute(id)) },
+                onPastInvoices = { navController.navigate(Screen.PastInvoices.route) }
+            )
+        }
+
+        // Invoice screen
+        composable(
+            route = Screen.Invoice.route,
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.LongType
+                    defaultValue = -1L
+                }
+            )
+        ) { backStackEntry ->
+            val viewModel: InvoiceViewModel = hiltViewModel()
+            val studentIdArg = backStackEntry.arguments?.getLong("id") ?: -1L
+            val id = studentIdArg.takeIf { it != -1L }
+            InvoiceScreen(
+                onBack = { navController.popBackStack() },
+                defaultStudentId = id,
+                viewModel = viewModel
+            )
+        }
+
+        // Past invoices screen
+        composable(Screen.PastInvoices.route) {
+            PastInvoicesScreen(onBack = { navController.popBackStack() })
+        }
+
+        // Settings screen
+        composable(Screen.Settings.route) {
+            SettingsScreen(
+                onBack = { navController.popBackStack() },
+                onPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy.route) }
+            )
+        }
+
+        composable(Screen.PrivacyPolicy.route) {
+            PrivacyPolicyScreen(onBack = { navController.popBackStack() })
+        }
+
+        // Lesson Detail/Edit Screen
+        composable(
+            route = Screen.Lesson.route,
+            arguments = listOf(
+                navArgument("lessonId") {
+                    type = NavType.LongType
+                },
+                navArgument("studentId") {
+                    type = NavType.LongType
+                    defaultValue = 0L
+                }
+            )
+        ) { backStackEntry ->
+            val viewModel: LessonViewModel = hiltViewModel()
+
+            val lessonId = backStackEntry.arguments?.getLong("lessonId") ?: 0L
+
+            val studentId = backStackEntry.arguments?.getLong("studentId") ?: 0L
+
+            LaunchedEffect(Unit) {
+                viewModel.setNavigationCallback {
+                    navController.popBackStack()
+                }
+            }
+
+            LessonScreen(
+                studentId = studentId.takeIf { it != 0L },
+                lessonId = lessonId,
+                onNavigateBack = { navController.popBackStack() },
+                viewModel = viewModel
+            )
+        }
+    }
+}
