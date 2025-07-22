@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.20.4] - 2025-07-29
+### Added
+- Domain tests for AddGroupLesson ensuring one lesson per group member.
+- ViewModel tests covering GroupViewModel and LessonViewModel group logic.
+
 ## [0.20.3] - 2025-07-28
 ### Added
 - Group lesson selection on Lesson screen with fee calculation.
