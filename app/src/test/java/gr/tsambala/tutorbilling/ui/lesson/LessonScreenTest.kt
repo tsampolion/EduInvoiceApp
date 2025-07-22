@@ -9,9 +9,13 @@ import androidx.compose.ui.test.onNodeWithText
 import gr.tsambala.tutorbilling.MainDispatcherRule
 import gr.tsambala.tutorbilling.data.dao.LessonDao
 import gr.tsambala.tutorbilling.data.dao.StudentDao
+import gr.tsambala.tutorbilling.data.dao.GroupDao
+import gr.tsambala.tutorbilling.data.repository.GroupRepository
 import gr.tsambala.tutorbilling.data.database.LessonWithStudent
 import gr.tsambala.tutorbilling.data.model.Lesson
 import gr.tsambala.tutorbilling.data.model.Student
+import gr.tsambala.tutorbilling.data.model.StudentGroup
+import gr.tsambala.tutorbilling.data.model.GroupStudentCrossRef
 import gr.tsambala.tutorbilling.data.repository.TutorBillingRepository
 import gr.tsambala.tutorbilling.domain.lesson.*
 import gr.tsambala.tutorbilling.domain.student.StudentUseCases
@@ -25,6 +29,7 @@ import gr.tsambala.tutorbilling.domain.student.RestoreStudent
 import gr.tsambala.tutorbilling.domain.student.GetActiveStudentCount
 import gr.tsambala.tutorbilling.domain.student.ClassNameExists
 import gr.tsambala.tutorbilling.data.repository.StudentRepository
+import gr.tsambala.tutorbilling.domain.group.*
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -83,8 +88,20 @@ class LessonScreenTest {
         override fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String): Flow<List<LessonWithStudent>> = flowOf(emptyList())
     }
 
+    private val groupDao = object : GroupDao {
+        override suspend fun insertGroup(group: StudentGroup): Long = 0L
+        override suspend fun updateGroup(group: StudentGroup) {}
+        override suspend fun deleteGroup(group: StudentGroup) {}
+        override fun getAllGroups(): Flow<List<StudentGroup>> = flowOf(emptyList())
+        override fun getGroupById(id: Long): Flow<StudentGroup?> = flowOf(null)
+        override suspend fun insertCrossRef(crossRef: GroupStudentCrossRef) {}
+        override suspend fun deleteCrossRef(groupId: Long, studentId: Long) {}
+        override fun getStudentsForGroup(groupId: Long): Flow<List<Student>> = flowOf(emptyList())
+    }
+
     private val studentRepository = StudentRepository(studentDao)
-    private val repository = TutorBillingRepository(studentDao, lessonDao)
+    private val repository = TutorBillingRepository(studentDao, lessonDao, groupDao)
+    private val groupRepository = GroupRepository(groupDao)
 
     private val studentUseCases = StudentUseCases(
         getActiveStudents = GetActiveStudents(studentRepository),
@@ -105,6 +122,7 @@ class LessonScreenTest {
         getLessonsWithStudents = GetLessonsWithStudents(lessonDao),
         getLessonsWithStudentsByStudentAndDateRange = GetLessonsWithStudentsByStudentAndDateRange(lessonDao),
         addLesson = AddLesson(repository),
+        addGroupLesson = AddGroupLesson(repository),
         updateLesson = UpdateLesson(repository),
         deleteLesson = DeleteLesson(lessonDao),
         updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao),
@@ -112,8 +130,19 @@ class LessonScreenTest {
         isLessonInvoiced = IsLessonInvoiced(lessonDao)
     )
 
+    private val groupUseCases = GroupUseCases(
+        insertGroup = InsertGroup(groupRepository),
+        updateGroup = UpdateGroup(groupRepository),
+        deleteGroup = DeleteGroup(groupRepository),
+        getAllGroups = GetAllGroups(groupRepository),
+        getGroupById = GetGroupById(groupRepository),
+        addStudentToGroup = AddStudentToGroup(groupRepository),
+        removeStudentFromGroup = RemoveStudentFromGroup(groupRepository),
+        getGroupStudents = GetGroupStudents(groupRepository)
+    )
+
     private fun createViewModel(): LessonViewModel {
-        return LessonViewModel(SavedStateHandle(mapOf("lessonId" to 0L)), lessonUseCases, studentUseCases)
+        return LessonViewModel(SavedStateHandle(mapOf("lessonId" to 0L)), lessonUseCases, studentUseCases, groupUseCases)
     }
 
     @Test

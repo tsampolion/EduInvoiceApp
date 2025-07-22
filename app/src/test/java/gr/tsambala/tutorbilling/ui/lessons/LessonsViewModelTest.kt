@@ -7,6 +7,9 @@ import gr.tsambala.tutorbilling.data.model.Student
 import gr.tsambala.tutorbilling.data.repository.TutorBillingRepository
 import gr.tsambala.tutorbilling.data.dao.LessonDao
 import gr.tsambala.tutorbilling.data.dao.StudentDao
+import gr.tsambala.tutorbilling.data.dao.GroupDao
+import gr.tsambala.tutorbilling.data.model.StudentGroup
+import gr.tsambala.tutorbilling.data.model.GroupStudentCrossRef
 import gr.tsambala.tutorbilling.domain.lesson.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +36,8 @@ class LessonsViewModelTest {
 
     private val studentDao = FakeStudentDao(studentFlow)
     private val lessonDao = FakeLessonDao(lessonFlow)
-    private val repository = TutorBillingRepository(studentDao, lessonDao)
+    private val groupDao = FakeGroupDao()
+    private val repository = TutorBillingRepository(studentDao, lessonDao, groupDao)
     private val lessonUseCases = LessonUseCases(
         getAllLessons = GetAllLessons(lessonDao),
         getLessonById = GetLessonById(lessonDao),
@@ -41,6 +45,7 @@ class LessonsViewModelTest {
         getLessonsWithStudents = GetLessonsWithStudents(lessonDao),
         getLessonsWithStudentsByStudentAndDateRange = GetLessonsWithStudentsByStudentAndDateRange(lessonDao),
         addLesson = AddLesson(repository),
+        addGroupLesson = AddGroupLesson(repository),
         updateLesson = UpdateLesson(repository),
         deleteLesson = DeleteLesson(lessonDao),
         updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao),
@@ -54,8 +59,8 @@ class LessonsViewModelTest {
         val s2 = Student(id = 2, name = "Bob", surname = "B", parentMobile = "", className = "", rate = 10.0)
         val today = LocalDate.now().toString()
         lessonFlow.value = listOf(
-            LessonWithStudent(Lesson(1, 2, today, "10:00", 60, null, false), s2),
-            LessonWithStudent(Lesson(2, 1, today, "11:00", 60, null, false), s1)
+            LessonWithStudent(Lesson(1, 2, null, today, "10:00", 60, null, false), s2),
+            LessonWithStudent(Lesson(2, 1, null, today, "11:00", 60, null, false), s1)
         )
 
         val vm = LessonsViewModel(lessonUseCases)
@@ -71,7 +76,7 @@ class LessonsViewModelTest {
         val student = Student(id = 1, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
         val today = LocalDate.now().toString()
         lessonFlow.value = listOf(
-            LessonWithStudent(Lesson(1, 1, today, "10:00", 60), student)
+            LessonWithStudent(Lesson(1, 1, null, today, "10:00", 60), student)
         )
 
         val vm = LessonsViewModel(lessonUseCases)
@@ -88,7 +93,7 @@ class LessonsViewModelTest {
         val student = Student(id = 1, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
         val today = LocalDate.now().toString()
         lessonFlow.value = listOf(
-            LessonWithStudent(Lesson(1, 1, today, "10:00", 60, isInvoiced = true), student)
+            LessonWithStudent(Lesson(1, 1, null, today, "10:00", 60, isInvoiced = true), student)
         )
 
         val vm = LessonsViewModel(lessonUseCases)
@@ -142,5 +147,16 @@ class LessonsViewModelTest {
         override fun getLessonsWithStudentsByStudent(studentId: Long): Flow<List<LessonWithStudent>> = flow.map { list -> list.filter { it.student.id == studentId } }
         override fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String): Flow<List<LessonWithStudent>> = flowOf(emptyList())
+    }
+
+    class FakeGroupDao : GroupDao {
+        override suspend fun insertGroup(group: StudentGroup): Long = 0L
+        override suspend fun updateGroup(group: StudentGroup) {}
+        override suspend fun deleteGroup(group: StudentGroup) {}
+        override fun getAllGroups(): Flow<List<StudentGroup>> = flowOf(emptyList())
+        override fun getGroupById(id: Long): Flow<StudentGroup?> = flowOf(null)
+        override suspend fun insertCrossRef(crossRef: GroupStudentCrossRef) {}
+        override suspend fun deleteCrossRef(groupId: Long, studentId: Long) {}
+        override fun getStudentsForGroup(groupId: Long): Flow<List<Student>> = flowOf(emptyList())
     }
 }
