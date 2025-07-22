@@ -4,7 +4,15 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [0.20] - 2025-07-25
+## [0.20.2] - 2025-07-27
+### Added
+- Record lessons for groups of students with shared billing.
+
+## [0.20.1] - 2025-07-26
+### Added
+- Basic group management screens and domain use-cases.
+
+## [0.20.0] - 2025-07-25
 ### Added
 - Student group tables and DAO with repository and DI modules.
 - Auto-migration to database version 11.

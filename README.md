@@ -2,9 +2,10 @@
 
 TutorBillingApp is an Android application for managing tutoring sessions and invoices. It uses Jetpack Compose for the UI and Room as the local database.
 
-## Features
+-## Features
 
 - Manage students grouped by class
+- Organize students into groups and schedule group lessons
 - Track lessons with billing information
 - Generate PDF invoices from selected lessons
 - Monitor revenue and past invoices
