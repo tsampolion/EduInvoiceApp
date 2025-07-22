@@ -57,4 +57,23 @@ class AddGroupLessonIntegrationTest {
         assertEquals(10.0, l1.first().durationMinutes / 60.0 * 10.0, 0.0)
         assertEquals(15.0, l2.first().durationMinutes / 60.0 * 15.0, 0.0)
     }
+
+    @Test
+    fun returnsIdsForInsertedLessons() = runBlocking {
+        val s1 = db.studentDao().insert(Student(name = "Ann", surname = "", parentMobile = "", className = "", rate = 12.0))
+        val s2 = db.studentDao().insert(Student(name = "Ben", surname = "", parentMobile = "", className = "", rate = 18.0))
+        val s3 = db.studentDao().insert(Student(name = "Cat", surname = "", parentMobile = "", className = "", rate = 20.0))
+        val gId = db.groupDao().insertGroup(StudentGroup(name = "Group B"))
+        db.groupDao().insertCrossRef(GroupStudentCrossRef(groupId = gId, studentId = s1))
+        db.groupDao().insertCrossRef(GroupStudentCrossRef(groupId = gId, studentId = s2))
+        db.groupDao().insertCrossRef(GroupStudentCrossRef(groupId = gId, studentId = s3))
+
+        val lesson = Lesson(studentId = 0, date = "2024-02-01", startTime = "09:00", durationMinutes = 90)
+        val useCase = AddGroupLesson(repository)
+        val ids = useCase(gId, lesson)
+
+        assertEquals(3, ids.size)
+        val lessons = db.lessonDao().getAllLessons().first()
+        assertEquals(3, lessons.size)
+    }
 }
