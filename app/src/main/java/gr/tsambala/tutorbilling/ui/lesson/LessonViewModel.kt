@@ -10,6 +10,7 @@ import gr.tsambala.tutorbilling.data.model.Student
 import gr.tsambala.tutorbilling.data.model.RateTypes
 import gr.tsambala.tutorbilling.domain.lesson.LessonUseCases
 import gr.tsambala.tutorbilling.domain.student.StudentUseCases
+import gr.tsambala.tutorbilling.domain.group.GroupUseCases
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -22,7 +23,8 @@ import javax.inject.Inject
 class LessonViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val lessonUseCases: LessonUseCases,
-    private val studentUseCases: StudentUseCases
+    private val studentUseCases: StudentUseCases,
+    private val groupUseCases: GroupUseCases
 ) : ViewModel() {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
@@ -44,6 +46,8 @@ class LessonViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(initialState())
     val uiState: StateFlow<LessonUiState> = _uiState.asStateFlow()
 
+    private val groupMembers = mutableMapOf<Long, List<Student>>()
+
     // Navigation callback
     private var onNavigateBack: (() -> Unit)? = null
 
@@ -53,6 +57,7 @@ class LessonViewModel @Inject constructor(
 
     init {
         loadStudentInfo()
+        loadGroups()
         if (lessonId != null && lessonId != 0L) {
             loadLesson()
         }
@@ -72,6 +77,14 @@ class LessonViewModel @Inject constructor(
                         rateType = selectedStudent?.rateType ?: state.rateType
                     )
                 }
+            }
+        }
+    }
+
+    private fun loadGroups() {
+        viewModelScope.launch(Dispatchers.IO) {
+            groupUseCases.getAllGroups().collect { groups ->
+                _uiState.update { it.copy(availableGroups = groups) }
             }
         }
     }
@@ -121,11 +134,32 @@ class LessonViewModel @Inject constructor(
                             selectedStudentId = id,
                             studentName = s.name,
                             studentRate = s.rate,
-                            rateType = s.rateType
+                            rateType = s.rateType,
+                            selectedGroupId = null,
+                            isGroupLesson = false
                         )
                     }
                 }
             }
+        }
+    }
+
+    fun updateSelectedGroup(id: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            groupUseCases.getGroupStudents(id).collect { students ->
+                groupMembers[id] = students
+                _uiState.update { it.copy(selectedGroupId = id, selectedStudentId = null, isGroupLesson = true) }
+            }
+        }
+    }
+
+    fun toggleGroupLesson(value: Boolean) {
+        _uiState.update {
+            it.copy(
+                isGroupLesson = value,
+                selectedGroupId = if (value) it.selectedGroupId else null,
+                selectedStudentId = if (value) null else it.selectedStudentId
+            )
         }
     }
 
@@ -149,7 +183,7 @@ class LessonViewModel @Inject constructor(
 
     fun isFormValid(): Boolean {
         val state = _uiState.value
-        val hasStudent = state.selectedStudentId != null
+        val hasStudent = if (state.isGroupLesson) state.selectedGroupId != null else state.selectedStudentId != null
         val validDateTime = isValidDate(state.date) && isValidTime(state.startTime)
         return if (state.rateType == RateTypes.PER_LESSON) {
             hasStudent && validDateTime
@@ -178,10 +212,20 @@ class LessonViewModel @Inject constructor(
             if (!isFormValid()) return@launch
 
             val sId = state.selectedStudentId
-            sId?.let {
+            if (state.selectedGroupId != null) {
+                val lesson = Lesson(
+                    studentId = 0,
+                    date = LocalDate.parse(state.date, dateFormatter).toString(),
+                    startTime = state.startTime,
+                    durationMinutes = duration,
+                    notes = state.notes.ifBlank { null },
+                    isPaid = state.isPaid
+                )
+                lessonUseCases.addGroupLesson(state.selectedGroupId!!, lesson)
+            } else if (sId != null) {
                 if (lessonId == null || lessonId == 0L) {
                     val lesson = Lesson(
-                        studentId = it,
+                        studentId = sId,
                         date = LocalDate.parse(state.date, dateFormatter).toString(),
                         startTime = state.startTime,
                         durationMinutes = duration,
@@ -190,18 +234,16 @@ class LessonViewModel @Inject constructor(
                     )
                     lessonUseCases.addLesson(lesson)
                 } else {
-                    lessonId?.let { lId ->
-                        val lesson = Lesson(
-                            id = lId,
-                            studentId = it,
-                            date = LocalDate.parse(state.date, dateFormatter).toString(),
-                            startTime = state.startTime,
-                            durationMinutes = duration,
-                            notes = state.notes.ifBlank { null },
-                            isPaid = state.isPaid
-                        )
-                        lessonUseCases.updateLesson(lesson)
-                    }
+                    val lesson = Lesson(
+                        id = lessonId,
+                        studentId = sId,
+                        date = LocalDate.parse(state.date, dateFormatter).toString(),
+                        startTime = state.startTime,
+                        durationMinutes = duration,
+                        notes = state.notes.ifBlank { null },
+                        isPaid = state.isPaid
+                    )
+                    lessonUseCases.updateLesson(lesson)
                 }
             }
 
@@ -230,7 +272,16 @@ class LessonViewModel @Inject constructor(
     fun calculateFee(): Double {
         val state = _uiState.value
         val duration = state.durationMinutes.toIntOrNull() ?: 0
-        return if (state.rateType == RateTypes.PER_LESSON) {
+        return if (state.selectedGroupId != null) {
+            val students = groupMembers[state.selectedGroupId!!] ?: emptyList()
+            students.sumOf { student ->
+                if (state.rateType == RateTypes.PER_LESSON) {
+                    student.rate
+                } else {
+                    (duration.coerceAtLeast(60) / 60.0) * student.rate
+                }
+            }
+        } else if (state.rateType == RateTypes.PER_LESSON) {
             state.studentRate
         } else {
             (duration.coerceAtLeast(60) / 60.0) * state.studentRate
@@ -248,6 +299,9 @@ data class LessonUiState(
     val rateType: String = RateTypes.HOURLY,
     val availableStudents: List<Student> = emptyList(),
     val selectedStudentId: Long? = null,
+    val availableGroups: List<gr.tsambala.tutorbilling.data.model.StudentGroup> = emptyList(),
+    val selectedGroupId: Long? = null,
+    val isGroupLesson: Boolean = false,
     val isEditMode: Boolean = true,
     val isPaid: Boolean = false
 )
