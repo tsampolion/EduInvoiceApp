@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.21.0] - 2025-07-22
+### Changed
+- Reset version numbers to start the 0.21 series.
+
 ## [0.20.5] - 2025-07-30
 ### Changed
 - Package renamed to `gr.tutorbilling` and app name updated to EduInvoice.

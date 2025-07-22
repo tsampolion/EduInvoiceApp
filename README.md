@@ -67,6 +67,6 @@ When you modify an entity schema:
 ## Changelog
 
 A high level summary of changes lives in [`CHANGELOG.md`](CHANGELOG.md).
-This project is still unreleased and currently version `0.16`. Each
+This project is still unreleased and currently version `0.21.0`. Each
 pull request should bump the version to the next `0.x` value and add a
 changelog entry before merge.
