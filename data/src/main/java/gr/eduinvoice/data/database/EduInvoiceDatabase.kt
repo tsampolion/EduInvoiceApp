@@ -1,4 +1,3 @@
-// EduInvoiceDatabase.kt - Fixed database configuration
 package gr.eduinvoice.data.database
 
 import android.content.Context
