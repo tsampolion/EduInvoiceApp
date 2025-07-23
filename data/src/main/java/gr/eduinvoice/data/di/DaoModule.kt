@@ -7,6 +7,7 @@ import dagger.hilt.components.SingletonComponent
 import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.dao.GroupDao
 import gr.eduinvoice.data.dao.StudentDao
+import gr.eduinvoice.data.dao.UserDao
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 
 @Module
@@ -20,4 +21,7 @@ object DaoModule {
 
     @Provides
     fun provideGroupDao(db: EduInvoiceDatabase): GroupDao = db.groupDao()
+
+    @Provides
+    fun provideUserDao(db: EduInvoiceDatabase): UserDao = db.userDao()
 }

@@ -11,5 +11,6 @@ import gr.eduinvoice.data.database.DatabaseConstants
 )
 data class GroupStudentCrossRef(
     val groupId: Long,
-    val studentId: Long
+    val studentId: Long,
+    val ownerId: Long = 0
 )

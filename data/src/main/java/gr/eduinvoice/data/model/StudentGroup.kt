@@ -8,5 +8,6 @@ import gr.eduinvoice.data.database.DatabaseConstants
 data class StudentGroup(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val ownerId: Long = 0,
     val name: String
 )
