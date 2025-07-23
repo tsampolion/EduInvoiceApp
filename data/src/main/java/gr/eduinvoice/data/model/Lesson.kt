@@ -27,6 +27,7 @@ import java.time.LocalTime
 data class Lesson(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val ownerId: Long = 0,
     val studentId: Long,
     @ColumnInfo(defaultValue = "NULL")
     val groupId: Long? = null,
@@ -52,9 +53,11 @@ data class Lesson(
             durationMinutes: Int,
             notes: String? = null,
             isPaid: Boolean = false,
-            isInvoiced: Boolean = false
+            isInvoiced: Boolean = false,
+            ownerId: Long = 0
         ): Lesson {
             return Lesson(
+                ownerId = ownerId,
                 studentId = studentId,
                 groupId = groupId,
                 date = date.toString(),

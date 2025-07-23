@@ -8,9 +8,11 @@ import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.repository.StudentRepository
 import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.data.repository.GroupRepository
+import gr.eduinvoice.data.repository.UserRepository
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
 import gr.eduinvoice.domain.group.*
+import gr.eduinvoice.domain.user.*
 import javax.inject.Singleton
 
 @Module
@@ -43,6 +45,15 @@ object DomainModule {
             addStudentToGroup = AddStudentToGroup(repository),
             removeStudentFromGroup = RemoveStudentFromGroup(repository),
             getGroupStudents = GetGroupStudents(repository)
+        )
+
+    @Provides
+    @Singleton
+    fun provideUserUseCases(repository: UserRepository): UserUseCases =
+        UserUseCases(
+            createUser = CreateUser(repository),
+            authenticateUser = AuthenticateUser(repository),
+            getUserProfile = GetUserProfile(repository)
         )
 
     @Provides

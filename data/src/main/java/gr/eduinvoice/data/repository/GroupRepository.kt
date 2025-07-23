@@ -15,9 +15,9 @@ class GroupRepository @Inject constructor(
     suspend fun insertGroup(group: StudentGroup): Long = dao.insertGroup(group)
     suspend fun updateGroup(group: StudentGroup) = dao.updateGroup(group)
     suspend fun deleteGroup(group: StudentGroup) = dao.deleteGroup(group)
-    fun getAllGroups(): Flow<List<StudentGroup>> = dao.getAllGroups()
-    fun getGroupById(id: Long): Flow<StudentGroup?> = dao.getGroupById(id)
+    fun getAllGroups(userId: Long = 0): Flow<List<StudentGroup>> = dao.getAllGroups(userId)
+    fun getGroupById(id: Long, userId: Long = 0): Flow<StudentGroup?> = dao.getGroupById(id, userId)
     suspend fun insertCrossRef(crossRef: GroupStudentCrossRef) = dao.insertCrossRef(crossRef)
-    suspend fun deleteCrossRef(groupId: Long, studentId: Long) = dao.deleteCrossRef(groupId, studentId)
-    fun getStudentsForGroup(groupId: Long): Flow<List<Student>> = dao.getStudentsForGroup(groupId)
+    suspend fun deleteCrossRef(groupId: Long, studentId: Long, userId: Long = 0) = dao.deleteCrossRef(groupId, studentId, userId)
+    fun getStudentsForGroup(groupId: Long, userId: Long = 0): Flow<List<Student>> = dao.getStudentsForGroup(groupId, userId)
 }
