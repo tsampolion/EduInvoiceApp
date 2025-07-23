@@ -6,6 +6,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -16,6 +17,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun LoginScreen(
     onBack: () -> Unit,
     onLoggedIn: () -> Unit,
+    onRegister: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -52,8 +54,11 @@ fun LoginScreen(
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth()
             )
-            Button(onClick = { viewModel.login(onLoggedIn) }, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = { viewModel.login { onLoggedIn() } }, modifier = Modifier.fillMaxWidth()) {
                 Text("Login")
+            }
+            TextButton(onClick = onRegister, modifier = Modifier.align(Alignment.End)) {
+                Text("Register")
             }
             uiState.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         }

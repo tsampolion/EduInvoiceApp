@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.eduinvoice.data.user.UserPreferencesRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -14,13 +15,23 @@ import javax.inject.Inject
 class SessionViewModel @Inject constructor(
     private val prefs: UserPreferencesRepository
 ) : ViewModel() {
-    val isLoggedIn: StateFlow<Boolean> = prefs.isLoggedIn.stateIn(
+    val currentUserId: StateFlow<Long?> = prefs.loggedInUserId.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = null
+    )
+
+    val isLoggedIn: StateFlow<Boolean> = currentUserId.map { it != null }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
         initialValue = false
     )
 
-    fun setLoggedIn(value: Boolean) {
-        viewModelScope.launch { prefs.setLoggedIn(value) }
+    fun setLoggedInUser(id: Long) {
+        viewModelScope.launch { prefs.setLoggedInUser(id) }
+    }
+
+    fun logout() {
+        viewModelScope.launch { prefs.setLoggedInUser(null) }
     }
 }

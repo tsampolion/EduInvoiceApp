@@ -38,4 +38,10 @@ class UserDaoTest {
         val user = dao.getByUsername("bob")
         assertEquals("Bob", user?.fullName)
     }
+
+    @Test(expected = android.database.sqlite.SQLiteConstraintException::class)
+    fun insertingDuplicateUsernameFails() = runBlocking {
+        dao.insert(User(username = "bob", passwordHash = "p1", fullName = "B"))
+        dao.insert(User(username = "bob", passwordHash = "p2", fullName = "B2"))
+    }
 }

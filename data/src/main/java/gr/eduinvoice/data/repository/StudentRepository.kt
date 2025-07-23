@@ -14,11 +14,11 @@ class StudentRepository @Inject constructor(
     suspend fun updateStudent(student: Student) = studentDao.update(student)
     suspend fun deleteStudent(student: Student) = studentDao.delete(student)
     suspend fun softDeleteStudent(studentId: Long) = studentDao.softDeleteStudent(studentId)
-    fun getStudentById(id: Long): Flow<Student?> = getStudentByIdAny(id)
-    fun getStudentByIdAny(id: Long): Flow<Student?> = studentDao.getStudentByIdAny(id)
-    fun getAllActiveStudents(): Flow<List<Student>> = studentDao.getAllActiveStudents()
-    fun getArchivedStudents(): Flow<List<Student>> = studentDao.getArchivedStudents()
+    fun getStudentById(id: Long, userId: Long = 0): Flow<Student?> = getStudentByIdAny(id, userId)
+    fun getStudentByIdAny(id: Long, userId: Long = 0): Flow<Student?> = studentDao.getStudentByIdAny(id, userId)
+    fun getAllActiveStudents(userId: Long = 0): Flow<List<Student>> = studentDao.getAllActiveStudents(userId)
+    fun getArchivedStudents(userId: Long = 0): Flow<List<Student>> = studentDao.getArchivedStudents(userId)
     suspend fun restoreStudent(studentId: Long) = studentDao.restoreStudent(studentId)
-    suspend fun getActiveStudentCount(): Int = studentDao.getActiveStudentCount()
-    suspend fun classNameExists(name: String): Boolean = studentDao.classNameExists(name) > 0
+    suspend fun getActiveStudentCount(userId: Long = 0): Int = studentDao.getActiveStudentCount(userId)
+    suspend fun classNameExists(name: String, userId: Long = 0): Boolean = studentDao.classNameExists(name, userId) > 0
 }

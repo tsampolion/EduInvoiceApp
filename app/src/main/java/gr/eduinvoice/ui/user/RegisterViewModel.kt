@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.eduinvoice.data.model.User
+import android.database.sqlite.SQLiteConstraintException
 import gr.eduinvoice.domain.user.UserUseCases
 import gr.eduinvoice.data.user.UserPreferencesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,18 +27,27 @@ class RegisterViewModel @Inject constructor(
 
     fun register(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            val user = User(username = _uiState.value.username,
+            val user = User(
+                username = _uiState.value.username,
                 passwordHash = _uiState.value.password,
-                fullName = _uiState.value.fullName)
-            useCases.createUser(user)
-            prefs.setLoggedIn(true)
-            onSuccess()
+                fullName = _uiState.value.fullName
+            )
+            try {
+                val id = useCases.createUser(user)
+                prefs.setLoggedInUser(id)
+                onSuccess()
+            } catch (e: SQLiteConstraintException) {
+                _uiState.value = _uiState.value.copy(error = "Username already exists")
+            }
         }
     }
+
+    fun dismissError() { _uiState.value = _uiState.value.copy(error = null) }
 }
 
 data class RegisterUiState(
     val username: String = "",
     val password: String = "",
-    val fullName: String = ""
+    val fullName: String = "",
+    val error: String? = null
 )

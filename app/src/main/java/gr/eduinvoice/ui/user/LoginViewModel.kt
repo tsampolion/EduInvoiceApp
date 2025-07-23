@@ -22,12 +22,12 @@ class LoginViewModel @Inject constructor(
     fun updateUsername(value: String) { _uiState.value = _uiState.value.copy(username = value) }
     fun updatePassword(value: String) { _uiState.value = _uiState.value.copy(password = value) }
 
-    fun login(onSuccess: () -> Unit) {
+    fun login(onSuccess: (Long) -> Unit) {
         viewModelScope.launch {
             val user = useCases.authenticateUser(_uiState.value.username, _uiState.value.password)
             if (user != null) {
-                prefs.setLoggedIn(true)
-                onSuccess()
+                prefs.setLoggedInUser(user.id)
+                onSuccess(user.id)
             } else {
                 _uiState.value = _uiState.value.copy(error = "Invalid credentials")
             }

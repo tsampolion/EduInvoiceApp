@@ -43,11 +43,11 @@ fun TutorBillingApp() {
             LoginScreen(
                 onBack = { /* no-op */ },
                 onLoggedIn = {
-                    sessionViewModel.setLoggedIn(true)
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
-                }
+                },
+                onRegister = { navController.navigate(Screen.Register.route) }
             )
         }
 
@@ -156,7 +156,13 @@ fun TutorBillingApp() {
         composable(Screen.Settings.route) {
             SettingsScreen(
                 onBack = { navController.popBackStack() },
-                onPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy.route) }
+                onPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy.route) },
+                onLogout = {
+                    sessionViewModel.logout()
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                }
             )
         }
 

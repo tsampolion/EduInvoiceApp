@@ -1,4 +1,3 @@
-// EduInvoiceDatabase.kt - Fixed database configuration
 package gr.eduinvoice.data.database
 
 import android.content.Context
@@ -15,10 +14,11 @@ import gr.eduinvoice.data.model.Lesson
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.data.model.User
+import gr.eduinvoice.data.database.MIGRATION_12_13
 
 @Database(
     entities = [Student::class, Lesson::class, StudentGroup::class, GroupStudentCrossRef::class, User::class],
-    version = 12,
+    version = 13,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6, spec = AutoMigration5To6::class),
@@ -48,6 +48,7 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
                     DatabaseConstants.DATABASE_NAME
                 )
                     .fallbackToDestructiveMigration(false)
+                    .addMigrations(MIGRATION_12_13)
                     .build()
                 INSTANCE = instance
                 instance

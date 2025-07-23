@@ -1,7 +1,7 @@
 package gr.eduinvoice.data.user
 
 import android.content.Context
-import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -17,14 +17,16 @@ class UserPreferencesRepository @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     private object Keys {
-        val LOGGED_IN = booleanPreferencesKey("logged_in")
+        val LOGGED_IN_USER = longPreferencesKey("logged_in_user")
     }
 
-    val isLoggedIn: Flow<Boolean> = context.userPrefsDataStore.data.map { prefs ->
-        prefs[Keys.LOGGED_IN] ?: false
+    val loggedInUserId: Flow<Long?> = context.userPrefsDataStore.data.map { prefs ->
+        prefs[Keys.LOGGED_IN_USER]
     }
 
-    suspend fun setLoggedIn(value: Boolean) {
-        context.userPrefsDataStore.edit { it[Keys.LOGGED_IN] = value }
+    suspend fun setLoggedInUser(id: Long?) {
+        context.userPrefsDataStore.edit {
+            if (id != null) it[Keys.LOGGED_IN_USER] = id else it.remove(Keys.LOGGED_IN_USER)
+        }
     }
 }

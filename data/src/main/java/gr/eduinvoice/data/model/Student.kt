@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey
 data class Student(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val ownerId: Long = 0,
     val name: String,
     @ColumnInfo(defaultValue = "''")
     val surname: String,

@@ -61,6 +61,7 @@ fun RegisterScreen(
             Button(onClick = { viewModel.register(onRegistered) }, modifier = Modifier.fillMaxWidth()) {
                 Text("Register")
             }
+            uiState.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         }
     }
 }

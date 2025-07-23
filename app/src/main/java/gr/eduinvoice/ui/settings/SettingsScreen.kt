@@ -22,6 +22,7 @@ import gr.eduinvoice.R
 fun SettingsScreen(
     onBack: () -> Unit,
     onPrivacyPolicy: () -> Unit,
+    onLogout: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
@@ -107,6 +108,14 @@ fun SettingsScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
             ) {
                 Text(stringResource(R.string.privacy_policy))
+            }
+
+            Button(
+                onClick = onLogout,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+            ) {
+                Text("Logout")
             }
         }
     }
