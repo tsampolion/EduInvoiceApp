@@ -2,12 +2,14 @@ package gr.eduinvoice
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.ui.home.HomeMenuScreen
 import gr.eduinvoice.ui.classes.ClassesScreen
 import gr.eduinvoice.ui.lessons.LessonsScreen
@@ -22,15 +24,44 @@ import gr.eduinvoice.ui.groups.GroupScreen
 import gr.eduinvoice.ui.settings.SettingsScreen
 import gr.eduinvoice.ui.settings.PrivacyPolicyScreen
 import gr.eduinvoice.navigation.studentGraph
+import gr.eduinvoice.ui.user.LoginScreen
+import gr.eduinvoice.ui.user.RegisterScreen
+import gr.eduinvoice.ui.user.SessionViewModel
 
 @Composable
 fun TutorBillingApp() {
     val navController = rememberNavController()
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    val loggedIn by sessionViewModel.isLoggedIn.collectAsStateWithLifecycle()
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = if (loggedIn) Screen.Home.route else Screen.Login.route
     ) {
+        // Authentication
+        composable(Screen.Login.route) {
+            LoginScreen(
+                onBack = { /* no-op */ },
+                onLoggedIn = {
+                    sessionViewModel.setLoggedIn(true)
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Screen.Register.route) {
+            RegisterScreen(
+                onBack = { navController.popBackStack() },
+                onRegistered = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Register.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         // Home Screen
         composable(Screen.Home.route) {
             HomeMenuScreen(

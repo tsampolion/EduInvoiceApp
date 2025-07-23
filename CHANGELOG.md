@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.21.1] - 2025-08-01
+### Added
+- Basic user accounts with login and registration screens.
+
 ## [0.20.7] - 2025-07-31
 ### Changed
 - Namespace updated to `gr.eduinvoice`.

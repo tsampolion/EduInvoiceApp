@@ -2,6 +2,8 @@ package gr.eduinvoice
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
+    object Login : Screen("login")
+    object Register : Screen("register")
     object Students : Screen("students")
     object Student : Screen("student/{studentId}") {
         fun createRoute(studentId: Long) = "student/$studentId"

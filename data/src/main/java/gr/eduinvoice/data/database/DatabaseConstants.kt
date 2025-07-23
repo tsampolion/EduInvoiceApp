@@ -6,4 +6,5 @@ object DatabaseConstants {
     const val LESSONS_TABLE = "lessons"
     const val GROUPS_TABLE = "student_groups"
     const val GROUP_STUDENT_CROSS_REF_TABLE = "group_student_cross_ref"
+    const val USERS_TABLE = "users"
 }
