@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.21.7] - 2025-08-07
+### Added
+- Categorised settings screen with account info
+- Strings extracted for login and registration
+
 ## [0.21.6] - 2025-08-06
 ### Changed
 - Number keyboard for entering years of experience in registration

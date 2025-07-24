@@ -38,7 +38,10 @@ fun RegisterScreen(
                 title = { Text(stringResource(R.string.register)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 },
                 actions = {
@@ -84,25 +87,25 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = uiState.subjectSpecialty,
                 onValueChange = viewModel::updateSubjectSpecialty,
-                label = { Text("Subject Specialty") },
+                label = { Text(stringResource(R.string.subject_specialty)) },
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
                 value = if (uiState.yearsExperience == 0) "" else uiState.yearsExperience.toString(),
                 onValueChange = viewModel::updateYearsExperience,
-                label = { Text("Years Experience") },
+                label = { Text(stringResource(R.string.years_experience)) },
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
                 value = uiState.subjectSpecialty,
                 onValueChange = viewModel::updateSubjectSpecialty,
-                label = { Text("Subject Specialty") },
+                label = { Text(stringResource(R.string.subject_specialty)) },
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
                 value = if (uiState.yearsExperience == 0) "" else uiState.yearsExperience.toString(),
                 onValueChange = viewModel::updateYearsExperience,
-                label = { Text("Years Experience") },
+                label = { Text(stringResource(R.string.years_experience)) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )

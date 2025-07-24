@@ -172,9 +172,17 @@ fun TutorBillingApp() {
             SettingsScreen(
                 onBack = { navController.popBackStack() },
                 onPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy.route) },
+                onLogin = { navController.navigate(Screen.Login.route) },
+                onRegister = { navController.navigate(Screen.Register.route) },
                 onLogout = {
                     sessionViewModel.logout()
                     navController.navigate(Screen.Welcome.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                },
+                onSwitchAccount = {
+                    sessionViewModel.logout()
+                    navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
                     }
                 }

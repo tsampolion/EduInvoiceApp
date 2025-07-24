@@ -5,23 +5,43 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.eduinvoice.data.settings.AppSettings
 import gr.eduinvoice.data.settings.SettingsRepository
+import gr.eduinvoice.domain.user.UserUseCases
+import gr.eduinvoice.data.user.UserPreferencesRepository
+import gr.eduinvoice.data.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val repository: SettingsRepository
+    private val repository: SettingsRepository,
+    private val prefs: UserPreferencesRepository,
+    private val userUseCases: UserUseCases
 ) : ViewModel() {
-    private val _settings = MutableStateFlow(AppSettings())
-    val settings: StateFlow<AppSettings> = _settings.asStateFlow()
+
+    data class SettingsUiState(
+        val settings: AppSettings = AppSettings(),
+        val user: User? = null
+    )
+
+    private val _uiState = MutableStateFlow(SettingsUiState())
+    val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            repository.settings.collectLatest { _settings.value = it }
+            combine(
+                repository.settings,
+                prefs.loggedInUserId.flatMapLatest { id ->
+                    id?.let { userUseCases.getUserProfile(it) } ?: flowOf(null)
+                }
+            ) { settings, user ->
+                SettingsUiState(settings, user)
+            }.collect { _uiState.value = it }
         }
     }
 

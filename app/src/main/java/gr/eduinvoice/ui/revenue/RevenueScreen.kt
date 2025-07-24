@@ -33,7 +33,8 @@ fun RevenueScreen(
     settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
+    val settingsState by settingsViewModel.uiState.collectAsStateWithLifecycle()
+    val settings = settingsState.settings
 
     Scaffold(
         topBar = {
