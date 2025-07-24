@@ -13,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -90,6 +92,19 @@ fun RegisterScreen(
                 onValueChange = viewModel::updateYearsExperience,
                 label = { Text("Years Experience") },
                 modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = uiState.subjectSpecialty,
+                onValueChange = viewModel::updateSubjectSpecialty,
+                label = { Text("Subject Specialty") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = if (uiState.yearsExperience == 0) "" else uiState.yearsExperience.toString(),
+                onValueChange = viewModel::updateYearsExperience,
+                label = { Text("Years Experience") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
             OutlinedTextField(
                 value = uiState.password,
