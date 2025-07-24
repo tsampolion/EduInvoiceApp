@@ -34,7 +34,15 @@ class UserDaoTest {
 
     @Test
     fun insertAndQueryByUsername() = runBlocking {
-        dao.insert(User(username = "bob", passwordHash = "pass", fullName = "Bob"))
+        dao.insert(
+            User(
+                username = "bob",
+                passwordHash = "pass",
+                fullName = "Bob",
+                subjectSpecialty = "Math",
+                yearsExperience = 5
+            )
+        )
         val user = dao.getByUsername("bob")
         assertEquals("Bob", user?.fullName)
     }

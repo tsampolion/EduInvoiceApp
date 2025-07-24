@@ -36,7 +36,15 @@ class AuthenticateUserTest {
 
     @Test
     fun authenticateUserWithCorrectCredentials() = runBlocking {
-        repository.createUser(User(username = "alice", passwordHash = "password", fullName = "Alice"))
+        repository.createUser(
+            User(
+                username = "alice",
+                passwordHash = "password",
+                fullName = "Alice",
+                subjectSpecialty = "Physics",
+                yearsExperience = 3
+            )
+        )
         val useCase = AuthenticateUser(repository)
         val user = useCase("alice", "password")
         assertNotNull(user)
@@ -44,7 +52,15 @@ class AuthenticateUserTest {
 
     @Test
     fun authenticateUserWithWrongCredentials() = runBlocking {
-        repository.createUser(User(username = "alice", passwordHash = "password", fullName = "Alice"))
+        repository.createUser(
+            User(
+                username = "alice",
+                passwordHash = "password",
+                fullName = "Alice",
+                subjectSpecialty = "Physics",
+                yearsExperience = 3
+            )
+        )
         val useCase = AuthenticateUser(repository)
         val user = useCase("alice", "wrong")
         assertNull(user)

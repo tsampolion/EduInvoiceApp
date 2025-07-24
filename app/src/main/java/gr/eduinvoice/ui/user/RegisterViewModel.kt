@@ -24,13 +24,20 @@ class RegisterViewModel @Inject constructor(
     fun updateUsername(value: String) { _uiState.value = _uiState.value.copy(username = value) }
     fun updatePassword(value: String) { _uiState.value = _uiState.value.copy(password = value) }
     fun updateFullName(value: String) { _uiState.value = _uiState.value.copy(fullName = value) }
+    fun updateSubjectSpecialty(value: String) { _uiState.value = _uiState.value.copy(subjectSpecialty = value) }
+    fun updateYearsExperience(value: String) {
+        val years = value.toIntOrNull() ?: 0
+        _uiState.value = _uiState.value.copy(yearsExperience = years)
+    }
 
     fun register(onSuccess: () -> Unit) {
         viewModelScope.launch {
             val user = User(
                 username = _uiState.value.username,
                 passwordHash = _uiState.value.password,
-                fullName = _uiState.value.fullName
+                fullName = _uiState.value.fullName,
+                subjectSpecialty = _uiState.value.subjectSpecialty,
+                yearsExperience = _uiState.value.yearsExperience
             )
             try {
                 val id = useCases.createUser(user)
@@ -49,5 +56,7 @@ data class RegisterUiState(
     val username: String = "",
     val password: String = "",
     val fullName: String = "",
+    val subjectSpecialty: String = "",
+    val yearsExperience: Int = 0,
     val error: String? = null
 )
