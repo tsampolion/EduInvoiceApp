@@ -1,6 +1,9 @@
 package gr.eduinvoice.ui.user
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -34,6 +37,11 @@ fun LoginScreen(
             )
         }
     ) { padding ->
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -61,6 +69,7 @@ fun LoginScreen(
                 Text("Register")
             }
             uiState.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        }
         }
     }
 }
