@@ -23,6 +23,7 @@ sealed class Screen(val route: String) {
     object PastInvoices : Screen("pastInvoices")
     object Settings : Screen("settings")
     object PrivacyPolicy : Screen("privacyPolicy")
+    object Profile : Screen("profile")
     object ArchivedStudents : Screen("archivedStudents")
     object Groups : Screen("groups")
     object Group : Screen("group/{groupId}") {

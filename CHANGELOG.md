@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.21.8] - 2025-08-08
+### Added
+- Profile screen to edit account details
+
 ## [0.21.7] - 2025-08-07
 ### Added
 - Categorised settings screen with account info

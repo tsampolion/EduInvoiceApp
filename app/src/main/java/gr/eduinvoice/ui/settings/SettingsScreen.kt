@@ -26,6 +26,7 @@ fun SettingsScreen(
     onRegister: () -> Unit,
     onLogout: () -> Unit,
     onSwitchAccount: () -> Unit,
+    onProfile: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -113,6 +114,12 @@ fun SettingsScreen(
             Text(stringResource(R.string.account), style = MaterialTheme.typography.titleMedium)
             state.user?.let { user ->
                 Text(user.fullName.ifBlank { user.username }, style = MaterialTheme.typography.bodyLarge)
+                Button(
+                    onClick = onProfile,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.edit_profile))
+                }
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium),
                     modifier = Modifier.fillMaxWidth()
