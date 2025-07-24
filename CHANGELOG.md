@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.21.5] - 2025-08-05
+### Added
+- Logo and settings access on login and register screens.
+
 ## [0.21.4] - 2025-08-04
 ### Changed
 - Updated lesson tests to construct `Lesson` with named arguments.
