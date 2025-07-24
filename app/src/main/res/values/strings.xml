@@ -77,4 +77,9 @@
     <string name="privacy_policy_text">Your privacy is important to us. This app stores minimal personal data locally on your device.</string>
     <string name="open_in_browser">Open in Browser</string>
     <string name="privacy_policy_url">https://example.com/privacy</string>
+
+    <!-- Welcome screen -->
+    <string name="welcome_message">Welcome to EduInvoice</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
 </resources>

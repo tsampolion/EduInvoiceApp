@@ -1,5 +1,6 @@
 package gr.eduinvoice
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -8,6 +9,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.ui.home.HomeMenuScreen
@@ -23,6 +25,7 @@ import gr.eduinvoice.ui.groups.GroupsScreen
 import gr.eduinvoice.ui.groups.GroupScreen
 import gr.eduinvoice.ui.settings.SettingsScreen
 import gr.eduinvoice.ui.settings.PrivacyPolicyScreen
+import gr.eduinvoice.ui.welcome.WelcomeScreen
 import gr.eduinvoice.navigation.studentGraph
 import gr.eduinvoice.ui.user.LoginScreen
 import gr.eduinvoice.ui.user.RegisterScreen
@@ -34,17 +37,27 @@ fun TutorBillingApp() {
     val sessionViewModel: SessionViewModel = hiltViewModel()
     val loggedIn by sessionViewModel.isLoggedIn.collectAsStateWithLifecycle()
 
+    val startDestination = if (loggedIn) Screen.Home.route else Screen.Welcome.route
+
     NavHost(
         navController = navController,
-        startDestination = if (loggedIn) Screen.Home.route else Screen.Login.route
+        startDestination = startDestination
     ) {
         // Authentication
+        composable(Screen.Welcome.route) {
+            gr.eduinvoice.ui.welcome.WelcomeScreen(
+                onSignIn = { navController.navigate(Screen.Login.route) },
+                onSignUp = { navController.navigate(Screen.Register.route) },
+                onSettings = { navController.navigate(Screen.Settings.route) }
+            )
+        }
+
         composable(Screen.Login.route) {
             LoginScreen(
-                onBack = { /* no-op */ },
+                onBack = { navController.popBackStack() },
                 onLoggedIn = {
                     navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
+                        popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 },
                 onRegister = { navController.navigate(Screen.Register.route) }
@@ -56,7 +69,7 @@ fun TutorBillingApp() {
                 onBack = { navController.popBackStack() },
                 onRegistered = {
                     navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Register.route) { inclusive = true }
+                        popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 }
             )
@@ -159,7 +172,7 @@ fun TutorBillingApp() {
                 onPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy.route) },
                 onLogout = {
                     sessionViewModel.logout()
-                    navController.navigate(Screen.Login.route) {
+                    navController.navigate(Screen.Welcome.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
                     }
                 }
