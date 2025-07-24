@@ -80,6 +80,18 @@ fun RegisterScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
+                value = uiState.subjectSpecialty,
+                onValueChange = viewModel::updateSubjectSpecialty,
+                label = { Text("Subject Specialty") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = if (uiState.yearsExperience == 0) "" else uiState.yearsExperience.toString(),
+                onValueChange = viewModel::updateYearsExperience,
+                label = { Text("Years Experience") },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
                 value = uiState.password,
                 onValueChange = viewModel::updatePassword,
                 label = { Text(stringResource(R.string.password)) },

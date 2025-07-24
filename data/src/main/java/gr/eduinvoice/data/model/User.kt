@@ -1,5 +1,6 @@
 package gr.eduinvoice.data.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -14,5 +15,9 @@ data class User(
     val id: Long = 0,
     val username: String,
     val passwordHash: String,
-    val fullName: String
+    val fullName: String,
+    @ColumnInfo(defaultValue = "''")
+    val subjectSpecialty: String = "",
+    @ColumnInfo(defaultValue = "0")
+    val yearsExperience: Int = 0
 )
