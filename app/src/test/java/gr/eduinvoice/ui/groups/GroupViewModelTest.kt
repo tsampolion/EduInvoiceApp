@@ -103,13 +103,13 @@ class GroupViewModelTest {
         override suspend fun update(student: Student) {}
         override suspend fun delete(student: Student) {}
         override suspend fun softDeleteStudent(studentId: Long) {}
-        override fun getStudentById(studentId: Long): Flow<Student?> = flow.map { list -> list.find { it.id == studentId } }
-        override fun getAllActiveStudents(): Flow<List<Student>> = flow.asStateFlow()
-        override fun getArchivedStudents(): Flow<List<Student>> = flowOf(emptyList())
+        override fun getStudentById(studentId: Long, userId: Long): Flow<Student?> = flow.map { list -> list.find { it.id == studentId } }
+        override fun getAllActiveStudents(userId: Long): Flow<List<Student>> = flow.asStateFlow()
+        override fun getArchivedStudents(userId: Long): Flow<List<Student>> = flowOf(emptyList())
         override suspend fun restoreStudent(studentId: Long) {}
-        override fun getStudentByIdAny(studentId: Long): Flow<Student?> = getStudentById(studentId)
-        override suspend fun getActiveStudentCount(): Int = flow.value.size
-        override suspend fun classNameExists(name: String): Int = flow.value.count { it.className.equals(name, true) }
+        override fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?> = getStudentById(studentId, userId)
+        override suspend fun getActiveStudentCount(userId: Long): Int = flow.value.size
+        override suspend fun classNameExists(name: String, userId: Long): Int = flow.value.count { it.className.equals(name, true) }
     }
 
     class FakeGroupDao(
@@ -129,17 +129,17 @@ class GroupViewModelTest {
             groups.value = groups.value.filterNot { it.id == group.id }
             refs.remove(group.id)
         }
-        override fun getAllGroups(): Flow<List<StudentGroup>> = groups.asStateFlow()
-        override fun getGroupById(id: Long): Flow<StudentGroup?> = groups.map { list -> list.find { it.id == id } }
+        override fun getAllGroups(userId: Long): Flow<List<StudentGroup>> = groups.asStateFlow()
+        override fun getGroupById(id: Long, userId: Long): Flow<StudentGroup?> = groups.map { list -> list.find { it.id == id } }
         override suspend fun insertCrossRef(crossRef: GroupStudentCrossRef) {
             refs.getOrPut(crossRef.groupId) { mutableListOf() }.apply {
                 if (!contains(crossRef.studentId)) add(crossRef.studentId)
             }
         }
-        override suspend fun deleteCrossRef(groupId: Long, studentId: Long) {
+        override suspend fun deleteCrossRef(groupId: Long, studentId: Long, userId: Long) {
             refs[groupId]?.remove(studentId)
         }
-        override fun getStudentsForGroup(groupId: Long): Flow<List<Student>> = students.map { list ->
+        override fun getStudentsForGroup(groupId: Long, userId: Long): Flow<List<Student>> = students.map { list ->
             val ids = refs[groupId] ?: emptyList<Long>()
             list.filter { it.id in ids }
         }
