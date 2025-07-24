@@ -4,8 +4,10 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 import gr.eduinvoice.data.database.DatabaseConstants
 
+@Serializable
 @Entity(
     tableName = DatabaseConstants.USERS_TABLE,
     indices = [Index(value = ["username"], unique = true)]

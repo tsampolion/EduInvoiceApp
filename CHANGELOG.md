@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.21.9] - 2025-08-09
+### Added
+- Backup and restore via Settings screen
+- Encrypted database with SQLCipher
+
 ## [0.21.8] - 2025-08-08
 ### Added
 - Profile screen to edit account details

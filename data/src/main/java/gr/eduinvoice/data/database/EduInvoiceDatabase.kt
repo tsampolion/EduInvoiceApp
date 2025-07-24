@@ -5,6 +5,8 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import net.sqlcipher.database.SQLiteDatabase
+import net.sqlcipher.database.SupportFactory
 import gr.eduinvoice.data.dao.GroupDao
 import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.dao.StudentDao
@@ -41,13 +43,18 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: EduInvoiceDatabase? = null
 
-        fun getDatabase(context: Context): EduInvoiceDatabase {
+        fun getDatabase(
+            context: Context,
+            passphrase: ByteArray = SQLiteDatabase.getBytes("eduinvoice".toCharArray())
+        ): EduInvoiceDatabase {
             return INSTANCE ?: synchronized(this) {
+                val factory = SupportFactory(passphrase)
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     EduInvoiceDatabase::class.java,
                     DatabaseConstants.DATABASE_NAME
                 )
+                    .openHelperFactory(factory)
                     .fallbackToDestructiveMigration(false)
                     .addMigrations(MIGRATION_12_13)
                     .build()
