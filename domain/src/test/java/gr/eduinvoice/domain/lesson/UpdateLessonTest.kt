@@ -28,7 +28,11 @@ class UpdateLessonTest {
         db = Room.inMemoryDatabaseBuilder(context, EduInvoiceDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        repository = TutorBillingRepository(db.studentDao(), db.lessonDao())
+        repository = TutorBillingRepository(
+            db.studentDao(),
+            db.lessonDao(),
+            db.groupDao()
+        )
     }
 
     @After
