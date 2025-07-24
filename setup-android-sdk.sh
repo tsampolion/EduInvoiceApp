@@ -42,13 +42,16 @@ else
   JDK_PACKAGE=openjdk-17-jdk                     # Debian 12 default; AGP 8+ requires JDK 17+
 fi
 
-echo ">>>> 4a · Pre-creating Java certs directory to prevent race condition"
+echo ">>>> 4a · (Fix) Forcing reconfiguration of any pre-existing broken packages"
+dpkg --configure -a
+apt-get -f install -y
+
+echo ">>>> 4b · (Fix) Pre-creating Java certs directory to prevent race condition"
 mkdir -p /etc/ssl/certs/java
 
-echo ">>>> 4b · Installing base packages: $JDK_PACKAGE"
+echo ">>>> 4c · Installing base packages: $JDK_PACKAGE"
 apt-get install -y --no-install-recommends \
   "$JDK_PACKAGE" curl unzip git build-essential libglu1-mesa
-
 
 ###############################################################################
 # 5 · Download cmdline-tools and place them in <sdk>/cmdline-tools/latest
