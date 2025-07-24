@@ -90,4 +90,18 @@
     <string name="register">Register</string>
     <string name="full_name">Full Name</string>
     <string name="settings">Settings</string>
+
+    <!-- Registration -->
+    <string name="subject_specialty">Subject Specialty</string>
+    <string name="years_experience">Years Experience</string>
+
+    <!-- Settings categories -->
+    <string name="general">General</string>
+    <string name="appearance">Appearance</string>
+    <string name="account">Account</string>
+    <string name="currency">Currency</string>
+    <string name="decimal_places">Decimal places</string>
+    <string name="dark_theme">Dark theme</string>
+    <string name="logout">Logout</string>
+    <string name="switch_account">Switch account</string>
 </resources>

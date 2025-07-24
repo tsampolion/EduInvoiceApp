@@ -20,8 +20,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val viewModel: SettingsViewModel = hiltViewModel()
-            val settings = viewModel.settings.collectAsStateWithLifecycle().value
-            TutorBillingTheme(darkTheme = settings.darkTheme) {
+            val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
+            TutorBillingTheme(darkTheme = uiState.settings.darkTheme) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

@@ -22,18 +22,24 @@ import gr.eduinvoice.R
 fun SettingsScreen(
     onBack: () -> Unit,
     onPrivacyPolicy: () -> Unit,
+    onLogin: () -> Unit,
+    onRegister: () -> Unit,
     onLogout: () -> Unit,
+    onSwitchAccount: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
-    val settings by viewModel.settings.collectAsStateWithLifecycle()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
             AppTopBar(
-                title = "Settings",
+                title = stringResource(R.string.settings),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 }
             )
@@ -46,14 +52,15 @@ fun SettingsScreen(
                 .padding(Dimensions.PaddingMedium),
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
+            Text(stringResource(R.string.general), style = MaterialTheme.typography.titleMedium)
             SettingCard(containerColor = MaterialTheme.colorScheme.primaryContainer) {
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
                     OutlinedTextField(
-                        value = settings.currencySymbol,
+                        value = state.settings.currencySymbol,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Currency") },
+                        label = { Text(stringResource(R.string.currency)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                         modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
                     )
@@ -71,10 +78,10 @@ fun SettingsScreen(
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
                     OutlinedTextField(
-                        value = settings.roundingDecimals.toString(),
+                        value = state.settings.roundingDecimals.toString(),
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Decimal places") },
+                        label = { Text(stringResource(R.string.decimal_places)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                         modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
                     )
@@ -88,17 +95,46 @@ fun SettingsScreen(
                     }
                 }
             }
+
+            Text(stringResource(R.string.appearance), style = MaterialTheme.typography.titleMedium)
             SettingCard(containerColor = MaterialTheme.colorScheme.tertiaryContainer) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Dark theme")
+                    Text(stringResource(R.string.dark_theme))
                     Switch(
-                        checked = settings.darkTheme,
+                        checked = state.settings.darkTheme,
                         onCheckedChange = viewModel::updateDarkTheme
                     )
+                }
+            }
+            Text(stringResource(R.string.account), style = MaterialTheme.typography.titleMedium)
+            state.user?.let { user ->
+                Text(user.fullName.ifBlank { user.username }, style = MaterialTheme.typography.bodyLarge)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(onClick = onLogout, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.logout))
+                    }
+                    Button(onClick = onSwitchAccount, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.switch_account))
+                    }
+                }
+            } ?: run {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(onClick = onLogin, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.sign_in))
+                    }
+                    Button(onClick = onRegister, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.sign_up))
+                    }
                 }
             }
 
@@ -108,14 +144,6 @@ fun SettingsScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
             ) {
                 Text(stringResource(R.string.privacy_policy))
-            }
-
-            Button(
-                onClick = onLogout,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
-            ) {
-                Text("Logout")
             }
         }
     }
