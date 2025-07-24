@@ -18,7 +18,7 @@ import gr.eduinvoice.data.database.MIGRATION_12_13
 
 @Database(
     entities = [Student::class, Lesson::class, StudentGroup::class, GroupStudentCrossRef::class, User::class],
-    version = 13,
+    version = 14,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6, spec = AutoMigration5To6::class),
@@ -27,7 +27,8 @@ import gr.eduinvoice.data.database.MIGRATION_12_13
         AutoMigration(from = 8, to = 9),
         AutoMigration(from = 9, to = 10),
         AutoMigration(from = 10, to = 11),
-        AutoMigration(from = 11, to = 12)
+        AutoMigration(from = 11, to = 12),
+        AutoMigration(from = 13, to = 14)
     ]
 )
 abstract class EduInvoiceDatabase : RoomDatabase() {
