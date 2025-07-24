@@ -60,7 +60,8 @@ fun TutorBillingApp() {
                         popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 },
-                onRegister = { navController.navigate(Screen.Register.route) }
+                onRegister = { navController.navigate(Screen.Register.route) },
+                onSettings = { navController.navigate(Screen.Settings.route) }
             )
         }
 
@@ -71,7 +72,8 @@ fun TutorBillingApp() {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
-                }
+                },
+                onSettings = { navController.navigate(Screen.Settings.route) }
             )
         }
 

@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ## [0.21.5] - 2025-08-05
 ### Added
 - User profile fields `subjectSpecialty` and `yearsExperience` with auto-migration.
+- Logo and settings access on login and register screens.
 
 ## [0.21.4] - 2025-08-04
 ### Changed
