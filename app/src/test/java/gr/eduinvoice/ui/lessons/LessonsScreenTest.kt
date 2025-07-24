@@ -63,8 +63,30 @@ class LessonsScreenTest {
         val s2 = Student(id = 2, name = "Bob", surname = "", parentMobile = "", className = "", rate = 10.0)
         val today = LocalDate.now().toString()
         lessonFlow.value = listOf(
-            LessonWithStudent(Lesson(1, 1, null, today, "10:00", 60, null, false), s1),
-            LessonWithStudent(Lesson(2, 2, null, today, "11:00", 60, null, false), s2)
+            LessonWithStudent(
+                Lesson(
+                    id = 1,
+                    studentId = 1,
+                    date = today,
+                    startTime = "10:00",
+                    durationMinutes = 60,
+                    notes = null,
+                    isPaid = false
+                ),
+                s1
+            ),
+            LessonWithStudent(
+                Lesson(
+                    id = 2,
+                    studentId = 2,
+                    date = today,
+                    startTime = "11:00",
+                    durationMinutes = 60,
+                    notes = null,
+                    isPaid = false
+                ),
+                s2
+            )
         )
         val vm = LessonsViewModel(lessonUseCases)
         composeRule.setContent {
@@ -81,7 +103,18 @@ class LessonsScreenTest {
         val s1 = Student(id = 1, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
         val today = LocalDate.now().toString()
         lessonFlow.value = listOf(
-            LessonWithStudent(Lesson(1, 1, null, today, "10:00", 60, null, false), s1)
+            LessonWithStudent(
+                Lesson(
+                    id = 1,
+                    studentId = 1,
+                    date = today,
+                    startTime = "10:00",
+                    durationMinutes = 60,
+                    notes = null,
+                    isPaid = false
+                ),
+                s1
+            )
         )
         val vm = LessonsViewModel(lessonUseCases)
         var clicked = false

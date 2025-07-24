@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.21.4] - 2025-08-04
+### Changed
+- Updated lesson tests to construct `Lesson` with named arguments.
+
 ## [0.21.3] - 2025-08-03
 ### Changed
 - Updated lesson-related integration tests to use group DAO when constructing `TutorBillingRepository`.
