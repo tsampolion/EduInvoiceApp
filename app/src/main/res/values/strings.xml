@@ -104,4 +104,6 @@
     <string name="dark_theme">Dark theme</string>
     <string name="logout">Logout</string>
     <string name="switch_account">Switch account</string>
+    <string name="profile">Profile</string>
+    <string name="edit_profile">Edit Profile</string>
 </resources>

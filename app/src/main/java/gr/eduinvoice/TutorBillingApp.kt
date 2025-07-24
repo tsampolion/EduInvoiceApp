@@ -26,6 +26,7 @@ import gr.eduinvoice.ui.groups.GroupScreen
 import gr.eduinvoice.ui.settings.SettingsScreen
 import gr.eduinvoice.ui.settings.PrivacyPolicyScreen
 import gr.eduinvoice.ui.welcome.WelcomeScreen
+import gr.eduinvoice.ui.profile.ProfileScreen
 import gr.eduinvoice.navigation.studentGraph
 import gr.eduinvoice.ui.user.LoginScreen
 import gr.eduinvoice.ui.user.RegisterScreen
@@ -185,8 +186,13 @@ fun TutorBillingApp() {
                     navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
                     }
-                }
+                },
+                onProfile = { navController.navigate(Screen.Profile.route) }
             )
+        }
+
+        composable(Screen.Profile.route) {
+            gr.eduinvoice.ui.profile.ProfileScreen(onBack = { navController.popBackStack() })
         }
 
         composable(Screen.PrivacyPolicy.route) {

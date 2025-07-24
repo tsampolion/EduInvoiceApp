@@ -53,7 +53,8 @@ object DomainModule {
         UserUseCases(
             createUser = CreateUser(repository),
             authenticateUser = AuthenticateUser(repository),
-            getUserProfile = GetUserProfile(repository)
+            getUserProfile = GetUserProfile(repository),
+            updateUser = UpdateUser(repository)
         )
 
     @Provides
