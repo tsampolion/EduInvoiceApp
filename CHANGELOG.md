@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.21.2] - 2025-08-02
+### Changed
+- Test fakes updated with userId parameters to match DAO signatures.
+
 ## [0.21.1] - 2025-08-01
 ### Added
 - Basic user accounts with login and registration screens.
