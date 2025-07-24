@@ -12,6 +12,8 @@ import gr.eduinvoice.data.repository.StudentRepository
 import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.data.repository.GroupRepository
 import gr.eduinvoice.data.repository.UserRepository
+import gr.eduinvoice.data.repository.BackupRepository
+import gr.eduinvoice.data.database.EduInvoiceDatabase
 import javax.inject.Singleton
 
 @Module
@@ -39,4 +41,8 @@ object RepositoryModule {
         lessonDao: LessonDao,
         groupDao: GroupDao
     ): TutorBillingRepository = TutorBillingRepository(studentDao, lessonDao, groupDao)
+
+    @Provides
+    @Singleton
+    fun provideBackupRepository(db: EduInvoiceDatabase): BackupRepository = BackupRepository(db)
 }

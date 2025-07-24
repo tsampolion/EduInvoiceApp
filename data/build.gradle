@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.1.10'
     id 'com.google.devtools.ksp'
     id 'com.google.dagger.hilt.android'
 }
@@ -28,6 +29,9 @@ dependencies {
     implementation "androidx.room:room-runtime:2.7.1"
     implementation "androidx.room:room-ktx:2.7.1"
     ksp "androidx.room:room-compiler:2.7.1"
+
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
+    implementation "net.zetetic:android-database-sqlcipher:4.5.4"
 
     implementation "androidx.datastore:datastore-preferences:1.1.7"
 

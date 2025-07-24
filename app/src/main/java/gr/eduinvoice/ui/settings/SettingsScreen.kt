@@ -13,6 +13,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import kotlinx.coroutines.launch
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.R
@@ -30,6 +34,32 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val exportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        uri?.let {
+            scope.launch {
+                val json = viewModel.exportBackup()
+                context.contentResolver.openOutputStream(it)?.use { out ->
+                    out.write(json.toByteArray())
+                }
+            }
+        }
+    }
+    val importLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let {
+            scope.launch {
+                context.contentResolver.openInputStream(it)?.use { ins ->
+                    val json = ins.readBytes().decodeToString()
+                    viewModel.restoreBackup(json)
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -142,6 +172,18 @@ fun SettingsScreen(
                     Button(onClick = onRegister, modifier = Modifier.weight(1f)) {
                         Text(stringResource(R.string.sign_up))
                     }
+                }
+            }
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(onClick = { exportLauncher.launch("eduinvoice-backup.json") }, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.backup_export))
+                }
+                Button(onClick = { importLauncher.launch(arrayOf("application/json")) }, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.backup_restore))
                 }
             }
 

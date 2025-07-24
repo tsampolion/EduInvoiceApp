@@ -10,11 +10,14 @@ EduInvoice is an Android application for managing tutoring sessions and invoices
 - Generate PDF invoices from selected lessons
 - Monitor revenue and past invoices
 - Theme and preference settings via DataStore
+- Backup and restore your data to JSON
+- SQLCipher-encrypted database
 
 ## Prerequisites
 
 - **JDK 17 or newer** installed and available on your `PATH`.
 - **Android SDK** with API level 35 and build tools. The repository provides a helper script that installs the required SDK packages.
+- SQLCipher native libraries are pulled via Gradle; no manual setup is needed.
 
 ## Mandatory Android SDK setup
 
@@ -48,6 +51,10 @@ in isolation:
 - **app** – Compose UI and navigation.
 - **domain** – business logic and use-cases.
 - **data** – Room database, repositories, DataStore.
+
+## Backup & Migration
+
+Use the Settings screen to export your entire database to a JSON file and restore it later. When upgrading from versions prior to 0.21.9, create a backup first and restore it after updating so the new SQLCipher encrypted database is populated.
 
 ## Database migrations
 

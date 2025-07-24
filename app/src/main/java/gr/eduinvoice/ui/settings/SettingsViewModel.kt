@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.eduinvoice.data.settings.AppSettings
 import gr.eduinvoice.data.settings.SettingsRepository
 import gr.eduinvoice.domain.user.UserUseCases
+import gr.eduinvoice.data.repository.BackupRepository
 import gr.eduinvoice.data.user.UserPreferencesRepository
 import gr.eduinvoice.data.model.User
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +22,8 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val repository: SettingsRepository,
     private val prefs: UserPreferencesRepository,
-    private val userUseCases: UserUseCases
+    private val userUseCases: UserUseCases,
+    private val backupRepository: BackupRepository
 ) : ViewModel() {
 
     data class SettingsUiState(
@@ -57,4 +59,9 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { repository.setDarkTheme(enabled) }
     }
 
+    suspend fun exportBackup(): String = backupRepository.exportJson()
+
+    fun restoreBackup(json: String) {
+        viewModelScope.launch { backupRepository.restoreFromJson(json) }
+    }
 }
