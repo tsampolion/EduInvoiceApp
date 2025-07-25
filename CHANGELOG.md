@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.21.10] - 2025-08-10
+### Added
+- Compose instrumentation tests for Login, Student and Invoice screens
+- CI now runs connectedAndroidTest using an emulator
+
 ## [0.21.9] - 2025-08-09
 ### Added
 - Backup and restore via Settings screen
