@@ -66,10 +66,6 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Namespace updated to `gr.eduinvoice`.
 
-## [0.21.0] - 2025-07-22
-### Changed
-- Reset version numbers to start the 0.21 series.
-
 ## [0.20.5] - 2025-07-30
 ### Changed
 - Package renamed to `gr.eduinvoice` and app name updated to EduInvoice.
@@ -104,6 +100,10 @@ All notable changes to this project will be documented in this file.
 ## [0.18] - 2025-07-23
 ### Changed
 - Date and time fields in Lesson screen are now directly clickable to open their pickers.
+
+## [0.21.0] - 2025-07-22
+### Changed
+- Reset version numbers to start the 0.21 series.
 
 ## [0.17] - 2025-07-22
 ### Changed
