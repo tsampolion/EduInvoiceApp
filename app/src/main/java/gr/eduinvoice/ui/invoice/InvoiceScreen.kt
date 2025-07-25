@@ -123,6 +123,8 @@ fun InvoiceScreen(
                 title = { Text("Create Invoice") },
                 text = { Text("Generate PDF and mark lessons as paid?") },
                 confirmButton = {
+                    val colors = MaterialTheme.colorScheme
+                    val fonts = MaterialTheme.typography
                     TextButton(onClick = {
                         val selected = lessons.filter { selectedLessons.contains(it.lesson.id) }
                         val invoiceNumber = System.currentTimeMillis().toString()
@@ -131,8 +133,8 @@ fun InvoiceScreen(
                             directory = File(context.filesDir, "invoices"),
                             lessons = selected,
                             invoiceNumber = invoiceNumber,
-                            colorScheme = MaterialTheme.colorScheme,
-                            typography = MaterialTheme.typography
+                            colorScheme = colors,
+                            typography = fonts
                         )
                         viewModel.markAsPaid(selected.map { it.lesson.id })
                         generatedInvoice = uri
