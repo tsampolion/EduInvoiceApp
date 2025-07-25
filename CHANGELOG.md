@@ -182,3 +182,48 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Navigation graph refactored for type-safe routes.
 - Removed manual Room migration scripts in favour of auto-migrations.
+## [0.9] - 2025-06-09
+### Added
+- Invoice generation with payment tracking.
+### Changed
+- Home menu alignment and deprecated API fixes.
+
+## [0.8] - 2025-06-07
+### Changed
+- Search query handling improved across screens.
+- Home and lesson screens redesigned.
+
+## [0.7] - 2025-06-07
+### Added
+- Compose pickers for scheduling lessons.
+### Fixed
+- Time picker import issues.
+
+## [0.6] - 2025-06-06
+### Added
+- Date and time pickers with field validation.
+### Changed
+- Switched to Android platform pickers.
+
+## [0.5] - 2025-06-05
+### Added
+- Student form validation with search functionality.
+### Changed
+- Cleaned up Compose imports.
+
+## [0.4] - 2025-06-05
+### Added
+- Lesson validation rules and CI checks.
+- Initial Classes feature for grouping students.
+
+## [0.3] - 2025-06-05
+### Added
+- `RateTypes` constants and lesson duration validation.
+
+## [0.2] - 2025-06-05
+### Changed
+- Repository and ViewModel structure cleanup.
+
+## [0.1] - 2025-05-25
+### Added
+- Initial project setup with `.gitignore`.
