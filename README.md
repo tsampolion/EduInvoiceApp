@@ -2,7 +2,7 @@
 
 EduInvoice is an Android application for managing tutoring sessions and invoices. It uses Jetpack Compose for the UI and Room as the local database.
 
--## Features
+## Features
 
 - Manage students grouped by class
 - Organize students into groups and schedule group lessons
@@ -74,6 +74,6 @@ When you modify an entity schema:
 ## Changelog
 
 A high level summary of changes lives in [`CHANGELOG.md`](CHANGELOG.md).
-This project is still unreleased and currently version `0.21.0`. Each
+This project is still unreleased and currently version `0.21.12`. Each
 pull request should bump the version to the next `0.x` value and add a
 changelog entry before merge.
