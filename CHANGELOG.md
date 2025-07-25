@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.21.13] - 2025-08-13
+### Changed
+- Made Settings, Register, Login and Profile screens scrollable with keyboard padding.
+
 ## [0.21.12] - 2025-08-12
 ### Changed
 - Unified top bars and paddings using `AppTopBar` and `Dimensions`.
