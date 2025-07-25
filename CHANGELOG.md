@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.21.12] - 2025-08-12
+### Changed
+- Unified top bars and paddings using `AppTopBar` and `Dimensions`.
+- Replaced manual metric rows with `MetricCard` and applied `AppColors`.
+
 ## [0.21.11] - 2025-08-11
 ### Changed
 - Improved invoice PDF generation with Material3 styling and share/print options.

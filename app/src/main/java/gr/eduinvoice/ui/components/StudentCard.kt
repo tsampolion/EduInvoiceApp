@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import gr.eduinvoice.ui.design.Dimensions
+import gr.eduinvoice.ui.design.MetricCard
+import gr.eduinvoice.ui.design.AppColors
 import androidx.compose.ui.res.stringResource
 import gr.eduinvoice.R
 import gr.eduinvoice.data.model.StudentWithEarnings
@@ -55,36 +57,23 @@ fun StudentCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Dimensions.PaddingMedium))
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                    horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
                 ) {
-                    Column {
-                        Text(
-                            text = "This week",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "€%.2f".format(studentWithEarnings.weekEarnings),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-
-                    Column {
-                        Text(
-                            text = "This month",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "€%.2f".format(studentWithEarnings.monthEarnings),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
+                    MetricCard(
+                        label = "This week",
+                        value = "€%.2f".format(studentWithEarnings.weekEarnings),
+                        modifier = Modifier.weight(1f),
+                        containerColor = AppColors.successContainer
+                    )
+                    MetricCard(
+                        label = "This month",
+                        value = "€%.2f".format(studentWithEarnings.monthEarnings),
+                        modifier = Modifier.weight(1f),
+                        containerColor = AppColors.tertiaryContainer
+                    )
                 }
             }
 
