@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.21.11] - 2025-08-11
+### Changed
+- Improved invoice PDF generation with Material3 styling and share/print options.
+
 ## [0.21.10] - 2025-08-10
 ### Added
 - Compose instrumentation tests for Login, Student and Invoice screens
