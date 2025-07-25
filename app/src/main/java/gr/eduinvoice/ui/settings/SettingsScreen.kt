@@ -84,7 +84,7 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
             Text(stringResource(R.string.general), style = MaterialTheme.typography.titleMedium)
-            SettingCard(containerColor = MaterialTheme.colorScheme.primaryContainer) {
+            SettingCard(containerColor = AppColors.primaryContainer) {
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
                     OutlinedTextField(
@@ -105,7 +105,7 @@ fun SettingsScreen(
                     }
                 }
             }
-            SettingCard(containerColor = MaterialTheme.colorScheme.secondaryContainer) {
+            SettingCard(containerColor = AppColors.secondaryContainer) {
                 var expanded by remember { mutableStateOf(false) }
                 ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
                     OutlinedTextField(
@@ -128,7 +128,7 @@ fun SettingsScreen(
             }
 
             Text(stringResource(R.string.appearance), style = MaterialTheme.typography.titleMedium)
-            SettingCard(containerColor = MaterialTheme.colorScheme.tertiaryContainer) {
+            SettingCard(containerColor = AppColors.tertiaryContainer) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -190,7 +190,7 @@ fun SettingsScreen(
             Button(
                 onClick = onPrivacyPolicy,
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+                colors = ButtonDefaults.buttonColors(containerColor = AppColors.errorContainer)
             ) {
                 Text(stringResource(R.string.privacy_policy))
             }

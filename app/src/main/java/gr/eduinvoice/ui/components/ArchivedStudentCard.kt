@@ -12,6 +12,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import gr.eduinvoice.ui.design.Dimensions
+import gr.eduinvoice.ui.design.AppColors
+import gr.eduinvoice.ui.design.MetricCard
 import gr.eduinvoice.R
 import gr.eduinvoice.data.model.StudentWithEarnings
 import gr.eduinvoice.utils.getFullName
@@ -55,36 +57,23 @@ fun ArchivedStudentCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(Dimensions.PaddingMedium))
 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(24.dp)
+                    horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
                 ) {
-                    Column {
-                        Text(
-                            text = stringResource(R.string.week_total),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = stringResource(R.string.currency_format, studentWithEarnings.weekEarnings),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-
-                    Column {
-                        Text(
-                            text = stringResource(R.string.month_total),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = stringResource(R.string.currency_format, studentWithEarnings.monthEarnings),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
+                    MetricCard(
+                        label = stringResource(R.string.week_total),
+                        value = stringResource(R.string.currency_format, studentWithEarnings.weekEarnings),
+                        modifier = Modifier.weight(1f),
+                        containerColor = AppColors.successContainer
+                    )
+                    MetricCard(
+                        label = stringResource(R.string.month_total),
+                        value = stringResource(R.string.currency_format, studentWithEarnings.monthEarnings),
+                        modifier = Modifier.weight(1f),
+                        containerColor = AppColors.tertiaryContainer
+                    )
                 }
             }
 

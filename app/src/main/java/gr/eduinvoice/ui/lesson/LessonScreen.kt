@@ -259,7 +259,7 @@ fun LessonScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    containerColor = AppColors.secondaryContainer
                 )
             ) {
                 Row(

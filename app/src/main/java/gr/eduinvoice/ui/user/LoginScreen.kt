@@ -15,6 +15,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import gr.eduinvoice.ui.design.AppTopBar
+import gr.eduinvoice.ui.design.Dimensions
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,8 +35,8 @@ fun LoginScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.login)) },
+            AppTopBar(
+                title = stringResource(R.string.login),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -60,10 +62,10 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(Dimensions.PaddingMedium),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(Dimensions.PaddingMedium * 2))
             Image(
                 painter = painterResource(R.drawable.tutorbilling_logo),
                 contentDescription = stringResource(R.string.app_logo_desc),

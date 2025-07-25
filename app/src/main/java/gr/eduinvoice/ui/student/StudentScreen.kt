@@ -178,7 +178,7 @@ private fun StudentDetailView(
                     .fillMaxWidth()
                     .padding(Dimensions.PaddingMedium),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                    containerColor = AppColors.primaryContainer
                 )
             ) {
                 Column(
