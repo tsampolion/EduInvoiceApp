@@ -13,6 +13,7 @@ import gr.eduinvoice.data.repository.StudentRepository
 import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -120,6 +121,7 @@ class InvoiceViewModelTest {
         isLessonInvoiced = IsLessonInvoiced(lessonDao)
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun markAsPaidMarksInvoiced() = runTest {
         val student = Student(id = 1, name = "Alice", surname = "", parentMobile = "", className = "A", rate = 10.0)

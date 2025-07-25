@@ -16,6 +16,7 @@ import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.data.model.GroupStudentCrossRef
 import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.lesson.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -98,6 +99,7 @@ class LessonsScreenTest {
         assertTrue(header1 < header2)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun checkboxAndClickCallbacksWork() = runTest {
         val s1 = Student(id = 1, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)

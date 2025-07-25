@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import gr.eduinvoice.MainDispatcherRule
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Rule
@@ -88,6 +89,7 @@ class RevenueViewModelTest {
         isLessonInvoiced = IsLessonInvoiced(lessonDao)
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun debtsCalculatedAndCleared() = runTest {
         val s1 = Student(id = 1, name = "Alice", surname = "", parentMobile = "", className = "A", rate = 20.0)

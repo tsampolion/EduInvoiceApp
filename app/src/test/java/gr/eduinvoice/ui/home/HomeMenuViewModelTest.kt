@@ -34,6 +34,7 @@ import gr.eduinvoice.domain.student.RestoreStudent
 import gr.eduinvoice.domain.student.SoftDeleteStudent
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.student.UpdateStudent
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -87,6 +88,7 @@ class HomeMenuViewModelTest {
         isLessonInvoiced = IsLessonInvoiced(lessonDao)
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun classCountReflectsDistinctClasses() = runTest {
         val vm = HomeMenuViewModel(studentUseCases, lessonUseCases)

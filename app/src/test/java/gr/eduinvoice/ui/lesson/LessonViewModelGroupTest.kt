@@ -15,6 +15,7 @@ import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -83,6 +84,7 @@ class LessonViewModelGroupTest {
         getGroupStudents = GetGroupStudents(groupRepository)
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun selectGroupLoadsStudentsAndSetsGroupLesson() = runTest {
         val s1 = Student(id = 1, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
@@ -103,6 +105,7 @@ class LessonViewModelGroupTest {
         assertEquals(null, vm.uiState.value.selectedStudentId)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun saveLessonInsertsOnePerGroupMember() = runTest {
         val s1 = Student(id = 1, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)

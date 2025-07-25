@@ -9,6 +9,7 @@ import gr.eduinvoice.domain.user.UserUseCases
 import gr.eduinvoice.data.repository.BackupRepository
 import gr.eduinvoice.data.user.UserPreferencesRepository
 import gr.eduinvoice.data.model.User
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val repository: SettingsRepository,

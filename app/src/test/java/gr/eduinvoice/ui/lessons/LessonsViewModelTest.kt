@@ -11,6 +11,7 @@ import gr.eduinvoice.data.dao.GroupDao
 import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.data.model.GroupStudentCrossRef
 import gr.eduinvoice.domain.lesson.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,6 +54,7 @@ class LessonsViewModelTest {
         isLessonInvoiced = IsLessonInvoiced(lessonDao)
     )
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun sortsLessonsByStudentName() = runTest {
         val s1 = Student(id = 1, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
@@ -93,6 +95,7 @@ class LessonsViewModelTest {
         assertEquals(listOf(s1.id, s2.id), list.map { it.student.id })
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun updatePaidShowsGenerateInvoiceForUninvoicedLesson() = runTest {
         val student = Student(id = 1, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
@@ -121,6 +124,7 @@ class LessonsViewModelTest {
         assertEquals(LessonDialog.GenerateInvoice(1, 1), vm.uiState.value.dialog)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun updatePaidShowsAlreadyInvoicedDialogWhenLessonInvoiced() = runTest {
         val student = Student(id = 1, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
