@@ -36,6 +36,7 @@ import gr.eduinvoice.R
 import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.ui.components.ClickableReadOnlyField
 import gr.eduinvoice.utils.getFullName
+import androidx.compose.ui.graphics.toArgb
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDate
@@ -59,6 +60,7 @@ fun InvoiceScreen(
     val selectedLessons by viewModel.selectedLessons.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var showConfirm by remember { mutableStateOf(false) }
+    var generatedInvoice by remember { mutableStateOf<Uri?>(null) }
 
     Scaffold(
         topBar = {
@@ -123,20 +125,61 @@ fun InvoiceScreen(
                 confirmButton = {
                     TextButton(onClick = {
                         val selected = lessons.filter { selectedLessons.contains(it.lesson.id) }
-                        val uri = createInvoicePdf(File(context.filesDir, "invoices"), selected)
+                        val invoiceNumber = System.currentTimeMillis().toString()
+                        val uri = createInvoicePdf(
+                            context = context,
+                            directory = File(context.filesDir, "invoices"),
+                            lessons = selected,
+                            invoiceNumber = invoiceNumber,
+                            colorScheme = MaterialTheme.colorScheme,
+                            typography = MaterialTheme.typography
+                        )
                         viewModel.markAsPaid(selected.map { it.lesson.id })
-                        val pdfFile = uri.toFile()
-                        val share = Intent(Intent.ACTION_SEND).apply {
-                            type = "application/pdf"
-                            putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "${context.packageName}.provider", pdfFile))
-                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        }
-                        context.startActivity(Intent.createChooser(share, null))
+                        generatedInvoice = uri
                         showConfirm = false
                     }) { Text("Create") }
                 },
                 dismissButton = {
                     TextButton(onClick = { showConfirm = false }) { Text("Cancel") }
+                }
+            )
+        }
+        generatedInvoice?.let { uri ->
+            AlertDialog(
+                onDismissRequest = { generatedInvoice = null },
+                title = { Text("Invoice Created") },
+                text = { Text("Share or print the invoice?") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        val pdfFile = uri.toFile()
+                        val share = Intent(Intent.ACTION_SEND).apply {
+                            type = "application/pdf"
+                            putExtra(
+                                Intent.EXTRA_STREAM,
+                                FileProvider.getUriForFile(
+                                    context,
+                                    "${context.packageName}.provider",
+                                    pdfFile
+                                )
+                            )
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        context.startActivity(Intent.createChooser(share, null))
+                        generatedInvoice = null
+                    }) { Text("Share") }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        val pdfFile = uri.toFile()
+                        val printManager =
+                            context.getSystemService(android.content.Context.PRINT_SERVICE) as android.print.PrintManager
+                        printManager.print(
+                            "invoice",
+                            gr.eduinvoice.utils.PdfFilePrintAdapter(context, pdfFile),
+                            null
+                        )
+                        generatedInvoice = null
+                    }) { Text("Print") }
                 }
             )
         }
@@ -196,28 +239,80 @@ private fun DateField(label: String, date: LocalDate, onDate: (LocalDate) -> Uni
     }
 }
 
-fun createInvoicePdf(directory: File, lessons: List<LessonWithStudent>): Uri {
+fun createInvoicePdf(
+    context: android.content.Context,
+    directory: File,
+    lessons: List<LessonWithStudent>,
+    invoiceNumber: String,
+    colorScheme: androidx.compose.material3.ColorScheme,
+    typography: androidx.compose.material3.Typography,
+    tutorName: String = "Tutor Name",
+    tutorAddress: String = "123 Education Lane"
+): Uri {
     val pdf = android.graphics.pdf.PdfDocument()
-    val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(595, 842, 1).create()
+    val width = 595
+    val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(width, 842, 1).create()
     val page = pdf.startPage(pageInfo)
     val canvas = page.canvas
-    var y = 50
-    val paint = android.graphics.Paint()
-    lessons.forEach {
-        canvas.drawText(
-            "${it.lesson.date} ${it.student.getFullName()} €%.2f".format(it.calculateFee()),
-            40f,
-            y.toFloat(),
-            paint
-        )
+
+    val headerPaint = android.graphics.Paint().apply {
+        color = colorScheme.primary.toArgb()
+    }
+    canvas.drawRect(0f, 0f, width.toFloat(), 80f, headerPaint)
+    val logo = android.graphics.BitmapFactory.decodeResource(context.resources, R.drawable.tutorbilling_logo)
+    canvas.drawBitmap(logo, 20f, 10f, null)
+
+    val titlePaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+        color = colorScheme.onPrimary.toArgb()
+        textSize = typography.titleLarge.fontSize.value * 2
+        typeface = android.graphics.Typeface.DEFAULT_BOLD
+    }
+    canvas.drawText(tutorName, 100f, 40f, titlePaint)
+    canvas.drawText(tutorAddress, 100f, 60f, titlePaint)
+
+    val infoPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+        color = colorScheme.onBackground.toArgb()
+        textSize = typography.titleMedium.fontSize.value * 2
+    }
+    canvas.drawText("Invoice #$invoiceNumber", width - 200f, 40f, infoPaint)
+
+    var y = 110
+    val linePaint = android.graphics.Paint().apply {
+        color = colorScheme.outline.toArgb()
+        strokeWidth = 1f
+    }
+    val textPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+        color = colorScheme.onBackground.toArgb()
+        textSize = typography.bodyMedium.fontSize.value * 2
+    }
+    canvas.drawText("Date", 40f, y.toFloat(), infoPaint)
+    canvas.drawText("Student", 180f, y.toFloat(), infoPaint)
+    canvas.drawText("Amount", width - 120f, y.toFloat(), infoPaint)
+    y += 10
+    canvas.drawLine(40f, y.toFloat(), width - 40f, y.toFloat(), linePaint)
+    y += 20
+
+    var total = 0.0
+    lessons.forEach { item ->
+        canvas.drawText(item.lesson.date, 40f, y.toFloat(), textPaint)
+        canvas.drawText(item.student.getFullName(), 180f, y.toFloat(), textPaint)
+        val amount = item.calculateFee()
+        total += amount
+        canvas.drawText("€%.2f".format(amount), width - 120f, y.toFloat(), textPaint)
         y += 20
     }
+    y += 10
+    canvas.drawLine(40f, y.toFloat(), width - 40f, y.toFloat(), linePaint)
+    y += 25
+    canvas.drawText("Total: €%.2f".format(total), width - 120f, y.toFloat(), infoPaint)
+
     pdf.finishPage(page)
     if (!directory.exists()) directory.mkdirs()
-    val file = File(directory, "invoice-${System.currentTimeMillis()}.pdf")
+    val file = File(directory, "invoice-$invoiceNumber.pdf")
     FileOutputStream(file).use { pdf.writeTo(it) }
     pdf.close()
-    return Uri.fromFile(file)
+    logo.recycle()
+    return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
