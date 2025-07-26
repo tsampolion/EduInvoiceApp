@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.23] - 2025-08-23
+### Security
+- Database passphrase stored encrypted in Android Keystore.
+
 ## [0.21.22] - 2025-08-22
 ### App
 - ViewModels fetch logged-in user via `CurrentUserProvider` and pass IDs to use cases.
