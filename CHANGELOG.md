@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.17] - 2025-08-17
+### Build/CI
+- Remove duplicate Crashlytics dependency entry.
+
 ## [0.21.16] - 2025-08-16
 ### Build/CI
 - Enable code shrinking and resource shrinking in release builds.
