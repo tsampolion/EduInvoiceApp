@@ -8,5 +8,6 @@ import javax.inject.Inject
 class GetGroupById @Inject constructor(
     private val repository: GroupRepository
 ) {
-    operator fun invoke(id: Long): Flow<StudentGroup?> = repository.getGroupById(id)
+    operator fun invoke(id: Long, userId: Long = 0): Flow<StudentGroup?> =
+        repository.getGroupById(id, userId)
 }

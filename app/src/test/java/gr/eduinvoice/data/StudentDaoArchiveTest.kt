@@ -40,10 +40,10 @@ class StudentDaoArchiveTest {
     fun softDeleteAndRestoreStudent() = runBlocking {
         val id = dao.insert(Student(name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0))
         dao.softDeleteStudent(id)
-        val archived = dao.getArchivedStudents().first()
+        val archived = dao.getArchivedStudents(0).first()
         assertEquals(1, archived.size)
         dao.restoreStudent(id)
-        val active = dao.getAllActiveStudents().first()
+        val active = dao.getAllActiveStudents(0).first()
         assertEquals(1, active.size)
         assertEquals(id, active.first().id)
     }
@@ -52,7 +52,7 @@ class StudentDaoArchiveTest {
     fun getStudentByIdAnyReturnsArchived() = runBlocking {
         val id = dao.insert(Student(name = "Bob", surname = "", parentMobile = "", className = "", rate = 12.0))
         dao.softDeleteStudent(id)
-        val student = dao.getStudentByIdAny(id).first()
+        val student = dao.getStudentByIdAny(id, 0).first()
         assertNotNull(student)
         assertEquals(false, student?.isActive)
     }

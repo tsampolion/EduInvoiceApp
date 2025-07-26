@@ -42,10 +42,10 @@ class ArchiveRestoreStudentTest {
         val restore = RestoreStudent(repository)
         val id = insert(Student(name = "Bob", surname = "", parentMobile = "", className = "B", rate = 15.0))
         archive(id)
-        val archived = db.studentDao().getArchivedStudents().first()
+        val archived = db.studentDao().getArchivedStudents(0).first()
         assertEquals(1, archived.size)
         restore(id)
-        val active = db.studentDao().getAllActiveStudents().first()
+        val active = db.studentDao().getAllActiveStudents(0).first()
         assertEquals(id, active.first().id)
     }
 }

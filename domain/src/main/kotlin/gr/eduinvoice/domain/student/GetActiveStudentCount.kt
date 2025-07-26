@@ -6,5 +6,6 @@ import javax.inject.Inject
 class GetActiveStudentCount @Inject constructor(
     private val repository: StudentRepository
 ) {
-    suspend operator fun invoke(): Int = repository.getActiveStudentCount()
+    suspend operator fun invoke(userId: Long = 0): Int =
+        repository.getActiveStudentCount(userId)
 }

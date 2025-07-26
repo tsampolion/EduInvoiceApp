@@ -67,14 +67,14 @@ class TutorBillingRepository @Inject constructor(
      * Gets a single student by ID.
      */
     suspend fun getStudent(studentId: Long): Student? {
-        return studentDao.getStudentById(studentId).first()
+        return studentDao.getStudentById(studentId, 0).first()
     }
 
     /**
      * Gets all active students as a Flow.
      */
     fun getAllActiveStudents(): Flow<List<Student>> {
-        return studentDao.getAllActiveStudents()
+        return studentDao.getAllActiveStudents(0)
     }
 
     // ===== Lesson Operations =====
@@ -89,7 +89,7 @@ class TutorBillingRepository @Inject constructor(
      */
     suspend fun addLesson(lesson: Lesson): Long {
         require(lesson.durationMinutes > 0) { "Lesson duration must be positive" }
-        val student = studentDao.getStudentById(lesson.studentId).first()
+        val student = studentDao.getStudentById(lesson.studentId, 0).first()
         checkNotNull(student) { "Cannot add lesson for a non-existent student" }
         check(student.isActive) { "Cannot add lesson for an inactive student" }
         return lessonDao.insert(lesson)
@@ -97,7 +97,7 @@ class TutorBillingRepository @Inject constructor(
 
     suspend fun addGroupLesson(groupId: Long, lesson: Lesson): List<Long> {
         require(lesson.durationMinutes > 0) { "Lesson duration must be positive" }
-        val students = groupDao.getStudentsForGroup(groupId).first()
+        val students = groupDao.getStudentsForGroup(groupId, 0).first()
         return students.map { student ->
             lessonDao.insert(
                 lesson.copy(
@@ -160,7 +160,7 @@ class TutorBillingRepository @Inject constructor(
         val monthEnd = today.withDayOfMonth(today.lengthOfMonth())
 
         return combine(
-            studentDao.getAllActiveStudents(),
+            studentDao.getAllActiveStudents(0),
             lessonDao.getAllLessons()
         ) { students, lessons ->
             students.map { student ->
@@ -191,7 +191,7 @@ class TutorBillingRepository @Inject constructor(
     fun getTotalEarningsForDateRange(startDate: LocalDate, endDate: LocalDate): Flow<Double> {
         return combine(
             lessonDao.getLessonsInDateRange(startDate.toString(), endDate.toString()),
-            studentDao.getAllActiveStudents()
+            studentDao.getAllActiveStudents(0)
         ) { lessons, students ->
             val studentMap = students.associateBy { it.id }
             lessons.sumOf { lesson ->
@@ -217,7 +217,7 @@ class TutorBillingRepository @Inject constructor(
      * Generates a detailed report for a single student.
      */
     suspend fun getStudentDetailedReport(studentId: Long): StudentDetailedReport? {
-        val student = studentDao.getStudentById(studentId).first() ?: return null
+        val student = studentDao.getStudentById(studentId, 0).first() ?: return null
         val lessons: List<Lesson> = lessonDao.getLessonsByStudentId(studentId).first()
         val totalMinutes = lessons.sumOf { it.durationMinutes }
         val totalHours = totalMinutes / 60.0

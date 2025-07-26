@@ -19,10 +19,10 @@ interface GroupDao {
     suspend fun deleteGroup(group: StudentGroup)
 
     @Query("SELECT * FROM ${gr.eduinvoice.data.database.DatabaseConstants.GROUPS_TABLE} WHERE ownerId = :userId ORDER BY name ASC")
-    fun getAllGroups(userId: Long = 0): Flow<List<StudentGroup>>
+    fun getAllGroups(userId: Long): Flow<List<StudentGroup>>
 
     @Query("SELECT * FROM ${gr.eduinvoice.data.database.DatabaseConstants.GROUPS_TABLE} WHERE id = :id AND ownerId = :userId")
-    fun getGroupById(id: Long, userId: Long = 0): Flow<StudentGroup?>
+    fun getGroupById(id: Long, userId: Long): Flow<StudentGroup?>
 
     // Cross-ref operations
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -31,11 +31,11 @@ interface GroupDao {
     @Query(
         "DELETE FROM ${gr.eduinvoice.data.database.DatabaseConstants.GROUP_STUDENT_CROSS_REF_TABLE} WHERE groupId = :groupId AND studentId = :studentId AND ownerId = :userId"
     )
-    suspend fun deleteCrossRef(groupId: Long, studentId: Long, userId: Long = 0)
+    suspend fun deleteCrossRef(groupId: Long, studentId: Long, userId: Long)
 
     @Transaction
     @Query(
         "SELECT students.* FROM students INNER JOIN ${gr.eduinvoice.data.database.DatabaseConstants.GROUP_STUDENT_CROSS_REF_TABLE} ON students.id = ${gr.eduinvoice.data.database.DatabaseConstants.GROUP_STUDENT_CROSS_REF_TABLE}.studentId WHERE ${gr.eduinvoice.data.database.DatabaseConstants.GROUP_STUDENT_CROSS_REF_TABLE}.groupId = :groupId AND ${gr.eduinvoice.data.database.DatabaseConstants.GROUP_STUDENT_CROSS_REF_TABLE}.ownerId = :userId AND students.ownerId = :userId"
     )
-    fun getStudentsForGroup(groupId: Long, userId: Long = 0): Flow<List<Student>>
+    fun getStudentsForGroup(groupId: Long, userId: Long): Flow<List<Student>>
 }
