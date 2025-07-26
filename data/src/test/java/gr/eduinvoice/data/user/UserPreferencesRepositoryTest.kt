@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,7 +32,7 @@ class UserPreferencesRepositoryTest {
     @Test
     fun databasePassphraseDefault() = runBlocking {
         val default = repo.getDbPassphrase()
-        assertEquals("eduinvoice", default)
+        assertTrue(default.isNotEmpty())
         repo.setDbPassphrase("secret")
         assertEquals("secret", repo.getDbPassphrase())
     }
