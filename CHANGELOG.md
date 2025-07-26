@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.21.18] - 2025-08-18
+### Fix
+- Display the correct rate suffix in `StudentCard` based on `rateType`.
+
+### Test
+- Added Compose tests verifying the rate label for both rate types.
+
 ### UI/Design
 - Remove duplicate input fields on Register screen.
 
