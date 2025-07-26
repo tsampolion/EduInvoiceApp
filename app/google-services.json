@@ -12,7 +12,7 @@
         }
       },
       "api_key": [
-        {"current_key": "dummy"}
+        {"current_key": "YOUR_FIREBASE_API_KEY"}
       ],
       "services": {
         "appinvite_service": {
