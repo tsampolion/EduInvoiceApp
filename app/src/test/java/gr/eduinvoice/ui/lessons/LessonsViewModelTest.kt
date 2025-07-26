@@ -155,6 +155,30 @@ class LessonsViewModelTest {
         assertEquals(LessonDialog.AlreadyInvoiced(1, true), vm.uiState.value.dialog)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun updatePaidAffectsOnlyCurrentUserLesson() = runTest {
+        val today = LocalDate.now().toString()
+        val mine = LessonWithStudent(
+            Lesson(id = 1, studentId = 1, ownerId = 1, date = today, startTime = "10:00", durationMinutes = 60),
+            Student(id = 1, ownerId = 1, name = "Me", surname = "", parentMobile = "", className = "", rate = 10.0)
+        )
+        val theirs = LessonWithStudent(
+            Lesson(id = 2, studentId = 2, ownerId = 2, date = today, startTime = "11:00", durationMinutes = 60),
+            Student(id = 2, ownerId = 2, name = "You", surname = "", parentMobile = "", className = "", rate = 10.0)
+        )
+        lessonFlow.value = listOf(mine, theirs)
+
+        val vm = LessonsViewModel(lessonUseCases, userProvider)
+        advanceUntilIdle()
+
+        vm.updatePaid(1, true)
+        advanceUntilIdle()
+
+        assertEquals(true, lessonFlow.value[0].lesson.isPaid)
+        assertEquals(false, lessonFlow.value[1].lesson.isPaid)
+    }
+
     class FakeStudentDao(private val flow: MutableStateFlow<List<Student>>) : StudentDao {
         override suspend fun insert(student: Student): Long {
             flow.value = flow.value + student

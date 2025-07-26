@@ -11,6 +11,7 @@ import gr.eduinvoice.data.model.calculateFee
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.data.model.Lesson
+import gr.eduinvoice.data.user.CurrentUserProvider
 import gr.eduinvoice.utils.EarningsCalculator
 import gr.eduinvoice.utils.ClassOptions
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +25,8 @@ import javax.inject.Inject
 class StudentViewModel @Inject constructor(
     private val studentUseCases: StudentUseCases,
     private val lessonUseCases: LessonUseCases,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
 
     val studentId: Long = savedStateHandle.get<Long>("studentId") ?: 0L
@@ -50,14 +52,14 @@ class StudentViewModel @Inject constructor(
 
     private fun loadData() {
         viewModelScope.launch {
-            combine(
-                studentUseCases.getStudentById(studentId),
-                lessonUseCases.getStudentLessons(studentId)
-            ) { student, lessons -> student to lessons }
-                .catch { e ->
-                    _uiState.update { it.copy(errorMessage = e.message) }
-                }
-                .collect { (student, lessons) ->
+            currentUserProvider.loggedInUserId.filterNotNull().flatMapLatest { uid ->
+                combine(
+                    studentUseCases.getStudentById(studentId, uid),
+                    lessonUseCases.getStudentLessons(studentId, uid)
+                ) { student, lessons -> student to lessons }
+            }.catch { e ->
+                _uiState.update { it.copy(errorMessage = e.message) }
+            }.collect { (student, lessons) ->
                     val (week, month) = student?.let { EarningsCalculator.calculate(it, lessons) } ?: (0.0 to 0.0)
                     val total = student?.let { lessons.sumOf { l -> l.calculateFee(it) } } ?: 0.0
                     _uiState.update { currentState ->
@@ -155,6 +157,7 @@ class StudentViewModel @Inject constructor(
         val className = if (state.selectedClass == "Custom") state.customClass.trim() else state.selectedClass
 
         viewModelScope.launch {
+            val userId = currentUserProvider.loggedInUserId.first() ?: return@launch
             _uiState.update { it.copy(isLoading = true) }
 
             try {
@@ -179,6 +182,7 @@ class StudentViewModel @Inject constructor(
                     )
                 } else {
                     Student(
+                        ownerId = userId,
                         name = state.name,
                         surname = state.surname,
                         parentMobile = mobile,

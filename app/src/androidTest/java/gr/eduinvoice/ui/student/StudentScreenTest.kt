@@ -19,6 +19,7 @@ import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
+import gr.eduinvoice.FakeUserProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -87,6 +88,7 @@ class StudentScreenTest {
         val studentRepo = StudentRepository(studentDao)
         val groupRepo = GroupRepository(groupDao)
         val billingRepo = TutorBillingRepository(studentDao, lessonDao, groupDao)
+        val userProvider = FakeUserProvider(1L)
         val studentUseCases = StudentUseCases(
             getActiveStudents = GetActiveStudents(studentRepo),
             getArchivedStudents = GetArchivedStudents(studentRepo),
@@ -122,7 +124,12 @@ class StudentScreenTest {
             removeStudentFromGroup = RemoveStudentFromGroup(groupRepo),
             getGroupStudents = GetGroupStudents(groupRepo)
         )
-        viewModel = StudentViewModel(studentUseCases, lessonUseCases, androidx.lifecycle.SavedStateHandle(mapOf("studentId" to 1L)))
+        viewModel = StudentViewModel(
+            studentUseCases,
+            lessonUseCases,
+            androidx.lifecycle.SavedStateHandle(mapOf("studentId" to 1L)),
+            userProvider
+        )
     }
 
     @Test
