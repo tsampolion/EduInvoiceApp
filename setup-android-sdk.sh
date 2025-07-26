@@ -2,10 +2,11 @@
 ###############################################################################
 # Android SDK bootstrap for CI/CD runners
 #
-# v5: Definitive fix.
-#     - Resolves 'ca-certificates-java' crash by separating JDK installation
-#       from certificate installation, ensuring correct directory state.
-#     - Hardened for user context, file ownership, and CI reproducibility.
+# v6: Definitive and Final.
+#     - Fixes 'sudo: run_sdk: command not found' by defining the helper
+#       function within the same sub-shell context where it is called.
+#     - Encapsulates all user-specific commands in a single heredoc for
+#       maximum robustness and atomicity.
 ###############################################################################
 set -euo pipefail
 
@@ -42,9 +43,6 @@ echo ">>>> 1 · Refreshing apt index"
 apt-get update -y
 
 echo ">>>> 2 · Fixing Java environment"
-# DEFINITIVE FIX: Perform the purge, JDK install, and certificate install
-# in separate, sequential steps to guarantee correct state.
-
 echo ">>>>    Step 2a: Purging potentially broken java certificate state"
 apt-get remove --purge -y ca-certificates-java
 rm -rf /etc/ssl/certs/java
@@ -69,37 +67,34 @@ apt-get -f install -y
 
 
 ###############################################################################
-# PHASE 2: Download and Install Android SDK (as Target User)
+# PHASE 2 & 4: SDK DOWNLOAD, INSTALL, AND CONFIG (as Target User)
+# DEFINITIVE FIX: All user-level commands are moved into a single sub-shell
+# to ensure functions and variables are in the same scope.
 ###############################################################################
-echo ">>>> 3 · Fetching Android cmdline-tools (as user: $TARGET_USER)"
-sudo -u "$TARGET_USER" bash << EOF
+echo ">>>> Running SDK setup as user: $TARGET_USER"
+
+# Quoting 'EOF' prevents the host (root) shell from expanding variables.
+# All variables will be expanded inside the sub-shell run by TARGET_USER.
+sudo -u "$TARGET_USER" bash << 'EOF'
 set -euo pipefail
+
+# These variables must be redefined within the sub-shell context
+ANDROID_SDK_ROOT="${HOME}/android-sdk"
+API_LEVEL="35"
+BUILD_TOOLS="35.0.0"
+NDK_VERSION="27.0.11718014"
+CMAKE_VERSION="3.22.1"
+CMDLINE_VERSION="11076708"
+
+echo ">>>> 3 · Fetching Android cmdline-tools"
 mkdir -p "${ANDROID_SDK_ROOT}/cmdline-tools"
 cd /tmp
 curl -fsSLo cmdline-tools.zip "https://dl.google.com/android/repository/commandlinetools-linux-${CMDLINE_VERSION}_latest.zip"
 unzip -q -d "${ANDROID_SDK_ROOT}/cmdline-tools" cmdline-tools.zip
 mv "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools" "${ANDROID_SDK_ROOT}/cmdline-tools/latest"
-EOF
+cd - > /dev/null
 
-
-###############################################################################
-# PHASE 3: Environment Configuration
-###############################################################################
-echo ">>>> 4 · Exporting ANDROID_* vars system-wide"
-cat > /etc/profile.d/android-sdk.sh <<EOF
-export ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}
-export ANDROID_HOME=${ANDROID_SDK_ROOT}
-export PATH=\$PATH:\$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:\$ANDROID_SDK_ROOT/platform-tools
-EOF
-chmod +x /etc/profile.d/android-sdk.sh
-
-# shellcheck source=/dev/null
-source /etc/profile.d/android-sdk.sh
-
-
-###############################################################################
-# PHASE 4: Android Component Installation
-###############################################################################
+# The run_sdk helper function is now defined HERE, inside the user's shell.
 run_sdk() {
   set +e
   yes | "$@"
@@ -112,14 +107,30 @@ run_sdk() {
   return "$cmd_rc"
 }
 
+# The PATH must be set inside this shell to find the sdkmanager command.
+export PATH=$PATH:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/platform-tools
+
 echo ">>>> 5 · Installing Android SDK components (using CMake ${CMAKE_VERSION})"
-sudo -u "$TARGET_USER" run_sdk sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" \
+run_sdk sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" \
   "platform-tools" "platforms;android-${API_LEVEL}" "build-tools;${BUILD_TOOLS}" \
   "cmake;${CMAKE_VERSION}" "ndk;${NDK_VERSION}" \
   "extras;android;m2repository" "extras;google;m2repository"
 
 echo ">>>> 6 · Accepting SDK licences"
-sudo -u "$TARGET_USER" run_sdk sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --licenses
+run_sdk sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --licenses
+EOF
+
+
+###############################################################################
+# PHASE 3: Environment Configuration (For future shells)
+###############################################################################
+echo ">>>> 4 · Exporting ANDROID_* vars system-wide for future sessions"
+cat > /etc/profile.d/android-sdk.sh <<EOF
+export ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}
+export ANDROID_HOME=${ANDROID_SDK_ROOT}
+export PATH=\$PATH:\$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:\$ANDROID_SDK_ROOT/platform-tools
+EOF
+chmod +x /etc/profile.d/android-sdk.sh
 
 
 ###############################################################################
