@@ -40,6 +40,8 @@ class StudentViewModelTest {
     private val lessonFlow = MutableStateFlow<List<Lesson>>(emptyList())
     private val userProvider = FakeUserProvider(1L)
 
+    private val userProvider = FakeUserProvider(1L)
+
     private val studentDao = FakeStudentDao(studentFlow)
     private val lessonDao = FakeLessonDao(lessonFlow)
     private val groupDao = FakeGroupDao()
