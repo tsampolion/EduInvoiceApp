@@ -46,7 +46,7 @@ class UpdateLessonTest {
         val id = db.lessonDao().insert(Lesson(studentId = studentId, date = "2024-01-04", startTime = "10:00", durationMinutes = 60))
         val useCase = UpdateLesson(repository)
         useCase(Lesson(id = id, studentId = studentId, date = "2024-01-04", startTime = "10:00", durationMinutes = 90))
-        val lesson = db.lessonDao().getLessonById(id).first()
+        val lesson = db.lessonDao().getLessonById(id, 0).first()
         assertEquals(90, lesson?.durationMinutes)
     }
 }

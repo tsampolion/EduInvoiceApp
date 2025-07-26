@@ -8,5 +8,5 @@ import javax.inject.Inject
 class GetAllLessons @Inject constructor(
     private val dao: LessonDao
 ) {
-    operator fun invoke(): Flow<List<Lesson>> = dao.getAllLessons()
+    operator fun invoke(userId: Long = 0): Flow<List<Lesson>> = dao.getAllLessons(userId)
 }

@@ -7,5 +7,6 @@ import javax.inject.Inject
 class AddLesson @Inject constructor(
     private val repository: TutorBillingRepository
 ) {
-    suspend operator fun invoke(lesson: Lesson): Long = repository.addLesson(lesson)
+    suspend operator fun invoke(lesson: Lesson, userId: Long = 0): Long =
+        repository.addLesson(lesson, userId)
 }

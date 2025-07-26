@@ -7,5 +7,6 @@ import javax.inject.Inject
 class IsLessonInvoiced @Inject constructor(
     private val dao: LessonDao
 ) {
-    operator fun invoke(id: Long): Flow<Boolean?> = dao.isLessonInvoiced(id)
+    operator fun invoke(id: Long, userId: Long = 0): Flow<Boolean?> =
+        dao.isLessonInvoiced(id, userId)
 }
