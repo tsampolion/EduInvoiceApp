@@ -30,6 +30,7 @@ import gr.eduinvoice.domain.student.GetActiveStudentCount
 import gr.eduinvoice.domain.student.ClassNameExists
 import gr.eduinvoice.data.repository.StudentRepository
 import gr.eduinvoice.domain.group.*
+import gr.eduinvoice.FakeUserProvider
 import androidx.lifecycle.SavedStateHandle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,6 +53,7 @@ class LessonScreenTest {
 
     private val studentFlow = MutableStateFlow<List<Student>>(emptyList())
     private val lessonFlow = MutableStateFlow<List<LessonWithStudent>>(emptyList())
+    private val userProvider = FakeUserProvider(1L)
 
     private val studentDao = object : StudentDao {
         override suspend fun insert(student: Student): Long = 0L
@@ -142,7 +144,13 @@ class LessonScreenTest {
     )
 
     private fun createViewModel(): LessonViewModel {
-        return LessonViewModel(SavedStateHandle(mapOf("lessonId" to 0L)), lessonUseCases, studentUseCases, groupUseCases)
+        return LessonViewModel(
+            SavedStateHandle(mapOf("lessonId" to 0L)),
+            lessonUseCases,
+            studentUseCases,
+            groupUseCases,
+            userProvider
+        )
     }
 
     @Test

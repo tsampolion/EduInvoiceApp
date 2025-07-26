@@ -19,7 +19,7 @@ import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
-import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.FakeUserProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -143,8 +143,4 @@ class StudentScreenTest {
         composeRule.onNodeWithText("Save").assertExists()
     }
 
-    class FakeUserProvider(id: Long?) : CurrentUserProvider {
-        private val _id = MutableStateFlow(id)
-        override val loggedInUserId: Flow<Long?> = _id
-    }
 }
