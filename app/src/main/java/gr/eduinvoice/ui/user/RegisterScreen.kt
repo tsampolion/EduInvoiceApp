@@ -101,20 +101,8 @@ fun RegisterScreen(
                 value = if (uiState.yearsExperience == 0) "" else uiState.yearsExperience.toString(),
                 onValueChange = viewModel::updateYearsExperience,
                 label = { Text(stringResource(R.string.years_experience)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = uiState.subjectSpecialty,
-                onValueChange = viewModel::updateSubjectSpecialty,
-                label = { Text(stringResource(R.string.subject_specialty)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = if (uiState.yearsExperience == 0) "" else uiState.yearsExperience.toString(),
-                onValueChange = viewModel::updateYearsExperience,
-                label = { Text(stringResource(R.string.years_experience)) },
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             )
             OutlinedTextField(
                 value = uiState.password,
