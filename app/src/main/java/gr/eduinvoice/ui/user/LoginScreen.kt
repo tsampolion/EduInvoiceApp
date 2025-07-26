@@ -30,7 +30,7 @@ import gr.eduinvoice.R
 fun LoginScreen(
     onBack: () -> Unit,
     onLoggedIn: () -> Unit,
-    onRegister: () -> Unit,
+    onResetPassword: () -> Unit,
     onSettings: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
@@ -94,8 +94,8 @@ fun LoginScreen(
             Button(onClick = { viewModel.login { onLoggedIn() } }, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.login))
             }
-            TextButton(onClick = onRegister, modifier = Modifier.align(Alignment.End)) {
-                Text(stringResource(R.string.register))
+            TextButton(onClick = onResetPassword, modifier = Modifier.align(Alignment.End)) {
+                Text(stringResource(R.string.forgot_password))
             }
             uiState.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         }

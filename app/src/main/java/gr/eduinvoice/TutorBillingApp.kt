@@ -31,6 +31,7 @@ import gr.eduinvoice.navigation.studentGraph
 import gr.eduinvoice.ui.user.LoginScreen
 import gr.eduinvoice.ui.user.RegisterScreen
 import gr.eduinvoice.ui.user.SessionViewModel
+import gr.eduinvoice.ui.user.ResetPasswordScreen
 
 @Composable
 fun TutorBillingApp() {
@@ -61,7 +62,15 @@ fun TutorBillingApp() {
                         popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 },
-                onRegister = { navController.navigate(Screen.Register.route) },
+                onResetPassword = { navController.navigate(Screen.ResetPassword.route) },
+                onSettings = { navController.navigate(Screen.Settings.route) }
+            )
+        }
+
+        composable(Screen.ResetPassword.route) {
+            ResetPasswordScreen(
+                onBack = { navController.popBackStack() },
+                onDone = { navController.popBackStack() },
                 onSettings = { navController.navigate(Screen.Settings.route) }
             )
         }
