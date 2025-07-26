@@ -126,6 +126,32 @@ class LessonViewModelGroupTest {
         assertEquals(setOf(1L, 2L), lessonFlow.value.map { it.studentId }.toSet())
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun loadExistingGroupLessonPopulatesState() = runTest {
+        val lesson = Lesson(
+            id = 1,
+            studentId = 1,
+            groupId = 2,
+            date = "2024-01-01",
+            startTime = "10:00",
+            durationMinutes = 60
+        )
+        lessonFlow.value = listOf(lesson)
+        groupFlow.value = listOf(StudentGroup(id = 2, name = "G2"))
+
+        val vm = LessonViewModel(
+            SavedStateHandle(mapOf("lessonId" to 1L)),
+            lessonUseCases,
+            studentUseCases,
+            groupUseCases
+        )
+        advanceUntilIdle()
+
+        assertEquals(2L, vm.uiState.value.selectedGroupId)
+        assertEquals(true, vm.uiState.value.isGroupLesson)
+    }
+
     class FakeStudentDao(private val flow: MutableStateFlow<List<Student>>) : StudentDao {
         override suspend fun insert(student: Student): Long {
             flow.value = flow.value + student

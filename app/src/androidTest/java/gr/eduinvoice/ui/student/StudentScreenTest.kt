@@ -131,7 +131,7 @@ class StudentScreenTest {
             StudentScreen(
                 studentId = "1",
                 onNavigateBack = {},
-                onNavigateToLesson = {},
+                onNavigateToLesson = { _, _ -> },
                 onAddLesson = {},
                 viewModel = viewModel
             )

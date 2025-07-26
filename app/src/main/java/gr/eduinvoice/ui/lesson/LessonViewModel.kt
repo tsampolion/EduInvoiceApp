@@ -101,7 +101,9 @@ class LessonViewModel @Inject constructor(
                                 durationMinutes = l.durationMinutes.toString(),
                                 notes = l.notes ?: "",
                                 isEditMode = false,
-                                isPaid = l.isPaid
+                                isPaid = l.isPaid,
+                                selectedGroupId = l.groupId,
+                                isGroupLesson = l.groupId != null
                             )
                         }
                     }
