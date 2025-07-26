@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 ### Database/Room
 - Group-student cross-refs now store the owning user ID.
 
+### Fix
+- Display the correct rate suffix in `StudentCard` based on `rateType`.
+
+### Test
+- Added Compose tests verifying the rate label for both rate types.
+
+### UI/Design
+- Remove duplicate input fields on Register screen.
+
+
 ## [0.21.17] - 2025-08-17
 ### Build/CI
 - Remove duplicate Crashlytics dependency entry.
