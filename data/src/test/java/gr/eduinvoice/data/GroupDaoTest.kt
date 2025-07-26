@@ -42,10 +42,19 @@ class GroupDaoTest {
 
     @Test
     fun insertGroupAndStudents() = runBlocking {
-        val groupId = groupDao.insertGroup(StudentGroup(name = "Group A"))
-        val studentId = studentDao.insert(Student(name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0))
-        groupDao.insertCrossRef(GroupStudentCrossRef(groupId = groupId, studentId = studentId))
-        val students = groupDao.getStudentsForGroup(groupId).first()
+        val groupId = groupDao.insertGroup(StudentGroup(name = "Group A", ownerId = 7))
+        val studentId = studentDao.insert(Student(name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0, ownerId = 7))
+        groupDao.insertCrossRef(GroupStudentCrossRef(groupId = groupId, studentId = studentId, ownerId = 7))
+
+        db.openHelper.readableDatabase.query(
+            "SELECT ownerId FROM group_student_cross_ref WHERE groupId = ? AND studentId = ?",
+            arrayOf(groupId.toString(), studentId.toString())
+        ).use { cursor ->
+            cursor.moveToFirst()
+            assertEquals(7L, cursor.getLong(0))
+        }
+
+        val students = groupDao.getStudentsForGroup(groupId, 7).first()
         assertEquals(1, students.size)
         assertEquals(studentId, students.first().id)
     }

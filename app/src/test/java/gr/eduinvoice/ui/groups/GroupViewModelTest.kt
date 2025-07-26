@@ -33,7 +33,7 @@ class GroupViewModelTest {
 
     private val studentFlow = MutableStateFlow<List<Student>>(emptyList())
     private val groupFlow = MutableStateFlow<List<StudentGroup>>(emptyList())
-    private val relations = mutableMapOf<Long, MutableList<Long>>()
+    private val relations = mutableMapOf<Long, MutableMap<Long, Long>>()
 
     private val studentDao = FakeStudentDao(studentFlow)
     private val groupDao = FakeGroupDao(groupFlow, studentFlow, relations)
@@ -91,11 +91,11 @@ class GroupViewModelTest {
         vm.updateName("Group A")
         vm.toggleStudent(1)
         vm.toggleStudent(2)
-        vm.saveGroup()
+        vm.saveGroup(5)
         advanceUntilIdle()
 
         assertEquals(1, groupFlow.value.size)
-        assertEquals(setOf(1L, 2L), relations[1L]?.toSet())
+        assertEquals(mapOf(1L to 5L, 2L to 5L), relations[1L])
     }
 
     class FakeStudentDao(private val flow: MutableStateFlow<List<Student>>) : StudentDao {
@@ -117,8 +117,8 @@ class GroupViewModelTest {
 
     class FakeGroupDao(
         private val groups: MutableStateFlow<List<StudentGroup>>, 
-        private val students: MutableStateFlow<List<Student>>, 
-        private val refs: MutableMap<Long, MutableList<Long>>
+        private val students: MutableStateFlow<List<Student>>,
+        private val refs: MutableMap<Long, MutableMap<Long, Long>>
     ) : GroupDao {
         override suspend fun insertGroup(group: StudentGroup): Long {
             val id = if (group.id == 0L) (groups.value.maxOfOrNull { it.id } ?: 0L) + 1 else group.id
@@ -135,15 +135,13 @@ class GroupViewModelTest {
         override fun getAllGroups(userId: Long): Flow<List<StudentGroup>> = groups.asStateFlow()
         override fun getGroupById(id: Long, userId: Long): Flow<StudentGroup?> = groups.map { list -> list.find { it.id == id } }
         override suspend fun insertCrossRef(crossRef: GroupStudentCrossRef) {
-            refs.getOrPut(crossRef.groupId) { mutableListOf() }.apply {
-                if (!contains(crossRef.studentId)) add(crossRef.studentId)
-            }
+            refs.getOrPut(crossRef.groupId) { mutableMapOf() }[crossRef.studentId] = crossRef.ownerId
         }
         override suspend fun deleteCrossRef(groupId: Long, studentId: Long, userId: Long) {
             refs[groupId]?.remove(studentId)
         }
         override fun getStudentsForGroup(groupId: Long, userId: Long): Flow<List<Student>> = students.map { list ->
-            val ids = refs[groupId] ?: emptyList<Long>()
+            val ids = refs[groupId]?.filter { it.value == userId }?.keys ?: emptySet()
             list.filter { it.id in ids }
         }
     }

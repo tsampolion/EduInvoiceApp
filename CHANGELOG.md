@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.21.18] - 2025-08-18
+### Database/Room
+- Group-student cross-refs now store the owning user ID.
+
 ### Fix
 - Display the correct rate suffix in `StudentCard` based on `rateType`.
 
@@ -11,6 +14,7 @@ All notable changes to this project will be documented in this file.
 
 ### UI/Design
 - Remove duplicate input fields on Register screen.
+
 
 ## [0.21.17] - 2025-08-17
 ### Build/CI

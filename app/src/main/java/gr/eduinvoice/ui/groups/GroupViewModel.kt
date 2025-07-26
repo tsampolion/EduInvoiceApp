@@ -53,7 +53,7 @@ class GroupViewModel @Inject constructor(
         )
     }
 
-    fun saveGroup() {
+    fun saveGroup(userId: Long) {
         viewModelScope.launch {
             val state = _uiState.value
             val group = StudentGroup(id = groupId, name = state.name)
@@ -65,7 +65,7 @@ class GroupViewModel @Inject constructor(
             val selected = state.students.filter { it.selected }.map { it.id }.toSet()
             val toAdd = selected - originalStudents
             val toRemove = originalStudents - selected
-            toAdd.forEach { groupUseCases.addStudentToGroup(id, it) }
+            toAdd.forEach { groupUseCases.addStudentToGroup(id, it, userId) }
             toRemove.forEach { groupUseCases.removeStudentFromGroup(id, it) }
         }
     }
