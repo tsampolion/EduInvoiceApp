@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.16] - 2025-08-16
+### Build/CI
+- Enable code shrinking and resource shrinking in release builds.
+
+
 ## [0.21.15] - 2025-08-15
 ### Fix
 - Preserve group ID when editing group lessons and update navigation.
