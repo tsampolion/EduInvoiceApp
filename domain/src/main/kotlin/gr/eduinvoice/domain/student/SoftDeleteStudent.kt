@@ -6,5 +6,6 @@ import javax.inject.Inject
 class SoftDeleteStudent @Inject constructor(
     private val repository: StudentRepository
 ) {
-    suspend operator fun invoke(id: Long) = repository.softDeleteStudent(id)
+    suspend operator fun invoke(id: Long, userId: Long) =
+        repository.softDeleteStudent(id, userId)
 }

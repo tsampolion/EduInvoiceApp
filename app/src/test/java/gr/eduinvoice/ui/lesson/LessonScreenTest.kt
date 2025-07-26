@@ -57,7 +57,7 @@ class LessonScreenTest {
         override suspend fun insert(student: Student): Long = 0L
         override suspend fun update(student: Student) {}
         override suspend fun delete(student: Student) {}
-        override suspend fun softDeleteStudent(studentId: Long) {}
+        override suspend fun softDeleteStudent(studentId: Long, userId: Long) {}
         override fun getStudentById(studentId: Long, userId: Long): Flow<Student?> = flowOf(null)
         override fun getAllActiveStudents(userId: Long): Flow<List<Student>> = studentFlow.asStateFlow()
         override fun getArchivedStudents(userId: Long): Flow<List<Student>> = flowOf(emptyList())
@@ -71,7 +71,7 @@ class LessonScreenTest {
         override suspend fun insert(lesson: Lesson): Long = 0L
         override suspend fun update(lesson: Lesson) {}
         override suspend fun delete(lesson: Lesson) {}
-        override suspend fun deleteById(lessonId: Long) {}
+        override suspend fun deleteById(lessonId: Long, userId: Long) {}
         override fun getLessonById(lessonId: Long, userId: Long): Flow<Lesson?> = flowOf(null)
         override fun getLessonsByStudentId(studentId: Long, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override fun getAllLessons(userId: Long): Flow<List<Lesson>> = flowOf(emptyList())

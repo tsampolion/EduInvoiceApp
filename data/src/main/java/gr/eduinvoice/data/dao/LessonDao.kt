@@ -16,8 +16,8 @@ interface LessonDao {
     @Delete
     suspend fun delete(lesson: Lesson)
 
-    @Query("DELETE FROM lessons WHERE id = :lessonId")
-    suspend fun deleteById(lessonId: Long)
+    @Query("DELETE FROM lessons WHERE id = :lessonId AND ownerId = :userId")
+    suspend fun deleteById(lessonId: Long, userId: Long)
 
     @Query("SELECT * FROM lessons WHERE id = :lessonId AND ownerId = :userId")
     fun getLessonById(lessonId: Long, userId: Long): Flow<Lesson?>

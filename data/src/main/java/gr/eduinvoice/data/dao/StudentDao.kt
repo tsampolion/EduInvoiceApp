@@ -15,8 +15,8 @@ interface StudentDao {
     @Delete
     suspend fun delete(student: Student)
 
-    @Query("UPDATE students SET isActive = 0 WHERE id = :studentId")
-    suspend fun softDeleteStudent(studentId: Long)
+    @Query("UPDATE students SET isActive = 0 WHERE id = :studentId AND ownerId = :userId")
+    suspend fun softDeleteStudent(studentId: Long, userId: Long)
 
     @Query("SELECT * FROM students WHERE id = :studentId AND ownerId = :userId AND isActive = 1")
     fun getStudentById(studentId: Long, userId: Long): Flow<Student?>

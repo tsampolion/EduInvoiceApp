@@ -6,5 +6,5 @@ import javax.inject.Inject
 class DeleteLesson @Inject constructor(
     private val dao: LessonDao
 ) {
-    suspend operator fun invoke(id: Long) = dao.deleteById(id)
+    suspend operator fun invoke(id: Long, userId: Long) = dao.deleteById(id, userId)
 }
