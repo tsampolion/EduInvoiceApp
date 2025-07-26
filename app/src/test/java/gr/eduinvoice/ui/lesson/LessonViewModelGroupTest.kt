@@ -15,6 +15,7 @@ import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
+import gr.eduinvoice.FakeUserProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,6 +40,7 @@ class LessonViewModelGroupTest {
     private val lessonFlow = MutableStateFlow<List<Lesson>>(emptyList())
     private val groupFlow = MutableStateFlow<List<StudentGroup>>(emptyList())
     private val relations = mutableMapOf<Long, MutableList<Long>>()
+    private val userProvider = FakeUserProvider(1L)
 
     private val studentDao = FakeStudentDao(studentFlow)
     private val lessonDao = FakeLessonDao(lessonFlow)
@@ -94,7 +96,13 @@ class LessonViewModelGroupTest {
         groupFlow.value = listOf(group)
         relations[1L] = mutableListOf(1L, 2L)
 
-        val vm = LessonViewModel(SavedStateHandle(mapOf("lessonId" to 0L)), lessonUseCases, studentUseCases, groupUseCases)
+        val vm = LessonViewModel(
+            SavedStateHandle(mapOf("lessonId" to 0L)),
+            lessonUseCases,
+            studentUseCases,
+            groupUseCases,
+            userProvider
+        )
         advanceUntilIdle()
 
         vm.updateSelectedGroup(1)
@@ -115,7 +123,13 @@ class LessonViewModelGroupTest {
         groupFlow.value = listOf(group)
         relations[1L] = mutableListOf(1L, 2L)
 
-        val vm = LessonViewModel(SavedStateHandle(mapOf("lessonId" to 0L)), lessonUseCases, studentUseCases, groupUseCases)
+        val vm = LessonViewModel(
+            SavedStateHandle(mapOf("lessonId" to 0L)),
+            lessonUseCases,
+            studentUseCases,
+            groupUseCases,
+            userProvider
+        )
         advanceUntilIdle()
 
         vm.updateSelectedGroup(1)
@@ -144,7 +158,8 @@ class LessonViewModelGroupTest {
             SavedStateHandle(mapOf("lessonId" to 1L)),
             lessonUseCases,
             studentUseCases,
-            groupUseCases
+            groupUseCases,
+            userProvider
         )
         advanceUntilIdle()
 

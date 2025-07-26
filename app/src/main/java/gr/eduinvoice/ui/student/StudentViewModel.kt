@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.util.Patterns
-import gr.eduinvoice.data.user.CurrentUserProvider
 import javax.inject.Inject
 
 @HiltViewModel
@@ -55,8 +54,8 @@ class StudentViewModel @Inject constructor(
         viewModelScope.launch {
             currentUserProvider.loggedInUserId.filterNotNull().flatMapLatest { uid ->
                 combine(
-                    studentUseCases.getStudentById(studentId, userId),
-                    lessonUseCases.getStudentLessons(studentId, userId)
+                    studentUseCases.getStudentById(studentId, uid),
+                    lessonUseCases.getStudentLessons(studentId, uid)
                 ) { student, lessons -> student to lessons }
             }.catch { e ->
                 _uiState.update { it.copy(errorMessage = e.message) }
@@ -183,6 +182,7 @@ class StudentViewModel @Inject constructor(
                     )
                 } else {
                     Student(
+                        ownerId = userId,
                         name = state.name,
                         surname = state.surname,
                         parentMobile = mobile,

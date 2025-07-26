@@ -15,7 +15,7 @@ import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
-import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.FakeUserProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,8 +38,6 @@ class StudentViewModelTest {
 
     private val studentFlow = MutableStateFlow<List<Student>>(emptyList())
     private val lessonFlow = MutableStateFlow<List<Lesson>>(emptyList())
-    private val userProvider = FakeUserProvider(1L)
-
     private val userProvider = FakeUserProvider(1L)
 
     private val studentDao = FakeStudentDao(studentFlow)
@@ -84,6 +82,7 @@ class StudentViewModelTest {
         vm.saveStudent()
         advanceUntilIdle()
         assertEquals(false, vm.uiState.value.isLoading)
+        assertEquals(1L, studentFlow.value.first().ownerId)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -175,9 +174,5 @@ class StudentViewModelTest {
         override fun getStudentsForGroup(groupId: Long, userId: Long): Flow<List<Student>> = flowOf(emptyList())
     }
 
-    class FakeUserProvider(id: Long?) : CurrentUserProvider {
-        private val _id = MutableStateFlow(id)
-        override val loggedInUserId: Flow<Long?> = _id
-    }
 }
 
