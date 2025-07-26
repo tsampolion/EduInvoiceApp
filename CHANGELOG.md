@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 
 ## [0.21.24] - 2025-08-24
 ### App
+- Student and Lessons view models retrieve the logged-in user ID on each action.
+- Tests verify user data isolation when loading or updating lessons.
 - Group deletion now passes `userId` to `removeStudentFromGroup` ensuring only the owner's records are affected.
 
 ## [0.21.23] - 2025-08-23
