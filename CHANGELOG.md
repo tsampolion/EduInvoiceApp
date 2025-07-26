@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.18] - 2025-08-18
+### Database/Room
+- Group-student cross-refs now store the owning user ID.
+
 ## [0.21.17] - 2025-08-17
 ### Build/CI
 - Remove duplicate Crashlytics dependency entry.
