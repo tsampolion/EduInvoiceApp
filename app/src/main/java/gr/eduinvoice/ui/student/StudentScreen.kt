@@ -54,19 +54,19 @@ fun StudentScreen(
         topBar = {
             AppTopBar(
                 title = when {
-                    uiState.isEditMode && viewModel.studentId == 0L -> "Add Student"
-                    uiState.isEditMode -> "Edit Student"
+                    uiState.isEditMode && viewModel.studentId == 0L -> stringResource(R.string.add_student)
+                    uiState.isEditMode -> stringResource(R.string.edit_student)
                     else -> "${uiState.name} ${uiState.surname}".trim()
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
                     if (!uiState.isEditMode && viewModel.studentId != 0L) {
                         IconButton(onClick = { viewModel.toggleEditMode() }) {
-                            Icon(Icons.Default.Edit, contentDescription = "Edit")
+                            Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
                         }
                         IconButton(onClick = { showArchiveDialog = true }) {
                             Icon(Icons.Default.Archive, contentDescription = stringResource(R.string.archive))
@@ -78,7 +78,7 @@ fun StudentScreen(
         floatingActionButton = {
             if (!uiState.isEditMode && viewModel.studentId != 0L) {
                 FloatingActionButton(onClick = onAddLesson) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Lesson")
+                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_lesson))
                 }
             }
         }
@@ -142,19 +142,19 @@ private fun StudentMetricsRow(uiState: StudentUiState, modifier: Modifier = Modi
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         MetricCard(
-            label = "This week",
+            label = stringResource(R.string.week_total),
             value = "€%.2f".format(uiState.weekEarnings),
             modifier = Modifier.weight(1f),
             containerColor = AppColors.successContainer
         )
         MetricCard(
-            label = "This month",
+            label = stringResource(R.string.month_total),
             value = "€%.2f".format(uiState.monthEarnings),
             modifier = Modifier.weight(1f),
             containerColor = AppColors.tertiaryContainer
         )
         MetricCard(
-            label = "Total",
+            label = stringResource(R.string.total),
             value = "€%.2f".format(uiState.totalEarnings),
             modifier = Modifier.weight(1f)
         )
@@ -203,7 +203,7 @@ private fun StudentDetailView(
         item {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Lessons",
+                text = stringResource(R.string.lessons),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
@@ -297,7 +297,7 @@ private fun LessonCard(
                 IconButton(onClick = { showDeleteDialog = true }) {
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = "Delete",
+                        contentDescription = stringResource(R.string.delete),
                         modifier = Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.error
                     )
@@ -309,8 +309,8 @@ private fun LessonCard(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Lesson") },
-            text = { Text("Are you sure you want to delete this lesson?") },
+            title = { Text(stringResource(R.string.delete_lesson)) },
+            text = { Text(stringResource(R.string.delete_lesson_confirmation)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -323,7 +323,7 @@ private fun LessonCard(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -502,7 +502,7 @@ private fun StudentEditForm(
                 onClick = onCancel,
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
             Button(
                 onClick = {
@@ -521,7 +521,7 @@ private fun StudentEditForm(
                     (uiState.parentEmail.isBlank() ||
                         Patterns.EMAIL_ADDRESS.matcher(uiState.parentEmail).matches())
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         }
         if (showContactWarning) {
