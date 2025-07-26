@@ -7,7 +7,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import gr.eduinvoice.data.database.EduInvoiceDatabase
+import gr.eduinvoice.data.user.UserPreferencesRepository
 import net.sqlcipher.database.SQLiteDatabase
+import kotlinx.coroutines.runBlocking
 import javax.inject.Singleton
 
 @Module
@@ -17,9 +19,11 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideEduInvoiceDatabase(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        prefs: UserPreferencesRepository
     ): EduInvoiceDatabase {
-        val passphrase = SQLiteDatabase.getBytes("eduinvoice".toCharArray())
+        val pass = runBlocking { prefs.getDbPassphrase() }
+        val passphrase = SQLiteDatabase.getBytes(pass.toCharArray())
         return EduInvoiceDatabase.getDatabase(context, passphrase)
     }
 

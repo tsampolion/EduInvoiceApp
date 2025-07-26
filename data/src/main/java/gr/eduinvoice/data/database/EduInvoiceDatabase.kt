@@ -5,7 +5,6 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SupportFactory
 import gr.eduinvoice.data.dao.GroupDao
 import gr.eduinvoice.data.dao.LessonDao
@@ -45,7 +44,7 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
 
         fun getDatabase(
             context: Context,
-            passphrase: ByteArray = SQLiteDatabase.getBytes("eduinvoice".toCharArray())
+            passphrase: ByteArray
         ): EduInvoiceDatabase {
             return INSTANCE ?: synchronized(this) {
                 val factory = SupportFactory(passphrase)
