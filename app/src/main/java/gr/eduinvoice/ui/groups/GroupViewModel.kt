@@ -67,7 +67,7 @@ class GroupViewModel @Inject constructor(
             val toAdd = selected - originalStudents
             val toRemove = originalStudents - selected
             toAdd.forEach { groupUseCases.addStudentToGroup(id, it, userId) }
-            toRemove.forEach { groupUseCases.removeStudentFromGroup(id, it) }
+            toRemove.forEach { groupUseCases.removeStudentFromGroup(id, it, userId) }
         }
     }
 }
