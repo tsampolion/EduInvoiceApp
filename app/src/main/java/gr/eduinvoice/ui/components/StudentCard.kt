@@ -16,6 +16,7 @@ import gr.eduinvoice.ui.design.AppColors
 import androidx.compose.ui.res.stringResource
 import gr.eduinvoice.R
 import gr.eduinvoice.data.model.StudentWithEarnings
+import gr.eduinvoice.data.model.RateTypes
 import gr.eduinvoice.utils.getFullName
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,8 +52,9 @@ fun StudentCard(
                     fontWeight = FontWeight.Bold
                 )
 
+                val rateLabel = if (studentWithEarnings.student.rateType == RateTypes.PER_LESSON) "lesson" else "hour"
                 Text(
-                    text = "€${studentWithEarnings.student.rate}/hour",
+                    text = "€${studentWithEarnings.student.rate}/$rateLabel",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
