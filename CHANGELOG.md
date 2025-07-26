@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.19] - 2025-08-19
+### UI/Design
+- Redesigned Welcome screen with floating settings button and solid buttons.
+- Added copyright notice.
+
 ## [0.21.18] - 2025-08-18
 ### Database/Room
 - Group-student cross-refs now store the owning user ID.

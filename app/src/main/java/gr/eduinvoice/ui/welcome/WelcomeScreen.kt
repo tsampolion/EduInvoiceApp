@@ -15,8 +15,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import gr.eduinvoice.R
-import gr.eduinvoice.ui.design.AppColors
-import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -27,15 +25,10 @@ fun WelcomeScreen(
     onSettings: () -> Unit,
 ) {
     Scaffold(
-        topBar = {
-            AppTopBar(
-                title = stringResource(R.string.app_name),
-                actions = {
-                    IconButton(onClick = onSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
-                    }
-                }
-            )
+        floatingActionButton = {
+            FloatingActionButton(onClick = onSettings, containerColor = MaterialTheme.colorScheme.tertiary) {
+                Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
+            }
         }
     ) { padding ->
         AnimatedVisibility(
@@ -70,15 +63,20 @@ fun WelcomeScreen(
                 Button(
                     onClick = onSignIn,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryContainer)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) { Text(stringResource(R.string.sign_in)) }
                 Button(
                     onClick = onSignUp,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.secondaryContainer)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                 ) { Text(stringResource(R.string.sign_up)) }
             }
             Spacer(modifier = Modifier.weight(1f))
+            Text(
+                text = stringResource(R.string.copyright_notice),
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
         }
         }
     }

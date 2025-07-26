@@ -84,6 +84,9 @@
     <string name="welcome_message">Welcome to EduInvoice</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_up">Sign Up</string>
+
+    <!-- Copyright -->
+    <string name="copyright_notice">© 2025 EduInvoice. All rights reserved.</string>
     
     <!-- Authentication -->
     <string name="username">Username</string>
