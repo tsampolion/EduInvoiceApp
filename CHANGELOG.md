@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.24] - 2025-08-24
+### App
+- Group deletion now passes `userId` to `removeStudentFromGroup` ensuring only the owner's records are affected.
+
 ## [0.21.23] - 2025-08-23
 ### Security
 - Database passphrase stored encrypted in Android Keystore.
