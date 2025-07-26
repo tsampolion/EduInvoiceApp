@@ -93,6 +93,9 @@
     <string name="password">Password</string>
     <string name="login">Login</string>
     <string name="register">Register</string>
+    <string name="forgot_password">Forgotten your password?</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="confirm_password">Confirm Password</string>
     <string name="full_name">Full Name</string>
     <string name="settings">Settings</string>
 

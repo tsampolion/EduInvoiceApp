@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 ## [0.21.22] - 2025-08-22
 ### App
 - ViewModels fetch logged-in user via `CurrentUserProvider` and pass IDs to use cases.
+### Security
+- Added password reset feature with full-name verification.
+### UI/Design
+- Login screen now links to password reset instead of registration.
 
 ## [0.21.21] - 2025-08-21
 ### Domain

@@ -25,4 +25,16 @@ class UserRepository @Inject constructor(
         val hash = PasswordHasher.hash(password)
         return if (user.passwordHash == hash) user else null
     }
+
+    suspend fun resetPassword(
+        username: String,
+        fullName: String,
+        newPassword: String
+    ): Boolean {
+        val user = dao.getByUsername(username) ?: return false
+        if (user.fullName != fullName) return false
+        val updated = user.copy(passwordHash = PasswordHasher.hash(newPassword))
+        dao.update(updated)
+        return true
+    }
 }
