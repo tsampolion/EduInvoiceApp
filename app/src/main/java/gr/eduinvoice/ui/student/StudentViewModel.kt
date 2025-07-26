@@ -222,7 +222,8 @@ class StudentViewModel @Inject constructor(
 
             try {
                 _uiState.value.student?.let { student ->
-                    studentUseCases.softDeleteStudent(student.id)
+                    val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+                    studentUseCases.softDeleteStudent(student.id, uid)
 
                     // Clear loading and navigate back on main thread
                     withContext(Dispatchers.Main) {
@@ -243,7 +244,8 @@ class StudentViewModel @Inject constructor(
 
     fun deleteLesson(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            lessonUseCases.deleteLesson(id)
+            val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+            lessonUseCases.deleteLesson(id, uid)
         }
     }
 

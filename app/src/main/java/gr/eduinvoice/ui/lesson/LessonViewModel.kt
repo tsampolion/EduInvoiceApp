@@ -11,6 +11,7 @@ import gr.eduinvoice.data.model.RateTypes
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.group.GroupUseCases
+import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -24,7 +25,8 @@ class LessonViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val lessonUseCases: LessonUseCases,
     private val studentUseCases: StudentUseCases,
-    private val groupUseCases: GroupUseCases
+    private val groupUseCases: GroupUseCases,
+    private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
 
     private val dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
@@ -261,7 +263,8 @@ class LessonViewModel @Inject constructor(
     fun deleteLesson() {
         viewModelScope.launch(Dispatchers.IO) {
             lessonId?.takeIf { it != 0L }?.let { id ->
-                lessonUseCases.deleteLesson(id)
+                val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+                lessonUseCases.deleteLesson(id, uid)
 
                 // Navigate back on main thread
                 withContext(Dispatchers.Main) {
