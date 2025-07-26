@@ -23,7 +23,8 @@ object DatabaseModule {
         prefs: UserPreferencesRepository
     ): EduInvoiceDatabase {
         val pass = runBlocking { prefs.getDbPassphrase() }
-        val passphrase = SQLiteDatabase.getBytes(pass.toCharArray())
+        require(!pass.isNullOrEmpty()) { "Database passphrase unavailable" }
+        val passphrase = SQLiteDatabase.getBytes(pass!!.toCharArray())
         return EduInvoiceDatabase.getDatabase(context, passphrase)
     }
 
