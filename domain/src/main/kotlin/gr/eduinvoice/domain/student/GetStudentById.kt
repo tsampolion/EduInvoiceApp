@@ -9,5 +9,5 @@ class GetStudentById @Inject constructor(
     private val repository: StudentRepository
 ) {
     operator fun invoke(id: Long, userId: Long = 0): Flow<Student?> =
-        repository.getStudentByIdAny(id, userId)
+        repository.getStudentById(id, userId)
 }
