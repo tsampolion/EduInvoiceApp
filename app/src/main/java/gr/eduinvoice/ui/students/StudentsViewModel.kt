@@ -79,7 +79,8 @@ class StudentsViewModel @Inject constructor(
 
     fun deleteStudent(studentId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            studentUseCases.softDeleteStudent(studentId)
+            val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+            studentUseCases.softDeleteStudent(studentId, uid)
         }
     }
 }

@@ -186,7 +186,7 @@ class LessonsViewModelTest {
         }
         override suspend fun update(student: Student) {}
         override suspend fun delete(student: Student) {}
-        override suspend fun softDeleteStudent(studentId: Long) {}
+        override suspend fun softDeleteStudent(studentId: Long, userId: Long) {}
         override fun getStudentById(studentId: Long, userId: Long): Flow<Student?> =
             flow.map { list -> list.find { it.id == studentId && it.ownerId == userId } }
         override fun getAllActiveStudents(userId: Long): Flow<List<Student>> =
@@ -203,7 +203,7 @@ class LessonsViewModelTest {
         override suspend fun insert(lesson: Lesson): Long { return 0L }
         override suspend fun update(lesson: Lesson) {}
         override suspend fun delete(lesson: Lesson) {}
-        override suspend fun deleteById(lessonId: Long) {}
+        override suspend fun deleteById(lessonId: Long, userId: Long) {}
         override fun getLessonById(lessonId: Long, userId: Long): Flow<Lesson?> =
             flow.map { it.find { l -> l.lesson.id == lessonId && l.lesson.ownerId == userId }?.lesson }
         override fun getLessonsByStudentId(studentId: Long, userId: Long): Flow<List<Lesson>> =

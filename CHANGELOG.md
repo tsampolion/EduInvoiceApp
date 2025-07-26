@@ -2,11 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.25] - 2025-08-25
+### App
+- StudentViewModel now receives CurrentUserProvider and passes user IDs to domain use cases.
+
 ## [0.21.24] - 2025-08-24
 ### App
 - Student and Lessons view models retrieve the logged-in user ID on each action.
 - Tests verify user data isolation when loading or updating lessons.
 - Group deletion now passes `userId` to `removeStudentFromGroup` ensuring only the owner's records are affected.
+
+## [0.21.25] - 2025-08-25
+### Data
+- `softDeleteStudent` and `deleteById` now filter by `ownerId`.
+- Repositories and tests updated to pass the current user ID.
 
 ## [0.21.23] - 2025-08-23
 ### Security

@@ -42,7 +42,7 @@ class InvoiceViewModelTest {
         }
         override suspend fun update(student: Student) {}
         override suspend fun delete(student: Student) {}
-        override suspend fun softDeleteStudent(studentId: Long) {}
+        override suspend fun softDeleteStudent(studentId: Long, userId: Long) {}
         override fun getStudentById(studentId: Long, userId: Long) = studentFlow.map { list -> list.find { it.id == studentId } }
         override fun getAllActiveStudents(userId: Long) = studentFlow.asStateFlow()
         override fun getArchivedStudents(userId: Long) = flowOf(emptyList<Student>())
@@ -59,7 +59,7 @@ class InvoiceViewModelTest {
         }
         override suspend fun update(lesson: Lesson) {}
         override suspend fun delete(lesson: Lesson) {}
-        override suspend fun deleteById(lessonId: Long) {}
+        override suspend fun deleteById(lessonId: Long, userId: Long) {}
         override fun getLessonById(lessonId: Long, userId: Long) = lessonFlow.map { it.find { l -> l.id == lessonId } }
         override fun getLessonsByStudentId(studentId: Long, userId: Long) = lessonFlow.map { list -> list.filter { it.studentId == studentId } }
         override fun getAllLessons(userId: Long) = lessonFlow.asStateFlow()

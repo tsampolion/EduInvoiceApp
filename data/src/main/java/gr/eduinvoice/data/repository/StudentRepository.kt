@@ -13,9 +13,8 @@ class StudentRepository @Inject constructor(
     suspend fun insertStudent(student: Student): Long = studentDao.insert(student)
     suspend fun updateStudent(student: Student) = studentDao.update(student)
     suspend fun deleteStudent(student: Student) = studentDao.delete(student)
-    suspend fun softDeleteStudent(studentId: Long) = studentDao.softDeleteStudent(studentId)
-    fun getStudentById(id: Long, userId: Long): Flow<Student?> =
-        studentDao.getStudentById(id, userId)
+    suspend fun softDeleteStudent(studentId: Long, userId: Long) = studentDao.softDeleteStudent(studentId, userId)
+    fun getStudentById(id: Long, userId: Long): Flow<Student?> = getStudentByIdAny(id, userId)
     fun getStudentByIdAny(id: Long, userId: Long): Flow<Student?> =
         studentDao.getStudentByIdAny(id, userId)
     fun getAllActiveStudents(userId: Long): Flow<List<Student>> =

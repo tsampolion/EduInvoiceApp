@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.util.Patterns
+import gr.eduinvoice.data.user.CurrentUserProvider
 import javax.inject.Inject
 
 @HiltViewModel
@@ -54,8 +55,8 @@ class StudentViewModel @Inject constructor(
         viewModelScope.launch {
             currentUserProvider.loggedInUserId.filterNotNull().flatMapLatest { uid ->
                 combine(
-                    studentUseCases.getStudentById(studentId, uid),
-                    lessonUseCases.getStudentLessons(studentId, uid)
+                    studentUseCases.getStudentById(studentId, userId),
+                    lessonUseCases.getStudentLessons(studentId, userId)
                 ) { student, lessons -> student to lessons }
             }.catch { e ->
                 _uiState.update { it.copy(errorMessage = e.message) }
@@ -160,7 +161,8 @@ class StudentViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
 
             try {
-                if (state.selectedClass == "Custom" && studentUseCases.classNameExists(className)) {
+                val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+                if (state.selectedClass == "Custom" && studentUseCases.classNameExists(className, userId)) {
                     _uiState.update {
                         it.copy(isLoading = false, errorMessage = "Class already exists")
                     }
@@ -220,7 +222,8 @@ class StudentViewModel @Inject constructor(
 
             try {
                 _uiState.value.student?.let { student ->
-                    studentUseCases.softDeleteStudent(student.id)
+                    val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+                    studentUseCases.softDeleteStudent(student.id, uid)
 
                     // Clear loading and navigate back on main thread
                     withContext(Dispatchers.Main) {
@@ -241,7 +244,8 @@ class StudentViewModel @Inject constructor(
 
     fun deleteLesson(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            lessonUseCases.deleteLesson(id)
+            val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+            lessonUseCases.deleteLesson(id, uid)
         }
     }
 

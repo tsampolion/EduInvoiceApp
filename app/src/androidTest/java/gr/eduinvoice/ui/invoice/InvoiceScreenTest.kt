@@ -52,7 +52,7 @@ class InvoiceScreenTest {
             override suspend fun insert(student: Student): Long = 1L
             override suspend fun update(student: Student) {}
             override suspend fun delete(student: Student) {}
-            override suspend fun softDeleteStudent(studentId: Long) {}
+            override suspend fun softDeleteStudent(studentId: Long, userId: Long) {}
             override fun getStudentById(studentId: Long, userId: Long): Flow<Student?> = studentFlow.map { it.first() }
             override fun getAllActiveStudents(userId: Long): Flow<List<Student>> = studentFlow.asStateFlow()
             override fun getArchivedStudents(userId: Long): Flow<List<Student>> = flowOf(emptyList())

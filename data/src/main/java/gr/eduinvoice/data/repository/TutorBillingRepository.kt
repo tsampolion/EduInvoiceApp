@@ -59,8 +59,8 @@ class TutorBillingRepository @Inject constructor(
     /**
      * Soft deletes a student by setting 'isActive' to false.
      */
-    suspend fun deleteStudent(studentId: Long) {
-        studentDao.softDeleteStudent(studentId)
+    suspend fun deleteStudent(studentId: Long, userId: Long) {
+        studentDao.softDeleteStudent(studentId, userId)
     }
 
     /**
@@ -119,8 +119,8 @@ class TutorBillingRepository @Inject constructor(
     /**
      * Deletes a lesson permanently by its ID.
      */
-    suspend fun deleteLesson(lessonId: Long) {
-        lessonDao.deleteById(lessonId)
+    suspend fun deleteLesson(lessonId: Long, userId: Long) {
+        lessonDao.deleteById(lessonId, userId)
     }
 
     /**

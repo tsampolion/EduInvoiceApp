@@ -19,6 +19,7 @@ import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
+import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,6 +37,7 @@ class StudentScreenTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     private lateinit var viewModel: StudentViewModel
+    private val userProvider = FakeUserProvider(1L)
 
     @Before
     fun setup() {
@@ -45,7 +47,7 @@ class StudentScreenTest {
             override suspend fun insert(student: Student): Long = 1L
             override suspend fun update(student: Student) {}
             override suspend fun delete(student: Student) {}
-            override suspend fun softDeleteStudent(studentId: Long) {}
+            override suspend fun softDeleteStudent(studentId: Long, userId: Long) {}
             override fun getStudentById(studentId: Long, userId: Long): Flow<Student?> = studentFlow.map { it.first() }
             override fun getAllActiveStudents(userId: Long): Flow<List<Student>> = studentFlow.asStateFlow()
             override fun getArchivedStudents(userId: Long): Flow<List<Student>> = flowOf(emptyList())
@@ -122,7 +124,7 @@ class StudentScreenTest {
             removeStudentFromGroup = RemoveStudentFromGroup(groupRepo),
             getGroupStudents = GetGroupStudents(groupRepo)
         )
-        viewModel = StudentViewModel(studentUseCases, lessonUseCases, androidx.lifecycle.SavedStateHandle(mapOf("studentId" to 1L)))
+        viewModel = StudentViewModel(studentUseCases, lessonUseCases, androidx.lifecycle.SavedStateHandle(mapOf("studentId" to 1L)), userProvider)
     }
 
     @Test
@@ -139,5 +141,10 @@ class StudentScreenTest {
 
         composeRule.onNodeWithContentDescription("Edit").performClick()
         composeRule.onNodeWithText("Save").assertExists()
+    }
+
+    class FakeUserProvider(id: Long?) : CurrentUserProvider {
+        private val _id = MutableStateFlow(id)
+        override val loggedInUserId: Flow<Long?> = _id
     }
 }

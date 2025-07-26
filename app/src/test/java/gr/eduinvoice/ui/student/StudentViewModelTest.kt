@@ -40,6 +40,8 @@ class StudentViewModelTest {
     private val lessonFlow = MutableStateFlow<List<Lesson>>(emptyList())
     private val userProvider = FakeUserProvider(1L)
 
+    private val userProvider = FakeUserProvider(1L)
+
     private val studentDao = FakeStudentDao(studentFlow)
     private val lessonDao = FakeLessonDao(lessonFlow)
     private val groupDao = FakeGroupDao()
@@ -118,7 +120,7 @@ class StudentViewModelTest {
         }
         override suspend fun update(student: Student) {}
         override suspend fun delete(student: Student) {}
-        override suspend fun softDeleteStudent(studentId: Long) {
+        override suspend fun softDeleteStudent(studentId: Long, userId: Long) {
             flow.value = flow.value.filterNot { it.id == studentId }
         }
         override fun getStudentById(studentId: Long, userId: Long): Flow<Student?> =
@@ -139,7 +141,7 @@ class StudentViewModelTest {
         }
         override suspend fun update(lesson: Lesson) {}
         override suspend fun delete(lesson: Lesson) {}
-        override suspend fun deleteById(lessonId: Long) {
+        override suspend fun deleteById(lessonId: Long, userId: Long) {
             flow.value = flow.value.filterNot { it.id == lessonId }
         }
         override fun getLessonById(lessonId: Long, userId: Long): Flow<Lesson?> =
