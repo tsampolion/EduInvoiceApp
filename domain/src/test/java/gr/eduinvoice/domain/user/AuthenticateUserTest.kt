@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.repository.UserRepository
+import gr.eduinvoice.data.repository.PasswordHasher
 import gr.eduinvoice.data.model.User
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -64,5 +65,30 @@ class AuthenticateUserTest {
         val useCase = AuthenticateUser(repository)
         val user = useCase("alice", "wrong")
         assertNull(user)
+    }
+
+    @Test
+    fun authenticateMigratesLegacyHash() = runBlocking {
+        val dao = db.userDao()
+        val legacy = PasswordHasher.legacyHash("secret")
+        dao.insert(
+            User(
+                username = "mike",
+                passwordHash = legacy,
+                fullName = "Mike",
+                subjectSpecialty = "Chemistry",
+                yearsExperience = 2
+            )
+        )
+
+        val useCase = AuthenticateUser(repository)
+        val user = useCase("mike", "secret")
+        assertNotNull(user)
+
+        val updated = dao.getByUsername("mike")
+        assertNotNull(updated)
+        if (updated != null) {
+            assert(updated.passwordHash.startsWith("$2"))
+        }
     }
 }

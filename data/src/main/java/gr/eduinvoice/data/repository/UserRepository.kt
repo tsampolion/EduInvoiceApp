@@ -22,8 +22,14 @@ class UserRepository @Inject constructor(
 
     suspend fun authenticate(username: String, password: String): User? {
         val user = dao.getByUsername(username) ?: return null
-        val hash = PasswordHasher.hash(password)
-        return if (user.passwordHash == hash) user else null
+        val valid = PasswordHasher.verify(password, user.passwordHash)
+        if (!valid) return null
+        if (PasswordHasher.needsMigration(user.passwordHash)) {
+            val updated = user.copy(passwordHash = PasswordHasher.hash(password))
+            dao.update(updated)
+            return updated
+        }
+        return user
     }
 
     suspend fun resetPassword(
