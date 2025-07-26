@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.20] - 2025-08-20
+### Domain
+- Use cases now accept a `userId` parameter for student and group queries.
+### Data
+- Repositories and DAOs require explicit `userId` arguments.
+
 ## [0.21.19] - 2025-08-19
 ### UI/Design
 - Redesigned Welcome screen with floating settings button and solid buttons.

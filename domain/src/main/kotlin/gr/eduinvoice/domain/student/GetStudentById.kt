@@ -8,5 +8,6 @@ import javax.inject.Inject
 class GetStudentById @Inject constructor(
     private val repository: StudentRepository
 ) {
-    operator fun invoke(id: Long): Flow<Student?> = repository.getStudentByIdAny(id)
+    operator fun invoke(id: Long, userId: Long = 0): Flow<Student?> =
+        repository.getStudentByIdAny(id, userId)
 }

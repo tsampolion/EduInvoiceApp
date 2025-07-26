@@ -40,7 +40,7 @@ class BackupRepositoryTest {
         val json = repo.exportJson()
         db.clearAllTables()
         repo.restoreFromJson(json)
-        val students = db.studentDao().getAllActiveStudents().first()
+        val students = db.studentDao().getAllActiveStudents(0).first()
         assertEquals(1, students.size)
         assertEquals("Test", students.first().name)
     }
