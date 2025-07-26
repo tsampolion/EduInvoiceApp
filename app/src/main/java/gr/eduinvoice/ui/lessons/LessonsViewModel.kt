@@ -6,17 +6,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.utils.getFullName
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import gr.eduinvoice.data.user.CurrentUserProvider
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LessonsViewModel @Inject constructor(
-    private val lessonUseCases: LessonUseCases
+    private val lessonUseCases: LessonUseCases,
+    private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LessonsUiState())
@@ -24,7 +22,9 @@ class LessonsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            lessonUseCases.getLessonsWithStudents().collect { list ->
+            currentUserProvider.loggedInUserId.filterNotNull().flatMapLatest { uid ->
+                lessonUseCases.getLessonsWithStudents(uid)
+            }.collect { list ->
                 val sorted = list.sortedBy { it.student.getFullName() }
                 _uiState.update { it.copy(lessons = sorted) }
             }
@@ -33,7 +33,8 @@ class LessonsViewModel @Inject constructor(
 
     fun updatePaid(lessonId: Long, paid: Boolean) {
         viewModelScope.launch {
-            val invoiced = lessonUseCases.isLessonInvoiced(lessonId).first() ?: false
+            val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+            val invoiced = lessonUseCases.isLessonInvoiced(lessonId, userId).first() ?: false
             val lesson = _uiState.value.lessons.find { it.lesson.id == lessonId }
             if (invoiced) {
                 _uiState.update { it.copy(dialog = LessonDialog.AlreadyInvoiced(lessonId, paid)) }

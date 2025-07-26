@@ -16,6 +16,7 @@ import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.data.model.GroupStudentCrossRef
 import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.lesson.*
+import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -43,6 +44,7 @@ class LessonsScreenTest {
     private val lessonFlow = MutableStateFlow<List<LessonWithStudent>>(emptyList())
     private val lessonDao = FakeLessonDao(lessonFlow)
     private val groupDao = FakeGroupDao()
+    private val userProvider = FakeUserProvider(1L)
     private val lessonUseCases = LessonUseCases(
         getAllLessons = GetAllLessons(lessonDao),
         getLessonById = GetLessonById(lessonDao),
@@ -89,7 +91,7 @@ class LessonsScreenTest {
                 s2
             )
         )
-        val vm = LessonsViewModel(lessonUseCases)
+        val vm = LessonsViewModel(lessonUseCases, userProvider)
         composeRule.setContent {
             LessonsScreen(onBack = {}, onLessonClick = { _, _, _ -> }, onAddLesson = {}, onInvoice = {}, onPastInvoices = {}, viewModel = vm)
         }
@@ -118,7 +120,7 @@ class LessonsScreenTest {
                 s1
             )
         )
-        val vm = LessonsViewModel(lessonUseCases)
+        val vm = LessonsViewModel(lessonUseCases, userProvider)
         var clicked = false
         composeRule.setContent {
             LessonsScreen(onBack = {}, onLessonClick = { _, _, _ -> clicked = true }, onAddLesson = {}, onInvoice = {}, onPastInvoices = {}, viewModel = vm)
@@ -151,9 +153,12 @@ class FakeLessonDao(private val flow: MutableStateFlow<List<LessonWithStudent>>)
         override suspend fun update(lesson: Lesson) {}
         override suspend fun delete(lesson: Lesson) {}
         override suspend fun deleteById(lessonId: Long) {}
-        override fun getLessonById(lessonId: Long, userId: Long): Flow<Lesson?> = flow.map { it.find { l -> l.lesson.id == lessonId }?.lesson }
-        override fun getLessonsByStudentId(studentId: Long, userId: Long): Flow<List<Lesson>> = flow.map { list -> list.filter { it.lesson.studentId == studentId }.map { it.lesson } }
-        override fun getAllLessons(userId: Long): Flow<List<Lesson>> = flow.map { list -> list.map { it.lesson } }
+        override fun getLessonById(lessonId: Long, userId: Long): Flow<Lesson?> =
+            flow.map { it.find { l -> l.lesson.id == lessonId && l.lesson.ownerId == userId }?.lesson }
+        override fun getLessonsByStudentId(studentId: Long, userId: Long): Flow<List<Lesson>> =
+            flow.map { list -> list.filter { it.lesson.studentId == studentId && it.lesson.ownerId == userId }.map { it.lesson } }
+        override fun getAllLessons(userId: Long): Flow<List<Lesson>> =
+            flow.map { list -> list.filter { it.lesson.ownerId == userId }.map { it.lesson } }
         override fun getLessonsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override fun getLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override fun getUnpaidLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
@@ -164,11 +169,12 @@ class FakeLessonDao(private val flow: MutableStateFlow<List<LessonWithStudent>>)
         override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean) {
             flow.value = flow.value.map { if (it.lesson.id in ids) it.copy(lesson = it.lesson.copy(isInvoiced = invoiced)) else it }
         }
-        override fun isLessonInvoiced(lessonId: Long, userId: Long): Flow<Boolean?> = flow.map { list ->
-            list.find { it.lesson.id == lessonId }?.lesson?.isInvoiced
-        }
-        override fun getLessonsWithStudents(userId: Long): Flow<List<LessonWithStudent>> = flow.asStateFlow()
-        override fun getLessonsWithStudentsByStudent(studentId: Long, userId: Long): Flow<List<LessonWithStudent>> = flow.map { list -> list.filter { it.student.id == studentId } }
+        override fun isLessonInvoiced(lessonId: Long, userId: Long): Flow<Boolean?> =
+            flow.map { list -> list.find { it.lesson.id == lessonId && it.lesson.ownerId == userId }?.lesson?.isInvoiced }
+        override fun getLessonsWithStudents(userId: Long): Flow<List<LessonWithStudent>> =
+            flow.map { list -> list.filter { it.lesson.ownerId == userId } }
+        override fun getLessonsWithStudentsByStudent(studentId: Long, userId: Long): Flow<List<LessonWithStudent>> =
+            flow.map { list -> list.filter { it.student.id == studentId && it.lesson.ownerId == userId } }
         override fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
     }
@@ -182,5 +188,10 @@ class FakeLessonDao(private val flow: MutableStateFlow<List<LessonWithStudent>>)
         override suspend fun insertCrossRef(crossRef: GroupStudentCrossRef) {}
         override suspend fun deleteCrossRef(groupId: Long, studentId: Long, userId: Long) {}
         override fun getStudentsForGroup(groupId: Long, userId: Long): Flow<List<Student>> = flowOf(emptyList())
+    }
+
+    class FakeUserProvider(id: Long?) : CurrentUserProvider {
+        private val _id = MutableStateFlow(id)
+        override val loggedInUserId: Flow<Long?> = _id
     }
 }

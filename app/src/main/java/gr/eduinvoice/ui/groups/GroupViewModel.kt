@@ -8,10 +8,8 @@ import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.domain.group.GroupUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.data.model.Student
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import gr.eduinvoice.data.user.CurrentUserProvider
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,7 +17,8 @@ import javax.inject.Inject
 class GroupViewModel @Inject constructor(
     private val groupUseCases: GroupUseCases,
     private val studentUseCases: StudentUseCases,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
     val groupId: Long = savedStateHandle.get<Long>("groupId") ?: 0L
 
@@ -30,13 +29,14 @@ class GroupViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val students = studentUseCases.getActiveStudents().first()
+            val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+            val students = studentUseCases.getActiveStudents(userId).first()
             val selectedIds = if (groupId != 0L) {
-                groupUseCases.getGroupStudents(groupId).first().map { it.id }.toSet()
+                groupUseCases.getGroupStudents(groupId, userId).first().map { it.id }.toSet()
             } else emptySet()
             originalStudents = selectedIds
             val selections = students.map { StudentSelection(it.id, it.name, it.surname, it.id in selectedIds) }
-            val name = if (groupId != 0L) groupUseCases.getGroupById(groupId).first()?.name ?: "" else ""
+            val name = if (groupId != 0L) groupUseCases.getGroupById(groupId, userId).first()?.name ?: "" else ""
             _uiState.value = GroupUiState(name = name, students = selections)
         }
     }
@@ -53,8 +53,9 @@ class GroupViewModel @Inject constructor(
         )
     }
 
-    fun saveGroup(userId: Long) {
+    fun saveGroup() {
         viewModelScope.launch {
+            val userId = currentUserProvider.loggedInUserId.first() ?: 0L
             val state = _uiState.value
             val group = StudentGroup(id = groupId, name = state.name)
             val id = if (groupId == 0L) groupUseCases.insertGroup(group) else {

@@ -17,13 +17,13 @@ private val Context.userPrefsDataStore by preferencesDataStore(name = "user_pref
 @Singleton
 class UserPreferencesRepository @Inject constructor(
     @ApplicationContext private val context: Context
-) {
+) : CurrentUserProvider {
     private object Keys {
         val LOGGED_IN_USER = longPreferencesKey("logged_in_user")
         val DB_PASSPHRASE = stringPreferencesKey("db_passphrase")
     }
 
-    val loggedInUserId: Flow<Long?> = context.userPrefsDataStore.data.map { prefs ->
+    override val loggedInUserId: Flow<Long?> = context.userPrefsDataStore.data.map { prefs ->
         prefs[Keys.LOGGED_IN_USER]
     }
 
