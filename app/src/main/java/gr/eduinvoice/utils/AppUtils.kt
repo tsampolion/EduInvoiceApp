@@ -6,15 +6,11 @@ import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.util.Locale
 
-fun formatAsCurrency(amount: Double): String {
+fun formatAsCurrency(amount: Double, locale: Locale = Locale.getDefault()): String {
     return try {
-        // Use NumberFormat for proper currency formatting
-        val format = NumberFormat.getCurrencyInstance(Locale("el", "GR"))
-        format.currency = java.util.Currency.getInstance("EUR")
-        format.format(amount)
-    } catch (e: Exception) {
-        // Fallback to simple formatting if NumberFormat fails
-        "€ %.2f".format(Locale.US, amount)
+        NumberFormat.getCurrencyInstance(locale).format(amount)
+    } catch (_: Exception) {
+        NumberFormat.getCurrencyInstance(Locale.US).format(amount)
     }
 }
 

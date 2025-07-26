@@ -36,6 +36,8 @@ import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.ui.components.ClickableReadOnlyField
 import gr.eduinvoice.utils.getFullName
 import androidx.compose.ui.graphics.toArgb
+import gr.eduinvoice.ui.settings.SettingsViewModel
+import gr.eduinvoice.ui.profile.ProfileViewModel
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDate
@@ -46,7 +48,9 @@ import java.time.format.DateTimeFormatter
 fun InvoiceScreen(
     onBack: () -> Unit,
     defaultStudentId: Long? = null,
-    viewModel: InvoiceViewModel = hiltViewModel()
+    viewModel: InvoiceViewModel = hiltViewModel(),
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel = hiltViewModel()
 ) {
     LaunchedEffect(defaultStudentId) {
         defaultStudentId?.let { viewModel.selectStudent(it) }
@@ -57,6 +61,10 @@ fun InvoiceScreen(
     val students by viewModel.students.collectAsStateWithLifecycle()
     val selectedStudentId by viewModel.selectedStudentId.collectAsStateWithLifecycle()
     val selectedLessons by viewModel.selectedLessons.collectAsStateWithLifecycle()
+    val settingsState by settingsViewModel.uiState.collectAsStateWithLifecycle()
+    val profileState by profileViewModel.uiState.collectAsStateWithLifecycle()
+    val settings = settingsState.settings
+    val user = profileState.user
     val context = LocalContext.current
     var showConfirm by remember { mutableStateOf(false) }
     var generatedInvoice by remember { mutableStateOf<Uri?>(null) }
@@ -133,7 +141,10 @@ fun InvoiceScreen(
                             lessons = selected,
                             invoiceNumber = invoiceNumber,
                             colorScheme = colors,
-                            typography = fonts
+                            typography = fonts,
+                            tutorName = user?.fullName ?: "Tutor Name",
+                            tutorAddress = user?.subjectSpecialty ?: "",
+                            currencySymbol = settings.currencySymbol
                         )
                         viewModel.markAsPaid(selected.map { it.lesson.id })
                         generatedInvoice = uri
@@ -248,7 +259,8 @@ fun createInvoicePdf(
     colorScheme: androidx.compose.material3.ColorScheme,
     typography: androidx.compose.material3.Typography,
     tutorName: String = "Tutor Name",
-    tutorAddress: String = "123 Education Lane"
+    tutorAddress: String = "123 Education Lane",
+    currencySymbol: String = "€"
 ): Uri {
     val pdf = android.graphics.pdf.PdfDocument()
     val width = 595
@@ -299,13 +311,13 @@ fun createInvoicePdf(
         canvas.drawText(item.student.getFullName(), 180f, y.toFloat(), textPaint)
         val amount = item.calculateFee()
         total += amount
-        canvas.drawText("€%.2f".format(amount), width - 120f, y.toFloat(), textPaint)
+        canvas.drawText("$currencySymbol%.2f".format(amount), width - 120f, y.toFloat(), textPaint)
         y += 20
     }
     y += 10
     canvas.drawLine(40f, y.toFloat(), width - 40f, y.toFloat(), linePaint)
     y += 25
-    canvas.drawText("Total: €%.2f".format(total), width - 120f, y.toFloat(), infoPaint)
+    canvas.drawText("Total: $currencySymbol%.2f".format(total), width - 120f, y.toFloat(), infoPaint)
 
     pdf.finishPage(page)
     if (!directory.exists()) directory.mkdirs()

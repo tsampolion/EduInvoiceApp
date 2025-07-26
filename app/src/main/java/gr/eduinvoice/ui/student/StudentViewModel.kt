@@ -196,8 +196,9 @@ class StudentViewModel @Inject constructor(
                     studentUseCases.insertStudent(student)
                 }
 
-                // Navigate back on main thread
+                // Clear loading and navigate back on main thread
                 withContext(Dispatchers.Main) {
+                    _uiState.update { it.copy(isLoading = false) }
                     onNavigateBack?.invoke()
                 }
             } catch (e: Exception) {
@@ -219,8 +220,9 @@ class StudentViewModel @Inject constructor(
                 _uiState.value.student?.let { student ->
                     studentUseCases.softDeleteStudent(student.id)
 
-                    // Navigate back on main thread
+                    // Clear loading and navigate back on main thread
                     withContext(Dispatchers.Main) {
+                        _uiState.update { it.copy(isLoading = false) }
                         onNavigateBack?.invoke()
                     }
                 }

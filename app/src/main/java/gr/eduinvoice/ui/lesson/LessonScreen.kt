@@ -3,6 +3,7 @@ package gr.eduinvoice.ui.lesson
 import gr.eduinvoice.R
 import androidx.compose.foundation.layout.*
 import android.util.Log
+import gr.eduinvoice.BuildConfig
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
@@ -50,35 +51,35 @@ fun LessonScreen(
     Scaffold(
         topBar = {
             AppTopBar(
-                title = if (lessonId == 0L) "Add Lesson" else "Edit Lesson",
+                title = if (lessonId == 0L) stringResource(R.string.add_lesson) else stringResource(R.string.edit_lesson),
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 },
                 actions = {
                     var showDelete by remember { mutableStateOf(false) }
                     if (lessonId != 0L) {
                         IconButton(onClick = { showDelete = true }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete")
+                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
                         }
                     }
 
                     if (showDelete) {
                         AlertDialog(
                             onDismissRequest = { showDelete = false },
-                            title = { Text("Delete Lesson") },
-                            text = { Text("Are you sure you want to delete this lesson?") },
+                            title = { Text(stringResource(R.string.delete_lesson)) },
+                            text = { Text(stringResource(R.string.delete_lesson_confirmation)) },
                             confirmButton = {
                                 TextButton(onClick = {
                                     viewModel.deleteLesson()
                                     showDelete = false
                                 }) {
-                                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                                 }
                             },
                             dismissButton = {
-                                TextButton(onClick = { showDelete = false }) { Text("Cancel") }
+                                TextButton(onClick = { showDelete = false }) { Text(stringResource(R.string.cancel)) }
                             }
                         )
                     }
@@ -166,7 +167,9 @@ fun LessonScreen(
             ClickableReadOnlyField(
                 value = uiState.date,
                 onClick = {
-                    Log.d("LessonScreen", "Date field clicked -> showDatePicker from $showDatePicker to true")
+                    if (BuildConfig.DEBUG) {
+                        Log.d("LessonScreen", "Date field clicked -> showDatePicker from $showDatePicker to true")
+                    }
                     showDatePicker = true
                 },
                 label = { Text("Date") },
@@ -180,17 +183,23 @@ fun LessonScreen(
                             datePickerState.selectedDateMillis?.let { millis ->
                                 val date = java.time.Instant.ofEpochMilli(millis).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
                                 viewModel.updateDate(date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy")))
-                                Log.d("LessonScreen", "Date selected -> ${'$'}date")
+                                if (BuildConfig.DEBUG) {
+                                    Log.d("LessonScreen", "Date selected -> ${'$'}date")
+                                }
                             }
-                            Log.d("LessonScreen", "Date picker dismissed -> showDatePicker false")
+                            if (BuildConfig.DEBUG) {
+                                Log.d("LessonScreen", "Date picker dismissed -> showDatePicker false")
+                            }
                             showDatePicker = false
                         }) { Text("OK") }
                     },
                     dismissButton = {
                         TextButton(onClick = {
-                            Log.d("LessonScreen", "Date picker canceled -> showDatePicker false")
+                            if (BuildConfig.DEBUG) {
+                                Log.d("LessonScreen", "Date picker canceled -> showDatePicker false")
+                            }
                             showDatePicker = false
-                        }) { Text("Cancel") }
+                        }) { Text(stringResource(R.string.cancel)) }
                     }
                 ) {
                     DatePicker(state = datePickerState)
@@ -205,7 +214,9 @@ fun LessonScreen(
             ClickableReadOnlyField(
                 value = uiState.startTime,
                 onClick = {
-                    Log.d("LessonScreen", "Time field clicked -> showTimePicker from $showTimePicker to true")
+                    if (BuildConfig.DEBUG) {
+                        Log.d("LessonScreen", "Time field clicked -> showTimePicker from $showTimePicker to true")
+                    }
                     showTimePicker = true
                 },
                 label = { Text("Start Time") },
@@ -222,16 +233,20 @@ fun LessonScreen(
                                     timePickerState.minute
                                 )
                             )
-                            Log.d("LessonScreen", "Time selected -> ${'$'}{timePickerState.hour}:${'$'}{timePickerState.minute}")
-                            Log.d("LessonScreen", "Time picker dismissed -> showTimePicker false")
+                            if (BuildConfig.DEBUG) {
+                                Log.d("LessonScreen", "Time selected -> ${'$'}{timePickerState.hour}:${'$'}{timePickerState.minute}")
+                                Log.d("LessonScreen", "Time picker dismissed -> showTimePicker false")
+                            }
                             showTimePicker = false
                         }) { Text("OK") }
                     },
                     dismissButton = {
                         TextButton(onClick = {
-                            Log.d("LessonScreen", "Time picker canceled -> showTimePicker false")
+                            if (BuildConfig.DEBUG) {
+                                Log.d("LessonScreen", "Time picker canceled -> showTimePicker false")
+                            }
                             showTimePicker = false
-                        }) { Text("Cancel") }
+                        }) { Text(stringResource(R.string.cancel)) }
                     },
                     title = { Text("Select time") },
                     text = {
@@ -310,14 +325,14 @@ fun LessonScreen(
                 OutlinedButton(
                     onClick = onNavigateBack,
                     modifier = Modifier.weight(1f)
-                ) { Text("Cancel") }
+                ) { Text(stringResource(R.string.cancel)) }
                 Button(
                     onClick = {
                         viewModel.saveLesson()
                     },
                     modifier = Modifier.weight(1f),
                     enabled = viewModel.isFormValid()
-                ) { Text("Save") }
+                ) { Text(stringResource(R.string.save)) }
             }
         }
     }

@@ -52,6 +52,7 @@
     <!-- Financial summary strings -->
     <string name="week_total">This Week</string>
     <string name="month_total">This Month</string>
+    <string name="total">Total</string>
     <string name="currency_format">€ %1$.2f</string>
 
     <!-- Dialog messages -->
@@ -59,6 +60,7 @@
     <string name="archive_student_confirmation">Archive this student? You can restore later.</string>
     <string name="restore_student_confirmation">Restore this student?</string>
     <string name="delete_lesson_confirmation">Delete this lesson?</string>
+    <string name="delete_lesson">Delete Lesson</string>
     <string name="validation_error_empty_name">Please enter a student name</string>
     <string name="validation_error_invalid_rate">Please enter a valid rate</string>
     <string name="validation_error_invalid_duration">Please enter a valid duration</string>
