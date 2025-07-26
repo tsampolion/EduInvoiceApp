@@ -18,13 +18,15 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.util.Patterns
+import gr.eduinvoice.data.user.CurrentUserProvider
 import javax.inject.Inject
 
 @HiltViewModel
 class StudentViewModel @Inject constructor(
     private val studentUseCases: StudentUseCases,
     private val lessonUseCases: LessonUseCases,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
 
     val studentId: Long = savedStateHandle.get<Long>("studentId") ?: 0L
@@ -50,9 +52,10 @@ class StudentViewModel @Inject constructor(
 
     private fun loadData() {
         viewModelScope.launch {
+            val userId = currentUserProvider.loggedInUserId.first() ?: 0L
             combine(
-                studentUseCases.getStudentById(studentId),
-                lessonUseCases.getStudentLessons(studentId)
+                studentUseCases.getStudentById(studentId, userId),
+                lessonUseCases.getStudentLessons(studentId, userId)
             ) { student, lessons -> student to lessons }
                 .catch { e ->
                     _uiState.update { it.copy(errorMessage = e.message) }
@@ -158,7 +161,8 @@ class StudentViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
 
             try {
-                if (state.selectedClass == "Custom" && studentUseCases.classNameExists(className)) {
+                val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+                if (state.selectedClass == "Custom" && studentUseCases.classNameExists(className, userId)) {
                     _uiState.update {
                         it.copy(isLoading = false, errorMessage = "Class already exists")
                     }

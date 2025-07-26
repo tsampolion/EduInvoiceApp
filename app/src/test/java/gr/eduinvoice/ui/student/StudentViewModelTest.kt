@@ -15,6 +15,7 @@ import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
+import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,6 +38,8 @@ class StudentViewModelTest {
 
     private val studentFlow = MutableStateFlow<List<Student>>(emptyList())
     private val lessonFlow = MutableStateFlow<List<Lesson>>(emptyList())
+
+    private val userProvider = FakeUserProvider(1L)
 
     private val studentDao = FakeStudentDao(studentFlow)
     private val lessonDao = FakeLessonDao(lessonFlow)
@@ -72,7 +75,7 @@ class StudentViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun saveStudentClearsLoading() = runTest {
-        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 0L)))
+        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 0L)), userProvider)
         vm.updateName("Alice")
         vm.updateSurname("Smith")
         vm.updateSelectedClass("A")
@@ -87,7 +90,7 @@ class StudentViewModelTest {
     fun deleteStudentClearsLoading() = runTest {
         val student = Student(id = 1, name = "Bob", surname = "", parentMobile = "", className = "A", rate = 10.0)
         studentFlow.value = listOf(student)
-        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 1L)))
+        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 1L)), userProvider)
         advanceUntilIdle()
         vm.deleteStudent()
         advanceUntilIdle()
@@ -148,6 +151,11 @@ class StudentViewModelTest {
         override suspend fun insertCrossRef(crossRef: GroupStudentCrossRef) {}
         override suspend fun deleteCrossRef(groupId: Long, studentId: Long, userId: Long) {}
         override fun getStudentsForGroup(groupId: Long, userId: Long): Flow<List<Student>> = flowOf(emptyList())
+    }
+
+    class FakeUserProvider(id: Long?) : CurrentUserProvider {
+        private val _id = MutableStateFlow(id)
+        override val loggedInUserId: Flow<Long?> = _id
     }
 }
 
