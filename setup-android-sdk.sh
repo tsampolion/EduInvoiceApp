@@ -2,9 +2,10 @@
 ###############################################################################
 # Android SDK bootstrap for CI/CD runners
 #
-# v7: Optimized for CI Caching.
-#     - Checks for the existence of the final SDK directory before running
-#       the time-consuming installation steps. If found, skips installation.
+# v8: Definitive Cache-Aware Version.
+#     - Combines the robust multi-step apt installation with the cache check.
+#     - This correctly handles the initial 'cache miss' run and provides
+#       maximum speed on subsequent 'cache hit' runs.
 ###############################################################################
 set -euo pipefail
 
@@ -33,40 +34,45 @@ NDK_VERSION="27.0.11718014"
 CMAKE_VERSION="3.22.1"
 # -----------------------------------------------------------------------------
 
-
-###############################################################################
-# PHASE 1: SYSTEM SANITIZATION & DEPENDENCY INSTALLATION
-###############################################################################
-echo ">>>> 1 · Refreshing apt index"
-apt-get update -y
-
-echo ">>>> 2 · Installing system dependencies"
-# This will be fast if the apt cache is restored
-apt-get install -y --no-install-recommends \
-  openjdk-21-jdk \
-  ca-certificates-java \
-  curl \
-  unzip \
-  git \
-  sudo \
-  build-essential \
-  libglu1-mesa
-
-dpkg --configure -a
-apt-get -f install -y
-
-
-###############################################################################
-# PHASE 2 & 4: SDK DOWNLOAD, INSTALL, AND CONFIG (as Target User)
-# CACHING OPTIMIZATION: This entire block is skipped if the SDK is found.
-###############################################################################
-if [ ! -d "${ANDROID_SDK_ROOT}/cmdline-tools/latest" ]; then
+# This check prevents the main installation on a cache hit
+if [ -d "${ANDROID_SDK_ROOT}/cmdline-tools/latest" ]; then
+    echo ">>>> Android SDK found in cache. Skipping installation."
+else
     echo ">>>> Android SDK not found in cache. Starting fresh installation..."
 
+    # --- Phase 1: Full System Installation on Cache Miss ---
+    echo ">>>> 1 · Refreshing apt index"
+    apt-get update -y
+
+    echo ">>>> 2 · Fixing Java environment and installing dependencies"
+    # DEFINITIVE FIX: Use the proven, sequential installation method.
+    echo ">>>>    Step 2a: Purging potentially broken java certificate state"
+    # Use '|| true' to prevent failure if the package isn't installed
+    apt-get remove --purge -y ca-certificates-java || true
+    rm -rf /etc/ssl/certs/java
+
+    echo ">>>>    Step 2b: Installing the JDK first to create the correct directory structure"
+    apt-get install -y --no-install-recommends openjdk-21-jdk
+
+    echo ">>>>    Step 2c: Re-installing ca-certificates-java now that the JRE exists"
+    apt-get install -y --no-install-recommends ca-certificates-java
+
+    echo ">>>>    Step 2d: Installing remaining system dependencies"
+    apt-get install -y --no-install-recommends \
+      curl \
+      unzip \
+      git \
+      sudo \
+      build-essential \
+      libglu1-mesa
+
+    dpkg --configure -a
+    apt-get -f install -y
+
+    # --- Phase 2: SDK Installation on Cache Miss ---
     sudo -u "$TARGET_USER" bash << 'EOF'
     set -euo pipefail
 
-    # Redefine variables within the sub-shell
     ANDROID_SDK_ROOT="${HOME}/android-sdk"
     API_LEVEL="35"
     BUILD_TOOLS="35.0.0"
@@ -83,15 +89,8 @@ if [ ! -d "${ANDROID_SDK_ROOT}/cmdline-tools/latest" ]; then
     cd - > /dev/null
 
     run_sdk() {
-      set +e
-      yes | "$@"
-      local yes_rc=${PIPESTATUS[0]:-0}
-      local cmd_rc=${PIPESTATUS[1]:-${PIPESTATUS[0]:-1}}
-      set -e
-      if [[ $cmd_rc -eq 0 && ( $yes_rc -eq 0 || $yes_rc -eq 141 ) ]]; then
-        return 0
-      fi
-      return "$cmd_rc"
+      set +e; yes | "$@" >/dev/null; local rc=${PIPESTATUS[1]}; set -e
+      if [[ $rc -ne 0 ]]; then echo "SDK manager command failed with exit code $rc."; exit $rc; fi
     }
 
     export PATH=$PATH:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/platform-tools
@@ -105,17 +104,13 @@ if [ ! -d "${ANDROID_SDK_ROOT}/cmdline-tools/latest" ]; then
     echo ">>>> 6 · Accepting SDK licences"
     run_sdk sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --licenses
 EOF
-
-else
-    echo ">>>> Android SDK found in cache. Skipping installation."
 fi
 
-
 ###############################################################################
+# These phases always run to configure the environment for the build steps.
+###############################################################################
+echo ">>>> Configuring environment for current build job"
 # PHASE 3: Environment Configuration (For future shells)
-# This always runs to ensure the environment is correctly configured.
-###############################################################################
-echo ">>>> 4 · Exporting ANDROID_* vars system-wide"
 cat > /etc/profile.d/android-sdk.sh <<EOF
 export ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}
 export ANDROID_HOME=${ANDROID_SDK_ROOT}
@@ -123,17 +118,9 @@ export PATH=\$PATH:\$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:\$ANDROID_SDK_ROO
 EOF
 chmod +x /etc/profile.d/android-sdk.sh
 
-
-###############################################################################
 # PHASE 5: Finalization
-###############################################################################
-echo ">>>> 7 · Writing local.properties for Gradle"
 PROJECT_DIR="${CODING_PROJECT_ROOT:-$PWD}"
 echo "sdk.dir=${ANDROID_SDK_ROOT}" > "${PROJECT_DIR}/local.properties"
 chown "${TARGET_USER}:${TARGET_USER}" "${PROJECT_DIR}/local.properties"
 
-echo ">>>> 8 · Cleaning up temporary files"
-# We do not clean apt cache here, as it's needed for caching
-rm -f /tmp/cmdline-tools.zip
-
-echo ">>>> Android SDK bootstrap complete for user '$TARGET_USER'!"
+echo ">>>> Android SDK bootstrap complete!"
