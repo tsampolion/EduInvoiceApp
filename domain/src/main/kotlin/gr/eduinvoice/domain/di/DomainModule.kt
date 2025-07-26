@@ -54,7 +54,8 @@ object DomainModule {
             createUser = CreateUser(repository),
             authenticateUser = AuthenticateUser(repository),
             getUserProfile = GetUserProfile(repository),
-            updateUser = UpdateUser(repository)
+            updateUser = UpdateUser(repository),
+            resetPassword = ResetPassword(repository)
         )
 
     @Provides
