@@ -1,99 +1,100 @@
 #!/usr/bin/env bash
 ###############################################################################
-# Android SDK bootstrap for ChatGPT Codex & CI runners
+# Android SDK bootstrap for CI/CD runners
 #
-# v3: Hardened against persistent `ca-certificates-java` errors by purging
-#     and reinstalling the package to fix broken base-image states.
+# v5: Definitive fix.
+#     - Resolves 'ca-certificates-java' crash by separating JDK installation
+#       from certificate installation, ensuring correct directory state.
+#     - Hardened for user context, file ownership, and CI reproducibility.
 ###############################################################################
 set -euo pipefail
 
 # ---- 0. Pre-flight Checks & Environment Setup -------------------------------
 if [[ "$EUID" -ne 0 ]] || ! command -v apt-get >/dev/null 2>&1; then
-  echo "ERROR: This script must be run as root and requires 'apt-get'." >&2
+  echo "ERROR: This script must be run as root (e.g., via sudo) and requires 'apt-get'." >&2
   exit 1
 fi
+
+TARGET_USER="${SUDO_USER:-ubuntu}"
+TARGET_HOME=$(eval echo "~$TARGET_USER")
+
+if ! id -u "$TARGET_USER" >/dev/null 2>&1; then
+    echo "ERROR: The target user '$TARGET_USER' does not exist. Cannot proceed." >&2
+    exit 1
+fi
+
 export DEBIAN_FRONTEND=noninteractive
 
 # ---- Tunables ---------------------------------------------------------------
-ANDROID_SDK_ROOT="${HOME}/android-sdk"
+ANDROID_SDK_ROOT="${TARGET_HOME}/android-sdk"
 CMDLINE_VERSION="11076708"
 API_LEVEL="35"
 BUILD_TOOLS="35.0.0"
 NDK_VERSION="27.0.11718014"
-CMAKE_VERSION=""
+CMAKE_VERSION="3.22.1" # Hardcoded for reproducibility
 # -----------------------------------------------------------------------------
 
 
 ###############################################################################
-# PHASE 1: AGGRESSIVE SYSTEM SANITIZATION
-# This is the critical fix for broken base images in sandboxed environments.
+# PHASE 1: SYSTEM SANITIZATION & DEPENDENCY INSTALLATION
 ###############################################################################
-echo ">>>> 1 · Refreshing apt index and updating sources"
+echo ">>>> 1 · Refreshing apt index"
 apt-get update -y
 
-echo ">>>> 2 · Purging and reinstalling 'ca-certificates-java' to fix broken state"
-# The --purge flag is essential. It removes the package and its config files.
+echo ">>>> 2 · Fixing Java environment"
+# DEFINITIVE FIX: Perform the purge, JDK install, and certificate install
+# in separate, sequential steps to guarantee correct state.
+
+echo ">>>>    Step 2a: Purging potentially broken java certificate state"
 apt-get remove --purge -y ca-certificates-java
-# Ensure the problematic directory is gone before we proceed.
 rm -rf /etc/ssl/certs/java
-# Now, install the essential packages. Reinstalling ca-certificates-java
-# alongside the JDK in a clean state should resolve the dependency error.
+
+echo ">>>>    Step 2b: Installing the JDK first to create the correct directory structure"
+apt-get install -y --no-install-recommends openjdk-21-jdk
+
+echo ">>>>    Step 2c: Re-installing ca-certificates-java now that the JRE exists"
+apt-get install -y --no-install-recommends ca-certificates-java
+
+echo ">>>>    Step 2d: Installing remaining system dependencies"
 apt-get install -y --no-install-recommends \
-  ca-certificates-java \
-  openjdk-21-jdk \
   curl \
   unzip \
   git \
+  sudo \
   build-essential \
   libglu1-mesa
 
-# As a final measure, force-configure anything that might be pending.
 dpkg --configure -a
 apt-get -f install -y
 
 
 ###############################################################################
-# PHASE 2: Download and Install Android SDK
+# PHASE 2: Download and Install Android SDK (as Target User)
 ###############################################################################
-echo ">>>> 3 · Fetching Android cmdline-tools r${CMDLINE_VERSION}"
+echo ">>>> 3 · Fetching Android cmdline-tools (as user: $TARGET_USER)"
+sudo -u "$TARGET_USER" bash << EOF
+set -euo pipefail
 mkdir -p "${ANDROID_SDK_ROOT}/cmdline-tools"
 cd /tmp
-# Use --fail to ensure HTTP errors (like 404) cause the script to abort
-curl -fsSLo cmdline-tools.zip \
-  "https://dl.google.com/android/repository/commandlinetools-linux-${CMDLINE_VERSION}_latest.zip"
-unzip -q cmdline-tools.zip
-mv cmdline-tools "${ANDROID_SDK_ROOT}/cmdline-tools/latest"
-
-# Flatten the directory structure if using an older zip format
-if [ -d "${ANDROID_SDK_ROOT}/cmdline-tools/latest/cmdline-tools" ]; then
-  mv "${ANDROID_SDK_ROOT}/cmdline-tools/latest/cmdline-tools"/* \
-     "${ANDROID_SDK_ROOT}/cmdline-tools/latest/"
-  rmdir "${ANDROID_SDK_ROOT}/cmdline-tools/latest/cmdline-tools"
-fi
-cd -
+curl -fsSLo cmdline-tools.zip "https://dl.google.com/android/repository/commandlinetools-linux-${CMDLINE_VERSION}_latest.zip"
+unzip -q -d "${ANDROID_SDK_ROOT}/cmdline-tools" cmdline-tools.zip
+mv "${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools" "${ANDROID_SDK_ROOT}/cmdline-tools/latest"
+EOF
 
 
 ###############################################################################
 # PHASE 3: Environment Configuration
 ###############################################################################
-echo ">>>> 4 · Exporting ANDROID_* vars"
-if ! grep -q "export ANDROID_SDK_ROOT=" "$HOME/.profile"; then
-  {
-    echo ""
-    echo "# Android SDK Environment Variables"
-    echo "export ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}"
-    echo "export ANDROID_HOME=${ANDROID_SDK_ROOT}"
-    echo 'export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools'
-  } >> "$HOME/.profile"
-else
-    echo ">>>>    Android environment variables already exist in ~/.profile. Skipping."
-fi
+echo ">>>> 4 · Exporting ANDROID_* vars system-wide"
+cat > /etc/profile.d/android-sdk.sh <<EOF
+export ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT}
+export ANDROID_HOME=${ANDROID_SDK_ROOT}
+export PATH=\$PATH:\$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:\$ANDROID_SDK_ROOT/platform-tools
+EOF
+chmod +x /etc/profile.d/android-sdk.sh
 
-export ANDROID_HOME="${ANDROID_SDK_ROOT}"
-export PATH=$PATH:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/platform-tools
-
-echo ">>>>    Java version check"
-java -version
+# shellcheck source=/dev/null
+source /etc/profile.d/android-sdk.sh
 
 
 ###############################################################################
@@ -111,30 +112,27 @@ run_sdk() {
   return "$cmd_rc"
 }
 
-echo ">>>> 5 · Installing Android SDK components"
-if [[ -z "$CMAKE_VERSION" ]]; then
-  CMAKE_VERSION=$(sdkmanager --list --channel=0 | awk -F'|' '/cmake;[0-9]/ {gsub(/^[ \t]+|[ \t]+$/, "", $1); sub(/^cmake;/,"",$1); print $1}' | sort -V | tail -n1)
-fi
-echo ">>>>    Using CMake $CMAKE_VERSION"
-
-run_sdk sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" \
+echo ">>>> 5 · Installing Android SDK components (using CMake ${CMAKE_VERSION})"
+sudo -u "$TARGET_USER" run_sdk sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" \
   "platform-tools" "platforms;android-${API_LEVEL}" "build-tools;${BUILD_TOOLS}" \
   "cmake;${CMAKE_VERSION}" "ndk;${NDK_VERSION}" \
   "extras;android;m2repository" "extras;google;m2repository"
 
 echo ">>>> 6 · Accepting SDK licences"
-run_sdk sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --licenses
+sudo -u "$TARGET_USER" run_sdk sdkmanager --sdk_root="${ANDROID_SDK_ROOT}" --licenses
 
 
 ###############################################################################
 # PHASE 5: Finalization
 ###############################################################################
 echo ">>>> 7 · Writing local.properties for Gradle"
-echo "sdk.dir=${ANDROID_SDK_ROOT}" > "${CODING_PROJECT_ROOT:-$PWD}/local.properties"
+PROJECT_DIR="${CODING_PROJECT_ROOT:-$PWD}"
+echo "sdk.dir=${ANDROID_SDK_ROOT}" > "${PROJECT_DIR}/local.properties"
+chown "${TARGET_USER}:${TARGET_USER}" "${PROJECT_DIR}/local.properties"
 
 echo ">>>> 8 · Cleaning up"
-apt-get clean
+apt-get clean > /dev/null
 rm -rf /var/lib/apt/lists/*
 rm -f /tmp/cmdline-tools.zip
 
-echo ">>>> Android SDK bootstrap complete!"
+echo ">>>> Android SDK bootstrap complete for user '$TARGET_USER'!"
