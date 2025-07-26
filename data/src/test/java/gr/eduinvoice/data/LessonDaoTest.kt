@@ -43,7 +43,7 @@ class LessonDaoTest {
     fun insertAndQueryLessonsByStudent() = runBlocking {
         val studentId = studentDao.insert(Student(name = "Alice", surname = "", parentMobile = "", className = "A", rate = 10.0))
         lessonDao.insert(Lesson(studentId = studentId, date = "2024-01-01", startTime = "10:00", durationMinutes = 60))
-        val lessons = lessonDao.getLessonsByStudentId(studentId).first()
+        val lessons = lessonDao.getLessonsByStudentId(studentId, 0).first()
         assertEquals(1, lessons.size)
         assertEquals(studentId, lessons.first().studentId)
     }
@@ -53,7 +53,7 @@ class LessonDaoTest {
         val studentId = studentDao.insert(Student(name = "Bob", surname = "", parentMobile = "", className = "B", rate = 15.0))
         val id = lessonDao.insert(Lesson(studentId = studentId, date = "2024-01-02", startTime = "11:00", durationMinutes = 90))
         lessonDao.updatePaidStatus(listOf(id), true)
-        val lesson = lessonDao.getLessonById(id).first()
+        val lesson = lessonDao.getLessonById(id, 0).first()
         assertEquals(true, lesson?.isPaid)
     }
 
@@ -62,7 +62,7 @@ class LessonDaoTest {
         val studentId = studentDao.insert(Student(name = "Cara", surname = "", parentMobile = "", className = "C", rate = 12.0))
         val id = lessonDao.insert(Lesson(studentId = studentId, date = "2024-01-03", startTime = "12:00", durationMinutes = 60))
         lessonDao.updateInvoicedStatus(listOf(id), true)
-        val invoiced = lessonDao.isLessonInvoiced(id).first()
+        val invoiced = lessonDao.isLessonInvoiced(id, 0).first()
         assertEquals(true, invoiced)
     }
 }

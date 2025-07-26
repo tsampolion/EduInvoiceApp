@@ -46,7 +46,7 @@ class AddLessonIntegrationTest {
         val lesson = Lesson(studentId = studentId, date = "2024-01-03", startTime = "10:00", durationMinutes = 60)
         val useCase = AddLesson(repository)
         useCase(lesson)
-        val lessons = db.lessonDao().getLessonsByStudentId(studentId).first()
+        val lessons = db.lessonDao().getLessonsByStudentId(studentId, 0).first()
         assertEquals(1, lessons.size)
     }
 }

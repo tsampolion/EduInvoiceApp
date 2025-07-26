@@ -8,5 +8,6 @@ import javax.inject.Inject
 class GetLessonsByStudentId @Inject constructor(
     private val dao: LessonDao
 ) {
-    operator fun invoke(id: Long): Flow<List<Lesson>> = dao.getLessonsByStudentId(id)
+    operator fun invoke(id: Long, userId: Long = 0): Flow<List<Lesson>> =
+        dao.getLessonsByStudentId(id, userId)
 }

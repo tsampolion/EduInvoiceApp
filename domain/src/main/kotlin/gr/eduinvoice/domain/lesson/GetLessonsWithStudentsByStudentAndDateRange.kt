@@ -8,6 +8,11 @@ import javax.inject.Inject
 class GetLessonsWithStudentsByStudentAndDateRange @Inject constructor(
     private val dao: LessonDao
 ) {
-    operator fun invoke(studentId: Long, start: String, end: String): Flow<List<LessonWithStudent>> =
-        dao.getLessonsWithStudentsByStudentAndDateRange(studentId, start, end)
+    operator fun invoke(
+        studentId: Long,
+        start: String,
+        end: String,
+        userId: Long = 0
+    ): Flow<List<LessonWithStudent>> =
+        dao.getLessonsWithStudentsByStudentAndDateRange(studentId, start, end, userId)
 }

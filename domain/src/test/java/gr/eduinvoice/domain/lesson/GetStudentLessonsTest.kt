@@ -42,10 +42,15 @@ class GetStudentLessonsTest {
 
     @Test
     fun returnsLessonsForStudent() = runBlocking {
-        val studentId = db.studentDao().insert(Student(name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0))
-        db.lessonDao().insert(Lesson(studentId = studentId, date = "2024-01-01", startTime = "10:00", durationMinutes = 60))
+        val userId = 1L
+        val studentId = db.studentDao().insert(
+            Student(ownerId = userId, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
+        )
+        db.lessonDao().insert(
+            Lesson(ownerId = userId, studentId = studentId, date = "2024-01-01", startTime = "10:00", durationMinutes = 60)
+        )
         val useCase = GetStudentLessons(repository)
-        val lessons = useCase(studentId).first()
+        val lessons = useCase(studentId, userId).first()
         assertEquals(1, lessons.size)
     }
 }

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.21] - 2025-08-21
+### Domain
+- Lesson use cases now take `userId` when fetching or adding lessons.
+### Data
+- `TutorBillingRepository` and `LessonDao` require explicit user IDs.
+
 ## [0.21.20] - 2025-08-20
 ### Domain
 - Use cases now accept a `userId` parameter for student and group queries.

@@ -8,6 +8,6 @@ import javax.inject.Inject
 class GetStudentLessons @Inject constructor(
     private val repository: TutorBillingRepository
 ) {
-    operator fun invoke(studentId: Long): Flow<List<Lesson>> =
-        repository.getLessonsForStudent(studentId)
+    operator fun invoke(studentId: Long, userId: Long = 0): Flow<List<Lesson>> =
+        repository.getLessonsForStudent(studentId, userId)
 }

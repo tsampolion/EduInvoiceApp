@@ -7,6 +7,6 @@ import javax.inject.Inject
 class AddGroupLesson @Inject constructor(
     private val repository: TutorBillingRepository
 ) {
-    suspend operator fun invoke(groupId: Long, lesson: Lesson): List<Long> =
-        repository.addGroupLesson(groupId, lesson)
+    suspend operator fun invoke(groupId: Long, lesson: Lesson, userId: Long = 0): List<Long> =
+        repository.addGroupLesson(groupId, lesson, userId)
 }

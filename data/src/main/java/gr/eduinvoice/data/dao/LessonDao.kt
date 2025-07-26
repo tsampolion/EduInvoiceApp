@@ -20,25 +20,25 @@ interface LessonDao {
     suspend fun deleteById(lessonId: Long)
 
     @Query("SELECT * FROM lessons WHERE id = :lessonId AND ownerId = :userId")
-    fun getLessonById(lessonId: Long, userId: Long = 0): Flow<Lesson?>
+    fun getLessonById(lessonId: Long, userId: Long): Flow<Lesson?>
 
     @Query("SELECT * FROM lessons WHERE studentId = :studentId AND ownerId = :userId ORDER BY date DESC, startTime DESC")
-    fun getLessonsByStudentId(studentId: Long, userId: Long = 0): Flow<List<Lesson>>
+    fun getLessonsByStudentId(studentId: Long, userId: Long): Flow<List<Lesson>>
 
     @Query("SELECT * FROM lessons WHERE ownerId = :userId ORDER BY date DESC, startTime DESC")
-    fun getAllLessons(userId: Long = 0): Flow<List<Lesson>>
+    fun getAllLessons(userId: Long): Flow<List<Lesson>>
 
     @Query("SELECT * FROM lessons WHERE date BETWEEN :startDate AND :endDate AND ownerId = :userId ORDER BY date DESC, startTime DESC")
-    fun getLessonsInDateRange(startDate: String, endDate: String, userId: Long = 0): Flow<List<Lesson>>
+    fun getLessonsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<Lesson>>
 
     @Query("SELECT * FROM lessons WHERE studentId = :studentId AND date BETWEEN :startDate AND :endDate AND ownerId = :userId ORDER BY date ASC")
-    fun getLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long = 0): Flow<List<Lesson>>
+    fun getLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<Lesson>>
 
     @Query("SELECT * FROM lessons WHERE studentId = :studentId AND date BETWEEN :startDate AND :endDate AND isPaid = 0 AND ownerId = :userId ORDER BY date ASC")
-    fun getUnpaidLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long = 0): Flow<List<Lesson>>
+    fun getUnpaidLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<Lesson>>
 
     @Query("SELECT * FROM lessons WHERE date BETWEEN :startDate AND :endDate AND isPaid = 0 AND ownerId = :userId ORDER BY date ASC")
-    fun getUnpaidLessonsInDateRange(startDate: String, endDate: String, userId: Long = 0): Flow<List<Lesson>>
+    fun getUnpaidLessonsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<Lesson>>
 
     @Query("UPDATE lessons SET isPaid = :paid WHERE id IN (:ids)")
     suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean)
@@ -47,7 +47,7 @@ interface LessonDao {
     suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean)
 
     @Query("SELECT isInvoiced FROM lessons WHERE id = :lessonId AND ownerId = :userId")
-    fun isLessonInvoiced(lessonId: Long, userId: Long = 0): Flow<Boolean?>
+    fun isLessonInvoiced(lessonId: Long, userId: Long): Flow<Boolean?>
 
     @Transaction
     @Query(
@@ -77,7 +77,7 @@ interface LessonDao {
         ORDER BY lessons.date DESC, lessons.startTime DESC
         """
     )
-    fun getLessonsWithStudents(userId: Long = 0): Flow<List<LessonWithStudent>>
+    fun getLessonsWithStudents(userId: Long): Flow<List<LessonWithStudent>>
 
     @Transaction
     @Query(
@@ -107,7 +107,7 @@ interface LessonDao {
         ORDER BY lessons.date DESC, lessons.startTime DESC
         """
     )
-    fun getLessonsWithStudentsByStudent(studentId: Long, userId: Long = 0): Flow<List<LessonWithStudent>>
+    fun getLessonsWithStudentsByStudent(studentId: Long, userId: Long): Flow<List<LessonWithStudent>>
 
     @Transaction
     @Query(
@@ -137,7 +137,7 @@ interface LessonDao {
         ORDER BY lessons.date DESC, lessons.startTime DESC
         """
     )
-    fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String, userId: Long = 0): Flow<List<LessonWithStudent>>
+    fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>>
 
     @Transaction
     @Query(
@@ -167,5 +167,5 @@ interface LessonDao {
         ORDER BY lessons.date DESC, lessons.startTime DESC
         """
     )
-    fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long = 0): Flow<List<LessonWithStudent>>
+    fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>>
 }
