@@ -42,7 +42,7 @@ import java.time.format.DateTimeFormatter
 fun StudentScreen(
     studentId: String?,
     onNavigateBack: () -> Unit,
-    onNavigateToLesson: (Long) -> Unit,
+    onNavigateToLesson: (Long, Long) -> Unit,
     onAddLesson: () -> Unit,
     viewModel: StudentViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
@@ -165,7 +165,7 @@ private fun StudentMetricsRow(uiState: StudentUiState, modifier: Modifier = Modi
 private fun StudentDetailView(
     uiState: StudentUiState,
     viewModel: StudentViewModel,
-    onLessonClick: (Long) -> Unit,
+    onLessonClick: (Long, Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -236,7 +236,7 @@ private fun StudentDetailView(
                 LessonCard(
                     lesson = lesson,
                     fee = fee,
-                    onLessonClick = { onLessonClick(lesson.id) },
+                    onLessonClick = { onLessonClick(lesson.id, lesson.groupId ?: 0L) },
                     onDeleteClick = { viewModel.deleteLesson(lesson.id) }
                 )
                 HorizontalDivider()

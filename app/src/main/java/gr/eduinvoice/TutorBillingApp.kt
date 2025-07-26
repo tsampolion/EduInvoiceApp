@@ -123,9 +123,9 @@ fun TutorBillingApp() {
         composable(Screen.Lessons.route) {
             LessonsScreen(
                 onBack = { navController.popBackStack() },
-                onLessonClick = { studentId, lessonId ->
+                onLessonClick = { studentId, lessonId, groupId ->
                     navController.navigate(
-                        Screen.Lesson.createRoute(lessonId, studentId)
+                        Screen.Lesson.createRoute(lessonId, studentId, groupId)
                     )
                 },
                 onAddLesson = { navController.navigate(Screen.Lesson.createRoute(0)) },
@@ -209,6 +209,10 @@ fun TutorBillingApp() {
                 navArgument("studentId") {
                     type = NavType.LongType
                     defaultValue = 0L
+                },
+                navArgument("groupId") {
+                    type = NavType.LongType
+                    defaultValue = 0L
                 }
             )
         ) { backStackEntry ->
@@ -217,6 +221,7 @@ fun TutorBillingApp() {
             val lessonId = backStackEntry.arguments?.getLong("lessonId") ?: 0L
 
             val studentId = backStackEntry.arguments?.getLong("studentId") ?: 0L
+            val groupId = backStackEntry.arguments?.getLong("groupId") ?: 0L
 
             LaunchedEffect(Unit) {
                 viewModel.setNavigationCallback {

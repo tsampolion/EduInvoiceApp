@@ -3,8 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.21.15] - 2025-08-15
+### Fix
+- Preserve group ID when editing group lessons and update navigation.
+
 ### Build/CI
 - Database passphrase now loaded from `UserPreferencesRepository`.
+
 
 ## [0.21.14] - 2025-08-14
 ### Docs

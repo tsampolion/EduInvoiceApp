@@ -30,7 +30,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun LessonsScreen(
     onBack: () -> Unit,
-    onLessonClick: (Long, Long) -> Unit,
+    onLessonClick: (Long, Long, Long) -> Unit,
     onAddLesson: () -> Unit,
     onInvoice: (Long?) -> Unit,
     onPastInvoices: () -> Unit,
@@ -97,7 +97,7 @@ fun LessonsScreen(
                     items(lessons, key = { it.lesson.id }) { item ->
                         LessonItem(
                             lessonWithStudent = item,
-                            onClick = { onLessonClick(item.student.id, item.lesson.id) },
+                            onClick = { onLessonClick(item.student.id, item.lesson.id, item.lesson.groupId ?: 0L) },
                             onPaidChange = { viewModel.updatePaid(item.lesson.id, it) }
                         )
                         HorizontalDivider()
