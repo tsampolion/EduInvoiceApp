@@ -9,6 +9,7 @@ import gr.eduinvoice.data.model.StudentWithEarnings
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.utils.EarningsCalculator
+import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class StudentsViewModel @Inject constructor(
     private val studentUseCases: StudentUseCases,
-    private val lessonUseCases: LessonUseCases
+    private val lessonUseCases: LessonUseCases,
+    private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StudentsUiState())
@@ -42,17 +44,18 @@ class StudentsViewModel @Inject constructor(
 
     private fun loadStudentsWithEarnings() {
         viewModelScope.launch {
-            combine(
-                studentUseCases.getActiveStudents(),
-                lessonUseCases.getAllLessons(),
-                searchQuery,
-                sortAscending
-            ) { students, lessons, query, ascending ->
-                var filtered = if (query.isBlank()) students else students.filter {
-                    it.name.contains(query, true)
-                }
-                filtered = if (ascending) filtered.sortedBy { it.name }
-                else filtered.sortedByDescending { it.name }
+            currentUserProvider.loggedInUserId.filterNotNull().flatMapLatest { uid ->
+                combine(
+                    studentUseCases.getActiveStudents(uid),
+                    lessonUseCases.getAllLessons(uid),
+                    searchQuery,
+                    sortAscending
+                ) { students, lessons, query, ascending ->
+                    var filtered = if (query.isBlank()) students else students.filter {
+                        it.name.contains(query, true)
+                    }
+                    filtered = if (ascending) filtered.sortedBy { it.name }
+                    else filtered.sortedByDescending { it.name }
 
                 filtered.map { student ->
                     val (weekEarnings, monthEarnings) = EarningsCalculator.calculate(student, lessons)
@@ -61,6 +64,7 @@ class StudentsViewModel @Inject constructor(
                         weekEarnings = weekEarnings,
                         monthEarnings = monthEarnings
                     )
+                }
                 }
             }.collect { studentsWithEarnings ->
                 _uiState.update {

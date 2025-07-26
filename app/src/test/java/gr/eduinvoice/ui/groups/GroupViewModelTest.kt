@@ -11,6 +11,7 @@ import gr.eduinvoice.data.repository.GroupRepository
 import gr.eduinvoice.data.repository.StudentRepository
 import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.domain.student.*
+import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +35,8 @@ class GroupViewModelTest {
     private val studentFlow = MutableStateFlow<List<Student>>(emptyList())
     private val groupFlow = MutableStateFlow<List<StudentGroup>>(emptyList())
     private val relations = mutableMapOf<Long, MutableMap<Long, Long>>()
+
+    private val userProvider = FakeUserProvider(5L)
 
     private val studentDao = FakeStudentDao(studentFlow)
     private val groupDao = FakeGroupDao(groupFlow, studentFlow, relations)
@@ -68,7 +71,7 @@ class GroupViewModelTest {
         val s2 = Student(id = 2, name = "Bob", surname = "", parentMobile = "", className = "", rate = 15.0)
         studentFlow.value = listOf(s1, s2)
 
-        val vm = GroupViewModel(groupUseCases, studentUseCases, SavedStateHandle())
+        val vm = GroupViewModel(groupUseCases, studentUseCases, SavedStateHandle(), userProvider)
         advanceUntilIdle()
 
         vm.toggleStudent(1)
@@ -85,13 +88,13 @@ class GroupViewModelTest {
         val s2 = Student(id = 2, name = "Bob", surname = "", parentMobile = "", className = "", rate = 15.0)
         studentFlow.value = listOf(s1, s2)
 
-        val vm = GroupViewModel(groupUseCases, studentUseCases, SavedStateHandle())
+        val vm = GroupViewModel(groupUseCases, studentUseCases, SavedStateHandle(), userProvider)
         advanceUntilIdle()
 
         vm.updateName("Group A")
         vm.toggleStudent(1)
         vm.toggleStudent(2)
-        vm.saveGroup(5)
+        vm.saveGroup()
         advanceUntilIdle()
 
         assertEquals(1, groupFlow.value.size)
@@ -106,17 +109,19 @@ class GroupViewModelTest {
         override suspend fun update(student: Student) {}
         override suspend fun delete(student: Student) {}
         override suspend fun softDeleteStudent(studentId: Long) {}
-        override fun getStudentById(studentId: Long, userId: Long): Flow<Student?> = flow.map { list -> list.find { it.id == studentId } }
-        override fun getAllActiveStudents(userId: Long): Flow<List<Student>> = flow.asStateFlow()
+        override fun getStudentById(studentId: Long, userId: Long): Flow<Student?> =
+            flow.map { list -> list.find { it.id == studentId && it.ownerId == userId } }
+        override fun getAllActiveStudents(userId: Long): Flow<List<Student>> =
+            flow.map { list -> list.filter { it.ownerId == userId } }
         override fun getArchivedStudents(userId: Long): Flow<List<Student>> = flowOf(emptyList())
         override suspend fun restoreStudent(studentId: Long) {}
         override fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?> = getStudentById(studentId, userId)
-        override suspend fun getActiveStudentCount(userId: Long): Int = flow.value.size
+        override suspend fun getActiveStudentCount(userId: Long): Int = flow.value.count { it.ownerId == userId }
         override suspend fun classNameExists(name: String, userId: Long): Int = flow.value.count { it.className.equals(name, true) }
     }
 
     class FakeGroupDao(
-        private val groups: MutableStateFlow<List<StudentGroup>>, 
+        private val groups: MutableStateFlow<List<StudentGroup>>,
         private val students: MutableStateFlow<List<Student>>,
         private val refs: MutableMap<Long, MutableMap<Long, Long>>
     ) : GroupDao {
@@ -132,8 +137,10 @@ class GroupViewModelTest {
             groups.value = groups.value.filterNot { it.id == group.id }
             refs.remove(group.id)
         }
-        override fun getAllGroups(userId: Long): Flow<List<StudentGroup>> = groups.asStateFlow()
-        override fun getGroupById(id: Long, userId: Long): Flow<StudentGroup?> = groups.map { list -> list.find { it.id == id } }
+        override fun getAllGroups(userId: Long): Flow<List<StudentGroup>> =
+            groups.map { list -> list.filter { it.ownerId == userId } }
+        override fun getGroupById(id: Long, userId: Long): Flow<StudentGroup?> =
+            groups.map { list -> list.find { it.id == id && it.ownerId == userId } }
         override suspend fun insertCrossRef(crossRef: GroupStudentCrossRef) {
             refs.getOrPut(crossRef.groupId) { mutableMapOf() }[crossRef.studentId] = crossRef.ownerId
         }
@@ -144,5 +151,10 @@ class GroupViewModelTest {
             val ids = refs[groupId]?.filter { it.value == userId }?.keys ?: emptySet()
             list.filter { it.id in ids }
         }
+    }
+
+    class FakeUserProvider(id: Long?) : CurrentUserProvider {
+        private val _id = MutableStateFlow(id)
+        override val loggedInUserId: Flow<Long?> = _id
     }
 }

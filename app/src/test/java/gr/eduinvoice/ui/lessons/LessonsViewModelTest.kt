@@ -11,6 +11,7 @@ import gr.eduinvoice.data.dao.GroupDao
 import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.data.model.GroupStudentCrossRef
 import gr.eduinvoice.domain.lesson.*
+import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +35,8 @@ class LessonsViewModelTest {
 
     private val studentFlow = MutableStateFlow<List<Student>>(emptyList())
     private val lessonFlow = MutableStateFlow<List<LessonWithStudent>>(emptyList())
+
+    private val userProvider = FakeUserProvider(1L)
 
     private val studentDao = FakeStudentDao(studentFlow)
     private val lessonDao = FakeLessonDao(lessonFlow)
@@ -87,7 +90,7 @@ class LessonsViewModelTest {
             )
         )
 
-        val vm = LessonsViewModel(lessonUseCases)
+        val vm = LessonsViewModel(lessonUseCases, userProvider)
         advanceUntilIdle()
 
         val list = vm.uiState.value.lessons
@@ -115,7 +118,7 @@ class LessonsViewModelTest {
             )
         )
 
-        val vm = LessonsViewModel(lessonUseCases)
+        val vm = LessonsViewModel(lessonUseCases, userProvider)
         advanceUntilIdle()
 
         vm.updatePaid(1, true)
@@ -143,7 +146,7 @@ class LessonsViewModelTest {
             )
         )
 
-        val vm = LessonsViewModel(lessonUseCases)
+        val vm = LessonsViewModel(lessonUseCases, userProvider)
         advanceUntilIdle()
 
         vm.updatePaid(1, true)
@@ -160,12 +163,15 @@ class LessonsViewModelTest {
         override suspend fun update(student: Student) {}
         override suspend fun delete(student: Student) {}
         override suspend fun softDeleteStudent(studentId: Long) {}
-        override fun getStudentById(studentId: Long, userId: Long): Flow<Student?> = flow.map { list -> list.find { it.id == studentId } }
-        override fun getAllActiveStudents(userId: Long): Flow<List<Student>> = flow.asStateFlow()
+        override fun getStudentById(studentId: Long, userId: Long): Flow<Student?> =
+            flow.map { list -> list.find { it.id == studentId && it.ownerId == userId } }
+        override fun getAllActiveStudents(userId: Long): Flow<List<Student>> =
+            flow.map { list -> list.filter { it.ownerId == userId } }
         override fun getArchivedStudents(userId: Long): Flow<List<Student>> = flowOf(emptyList())
         override suspend fun restoreStudent(studentId: Long) {}
-        override fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?> = flow.map { list -> list.find { it.id == studentId } }
-        override suspend fun getActiveStudentCount(userId: Long): Int = flow.value.size
+        override fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?> =
+            flow.map { list -> list.find { it.id == studentId && it.ownerId == userId } }
+        override suspend fun getActiveStudentCount(userId: Long): Int = flow.value.count { it.ownerId == userId }
         override suspend fun classNameExists(name: String, userId: Long): Int = flow.value.count { it.className.equals(name, true) }
     }
 
@@ -174,9 +180,12 @@ class LessonsViewModelTest {
         override suspend fun update(lesson: Lesson) {}
         override suspend fun delete(lesson: Lesson) {}
         override suspend fun deleteById(lessonId: Long) {}
-        override fun getLessonById(lessonId: Long, userId: Long): Flow<Lesson?> = flow.map { it.find { l -> l.lesson.id == lessonId }?.lesson }
-        override fun getLessonsByStudentId(studentId: Long, userId: Long): Flow<List<Lesson>> = flow.map { list -> list.filter { it.lesson.studentId == studentId }.map { it.lesson } }
-        override fun getAllLessons(userId: Long): Flow<List<Lesson>> = flow.map { list -> list.map { it.lesson } }
+        override fun getLessonById(lessonId: Long, userId: Long): Flow<Lesson?> =
+            flow.map { it.find { l -> l.lesson.id == lessonId && l.lesson.ownerId == userId }?.lesson }
+        override fun getLessonsByStudentId(studentId: Long, userId: Long): Flow<List<Lesson>> =
+            flow.map { list -> list.filter { it.lesson.studentId == studentId && it.lesson.ownerId == userId }.map { it.lesson } }
+        override fun getAllLessons(userId: Long): Flow<List<Lesson>> =
+            flow.map { list -> list.filter { it.lesson.ownerId == userId }.map { it.lesson } }
         override fun getLessonsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override fun getLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override fun getUnpaidLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
@@ -187,11 +196,12 @@ class LessonsViewModelTest {
         override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean) {
             flow.value = flow.value.map { if (it.lesson.id in ids) it.copy(lesson = it.lesson.copy(isInvoiced = invoiced)) else it }
         }
-        override fun isLessonInvoiced(lessonId: Long, userId: Long): Flow<Boolean?> = flow.map { list ->
-            list.find { it.lesson.id == lessonId }?.lesson?.isInvoiced
-        }
-        override fun getLessonsWithStudents(userId: Long): Flow<List<LessonWithStudent>> = flow.asStateFlow()
-        override fun getLessonsWithStudentsByStudent(studentId: Long, userId: Long): Flow<List<LessonWithStudent>> = flow.map { list -> list.filter { it.student.id == studentId } }
+        override fun isLessonInvoiced(lessonId: Long, userId: Long): Flow<Boolean?> =
+            flow.map { list -> list.find { it.lesson.id == lessonId && it.lesson.ownerId == userId }?.lesson?.isInvoiced }
+        override fun getLessonsWithStudents(userId: Long): Flow<List<LessonWithStudent>> =
+            flow.map { list -> list.filter { it.lesson.ownerId == userId } }
+        override fun getLessonsWithStudentsByStudent(studentId: Long, userId: Long): Flow<List<LessonWithStudent>> =
+            flow.map { list -> list.filter { it.student.id == studentId && it.lesson.ownerId == userId } }
         override fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
     }
@@ -205,5 +215,10 @@ class LessonsViewModelTest {
         override suspend fun insertCrossRef(crossRef: GroupStudentCrossRef) {}
         override suspend fun deleteCrossRef(groupId: Long, studentId: Long, userId: Long) {}
         override fun getStudentsForGroup(groupId: Long, userId: Long): Flow<List<Student>> = flowOf(emptyList())
+    }
+
+    class FakeUserProvider(id: Long?) : CurrentUserProvider {
+        private val _id = MutableStateFlow(id)
+        override val loggedInUserId: Flow<Long?> = _id
     }
 }

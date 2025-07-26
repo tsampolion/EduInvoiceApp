@@ -13,7 +13,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.*
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
-import gr.eduinvoice.ui.user.SessionViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,8 +21,6 @@ fun GroupScreen(
     viewModel: GroupViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val sessionViewModel: SessionViewModel = hiltViewModel()
-    val userId by sessionViewModel.currentUserId.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -35,7 +32,7 @@ fun GroupScreen(
                     }
                 },
                 actions = {
-                    TextButton(onClick = { viewModel.saveGroup(userId ?: 0L); onBack() }) {
+                    TextButton(onClick = { viewModel.saveGroup(); onBack() }) {
                         Text("Save")
                     }
                 }
