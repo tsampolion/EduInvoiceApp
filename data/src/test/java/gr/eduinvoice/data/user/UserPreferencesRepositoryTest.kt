@@ -27,4 +27,12 @@ class UserPreferencesRepositoryTest {
         repo.setLoggedInUser(null)
         assertEquals(null, repo.loggedInUserId.first())
     }
+
+    @Test
+    fun databasePassphraseDefault() = runBlocking {
+        val default = repo.getDbPassphrase()
+        assertEquals("eduinvoice", default)
+        repo.setDbPassphrase("secret")
+        assertEquals("secret", repo.getDbPassphrase())
+    }
 }
