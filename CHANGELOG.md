@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.27] - 2025-08-27
+### Build
+- Gradle wrapper memory options increased to 512m.
+- GitHub Actions now caches the Android SDK.
+
 ## [0.21.26] - 2025-08-26
 ### Security
 - Firebase API key now loaded from environment at build time.
