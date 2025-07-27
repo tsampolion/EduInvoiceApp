@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.21.29] - 2025-08-29
+### Fix
+- Lesson duration limits now use `MIN_DURATION` and `MAX_DURATION` constants.
+- Invoice date pickers validate the selected range and show errors when invalid.
 ### Security
 - Disabled Android backup by setting `android:allowBackup="false"` to protect user data.
 

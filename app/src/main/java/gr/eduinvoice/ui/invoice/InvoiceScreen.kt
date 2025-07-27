@@ -70,10 +70,18 @@ fun InvoiceScreen(
     val settings = settingsState.settings
     val user = profileState.user
     val context = LocalContext.current
+    val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
     var showConfirm by remember { mutableStateOf(false) }
     var generatedInvoice by remember { mutableStateOf<Uri?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let { msg ->
+            snackbarHostState.showSnackbar(msg)
+            viewModel.dismissError()
+        }
+    }
 
     Scaffold(
         topBar = {

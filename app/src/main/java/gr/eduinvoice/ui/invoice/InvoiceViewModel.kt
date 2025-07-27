@@ -46,6 +46,11 @@ class InvoiceViewModel @Inject constructor(
     private val _selectedLessons = MutableStateFlow<Set<Long>>(emptySet())
     val selectedLessons: StateFlow<Set<Long>> = _selectedLessons.asStateFlow()
 
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
+    fun dismissError() { _errorMessage.value = null }
+
     init {
         defaultStudentId?.let { _selectedStudentId.value = it }
         viewModelScope.launch {
@@ -66,8 +71,21 @@ class InvoiceViewModel @Inject constructor(
         }
     }
 
-    fun updateStartDate(date: LocalDate) { _startDate.value = date }
-    fun updateEndDate(date: LocalDate) { _endDate.value = date }
+    fun updateStartDate(date: LocalDate) {
+        if (date <= _endDate.value) {
+            _startDate.value = date
+        } else {
+            _errorMessage.value = "Start date must be on or before end date"
+        }
+    }
+
+    fun updateEndDate(date: LocalDate) {
+        if (date >= _startDate.value) {
+            _endDate.value = date
+        } else {
+            _errorMessage.value = "End date must be on or after start date"
+        }
+    }
     fun selectStudent(id: Long) { _selectedStudentId.value = id }
 
     fun toggleLesson(id: Long) {
