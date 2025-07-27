@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.util.Patterns
+import android.database.sqlite.SQLiteException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -205,11 +206,18 @@ class StudentViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoading = false) }
                     onNavigateBack?.invoke()
                 }
-            } catch (e: Exception) {
+            } catch (e: IllegalArgumentException) {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "Failed to save student: ${e.message}"
+                        errorMessage = "Invalid student data: ${e.message}"
+                    )
+                }
+            } catch (e: SQLiteException) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Database error while saving student: ${e.message}"
                     )
                 }
             }
@@ -231,11 +239,18 @@ class StudentViewModel @Inject constructor(
                         onNavigateBack?.invoke()
                     }
                 }
-            } catch (e: Exception) {
+            } catch (e: SQLiteException) {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "Failed to delete student: ${e.message}"
+                        errorMessage = "Database error while deleting student: ${e.message}"
+                    )
+                }
+            } catch (e: IllegalArgumentException) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = "Invalid request to delete student: ${e.message}"
                     )
                 }
             }

@@ -10,6 +10,7 @@ import android.print.PageRange
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
 
 class PdfFilePrintAdapter(private val context: Context, private val file: File) : PrintDocumentAdapter() {
     override fun onLayout(
@@ -43,8 +44,8 @@ class PdfFilePrintAdapter(private val context: Context, private val file: File) 
                 }
             }
             callback.onWriteFinished(arrayOf(PageRange.ALL_PAGES))
-        } catch (e: Exception) {
-            callback.onWriteFailed(e.message)
+        } catch (e: IOException) {
+            callback.onWriteFailed("Failed to write PDF: ${e.message}")
         }
     }
 }

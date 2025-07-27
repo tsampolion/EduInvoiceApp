@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.28] - 2025-08-28
+### Fix
+- Replaced broad `Exception` catches with specific types for better error handling.
+
 ## [0.21.27] - 2025-08-27
 ### Build
 - Gradle wrapper memory options increased to 512m.
