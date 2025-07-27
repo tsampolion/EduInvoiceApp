@@ -29,6 +29,11 @@ class LessonViewModel @Inject constructor(
     private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
 
+    companion object {
+        const val MIN_DURATION = 60
+        const val MAX_DURATION = 180
+    }
+
     private val dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
@@ -124,7 +129,7 @@ class LessonViewModel @Inject constructor(
 
     fun updateDuration(duration: String) {
         val digits = duration.filter { it.isDigit() }
-        val number = digits.toIntOrNull()?.coerceIn(0, 180) ?: 0
+        val number = digits.toIntOrNull()?.coerceIn(0, MAX_DURATION) ?: 0
         val sanitized = number.takeIf { it > 0 }?.toString() ?: ""
         _uiState.update { it.copy(durationMinutes = sanitized) }
     }
@@ -193,7 +198,7 @@ class LessonViewModel @Inject constructor(
             hasStudent && validDateTime
         } else {
             val duration = state.durationMinutes.toIntOrNull() ?: 0
-            hasStudent && validDateTime && duration in 60..180
+            hasStudent && validDateTime && duration in MIN_DURATION..MAX_DURATION
         }
     }
 
@@ -206,11 +211,11 @@ class LessonViewModel @Inject constructor(
             val state = _uiState.value
             var duration = state.durationMinutes.toIntOrNull() ?: 0
             if (state.rateType == RateTypes.PER_LESSON) {
-                duration = 60
+                duration = MIN_DURATION
             } else {
-                if (duration <= 0) duration = 60
-                if (duration < 60) duration = 60
-                if (duration > 180) duration = 180
+                if (duration <= 0) duration = MIN_DURATION
+                if (duration < MIN_DURATION) duration = MIN_DURATION
+                if (duration > MAX_DURATION) duration = MAX_DURATION
                 _uiState.update { it.copy(durationMinutes = duration.toString()) }
             }
             if (!isFormValid()) return@launch
@@ -283,13 +288,13 @@ class LessonViewModel @Inject constructor(
                 if (state.rateType == RateTypes.PER_LESSON) {
                     student.rate
                 } else {
-                    (duration.coerceAtLeast(60) / 60.0) * student.rate
+                    (duration.coerceAtLeast(MIN_DURATION) / 60.0) * student.rate
                 }
             }
         } else if (state.rateType == RateTypes.PER_LESSON) {
             state.studentRate
         } else {
-            (duration.coerceAtLeast(60) / 60.0) * state.studentRate
+            (duration.coerceAtLeast(MIN_DURATION) / 60.0) * state.studentRate
         }
     }
 }

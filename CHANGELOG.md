@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 ### Refactor
 - Extracted PDF rendering steps into helper functions for clarity.
 - Added unit tests ensuring invoices are written to disk.
+### Fix
+- Lesson duration limits now use `MIN_DURATION` and `MAX_DURATION` constants.
+- Invoice date pickers validate the selected range and show errors when invalid.
+### Security
+- Disabled Android backup by setting `android:allowBackup="false"` to protect user data.
 
 ## [0.21.28] - 2025-08-28
 ### Fix
