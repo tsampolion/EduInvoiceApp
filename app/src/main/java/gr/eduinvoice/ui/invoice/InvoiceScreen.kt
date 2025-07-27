@@ -287,9 +287,64 @@ fun createInvoicePdf(
     val page = pdf.startPage(pageInfo)
     val canvas = page.canvas
 
-    val headerPaint = android.graphics.Paint().apply {
-        color = colorScheme.primary.toArgb()
+    val infoPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+        color = colorScheme.onBackground.toArgb()
+        textSize = typography.titleMedium.fontSize.value * 2
     }
+    val logo = drawInvoiceHeader(
+        context,
+        canvas,
+        width,
+        invoiceNumber,
+        colorScheme,
+        typography,
+        infoPaint,
+        tutorName,
+        tutorAddress
+    )
+
+    val linePaint = android.graphics.Paint().apply {
+        color = colorScheme.outline.toArgb()
+        strokeWidth = 1f
+    }
+    val textPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
+        color = colorScheme.onBackground.toArgb()
+        textSize = typography.bodyMedium.fontSize.value * 2
+    }
+
+    val (y, total) = drawInvoiceRows(
+        canvas,
+        lessons,
+        110,
+        width,
+        infoPaint,
+        textPaint,
+        linePaint,
+        currencySymbol
+    )
+
+    canvas.drawText(
+        "Total: $currencySymbol%.2f".format(total),
+        width - 120f,
+        (y + 25).toFloat(),
+        infoPaint
+    )
+
+    return writePdfToFile(context, pdf, page, logo, directory, invoiceNumber)
+}
+
+private fun drawInvoiceHeader(
+    context: android.content.Context,
+    canvas: android.graphics.Canvas,
+    width: Int,
+    invoiceNumber: String,
+    colorScheme: androidx.compose.material3.ColorScheme,
+    typography: androidx.compose.material3.Typography,
+    infoPaint: android.graphics.Paint,
+    tutorName: String,
+    tutorAddress: String,
+): android.graphics.Bitmap {
+    val headerPaint = android.graphics.Paint().apply { color = colorScheme.primary.toArgb() }
     canvas.drawRect(0f, 0f, width.toFloat(), 80f, headerPaint)
     val logo = android.graphics.BitmapFactory.decodeResource(context.resources, R.drawable.tutorbilling_logo)
     canvas.drawBitmap(logo, 20f, 10f, null)
@@ -301,29 +356,27 @@ fun createInvoicePdf(
     }
     canvas.drawText(tutorName, 100f, 40f, titlePaint)
     canvas.drawText(tutorAddress, 100f, 60f, titlePaint)
-
-    val infoPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-        color = colorScheme.onBackground.toArgb()
-        textSize = typography.titleMedium.fontSize.value * 2
-    }
     canvas.drawText("Invoice #$invoiceNumber", width - 200f, 40f, infoPaint)
+    return logo
+}
 
-    var y = 110
-    val linePaint = android.graphics.Paint().apply {
-        color = colorScheme.outline.toArgb()
-        strokeWidth = 1f
-    }
-    val textPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-        color = colorScheme.onBackground.toArgb()
-        textSize = typography.bodyMedium.fontSize.value * 2
-    }
+private fun drawInvoiceRows(
+    canvas: android.graphics.Canvas,
+    lessons: List<LessonWithStudent>,
+    startY: Int,
+    width: Int,
+    infoPaint: android.graphics.Paint,
+    textPaint: android.graphics.Paint,
+    linePaint: android.graphics.Paint,
+    currencySymbol: String
+): Pair<Int, Double> {
+    var y = startY
     canvas.drawText("Date", 40f, y.toFloat(), infoPaint)
     canvas.drawText("Student", 180f, y.toFloat(), infoPaint)
     canvas.drawText("Amount", width - 120f, y.toFloat(), infoPaint)
     y += 10
     canvas.drawLine(40f, y.toFloat(), width - 40f, y.toFloat(), linePaint)
     y += 20
-
     var total = 0.0
     lessons.forEach { item ->
         canvas.drawText(item.lesson.date, 40f, y.toFloat(), textPaint)
@@ -335,9 +388,17 @@ fun createInvoicePdf(
     }
     y += 10
     canvas.drawLine(40f, y.toFloat(), width - 40f, y.toFloat(), linePaint)
-    y += 25
-    canvas.drawText("Total: $currencySymbol%.2f".format(total), width - 120f, y.toFloat(), infoPaint)
+    return y to total
+}
 
+private fun writePdfToFile(
+    context: android.content.Context,
+    pdf: android.graphics.pdf.PdfDocument,
+    page: android.graphics.pdf.PdfDocument.Page,
+    logo: android.graphics.Bitmap,
+    directory: File,
+    invoiceNumber: String
+): Uri? {
     return try {
         pdf.finishPage(page)
         if (!directory.exists() && !directory.mkdirs()) throw java.io.IOException("Could not create directory")

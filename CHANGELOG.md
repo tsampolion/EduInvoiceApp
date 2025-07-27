@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.21.29] - 2025-08-29
+### Refactor
+- Extracted PDF rendering steps into helper functions for clarity.
+- Added unit tests ensuring invoices are written to disk.
 ### Fix
 - Lesson duration limits now use `MIN_DURATION` and `MAX_DURATION` constants.
 - Invoice date pickers validate the selected range and show errors when invalid.
