@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.29] - 2025-08-29
+### Refactor
+- Extracted PDF rendering steps into helper functions for clarity.
+- Added unit tests ensuring invoices are written to disk.
+
 ## [0.21.28] - 2025-08-28
 ### Fix
 - Replaced broad `Exception` catches with specific types for better error handling.
