@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ## [0.21.28] - 2025-08-28
 ### Fix
 - Replaced broad `Exception` catches with specific types for better error handling.
+### App
+- Invoice actions now show errors if PDF generation or file operations fail.
 
 ## [0.21.27] - 2025-08-27
 ### Build

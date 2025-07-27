@@ -38,6 +38,10 @@ import gr.eduinvoice.utils.getFullName
 import androidx.compose.ui.graphics.toArgb
 import gr.eduinvoice.ui.settings.SettingsViewModel
 import gr.eduinvoice.ui.profile.ProfileViewModel
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDate
@@ -68,6 +72,8 @@ fun InvoiceScreen(
     val context = LocalContext.current
     var showConfirm by remember { mutableStateOf(false) }
     var generatedInvoice by remember { mutableStateOf<Uri?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -80,6 +86,7 @@ fun InvoiceScreen(
                 }
             )
         },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
             Row(
                 modifier = Modifier
@@ -146,9 +153,13 @@ fun InvoiceScreen(
                             tutorAddress = user?.subjectSpecialty ?: "",
                             currencySymbol = settings.currencySymbol
                         )
-                        viewModel.markAsPaid(selected.map { it.lesson.id })
-                        generatedInvoice = uri
-                        showConfirm = false
+                        if (uri != null) {
+                            viewModel.markAsPaid(selected.map { it.lesson.id })
+                            generatedInvoice = uri
+                            showConfirm = false
+                        } else {
+                            scope.launch { snackbarHostState.showSnackbar("Failed to create invoice") }
+                        }
                     }) { Text("Create") }
                 },
                 dismissButton = {
@@ -261,7 +272,7 @@ fun createInvoicePdf(
     tutorName: String = "Tutor Name",
     tutorAddress: String = "123 Education Lane",
     currencySymbol: String = "€"
-): Uri {
+): Uri? {
     val pdf = android.graphics.pdf.PdfDocument()
     val width = 595
     val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(width, 842, 1).create()
@@ -319,13 +330,18 @@ fun createInvoicePdf(
     y += 25
     canvas.drawText("Total: $currencySymbol%.2f".format(total), width - 120f, y.toFloat(), infoPaint)
 
-    pdf.finishPage(page)
-    if (!directory.exists()) directory.mkdirs()
-    val file = File(directory, "invoice-$invoiceNumber.pdf")
-    FileOutputStream(file).use { pdf.writeTo(it) }
-    pdf.close()
-    logo.recycle()
-    return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+    return try {
+        pdf.finishPage(page)
+        if (!directory.exists() && !directory.mkdirs()) throw java.io.IOException("Could not create directory")
+        val file = File(directory, "invoice-$invoiceNumber.pdf")
+        FileOutputStream(file).use { pdf.writeTo(it) }
+        FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+    } catch (e: Exception) {
+        null
+    } finally {
+        pdf.close()
+        logo.recycle()
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

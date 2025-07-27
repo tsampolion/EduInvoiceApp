@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import gr.eduinvoice.utils.archiveInvoice
 import gr.eduinvoice.utils.deleteInvoice
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,6 +32,8 @@ fun PastInvoicesScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val invoicesDir = remember { File(context.filesDir, "invoices") }
     var invoices by remember { mutableStateOf<List<File>>(emptyList()) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     fun refresh() {
         invoices = invoicesDir.listFiles()?.sortedByDescending { it.lastModified() } ?: emptyList()
@@ -49,7 +53,8 @@ fun PastInvoicesScreen(onBack: () -> Unit) {
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         if (invoices.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
@@ -77,17 +82,27 @@ fun PastInvoicesScreen(onBack: () -> Unit) {
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.archive_invoice)) },
                                     onClick = {
-                                        archiveInvoice(file)
-                                        expanded = false
-                                        refresh()
+                                        try {
+                                            archiveInvoice(file)
+                                            refresh()
+                                        } catch (e: Exception) {
+                                            scope.launch { snackbarHostState.showSnackbar("Failed to archive invoice") }
+                                        } finally {
+                                            expanded = false
+                                        }
                                     }
                                 )
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.delete_invoice)) },
                                     onClick = {
-                                        deleteInvoice(file)
-                                        expanded = false
-                                        refresh()
+                                        try {
+                                            deleteInvoice(file)
+                                            refresh()
+                                        } catch (e: Exception) {
+                                            scope.launch { snackbarHostState.showSnackbar("Failed to delete invoice") }
+                                        } finally {
+                                            expanded = false
+                                        }
                                     }
                                 )
                             }
