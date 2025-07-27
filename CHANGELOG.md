@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.29] - 2025-08-29
+### Security
+- Disabled Android backup by setting `android:allowBackup="false"` to protect user data.
+
 ## [0.21.28] - 2025-08-28
 ### Fix
 - Replaced broad `Exception` catches with specific types for better error handling.
