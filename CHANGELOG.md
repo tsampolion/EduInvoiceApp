@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.21.29] - 2025-08-29
+### Feat
+- Lesson duration limits now use `MIN_DURATION` and `MAX_DURATION` constants.
+- Invoice date pickers validate the selected range and show errors when invalid.
+
 ## [0.21.28] - 2025-08-28
 ### Fix
 - Replaced broad `Exception` catches with specific types for better error handling.
