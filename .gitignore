@@ -8,7 +8,6 @@ local.properties
 .idea/
 .vscode/  # Consider committing .vscode/settings.json if you want to share editor settings
 *.project
-.project
 .settings/
 *.sublime-workspace
 *.iml
