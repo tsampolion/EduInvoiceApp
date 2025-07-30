@@ -31,6 +31,10 @@ java -version
 
 Running the script once will download the command line tools and create a `local.properties` file pointing Gradle to the SDK. Make sure to source your profile before invoking any Gradle tasks so that the `ANDROID_HOME` variables are available.
 
+## Firebase API key
+
+The included `app/google-services.json` only contains a placeholder key. Provide the real Firebase API key at build time via the `FIREBASE_API_KEY` environment variable. Never commit actual keys to version control.
+
 ## Building the project
 
 Use the Gradle wrapper to build, lint and test the app. Run the commands in this
