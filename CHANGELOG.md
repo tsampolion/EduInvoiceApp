@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.22.5] - 2025-07-30
+### Added
+- Validation helpers extracted in `StudentViewModel` with new unit tests.
+- Error handling for `LessonViewModel.saveLesson`.
+
 ## [0.22.4] - 2025-07-30
 ### Added
 - Extracted PDF generation into `PdfGenerator` utility with improved error reporting.

@@ -12,6 +12,7 @@ import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.group.GroupUseCases
 import gr.eduinvoice.data.user.CurrentUserProvider
+import android.database.sqlite.SQLiteException
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -220,47 +221,57 @@ class LessonViewModel @Inject constructor(
             }
             if (!isFormValid()) return@launch
 
-            val sId = state.selectedStudentId
-            if (state.selectedGroupId != null) {
-                val lesson = Lesson(
-                    studentId = 0,
-                    date = LocalDate.parse(state.date, dateFormatter).toString(),
-                    startTime = state.startTime,
-                    durationMinutes = duration,
-                    notes = state.notes.ifBlank { null },
-                    isPaid = state.isPaid
-                )
-                lessonUseCases.addGroupLesson(state.selectedGroupId!!, lesson)
-            } else if (sId != null) {
-                if (lessonId == null || lessonId == 0L) {
+            try {
+                val sId = state.selectedStudentId
+                if (state.selectedGroupId != null) {
                     val lesson = Lesson(
-                        studentId = sId,
+                        studentId = 0,
                         date = LocalDate.parse(state.date, dateFormatter).toString(),
                         startTime = state.startTime,
                         durationMinutes = duration,
                         notes = state.notes.ifBlank { null },
                         isPaid = state.isPaid
                     )
-                    lessonUseCases.addLesson(lesson)
-                } else {
-                    val lesson = Lesson(
-                        id = lessonId,
-                        studentId = sId,
-                        date = LocalDate.parse(state.date, dateFormatter).toString(),
-                        startTime = state.startTime,
-                        durationMinutes = duration,
-                        notes = state.notes.ifBlank { null },
-                        isPaid = state.isPaid
-                    )
-                    lessonUseCases.updateLesson(lesson)
+                    lessonUseCases.addGroupLesson(state.selectedGroupId!!, lesson)
+                } else if (sId != null) {
+                    if (lessonId == null || lessonId == 0L) {
+                        val lesson = Lesson(
+                            studentId = sId,
+                            date = LocalDate.parse(state.date, dateFormatter).toString(),
+                            startTime = state.startTime,
+                            durationMinutes = duration,
+                            notes = state.notes.ifBlank { null },
+                            isPaid = state.isPaid
+                        )
+                        lessonUseCases.addLesson(lesson)
+                    } else {
+                        val lesson = Lesson(
+                            id = lessonId,
+                            studentId = sId,
+                            date = LocalDate.parse(state.date, dateFormatter).toString(),
+                            startTime = state.startTime,
+                            durationMinutes = duration,
+                            notes = state.notes.ifBlank { null },
+                            isPaid = state.isPaid
+                        )
+                        lessonUseCases.updateLesson(lesson)
+                    }
                 }
-            }
 
-            _uiState.update { it.copy(isEditMode = false) }
+                _uiState.update { it.copy(isEditMode = false) }
 
-            // Navigate back on main thread
-            withContext(Dispatchers.Main) {
-                onNavigateBack?.invoke()
+                // Navigate back on main thread
+                withContext(Dispatchers.Main) {
+                    onNavigateBack?.invoke()
+                }
+            } catch (e: SQLiteException) {
+                withContext(Dispatchers.Main) {
+                    _uiState.update { it.copy(errorMessage = "Database error while saving lesson: ${e.message}") }
+                }
+            } catch (e: IllegalArgumentException) {
+                withContext(Dispatchers.Main) {
+                    _uiState.update { it.copy(errorMessage = "Invalid lesson data: ${e.message}") }
+                }
             }
         }
     }
@@ -277,6 +288,10 @@ class LessonViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun dismissError() {
+        _uiState.update { it.copy(errorMessage = null) }
     }
 
     fun calculateFee(): Double {
@@ -313,5 +328,6 @@ data class LessonUiState(
     val selectedGroupId: Long? = null,
     val isGroupLesson: Boolean = false,
     val isEditMode: Boolean = true,
-    val isPaid: Boolean = false
+    val isPaid: Boolean = false,
+    val errorMessage: String? = null
 )

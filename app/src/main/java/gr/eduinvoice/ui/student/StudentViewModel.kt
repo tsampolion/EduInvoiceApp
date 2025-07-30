@@ -147,15 +147,62 @@ class StudentViewModel @Inject constructor(
         _uiState.update { it.copy(isEditMode = !it.isEditMode) }
     }
 
-    fun saveStudent() {
-        val state = _uiState.value
-        val rate = state.rate.toDoubleOrNull()?.takeIf { it > 0 } ?: return
+    private fun validate(state: StudentUiState): Pair<Double, String>? {
+        val rate = state.rate.toDoubleOrNull()?.takeIf { it > 0 }
+        if (rate == null) {
+            _uiState.update { it.copy(errorMessage = "Invalid rate") }
+            return null
+        }
 
         if (state.parentEmail.isNotBlank() &&
-            !Patterns.EMAIL_ADDRESS.matcher(state.parentEmail).matches()) {
-            return
+            !Patterns.EMAIL_ADDRESS.matcher(state.parentEmail).matches()
+        ) {
+            _uiState.update { it.copy(errorMessage = "Invalid email") }
+            return null
         }
+
         val className = if (state.selectedClass == "Custom") state.customClass.trim() else state.selectedClass
+        if (className.isBlank()) {
+            _uiState.update { it.copy(errorMessage = "Class required") }
+            return null
+        }
+
+        return rate to className
+    }
+
+    private fun buildStudent(rate: Double, className: String, userId: Long, state: StudentUiState): Student {
+        val mobile = state.parentMobile.ifBlank { "" }
+        return if (studentId > 0) {
+            Student(
+                id = studentId,
+                name = state.name,
+                surname = state.surname,
+                parentMobile = mobile,
+                parentEmail = state.parentEmail.ifBlank { null },
+                className = className,
+                rate = rate,
+                rateType = state.rateType,
+                isActive = state.isActive
+            )
+        } else {
+            Student(
+                ownerId = userId,
+                name = state.name,
+                surname = state.surname,
+                parentMobile = mobile,
+                parentEmail = state.parentEmail.ifBlank { null },
+                className = className,
+                rate = rate,
+                rateType = state.rateType,
+                isActive = state.isActive
+            )
+        }
+    }
+
+    fun saveStudent() {
+        val state = _uiState.value
+        val validation = validate(state) ?: return
+        val (rate, className) = validation
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
@@ -168,32 +215,7 @@ class StudentViewModel @Inject constructor(
                     }
                     return@launch
                 }
-                val mobile = state.parentMobile.ifBlank { "" }
-                val student = if (studentId > 0) {
-                    Student(
-                        id = studentId,
-                        name = state.name,
-                        surname = state.surname,
-                        parentMobile = mobile,
-                        parentEmail = state.parentEmail.ifBlank { null },
-                        className = className,
-                        rate = rate,
-                        rateType = state.rateType,
-                        isActive = state.isActive
-                    )
-                } else {
-                    Student(
-                        ownerId = userId,
-                        name = state.name,
-                        surname = state.surname,
-                        parentMobile = mobile,
-                        parentEmail = state.parentEmail.ifBlank { null },
-                        className = className,
-                        rate = rate,
-                        rateType = state.rateType,
-                        isActive = state.isActive
-                    )
-                }
+                val student = buildStudent(rate, className, userId, state)
 
                 if (studentId > 0) {
                     studentUseCases.updateStudent(student)

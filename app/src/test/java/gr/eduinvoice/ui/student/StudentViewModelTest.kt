@@ -112,6 +112,35 @@ class StudentViewModelTest {
         assertEquals(listOf(myLesson), vm.uiState.value.lessons)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun saveStudentInvalidRateShowsError() = runTest {
+        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 0L)), userProvider)
+        vm.updateName("Alice")
+        vm.updateSurname("Smith")
+        vm.updateSelectedClass("A")
+        vm.updateRate("0")
+        vm.saveStudent()
+        advanceUntilIdle()
+        assertEquals("Invalid rate", vm.uiState.value.errorMessage)
+        assertEquals(0, studentFlow.value.size)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun saveStudentInvalidEmailShowsError() = runTest {
+        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 0L)), userProvider)
+        vm.updateName("Alice")
+        vm.updateSurname("Smith")
+        vm.updateSelectedClass("A")
+        vm.updateRate("10")
+        vm.updateParentEmail("bad-email")
+        vm.saveStudent()
+        advanceUntilIdle()
+        assertEquals("Invalid email", vm.uiState.value.errorMessage)
+        assertEquals(0, studentFlow.value.size)
+    }
+
     class FakeStudentDao(private val flow: MutableStateFlow<List<Student>>) : StudentDao {
         override suspend fun insert(student: Student): Long {
             flow.value = flow.value + student
