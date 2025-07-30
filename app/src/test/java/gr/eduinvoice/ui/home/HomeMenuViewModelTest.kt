@@ -34,6 +34,7 @@ import gr.eduinvoice.domain.student.RestoreStudent
 import gr.eduinvoice.domain.student.SoftDeleteStudent
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.student.UpdateStudent
+import gr.eduinvoice.FakeUserProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,6 +57,8 @@ class HomeMenuViewModelTest {
 
     private val studentFlow = MutableStateFlow<List<Student>>(emptyList())
     private val lessonFlow = MutableStateFlow<List<Lesson>>(emptyList())
+
+    private val userProvider = FakeUserProvider(1L)
 
     private val studentDao = FakeStudentDao(studentFlow)
     private val lessonDao = FakeLessonDao(lessonFlow)
@@ -91,7 +94,7 @@ class HomeMenuViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun classCountReflectsDistinctClasses() = runTest {
-        val vm = HomeMenuViewModel(studentUseCases, lessonUseCases)
+        val vm = HomeMenuViewModel(studentUseCases, lessonUseCases, userProvider)
         advanceUntilIdle()
         assertEquals(0, vm.uiState.value.classCount)
 

@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Unit tests for login and registration flows verifying preferences updates.
 - Backup restore now validates JSON before parsing.
+### Fixed
+- Home screen now scopes data to the logged-in user.
 
 ## [0.22.2] - 2025-07-28
 ### Fixed

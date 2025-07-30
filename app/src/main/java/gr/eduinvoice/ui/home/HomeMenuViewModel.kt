@@ -6,10 +6,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.eduinvoice.data.model.calculateFee
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
+import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -19,7 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeMenuViewModel @Inject constructor(
     private val studentUseCases: StudentUseCases,
-    private val lessonUseCases: LessonUseCases
+    private val lessonUseCases: LessonUseCases,
+    private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeMenuUiState())
@@ -27,15 +31,16 @@ class HomeMenuViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            combine(
-                studentUseCases.getActiveStudents(),
-                lessonUseCases.getAllLessons()
-            ) { students, lessons ->
-                val classCount = students
-                    .map { it.className }
-                    .filterNot { it.isBlank() || it.equals("unknown", true) }
-                    .distinct()
-                    .size
+            currentUserProvider.loggedInUserId.filterNotNull().flatMapLatest { uid ->
+                combine(
+                    studentUseCases.getActiveStudents(uid),
+                    lessonUseCases.getAllLessons(uid)
+                ) { students, lessons ->
+                    val classCount = students
+                        .map { it.className }
+                        .filterNot { it.isBlank() || it.equals("unknown", true) }
+                        .distinct()
+                        .size
 
                 val today = LocalDate.now()
                 val weekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
@@ -58,13 +63,14 @@ class HomeMenuViewModel @Inject constructor(
                     val student = students.firstOrNull { it.id == lesson.studentId }
                     student?.let { lesson.calculateFee(it) } ?: 0.0
                 }
-                HomeMenuUiState(
-                    studentCount = students.size,
-                    classCount = classCount,
-                    lessonCount = lessons.size,
-                    weekRevenue = weekTotal,
-                    monthRevenue = monthTotal
-                )
+                    HomeMenuUiState(
+                        studentCount = students.size,
+                        classCount = classCount,
+                        lessonCount = lessons.size,
+                        weekRevenue = weekTotal,
+                        monthRevenue = monthTotal
+                    )
+                }
             }.collect { state ->
                 _uiState.value = state
             }

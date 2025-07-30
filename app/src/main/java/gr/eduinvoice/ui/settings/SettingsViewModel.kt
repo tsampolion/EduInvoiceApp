@@ -69,7 +69,17 @@ class SettingsViewModel @Inject constructor(
 
     suspend fun exportBackup(): String = backupRepository.exportJson()
 
-    suspend fun restoreBackup(json: String): Boolean {
+    suspend fun restoreBackup(json: String): Boolean = try {
+        backupRepository.restoreFromJson(json).isSuccess
+    } catch (e: SerializationException) {
+        _errorMessage.value = "Invalid backup data: ${e.message}".trim()
+        false
+    } catch (e: SQLiteException) {
+        _errorMessage.value =
+            "Database error while restoring backup: ${e.message}".trim()
+        false
+
+      suspend fun restoreBackup(json: String): Boolean {
         return try {
             Json.parseToJsonElement(json)
             backupRepository.restoreFromJson(json).isSuccess
@@ -82,6 +92,7 @@ class SettingsViewModel @Inject constructor(
             false
         }
     }
+
 
     fun dismissError() { _errorMessage.value = null }
 }
