@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.22.2] - 2025-07-28
+### Fixed
+- Backup restore errors now show a snackbar message.
 ### Build/CI
 - Documented `FIREBASE_API_KEY` usage for injecting Firebase credentials.
 
