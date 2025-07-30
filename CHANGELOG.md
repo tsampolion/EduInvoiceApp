@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.22.2] - 2025-07-28
+### Build/CI
+- Documented `FIREBASE_API_KEY` usage for injecting Firebase credentials.
+
 ## [0.22.1] - 2025-07-27
 ### Added
 - Instrumentation tests for Settings screen flows.
