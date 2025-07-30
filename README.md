@@ -74,7 +74,7 @@ When you modify an entity schema:
 ## Changelog
 
 A high level summary of changes lives in [`CHANGELOG.md`](CHANGELOG.md).
-Starting with version `0.22.0`, releases follow Semantic Versioning
-(MAJOR.MINOR.PATCH). The current version is `0.22.0`.
-Bump the version only when preparing a release and update the changelog
-accordingly.
+The current version is `0.22.0`. Starting with this release, EduInvoice
+follows [Semantic Versioning](https://semver.org) in the form
+`MAJOR.MINOR.PATCH`. Bump the version only when making a new release and
+record changes under the corresponding heading in the changelog.

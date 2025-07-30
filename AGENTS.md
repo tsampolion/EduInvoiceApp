@@ -81,9 +81,10 @@ Checklist:
 5. **Robolectric memory leaks** – never keep global state in test classes; use `@Config` with `sdk = 34`.
 
 ## 8. Changelog
-Keep `CHANGELOG.md` in Semantic Version format. Bump `versionName` in
-`app/build.gradle` only when making a release (patch, minor or major).
-The current version is `0.22.0`.
+From version `0.22.0` onward, changelog entries use the full
+`[MAJOR.MINOR.PATCH]` format. Gather changes under the next release
+heading and bump `versionName` in `app/build.gradle` only when cutting a
+release (patch/minor/major). The current version is `0.22.0`.
 
 ---
 
