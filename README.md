@@ -74,6 +74,7 @@ When you modify an entity schema:
 ## Changelog
 
 A high level summary of changes lives in [`CHANGELOG.md`](CHANGELOG.md).
-This project is still unreleased and currently version `0.21.12`. Each
-pull request should bump the version to the next `0.x` value and add a
-changelog entry before merge.
+Starting with version `0.22.0`, releases follow Semantic Versioning
+(MAJOR.MINOR.PATCH). The current version is `0.22.0`.
+Bump the version only when preparing a release and update the changelog
+accordingly.

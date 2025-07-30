@@ -81,7 +81,9 @@ Checklist:
 5. **Robolectric memory leaks** – never keep global state in test classes; use `@Config` with `sdk = 34`.
 
 ## 8. Changelog
-Update `CHANGELOG.md` by creating a new `[0.x]` section dated for your pull request. Bump `versionName` in `app/build.gradle` to match (current version is `0.21.12`).
+Keep `CHANGELOG.md` in Semantic Version format. Bump `versionName` in
+`app/build.gradle` only when making a release (patch, minor or major).
+The current version is `0.22.0`.
 
 ---
 
