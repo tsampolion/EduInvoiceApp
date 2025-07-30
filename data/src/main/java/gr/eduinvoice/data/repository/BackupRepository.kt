@@ -7,6 +7,7 @@ import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.model.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -86,19 +87,29 @@ class BackupRepository @Inject constructor(
         return Json.encodeToString(BackupDump.serializer(), dump)
     }
 
-    suspend fun restoreFromJson(json: String) {
-        val dump = Json.decodeFromString(BackupDump.serializer(), json)
-        db.withTransaction {
-            db.clearAllTables()
-            val studentDao = db.studentDao()
-            val lessonDao = db.lessonDao()
-            val groupDao = db.groupDao()
-            val userDao = db.userDao()
-            dump.users.forEach { userDao.insert(it) }
-            dump.students.forEach { studentDao.insert(it) }
-            dump.groups.forEach { groupDao.insertGroup(it) }
-            dump.crossRefs.forEach { groupDao.insertCrossRef(it) }
-            dump.lessons.forEach { lessonDao.insert(it) }
+    suspend fun restoreFromJson(json: String): Result<Unit> {
+        return try {
+            val element = Json.parseToJsonElement(json).jsonObject
+            val required = listOf("students", "lessons", "groups", "crossRefs", "users")
+            if (!required.all { element.containsKey(it) }) {
+                return Result.failure(IllegalArgumentException("Backup JSON missing required fields"))
+            }
+            val dump = Json.decodeFromString(BackupDump.serializer(), json)
+            db.withTransaction {
+                db.clearAllTables()
+                val studentDao = db.studentDao()
+                val lessonDao = db.lessonDao()
+                val groupDao = db.groupDao()
+                val userDao = db.userDao()
+                dump.users.forEach { userDao.insert(it) }
+                dump.students.forEach { studentDao.insert(it) }
+                dump.groups.forEach { groupDao.insertGroup(it) }
+                dump.crossRefs.forEach { groupDao.insertCrossRef(it) }
+                dump.lessons.forEach { lessonDao.insert(it) }
+            }
+            Result.success(Unit)
+        } catch (e: kotlinx.serialization.SerializationException) {
+            Result.failure(e)
         }
     }
 }

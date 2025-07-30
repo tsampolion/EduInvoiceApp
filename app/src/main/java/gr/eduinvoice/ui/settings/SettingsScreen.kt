@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import kotlinx.coroutines.launch
+import androidx.compose.material3.SnackbarHostState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.R
@@ -39,6 +40,7 @@ fun SettingsScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     val exportLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
@@ -58,13 +60,20 @@ fun SettingsScreen(
             scope.launch {
                 context.contentResolver.openInputStream(it)?.use { ins ->
                     val json = ins.readBytes().decodeToString()
-                    viewModel.restoreBackup(json)
+                    val success = viewModel.restoreBackup(json)
+                    val msg = if (success) {
+                        context.getString(R.string.backup_restored)
+                    } else {
+                        context.getString(R.string.invalid_backup)
+                    }
+                    snackbarHostState.showSnackbar(msg)
                 }
             }
         }
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             AppTopBar(
                 title = stringResource(R.string.settings),
