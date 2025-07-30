@@ -116,4 +116,6 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="backup_export">Export Backup</string>
     <string name="backup_restore">Restore Backup</string>
+    <string name="backup_restored">Backup restored</string>
+    <string name="invalid_backup">Invalid backup file</string>
 </resources>

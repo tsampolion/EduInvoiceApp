@@ -68,7 +68,10 @@ class SettingsViewModel @Inject constructor(
 
     suspend fun exportBackup(): String = backupRepository.exportJson()
 
-    fun restoreBackup(json: String) {
+    suspend fun restoreBackup(json: String): Boolean {
+        return backupRepository.restoreFromJson(json).isSuccess
+
+      fun restoreBackup(json: String) {
         viewModelScope.launch {
             try {
                 backupRepository.restoreFromJson(json)

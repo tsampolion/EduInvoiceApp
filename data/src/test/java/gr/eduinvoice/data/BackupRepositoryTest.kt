@@ -39,9 +39,16 @@ class BackupRepositoryTest {
         db.studentDao().insert(Student(name = "Test", surname = "", parentMobile = "", className = "A", rate = 10.0))
         val json = repo.exportJson()
         db.clearAllTables()
-        repo.restoreFromJson(json)
+        val result = repo.restoreFromJson(json)
+        assert(result.isSuccess)
         val students = db.studentDao().getAllActiveStudents(0).first()
         assertEquals(1, students.size)
         assertEquals("Test", students.first().name)
+    }
+
+    @Test
+    fun restoreFailsOnInvalidJson() = runBlocking {
+        val result = repo.restoreFromJson("{}")
+        assert(result.isFailure)
     }
 }
