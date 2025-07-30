@@ -35,7 +35,6 @@ import gr.eduinvoice.R
 import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.ui.components.ClickableReadOnlyField
 import gr.eduinvoice.utils.getFullName
-import androidx.compose.ui.graphics.toArgb
 import gr.eduinvoice.ui.settings.SettingsViewModel
 import gr.eduinvoice.ui.profile.ProfileViewModel
 import kotlinx.coroutines.launch
@@ -43,7 +42,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarHost
 import java.io.File
-import java.io.FileOutputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -150,7 +148,7 @@ fun InvoiceScreen(
                     TextButton(onClick = {
                         val selected = lessons.filter { selectedLessons.contains(it.lesson.id) }
                         val invoiceNumber = System.currentTimeMillis().toString()
-                        val uri = createInvoicePdf(
+                        val result = gr.eduinvoice.utils.PdfGenerator.createInvoicePdf(
                             context = context,
                             directory = File(context.filesDir, "invoices"),
                             lessons = selected,
@@ -161,13 +159,16 @@ fun InvoiceScreen(
                             tutorAddress = user?.subjectSpecialty ?: "",
                             currencySymbol = settings.currencySymbol
                         )
-                        if (uri != null) {
-                            viewModel.markAsPaid(selected.map { it.lesson.id })
-                            generatedInvoice = uri
-                            showConfirm = false
-                        } else {
-                            scope.launch { snackbarHostState.showSnackbar("Failed to create invoice") }
-                        }
+                        result.fold(
+                            onSuccess = { uri ->
+                                viewModel.markAsPaid(selected.map { it.lesson.id })
+                                generatedInvoice = uri
+                                showConfirm = false
+                            },
+                            onFailure = {
+                                scope.launch { snackbarHostState.showSnackbar("Failed to create invoice") }
+                            }
+                        )
                     }) { Text("Create") }
                 },
                 dismissButton = {
@@ -270,148 +271,6 @@ private fun DateField(label: String, date: LocalDate, onDate: (LocalDate) -> Uni
     }
 }
 
-fun createInvoicePdf(
-    context: android.content.Context,
-    directory: File,
-    lessons: List<LessonWithStudent>,
-    invoiceNumber: String,
-    colorScheme: androidx.compose.material3.ColorScheme,
-    typography: androidx.compose.material3.Typography,
-    tutorName: String = "Tutor Name",
-    tutorAddress: String = "123 Education Lane",
-    currencySymbol: String = "€"
-): Uri? {
-    val pdf = android.graphics.pdf.PdfDocument()
-    val width = 595
-    val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(width, 842, 1).create()
-    val page = pdf.startPage(pageInfo)
-    val canvas = page.canvas
-
-    val infoPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-        color = colorScheme.onBackground.toArgb()
-        textSize = typography.titleMedium.fontSize.value * 2
-    }
-    val logo = drawInvoiceHeader(
-        context,
-        canvas,
-        width,
-        invoiceNumber,
-        colorScheme,
-        typography,
-        infoPaint,
-        tutorName,
-        tutorAddress
-    )
-
-    val linePaint = android.graphics.Paint().apply {
-        color = colorScheme.outline.toArgb()
-        strokeWidth = 1f
-    }
-    val textPaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-        color = colorScheme.onBackground.toArgb()
-        textSize = typography.bodyMedium.fontSize.value * 2
-    }
-
-    val (y, total) = drawInvoiceRows(
-        canvas,
-        lessons,
-        110,
-        width,
-        infoPaint,
-        textPaint,
-        linePaint,
-        currencySymbol
-    )
-
-    canvas.drawText(
-        "Total: $currencySymbol%.2f".format(total),
-        width - 120f,
-        (y + 25).toFloat(),
-        infoPaint
-    )
-
-    return writePdfToFile(context, pdf, page, logo, directory, invoiceNumber)
-}
-
-private fun drawInvoiceHeader(
-    context: android.content.Context,
-    canvas: android.graphics.Canvas,
-    width: Int,
-    invoiceNumber: String,
-    colorScheme: androidx.compose.material3.ColorScheme,
-    typography: androidx.compose.material3.Typography,
-    infoPaint: android.graphics.Paint,
-    tutorName: String,
-    tutorAddress: String,
-): android.graphics.Bitmap {
-    val headerPaint = android.graphics.Paint().apply { color = colorScheme.primary.toArgb() }
-    canvas.drawRect(0f, 0f, width.toFloat(), 80f, headerPaint)
-    val logo = android.graphics.BitmapFactory.decodeResource(context.resources, R.drawable.tutorbilling_logo)
-    canvas.drawBitmap(logo, 20f, 10f, null)
-
-    val titlePaint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG).apply {
-        color = colorScheme.onPrimary.toArgb()
-        textSize = typography.titleLarge.fontSize.value * 2
-        typeface = android.graphics.Typeface.DEFAULT_BOLD
-    }
-    canvas.drawText(tutorName, 100f, 40f, titlePaint)
-    canvas.drawText(tutorAddress, 100f, 60f, titlePaint)
-    canvas.drawText("Invoice #$invoiceNumber", width - 200f, 40f, infoPaint)
-    return logo
-}
-
-private fun drawInvoiceRows(
-    canvas: android.graphics.Canvas,
-    lessons: List<LessonWithStudent>,
-    startY: Int,
-    width: Int,
-    infoPaint: android.graphics.Paint,
-    textPaint: android.graphics.Paint,
-    linePaint: android.graphics.Paint,
-    currencySymbol: String
-): Pair<Int, Double> {
-    var y = startY
-    canvas.drawText("Date", 40f, y.toFloat(), infoPaint)
-    canvas.drawText("Student", 180f, y.toFloat(), infoPaint)
-    canvas.drawText("Amount", width - 120f, y.toFloat(), infoPaint)
-    y += 10
-    canvas.drawLine(40f, y.toFloat(), width - 40f, y.toFloat(), linePaint)
-    y += 20
-    var total = 0.0
-    lessons.forEach { item ->
-        canvas.drawText(item.lesson.date, 40f, y.toFloat(), textPaint)
-        canvas.drawText(item.student.getFullName(), 180f, y.toFloat(), textPaint)
-        val amount = item.calculateFee()
-        total += amount
-        canvas.drawText("$currencySymbol%.2f".format(amount), width - 120f, y.toFloat(), textPaint)
-        y += 20
-    }
-    y += 10
-    canvas.drawLine(40f, y.toFloat(), width - 40f, y.toFloat(), linePaint)
-    return y to total
-}
-
-private fun writePdfToFile(
-    context: android.content.Context,
-    pdf: android.graphics.pdf.PdfDocument,
-    page: android.graphics.pdf.PdfDocument.Page,
-    logo: android.graphics.Bitmap,
-    directory: File,
-    invoiceNumber: String
-): Uri? {
-    return try {
-        pdf.finishPage(page)
-        if (!directory.exists() && !directory.mkdirs()) throw java.io.IOException("Could not create directory")
-        val file = File(directory, "invoice-$invoiceNumber.pdf")
-        FileOutputStream(file).use { pdf.writeTo(it) }
-        FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-    } catch (e: Exception) {
-        null
-    } finally {
-        pdf.close()
-        logo.recycle()
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

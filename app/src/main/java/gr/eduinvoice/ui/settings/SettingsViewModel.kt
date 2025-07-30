@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -77,7 +78,21 @@ class SettingsViewModel @Inject constructor(
         _errorMessage.value =
             "Database error while restoring backup: ${e.message}".trim()
         false
+
+      suspend fun restoreBackup(json: String): Boolean {
+        return try {
+            Json.parseToJsonElement(json)
+            backupRepository.restoreFromJson(json).isSuccess
+        } catch (e: SerializationException) {
+            _errorMessage.value = "Invalid backup data: ${e.message}".trim()
+            false
+        } catch (e: SQLiteException) {
+            _errorMessage.value =
+                "Database error while restoring backup: ${e.message}".trim()
+            false
+        }
     }
+
 
     fun dismissError() { _errorMessage.value = null }
 }
