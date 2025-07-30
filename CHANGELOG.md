@@ -2,7 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.22.3] - 2025-07-30
+## [0.22.4] - 2025-07-30
+### Added
+- Extracted PDF generation into `PdfGenerator` utility with improved error reporting.
+- Unit tests for the new PDF generator.
+
+## [0.22.3] - 2025-07-29
+### Added
+- Unit tests for login and registration flows verifying preferences updates.
+- Backup restore now validates JSON before parsing.
 ### Fixed
 - Home screen now scopes data to the logged-in user.
 
