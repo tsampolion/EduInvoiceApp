@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.22] - 2025-07-26
+## [0.22.0] - 2025-07-26
 ### Feature: Hardened Security
 - Improved data protection by disabling Android's automatic backup feature (`android:allowBackup="false"`).
 - Enhanced build security by loading the Firebase API key from a secure environment variable.
