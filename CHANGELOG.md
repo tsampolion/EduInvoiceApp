@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.22.1] - 2025-07-27
+### Added
+- Instrumentation tests for Settings screen flows.
+
 ## [0.22.0] - 2025-07-26
 ### Feature: Hardened Security
 - Improved data protection by disabling Android's automatic backup feature (`android:allowBackup="false"`).
