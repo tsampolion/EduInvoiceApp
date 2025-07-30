@@ -22,6 +22,7 @@ import gr.eduinvoice.domain.student.*
 import gr.eduinvoice.domain.user.*
 import gr.eduinvoice.ui.home.HomeMenuScreen
 import gr.eduinvoice.ui.home.HomeMenuViewModel
+import gr.eduinvoice.FakeUserProvider
 import gr.eduinvoice.ui.user.LoginScreen
 import gr.eduinvoice.ui.user.LoginViewModel
 import gr.eduinvoice.ui.welcome.WelcomeScreen
@@ -222,7 +223,7 @@ class SettingsScreenFlowTest {
             updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(lessonDao),
             isLessonInvoiced = IsLessonInvoiced(lessonDao)
         )
-        val homeVm = HomeMenuViewModel(studentUseCases, lessonUseCases)
+        val homeVm = HomeMenuViewModel(studentUseCases, lessonUseCases, FakeUserProvider(1L))
         composeRule.setContent {
             val showSettings = remember { mutableStateOf(false) }
             if (showSettings.value) {
