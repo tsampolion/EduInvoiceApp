@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.22.3] - 2025-07-29
+### Added
+- Unit tests for login and registration flows verifying preferences updates.
+- Backup restore now validates JSON before parsing.
+
 ## [0.22.2] - 2025-07-28
 ### Fixed
 - Backup restore now validates JSON schema and reports errors to the caller.
