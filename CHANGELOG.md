@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.22.3] - 2025-07-30
+### Fixed
+- Home screen now scopes data to the logged-in user.
+
 ## [0.22.2] - 2025-07-28
 ### Fixed
 - Backup restore now validates JSON schema and reports errors to the caller.

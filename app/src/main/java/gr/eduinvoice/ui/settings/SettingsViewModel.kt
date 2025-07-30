@@ -68,20 +68,15 @@ class SettingsViewModel @Inject constructor(
 
     suspend fun exportBackup(): String = backupRepository.exportJson()
 
-    suspend fun restoreBackup(json: String): Boolean {
-        return backupRepository.restoreFromJson(json).isSuccess
-
-      fun restoreBackup(json: String) {
-        viewModelScope.launch {
-            try {
-                backupRepository.restoreFromJson(json)
-            } catch (e: SerializationException) {
-                _errorMessage.value = "Invalid backup data: ${e.message}".trim()
-            } catch (e: SQLiteException) {
-                _errorMessage.value =
-                    "Database error while restoring backup: ${e.message}".trim()
-            }
-        }
+    suspend fun restoreBackup(json: String): Boolean = try {
+        backupRepository.restoreFromJson(json).isSuccess
+    } catch (e: SerializationException) {
+        _errorMessage.value = "Invalid backup data: ${e.message}".trim()
+        false
+    } catch (e: SQLiteException) {
+        _errorMessage.value =
+            "Database error while restoring backup: ${e.message}".trim()
+        false
     }
 
     fun dismissError() { _errorMessage.value = null }
