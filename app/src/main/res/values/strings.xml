@@ -124,5 +124,8 @@
     <string name="backup_restore">Restore Backup</string>
     <string name="backup_restored">Backup restored</string>
     <string name="invalid_backup">Invalid backup file</string>
+    <!-- Navigation drawer -->
+    <string name="home">Home</string>
+    <string name="groups">Groups</string>
     <string name="autofill_setup_message">Enable Autofill in settings to save and fill passwords automatically.</string>
 </resources>
