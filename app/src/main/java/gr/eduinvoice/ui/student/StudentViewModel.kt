@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.RateTypes
 import gr.eduinvoice.data.model.calculateFee
@@ -22,6 +23,7 @@ import android.util.Patterns
 import android.database.sqlite.SQLiteException
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class StudentViewModel @Inject constructor(
     private val studentUseCases: StudentUseCases,

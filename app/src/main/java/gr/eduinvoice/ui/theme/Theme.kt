@@ -47,7 +47,7 @@ fun TutorBillingTheme(
             val window = (view.context as Activity).window
             val insetsController = WindowCompat.getInsetsController(window, view)
             insetsController.isAppearanceLightStatusBars = !darkTheme
-            window.statusBarColor = colorScheme.primary.toArgb()
+            window.setStatusBarColor(colorScheme.primary.toArgb())
         }
     }
 

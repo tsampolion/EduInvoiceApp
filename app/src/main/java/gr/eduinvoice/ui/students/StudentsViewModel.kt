@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.StudentWithEarnings
 import gr.eduinvoice.domain.student.StudentUseCases
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class StudentsViewModel @Inject constructor(
     private val studentUseCases: StudentUseCases,
