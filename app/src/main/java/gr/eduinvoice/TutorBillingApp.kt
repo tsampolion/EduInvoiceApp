@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.NavHostController
 import androidx.navigation.navArgument
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.ui.home.HomeMenuScreen
@@ -34,8 +35,9 @@ import gr.eduinvoice.ui.user.SessionViewModel
 import gr.eduinvoice.ui.user.ResetPasswordScreen
 
 @Composable
-fun TutorBillingApp() {
-    val navController = rememberNavController()
+fun TutorBillingApp(
+    navController: NavHostController = rememberNavController(),
+) {
     val sessionViewModel: SessionViewModel = hiltViewModel()
     val loggedIn by sessionViewModel.isLoggedIn.collectAsStateWithLifecycle()
 

@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [0.22.14] - 2025-08-08
+### Changed
+- `TutorBillingApp` now accepts an optional `NavHostController` parameter for easier navigation testing.
+
 ## [0.22.13] - 2025-08-07
 ### Added
 - Vector assets for bottom navigation icons.
