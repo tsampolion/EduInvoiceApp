@@ -26,6 +26,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.R
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
+import gr.eduinvoice.ui.design.FormCard
+import gr.eduinvoice.ui.design.AppColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,77 +81,92 @@ fun RegisterScreen(
                     .size(200.dp)
                     .align(Alignment.CenterHorizontally)
             )
-            OutlinedTextField(
-                value = uiState.fullName,
-                onValueChange = viewModel::updateFullName,
-                label = { Text(stringResource(R.string.full_name)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = uiState.username,
-                onValueChange = viewModel::updateUsername,
-                label = { Text(stringResource(R.string.username)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = uiState.subjectSpecialty,
-                onValueChange = viewModel::updateSubjectSpecialty,
-                label = { Text(stringResource(R.string.subject_specialty)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-            var expanded by remember { mutableStateOf(false) }
-            val ranges = listOf(
-                stringResource(R.string.years_experience_range_0_5),
-                stringResource(R.string.years_experience_range_6_10),
-                stringResource(R.string.years_experience_range_11_15),
-                stringResource(R.string.years_experience_range_16_20),
-                stringResource(R.string.years_experience_range_20_plus)
-            )
-            val currentRange = when (uiState.yearsExperience) {
-                in 0..5 -> stringResource(R.string.years_experience_range_0_5)
-                in 6..10 -> stringResource(R.string.years_experience_range_6_10)
-                in 11..15 -> stringResource(R.string.years_experience_range_11_15)
-                in 16..20 -> stringResource(R.string.years_experience_range_16_20)
-                else -> stringResource(R.string.years_experience_range_20_plus)
-            }
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
-            ) {
+            FormCard(containerColor = AppColors.primaryContainer) {
                 OutlinedTextField(
-                    readOnly = true,
-                    value = currentRange,
-                    onValueChange = {},
-                    label = { Text(stringResource(R.string.years_experience)) },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
+                    value = uiState.fullName,
+                    onValueChange = viewModel::updateFullName,
+                    label = { Text(stringResource(R.string.full_name)) },
+                    modifier = Modifier.fillMaxWidth()
                 )
-                ExposedDropdownMenu(
+            }
+            FormCard(containerColor = AppColors.primaryContainer) {
+                OutlinedTextField(
+                    value = uiState.username,
+                    onValueChange = viewModel::updateUsername,
+                    label = { Text(stringResource(R.string.username)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            FormCard(containerColor = AppColors.primaryContainer) {
+                OutlinedTextField(
+                    value = uiState.subjectSpecialty,
+                    onValueChange = viewModel::updateSubjectSpecialty,
+                    label = { Text(stringResource(R.string.subject_specialty)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            FormCard(containerColor = AppColors.primaryContainer) {
+                var expanded by remember { mutableStateOf(false) }
+                val ranges = listOf(
+                    stringResource(R.string.years_experience_range_0_5),
+                    stringResource(R.string.years_experience_range_6_10),
+                    stringResource(R.string.years_experience_range_11_15),
+                    stringResource(R.string.years_experience_range_16_20),
+                    stringResource(R.string.years_experience_range_20_plus)
+                )
+                val currentRange = when (uiState.yearsExperience) {
+                    in 0..5 -> stringResource(R.string.years_experience_range_0_5)
+                    in 6..10 -> stringResource(R.string.years_experience_range_6_10)
+                    in 11..15 -> stringResource(R.string.years_experience_range_11_15)
+                    in 16..20 -> stringResource(R.string.years_experience_range_16_20)
+                    else -> stringResource(R.string.years_experience_range_20_plus)
+                }
+                ExposedDropdownMenuBox(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    onExpandedChange = { expanded = !expanded }
                 ) {
-                    ranges.forEach { rangeLabel ->
-                        DropdownMenuItem(
-                            text = { Text(rangeLabel) },
-                            onClick = {
-                                expanded = false
-                                viewModel.updateYearsExperience(rangeLabel)
-                            }
-                        )
+                    OutlinedTextField(
+                        readOnly = true,
+                        value = currentRange,
+                        onValueChange = {},
+                        label = { Text(stringResource(R.string.years_experience)) },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        ranges.forEach { rangeLabel ->
+                            DropdownMenuItem(
+                                text = { Text(rangeLabel) },
+                                onClick = {
+                                    expanded = false
+                                    viewModel.updateYearsExperience(rangeLabel)
+                                }
+                            )
+                        }
                     }
                 }
             }
-            OutlinedTextField(
-                value = uiState.password,
-                onValueChange = viewModel::updatePassword,
-                label = { Text(stringResource(R.string.password)) },
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Button(onClick = { viewModel.register(onRegistered) }, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.register))
+            FormCard(containerColor = AppColors.primaryContainer) {
+                OutlinedTextField(
+                    value = uiState.password,
+                    onValueChange = viewModel::updatePassword,
+                    label = { Text(stringResource(R.string.password)) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            FormCard(containerColor = AppColors.primaryContainer) {
+                Button(
+                    onClick = { viewModel.register(onRegistered) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.register))
+                }
             }
             uiState.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         }

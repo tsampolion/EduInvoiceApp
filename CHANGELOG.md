@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.22.7] - 2025-08-01
+### Added
+- `FormCard` composable for consistent form styling.
+### Changed
+- Register screen now wraps inputs and the register button in `FormCard`.
+
 ## [0.22.6] - 2025-07-31
 ### Fixed
 - Silenced experimental coroutines warnings by opting in where required.
