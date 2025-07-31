@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.22.8] - 2025-08-02
+### Added
+- Prompt to enable Autofill when no service is active on login or registration screens.
+
 ## [0.22.7] - 2025-08-01
 ### Added
 - `FormCard` composable for consistent form styling.

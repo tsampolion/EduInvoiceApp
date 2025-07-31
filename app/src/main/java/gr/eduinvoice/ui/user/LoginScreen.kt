@@ -18,6 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import android.provider.Settings
+import android.view.autofill.AutofillManager
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
 import androidx.compose.ui.unit.dp
@@ -35,6 +39,9 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val autofillManager = remember { context.getSystemService(AutofillManager::class.java) }
+    var showAutofillDialog by remember { mutableStateOf(autofillManager?.hasEnabledAutofillServices() == false) }
 
     Scaffold(
         topBar = {
@@ -99,6 +106,25 @@ fun LoginScreen(
             }
             uiState.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         }
+        }
+        if (showAutofillDialog) {
+            AlertDialog(
+                onDismissRequest = { showAutofillDialog = false },
+                text = { Text(stringResource(R.string.autofill_setup_message)) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showAutofillDialog = false
+                        context.startActivity(Intent(Settings.ACTION_REQUEST_SET_AUTOFILL_SERVICE))
+                    }) {
+                        Text(stringResource(R.string.settings))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showAutofillDialog = false }) {
+                        Text(stringResource(R.string.cancel))
+                    }
+                }
+            )
         }
     }
 }
