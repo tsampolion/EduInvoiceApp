@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [0.22.11] - 2025-08-05
+### Added
+- Navigation drawer header layout resource.
+
 ## [0.22.10] - 2025-08-04
 ### Added
 - Navigation drawer menu resource for Home, Students, Lessons, Groups and Settings.
