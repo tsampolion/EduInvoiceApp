@@ -3,6 +3,7 @@ package gr.eduinvoice.ui.lessons
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.utils.getFullName
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class LessonsViewModel @Inject constructor(
     private val lessonUseCases: LessonUseCases,
