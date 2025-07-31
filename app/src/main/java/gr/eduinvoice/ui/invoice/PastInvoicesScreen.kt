@@ -25,6 +25,7 @@ import gr.eduinvoice.utils.deleteInvoice
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.IOException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,8 +86,12 @@ fun PastInvoicesScreen(onBack: () -> Unit) {
                                         try {
                                             archiveInvoice(file)
                                             refresh()
-                                        } catch (e: Exception) {
-                                            scope.launch { snackbarHostState.showSnackbar("Failed to archive invoice") }
+                                        } catch (e: IOException) {
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    e.message ?: "Failed to archive invoice"
+                                                )
+                                            }
                                         } finally {
                                             expanded = false
                                         }
@@ -98,8 +103,12 @@ fun PastInvoicesScreen(onBack: () -> Unit) {
                                         try {
                                             deleteInvoice(file)
                                             refresh()
-                                        } catch (e: Exception) {
-                                            scope.launch { snackbarHostState.showSnackbar("Failed to delete invoice") }
+                                        } catch (e: IOException) {
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    e.message ?: "Failed to delete invoice"
+                                                )
+                                            }
                                         } finally {
                                             expanded = false
                                         }

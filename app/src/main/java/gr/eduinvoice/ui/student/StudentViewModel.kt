@@ -55,41 +55,53 @@ class StudentViewModel @Inject constructor(
 
     private fun loadData() {
         viewModelScope.launch {
-            currentUserProvider.loggedInUserId.filterNotNull().flatMapLatest { uid ->
-                combine(
-                    studentUseCases.getStudentById(studentId, uid),
-                    lessonUseCases.getStudentLessons(studentId, uid)
-                ) { student, lessons -> student to lessons }
-            }.catch { e ->
-                _uiState.update { it.copy(errorMessage = e.message) }
-            }.collect { (student, lessons) ->
-                    val (week, month) = student?.let { EarningsCalculator.calculate(it, lessons) } ?: (0.0 to 0.0)
-                    val total = student?.let { lessons.sumOf { l -> l.calculateFee(it) } } ?: 0.0
-                    _uiState.update { currentState ->
-                        val existingClass = student?.className ?: ""
-                        val (selectedClass, customClass) = if (existingClass.isNotBlank() && existingClass !in classOptions) {
-                            "Custom" to existingClass
-                        } else {
-                            existingClass to ""
-                        }
-                        currentState.copy(
-                            student = student,
-                            name = if (currentState.isEditMode) currentState.name else student?.name ?: "",
-                            surname = if (currentState.isEditMode) currentState.surname else student?.surname ?: "",
-                            parentMobile = if (currentState.isEditMode) currentState.parentMobile else student?.parentMobile ?: "",
-                            parentEmail = if (currentState.isEditMode) currentState.parentEmail else student?.parentEmail ?: "",
-                            selectedClass = if (currentState.isEditMode) currentState.selectedClass else selectedClass,
-                            customClass = if (currentState.isEditMode) currentState.customClass else customClass,
-                            rate = if (currentState.isEditMode) currentState.rate else student?.rate?.toString() ?: "",
-                            rateType = if (currentState.isEditMode) currentState.rateType else student?.rateType ?: RateTypes.HOURLY,
-                            isActive = if (currentState.isEditMode) currentState.isActive else student?.isActive ?: true,
-                            lessons = lessons,
-                            weekEarnings = week,
-                            monthEarnings = month,
-                            totalEarnings = total
-                        )
-                    }
-                }
+            currentUserProvider.loggedInUserId
+                .filterNotNull()
+                .flatMapLatest { studentAndLessonsFlow(it) }
+                .catch { e -> _uiState.update { it.copy(errorMessage = e.message) } }
+                .collect { (student, lessons) -> mapToUiState(student, lessons) }
+        }
+    }
+
+    private fun studentAndLessonsFlow(userId: Long): Flow<Pair<Student?, List<Lesson>>> {
+        return combine(
+            studentUseCases.getStudentById(studentId, userId),
+            lessonUseCases.getStudentLessons(studentId, userId)
+        ) { student, lessons -> student to lessons }
+    }
+
+    private fun mapToUiState(student: Student?, lessons: List<Lesson>) {
+        val (week, month) = student?.let { EarningsCalculator.calculate(it, lessons) } ?: (0.0 to 0.0)
+        val total = student?.let { lessons.sumOf { l -> l.calculateFee(it) } } ?: 0.0
+        _uiState.update { currentState ->
+            val existingClass = student?.className ?: ""
+            val (selectedClass, customClass) = if (
+                existingClass.isNotBlank() && existingClass !in classOptions
+            ) {
+                "Custom" to existingClass
+            } else {
+                existingClass to ""
+            }
+            currentState.copy(
+                student = student,
+                name = if (currentState.isEditMode) currentState.name else student?.name ?: "",
+                surname = if (currentState.isEditMode) currentState.surname else student?.surname ?: "",
+                parentMobile = if (currentState.isEditMode) currentState.parentMobile else student?.parentMobile ?: "",
+                parentEmail = if (currentState.isEditMode) currentState.parentEmail else student?.parentEmail ?: "",
+                selectedClass = if (currentState.isEditMode) currentState.selectedClass else selectedClass,
+                customClass = if (currentState.isEditMode) currentState.customClass else customClass,
+                rate = if (currentState.isEditMode) currentState.rate else student?.rate?.toString() ?: "",
+                rateType = if (currentState.isEditMode) {
+                    currentState.rateType
+                } else {
+                    student?.rateType ?: RateTypes.HOURLY
+                },
+                isActive = if (currentState.isEditMode) currentState.isActive else student?.isActive ?: true,
+                lessons = lessons,
+                weekEarnings = week,
+                monthEarnings = month,
+                totalEarnings = total
+            )
         }
     }
 
@@ -206,46 +218,45 @@ class StudentViewModel @Inject constructor(
         val validation = validate(state) ?: return
         val (rate, className) = validation
 
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+        viewModelScope.launch { performSave(rate, className, state) }
+    }
 
-            try {
-                val userId = currentUserProvider.loggedInUserId.first() ?: 0L
-                if (state.selectedClass == "Custom" && studentUseCases.classNameExists(className, userId)) {
-                    _uiState.update {
-                        it.copy(isLoading = false, errorMessage = "Class already exists")
-                    }
-                    return@launch
-                }
-                val student = buildStudent(rate, className, userId, state)
+    private suspend fun performSave(rate: Double, className: String, state: StudentUiState) {
+        _uiState.update { it.copy(isLoading = true) }
 
-                if (studentId > 0) {
-                    studentUseCases.updateStudent(student)
-                } else {
-                    studentUseCases.insertStudent(student)
-                }
-
-                // Clear loading and navigate back on main thread
-                withContext(Dispatchers.Main) {
-                    _uiState.update { it.copy(isLoading = false) }
-                    onNavigateBack?.invoke()
-                }
-            } catch (e: IllegalArgumentException) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = "Invalid student data: ${e.message}"
-                    )
-                }
-            } catch (e: SQLiteException) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = "Database error while saving student: ${e.message}"
-                    )
-                }
+        try {
+            val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+            if (state.selectedClass == "Custom" && studentUseCases.classNameExists(className, userId)) {
+                _uiState.update { it.copy(isLoading = false, errorMessage = "Class already exists") }
+                return
+            }
+            val student = buildStudent(rate, className, userId, state)
+            saveToRepository(student)
+            withContext(Dispatchers.Main) {
+                _uiState.update { it.copy(isLoading = false) }
+                navigateBack()
+            }
+        } catch (e: IllegalArgumentException) {
+            _uiState.update {
+                it.copy(isLoading = false, errorMessage = "Invalid student data: ${e.message}")
+            }
+        } catch (e: SQLiteException) {
+            _uiState.update {
+                it.copy(isLoading = false, errorMessage = "Database error while saving student: ${e.message}")
             }
         }
+    }
+
+    private suspend fun saveToRepository(student: Student) {
+        if (studentId > 0) {
+            studentUseCases.updateStudent(student)
+        } else {
+            studentUseCases.insertStudent(student)
+        }
+    }
+
+    private fun navigateBack() {
+        onNavigateBack?.invoke()
     }
 
     fun deleteStudent() {
