@@ -61,13 +61,21 @@ class RegisterViewModelTest {
         vm.updatePassword("secret")
         vm.updateFullName("Alice")
         vm.updateSubjectSpecialty("Math")
-        vm.updateYearsExperience("1")
+        vm.updateYearsExperience("0-5")
         var called = false
         vm.register { called = true }
         advanceUntilIdle()
         assertEquals(1L, prefs.loggedInUserId.first())
         assertEquals(true, called)
         assertNull(vm.uiState.value.error)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun updateYearsExperienceParsesRange() = runTest {
+        val vm = RegisterViewModel(useCases, prefs)
+        vm.updateYearsExperience("11-15")
+        assertEquals(11, vm.uiState.value.yearsExperience)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -86,7 +94,7 @@ class RegisterViewModelTest {
         vm.updatePassword("secret")
         vm.updateFullName("Bob")
         vm.updateSubjectSpecialty("Math")
-        vm.updateYearsExperience("2")
+        vm.updateYearsExperience("6-10")
         vm.register {}
         advanceUntilIdle()
         assertNull(prefs.loggedInUserId.first())

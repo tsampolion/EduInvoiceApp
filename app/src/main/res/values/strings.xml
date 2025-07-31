@@ -102,6 +102,11 @@
     <!-- Registration -->
     <string name="subject_specialty">Subject Specialty</string>
     <string name="years_experience">Years Experience</string>
+    <string name="years_experience_range_0_5">0-5</string>
+    <string name="years_experience_range_6_10">6-10</string>
+    <string name="years_experience_range_11_15">11-15</string>
+    <string name="years_experience_range_16_20">16-20</string>
+    <string name="years_experience_range_20_plus">20+</string>
 
     <!-- Settings categories -->
     <string name="general">General</string>
