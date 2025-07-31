@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.22.9] - 2025-08-03
+### Fixed
+- Login error message now uses a string resource and displays with smaller typography.
+
 ## [0.22.8] - 2025-08-02
 ### Added
 - Prompt to enable Autofill when no service is active on login or registration screens.

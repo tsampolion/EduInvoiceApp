@@ -104,7 +104,13 @@ fun LoginScreen(
             TextButton(onClick = onResetPassword, modifier = Modifier.align(Alignment.End)) {
                 Text(stringResource(R.string.forgot_password))
             }
-            uiState.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+            uiState.error?.let {
+                Text(
+                    it,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
         }
         if (showAutofillDialog) {

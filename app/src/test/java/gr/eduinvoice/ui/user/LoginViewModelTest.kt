@@ -2,6 +2,7 @@ package gr.eduinvoice.ui.user
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import gr.eduinvoice.R
 import gr.eduinvoice.MainDispatcherRule
 import gr.eduinvoice.data.dao.UserDao
 import gr.eduinvoice.data.model.User
@@ -53,7 +54,7 @@ class LoginViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun successfulLoginUpdatesPrefs() = runTest {
-        val vm = LoginViewModel(useCases, prefs)
+        val vm = LoginViewModel(useCases, prefs, context)
         vm.updateUsername("bob")
         vm.updatePassword("pass")
         var callbackId: Long? = null
@@ -67,7 +68,7 @@ class LoginViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun failedLoginSetsError() = runTest {
-        val vm = LoginViewModel(useCases, prefs)
+        val vm = LoginViewModel(useCases, prefs, context)
         vm.updateUsername("bob")
         vm.updatePassword("wrong")
         var called = false
@@ -75,6 +76,6 @@ class LoginViewModelTest {
         advanceUntilIdle()
         assertNull(prefs.loggedInUserId.first())
         assertEquals(false, called)
-        assertEquals("Invalid credentials", vm.uiState.value.error)
+        assertEquals(context.getString(R.string.error_invalid_password), vm.uiState.value.error)
     }
 }
