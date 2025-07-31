@@ -8,6 +8,8 @@ plugins {
     id 'com.google.firebase.crashlytics'
 }
 
+def firebaseKey = findProperty('FIREBASE_API_KEY') ?: System.getenv('FIREBASE_API_KEY')
+
 android {
     namespace "gr.eduinvoice"
     compileSdk 35
@@ -19,6 +21,7 @@ android {
         versionCode 20
         versionName "0.23"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "FIREBASE_API_KEY", "\"${firebaseKey ?: ''}\""
     }
 
     signingConfigs {
@@ -151,24 +154,3 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
-import groovy.json.JsonSlurper
-import groovy.json.JsonOutput
-
-def firebaseKey = findProperty('FIREBASE_API_KEY') ?: System.getenv('FIREBASE_API_KEY')
-def googleServicesFile = file("$projectDir/google-services.json")
-
-tasks.register('injectFirebaseKey') {
-    doLast {
-        if (firebaseKey) {
-            def json = new JsonSlurper().parse(googleServicesFile)
-            json.client[0].api_key[0].current_key = firebaseKey
-            googleServicesFile.text = JsonOutput.prettyPrint(JsonOutput.toJson(json))
-        }
-    }
-}
-
-tasks.whenTaskAdded { t ->
-    if (t.name.startsWith('process') && t.name.endsWith('GoogleServices')) {
-        t.dependsOn injectFirebaseKey
-    }
-}

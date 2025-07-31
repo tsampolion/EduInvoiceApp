@@ -34,7 +34,7 @@ Running the script once will download the command line tools and create a `local
 
 ## Firebase API key
 
-The included `app/google-services.json` only contains a placeholder key. Provide the real Firebase API key at build time via the `FIREBASE_API_KEY` environment variable. Never commit actual keys to version control.
+The `app/google-services.json` file has the API key stripped out. Provide the key in your `local.properties` using the `FIREBASE_API_KEY` property so it is compiled into `BuildConfig`. Never commit actual keys to version control.
 
 ## Building the project
 

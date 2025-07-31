@@ -10,6 +10,7 @@ import gr.eduinvoice.data.database.DatabaseConstants
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.user.UserPreferencesRepository
 import net.sqlcipher.database.SQLiteDatabase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import android.database.sqlite.SQLiteException
 import android.util.Log
@@ -25,7 +26,7 @@ object DatabaseModule {
         @ApplicationContext context: Context,
         prefs: UserPreferencesRepository
     ): EduInvoiceDatabase {
-        val pass = runBlocking { prefs.getDbPassphrase() }
+        val pass = runBlocking(Dispatchers.IO) { prefs.getDbPassphrase() }
         require(!pass.isNullOrEmpty()) { "Database passphrase unavailable" }
         val passphrase = SQLiteDatabase.getBytes(pass!!.toCharArray())
         return try {
