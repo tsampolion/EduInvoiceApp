@@ -26,7 +26,7 @@ class RegisterViewModel @Inject constructor(
     fun updateFullName(value: String) { _uiState.value = _uiState.value.copy(fullName = value) }
     fun updateSubjectSpecialty(value: String) { _uiState.value = _uiState.value.copy(subjectSpecialty = value) }
     fun updateYearsExperience(value: String) {
-        val years = value.toIntOrNull() ?: 0
+        val years = Regex("\\d+").find(value)?.value?.toIntOrNull() ?: 0
         _uiState.value = _uiState.value.copy(yearsExperience = years)
     }
 

@@ -97,13 +97,50 @@ fun RegisterScreen(
                 label = { Text(stringResource(R.string.subject_specialty)) },
                 modifier = Modifier.fillMaxWidth()
             )
-            OutlinedTextField(
-                value = if (uiState.yearsExperience == 0) "" else uiState.yearsExperience.toString(),
-                onValueChange = viewModel::updateYearsExperience,
-                label = { Text(stringResource(R.string.years_experience)) },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            var expanded by remember { mutableStateOf(false) }
+            val ranges = listOf(
+                stringResource(R.string.years_experience_range_0_5),
+                stringResource(R.string.years_experience_range_6_10),
+                stringResource(R.string.years_experience_range_11_15),
+                stringResource(R.string.years_experience_range_16_20),
+                stringResource(R.string.years_experience_range_20_plus)
             )
+            val currentRange = when (uiState.yearsExperience) {
+                in 0..5 -> stringResource(R.string.years_experience_range_0_5)
+                in 6..10 -> stringResource(R.string.years_experience_range_6_10)
+                in 11..15 -> stringResource(R.string.years_experience_range_11_15)
+                in 16..20 -> stringResource(R.string.years_experience_range_16_20)
+                else -> stringResource(R.string.years_experience_range_20_plus)
+            }
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                OutlinedTextField(
+                    readOnly = true,
+                    value = currentRange,
+                    onValueChange = {},
+                    label = { Text(stringResource(R.string.years_experience)) },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    ranges.forEach { rangeLabel ->
+                        DropdownMenuItem(
+                            text = { Text(rangeLabel) },
+                            onClick = {
+                                expanded = false
+                                viewModel.updateYearsExperience(rangeLabel)
+                            }
+                        )
+                    }
+                }
+            }
             OutlinedTextField(
                 value = uiState.password,
                 onValueChange = viewModel::updatePassword,
