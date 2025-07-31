@@ -12,6 +12,7 @@ EduInvoice is an Android application for managing tutoring sessions and invoices
 - Theme and preference settings via DataStore
 - Backup and restore your data to JSON
 - SQLCipher-encrypted database
+- Sliding navigation drawer for quick navigation between screens
 
 ## Prerequisites
 
