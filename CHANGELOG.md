@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [0.23.1] - 2025-08-12
+### Changed
+- Invoice utilities now return operation success and log failures.
+- Database initialization aborts if old DB cannot be removed.
+- PassphraseCrypto throws on encryption/decryption errors.
+- Invoice numbers sanitized before creating PDF filenames.
+
 ## [0.23] - 2025-08-11
 ### Feature: Navigation Drawer
 - Introduced a sliding drawer with header and menu for quick navigation.
