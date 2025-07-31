@@ -5,7 +5,9 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import android.util.Log
+import java.security.GeneralSecurityException
 import java.security.KeyStore
+import java.io.IOException
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -33,8 +35,11 @@ internal class PassphraseCrypto(context: Context) {
                 .build()
             keyGenerator.init(spec)
             keyGenerator.generateKey()
-        } catch (t: Throwable) {
-            Log.e("PassphraseCrypto", "Failed to get secret key", t)
+        } catch (e: GeneralSecurityException) {
+            Log.e("PassphraseCrypto", "Failed to get secret key", e)
+            null
+        } catch (e: IOException) {
+            Log.e("PassphraseCrypto", "Failed to get secret key", e)
             null
         }
     }
@@ -56,8 +61,11 @@ internal class PassphraseCrypto(context: Context) {
             System.arraycopy(iv, 0, combined, 0, iv.size)
             System.arraycopy(encrypted, 0, combined, iv.size, encrypted.size)
             ENC_PREFIX + Base64.encodeToString(combined, Base64.NO_WRAP)
-        } catch (t: Throwable) {
-            Log.e("PassphraseCrypto", "Failed to encrypt data", t)
+        } catch (e: GeneralSecurityException) {
+            Log.e("PassphraseCrypto", "Failed to encrypt data", e)
+            null
+        } catch (e: IOException) {
+            Log.e("PassphraseCrypto", "Failed to encrypt data", e)
             null
         }
     }
@@ -74,8 +82,11 @@ internal class PassphraseCrypto(context: Context) {
             cipher.init(Cipher.DECRYPT_MODE, key, spec)
             val decrypted = cipher.doFinal(cipherText)
             String(decrypted, Charsets.UTF_8)
-        } catch (t: Throwable) {
-            Log.e("PassphraseCrypto", "Failed to decrypt data", t)
+        } catch (e: GeneralSecurityException) {
+            Log.e("PassphraseCrypto", "Failed to decrypt data", e)
+            null
+        } catch (e: IOException) {
+            Log.e("PassphraseCrypto", "Failed to decrypt data", e)
             null
         }
     }

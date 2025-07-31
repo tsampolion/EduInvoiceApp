@@ -84,9 +84,9 @@ object PdfGenerator {
         return try {
             val uri = writePdfToFile(context, pdf, page, logo, directory, invoiceNumber)
             Result.success(uri)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to generate invoice", e)
-            Result.failure(e)
+        } catch (e: IOException) {
+            Log.e(TAG, "Failed to write invoice PDF", e)
+            Result.failure(IOException("Writing invoice PDF failed: ${e.message}", e))
         }
     }
 
