@@ -1,6 +1,9 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [0.22.13] - 2025-08-07
+### Added
+- Drawer open/close messages in `strings.xml` and wired up `MainActivity` to use them.
 ## [0.22.12] - 2025-08-06
 ### Added
 - Main activity layout with drawer, toolbar, compose host and navigation view.
