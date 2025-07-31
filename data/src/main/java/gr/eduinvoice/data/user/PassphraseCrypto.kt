@@ -21,28 +21,28 @@ private const val IV_SIZE = 12
 internal class PassphraseCrypto(context: Context) {
     private val keyStore: KeyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
 
-    private fun getSecretKey(): SecretKey? {
-        return try {
-            val existing = keyStore.getKey(KEY_ALIAS, null) as? SecretKey
-            if (existing != null) return existing
-            val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
-            val spec = KeyGenParameterSpec.Builder(
-                KEY_ALIAS,
-                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-            )
-                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                .build()
-            keyGenerator.init(spec)
-            keyGenerator.generateKey()
-        } catch (e: GeneralSecurityException) {
-            Log.e("PassphraseCrypto", "Failed to get secret key", e)
-            null
-        } catch (e: IOException) {
-            Log.e("PassphraseCrypto", "Failed to get secret key", e)
-            null
-        }
+private fun getSecretKey(): SecretKey {
+    return try {
+        val existing = keyStore.getKey(KEY_ALIAS, null) as? SecretKey
+        if (existing != null) return existing
+        val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+        val spec = KeyGenParameterSpec.Builder(
+            KEY_ALIAS,
+            KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+        )
+            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+            .build()
+        keyGenerator.init(spec)
+        keyGenerator.generateKey()
+    } catch (e: GeneralSecurityException) {
+        Log.e("PassphraseCrypto", "Failed to get secret key", e)
+        throw e
+    } catch (e: IOException) {
+        Log.e("PassphraseCrypto", "Failed to get secret key", e)
+        throw e
     }
+}
 
     fun generatePassphrase(): String {
         val bytes = ByteArray(32)
@@ -50,10 +50,10 @@ internal class PassphraseCrypto(context: Context) {
         return Base64.encodeToString(bytes, Base64.NO_WRAP)
     }
 
-    fun encrypt(plain: String): String? {
+    fun encrypt(plain: String): String {
         return try {
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-            val key = getSecretKey() ?: return null
+            val key = getSecretKey()
             cipher.init(Cipher.ENCRYPT_MODE, key)
             val iv = cipher.iv
             val encrypted = cipher.doFinal(plain.toByteArray(Charsets.UTF_8))
@@ -63,14 +63,14 @@ internal class PassphraseCrypto(context: Context) {
             ENC_PREFIX + Base64.encodeToString(combined, Base64.NO_WRAP)
         } catch (e: GeneralSecurityException) {
             Log.e("PassphraseCrypto", "Failed to encrypt data", e)
-            null
+            throw e
         } catch (e: IOException) {
             Log.e("PassphraseCrypto", "Failed to encrypt data", e)
-            null
+            throw e
         }
     }
 
-    fun decrypt(data: String): String? {
+    fun decrypt(data: String): String {
         return try {
             val raw = if (data.startsWith(ENC_PREFIX)) data.substring(ENC_PREFIX.length) else data
             val bytes = Base64.decode(raw, Base64.NO_WRAP)
@@ -78,16 +78,16 @@ internal class PassphraseCrypto(context: Context) {
             val cipherText = bytes.copyOfRange(IV_SIZE, bytes.size)
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
             val spec = GCMParameterSpec(128, iv)
-            val key = getSecretKey() ?: return null
+            val key = getSecretKey()
             cipher.init(Cipher.DECRYPT_MODE, key, spec)
             val decrypted = cipher.doFinal(cipherText)
             String(decrypted, Charsets.UTF_8)
         } catch (e: GeneralSecurityException) {
             Log.e("PassphraseCrypto", "Failed to decrypt data", e)
-            null
+            throw e
         } catch (e: IOException) {
             Log.e("PassphraseCrypto", "Failed to decrypt data", e)
-            null
+            throw e
         }
     }
 

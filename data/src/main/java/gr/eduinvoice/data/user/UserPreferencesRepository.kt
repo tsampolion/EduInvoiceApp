@@ -31,25 +31,17 @@ class UserPreferencesRepository @Inject constructor(
         prefs[Keys.LOGGED_IN_USER]
     }
 
-    suspend fun getDbPassphrase(): String? {
+    suspend fun getDbPassphrase(): String {
         var stored = context.userPrefsDataStore.data.first()[Keys.DB_PASSPHRASE]
         if (stored == null) {
             val pass = crypto.generatePassphrase()
             val enc = crypto.encrypt(pass)
-            if (enc == null) {
-                Log.e("UserPreferencesRepo", "Failed to encrypt generated passphrase")
-                return null
-            }
             stored = enc
             context.userPrefsDataStore.edit { it[Keys.DB_PASSPHRASE] = enc }
             return pass
         }
         if (!crypto.isEncrypted(stored)) {
             val enc = crypto.encrypt(stored)
-            if (enc == null) {
-                Log.e("UserPreferencesRepo", "Failed to encrypt stored passphrase")
-                return null
-            }
             context.userPrefsDataStore.edit { it[Keys.DB_PASSPHRASE] = enc }
             stored = enc
         }
@@ -58,10 +50,6 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setDbPassphrase(passphrase: String) {
         val enc = crypto.encrypt(passphrase)
-        if (enc == null) {
-            Log.e("UserPreferencesRepo", "Failed to encrypt DB passphrase")
-            return
-        }
         context.userPrefsDataStore.edit { it[Keys.DB_PASSPHRASE] = enc }
     }
 

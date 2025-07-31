@@ -32,7 +32,7 @@ class UserPreferencesRepositoryTest {
     @Test
     fun databasePassphraseDefault() = runBlocking {
         val default = repo.getDbPassphrase()
-        assertTrue(default?.isNotEmpty() == true)
+        assertTrue(default.isNotEmpty())
         repo.setDbPassphrase("secret")
         assertEquals("secret", repo.getDbPassphrase())
     }

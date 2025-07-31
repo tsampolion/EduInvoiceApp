@@ -147,7 +147,8 @@ fun InvoiceScreen(
                     val fonts = MaterialTheme.typography
                     TextButton(onClick = {
                         val selected = lessons.filter { selectedLessons.contains(it.lesson.id) }
-                        val invoiceNumber = System.currentTimeMillis().toString()
+                        val rawNumber = System.currentTimeMillis().toString()
+                        val invoiceNumber = rawNumber.replace(Regex("[^A-Za-z0-9_-]"), "_")
                         val result = gr.eduinvoice.utils.PdfGenerator.createInvoicePdf(
                             context = context,
                             directory = File(context.filesDir, "invoices"),

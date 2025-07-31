@@ -27,13 +27,18 @@ object DatabaseModule {
         prefs: UserPreferencesRepository
     ): EduInvoiceDatabase {
         val pass = runBlocking(Dispatchers.IO) { prefs.getDbPassphrase() }
-        require(!pass.isNullOrEmpty()) { "Database passphrase unavailable" }
-        val passphrase = SQLiteDatabase.getBytes(pass!!.toCharArray())
+        require(pass.isNotEmpty()) { "Database passphrase unavailable" }
+        val passphrase = SQLiteDatabase.getBytes(pass.toCharArray())
         return try {
             EduInvoiceDatabase.getDatabase(context, passphrase)
         } catch (e: SQLiteException) {
             Log.e("DatabaseModule", "Database open failed, attempting recovery", e)
-            context.getDatabasePath(DatabaseConstants.DATABASE_NAME).delete()
+            val dbFile = context.getDatabasePath(DatabaseConstants.DATABASE_NAME)
+            val deleted = dbFile.delete()
+            if (!deleted) {
+                Log.e("DatabaseModule", "Failed to delete corrupt DB at ${dbFile.absolutePath}")
+                throw IllegalStateException("Unable to delete corrupt database")
+            }
             EduInvoiceDatabase.getDatabase(context, passphrase)
         }
     }
