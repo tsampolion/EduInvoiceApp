@@ -1,6 +1,13 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [0.23] - 2025-08-11
+### Feature: Navigation Drawer
+- Introduced a sliding drawer with header and menu for quick navigation.
+- Updated MainActivity layout with toolbar and drawer integration.
+- Drawer selections navigate using a stored `NavHostController`.
+- Added open/close string resources and vector assets.
+- Build now includes `appcompat` and `drawerlayout`.
 ## [0.22.16] - 2025-08-10
 ### Build/CI
 - Added `androidx.appcompat` and `androidx.drawerlayout` dependencies.
