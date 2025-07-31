@@ -127,5 +127,7 @@
     <!-- Navigation drawer -->
     <string name="home">Home</string>
     <string name="groups">Groups</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="autofill_setup_message">Enable Autofill in settings to save and fill passwords automatically.</string>
 </resources>
