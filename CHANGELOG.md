@@ -1,6 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [0.22.12] - 2025-08-06
+### Added
+- Main activity layout with drawer, toolbar, compose host and navigation view.
+
 ## [0.22.11] - 2025-08-05
 ### Added
 - Navigation drawer header layout resource.
