@@ -6,6 +6,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
+import android.util.Log
+import gr.eduinvoice.BuildConfig
 import gr.eduinvoice.ui.design.AppColors
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
@@ -156,6 +158,10 @@ fun SettingsScreen(
                 }
             }
             Text(stringResource(R.string.account), style = MaterialTheme.typography.titleMedium)
+            val loggedIn = state.user != null
+            if (BuildConfig.DEBUG) {
+                Log.d("SettingsScreen", "Account section loggedIn -> $loggedIn")
+            }
             state.user?.let { user ->
                 Text(user.fullName.ifBlank { user.username }, style = MaterialTheme.typography.bodyLarge)
                 Button(

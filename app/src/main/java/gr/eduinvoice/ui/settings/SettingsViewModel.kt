@@ -2,6 +2,8 @@ package gr.eduinvoice.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.util.Log
+import gr.eduinvoice.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.eduinvoice.data.settings.AppSettings
 import gr.eduinvoice.data.settings.SettingsRepository
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -47,11 +50,23 @@ class SettingsViewModel @Inject constructor(
             combine(
                 repository.settings,
                 prefs.loggedInUserId.flatMapLatest { id ->
-                    id?.let { userUseCases.getUserProfile(it) } ?: flowOf(null)
+                    id?.let {
+                        userUseCases.getUserProfile(it).catch { e ->
+                            if (BuildConfig.DEBUG) {
+                                Log.e("SettingsViewModel", "Error fetching user $it", e)
+                            }
+                            emit(null)
+                        }
+                    } ?: flowOf(null)
                 }
             ) { settings, user ->
                 SettingsUiState(settings, user)
-            }.collect { _uiState.value = it }
+            }.collect { state ->
+                if (BuildConfig.DEBUG) {
+                    Log.d("SettingsViewModel", "Collected user -> ${'$'}{state.user}")
+                }
+                _uiState.value = state
+            }
         }
     }
 
