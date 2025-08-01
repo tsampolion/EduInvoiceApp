@@ -104,7 +104,8 @@ class SettingsScreenFlowTest {
                 WelcomeScreen(
                     onSignIn = {},
                     onSignUp = {},
-                    onSettings = { showSettings.value = true }
+                    onSettings = { showSettings.value = true },
+                    onMenuClick = {}
                 )
             }
         }
