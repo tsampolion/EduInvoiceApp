@@ -6,12 +6,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material3.*
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
+import gr.eduinvoice.ui.design.NavigationMenuButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,7 +27,7 @@ import gr.eduinvoice.ui.components.StudentCard
 fun StudentsScreen(
     onNavigateToStudent: (Long) -> Unit,
     onAddStudent: () -> Unit,
-    onBack: () -> Unit,
+    openDrawer: () -> Unit,
     onViewArchived: () -> Unit,
     viewModel: StudentsViewModel = hiltViewModel()
 ) {
@@ -37,11 +37,7 @@ fun StudentsScreen(
         topBar = {
             AppTopBar(
                 title = stringResource(R.string.students),
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
-                    }
-                },
+                navigationIcon = { NavigationMenuButton(openDrawer) },
                 actions = {
                     IconButton(onClick = onViewArchived) {
                         Icon(Icons.Default.Unarchive, contentDescription = stringResource(R.string.archived_students))

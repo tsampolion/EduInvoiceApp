@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
@@ -15,11 +14,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
+import gr.eduinvoice.ui.design.NavigationMenuButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupsScreen(
-    onBack: () -> Unit,
+    openDrawer: () -> Unit,
     onGroupClick: (Long) -> Unit,
     onAddGroup: () -> Unit,
     viewModel: GroupsViewModel = hiltViewModel()
@@ -30,11 +30,7 @@ fun GroupsScreen(
         topBar = {
             AppTopBar(
                 title = "Groups",
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
+                navigationIcon = { NavigationMenuButton(openDrawer) }
             )
         },
         floatingActionButton = {

@@ -14,17 +14,17 @@ import gr.eduinvoice.ui.student.StudentViewModel
 import gr.eduinvoice.ui.students.StudentsScreen
 import gr.eduinvoice.ui.students.ArchivedStudentsScreen
 
-fun NavGraphBuilder.studentGraph(navController: NavHostController) {
+fun NavGraphBuilder.studentGraph(navController: NavHostController, openDrawer: () -> Unit) {
     navigation(startDestination = Screen.Students.route, route = "student_graph") {
         composable(Screen.Students.route) {
             StudentsScreen(
+                openDrawer = openDrawer,
                 onNavigateToStudent = { id ->
                     navController.navigate(Screen.Student.createRoute(id))
                 },
                 onAddStudent = {
                     navController.navigate(Screen.Student.createRoute(0L))
                 },
-                onBack = { navController.popBackStack() },
                 onViewArchived = { navController.navigate(Screen.ArchivedStudents.route) }
             )
         }

@@ -37,6 +37,7 @@ import gr.eduinvoice.ui.user.ResetPasswordScreen
 @Composable
 fun TutorBillingApp(
     navController: NavHostController = rememberNavController(),
+    openDrawer: () -> Unit = {},
 ) {
     val sessionViewModel: SessionViewModel = hiltViewModel()
     val loggedIn by sessionViewModel.isLoggedIn.collectAsStateWithLifecycle()
@@ -92,6 +93,7 @@ fun TutorBillingApp(
         // Home Screen
         composable(Screen.Home.route) {
             HomeMenuScreen(
+                onOpenDrawer = openDrawer,
                 onNavigateToStudent = { navController.navigate(Screen.Students.route) },
                 onClassesClick = { navController.navigate(Screen.Classes.route) },
                 onNavigateToLesson = { navController.navigate(Screen.Lessons.route) },
@@ -103,11 +105,11 @@ fun TutorBillingApp(
             )
         }
 
-        studentGraph(navController)
+        studentGraph(navController, openDrawer)
 
         composable(Screen.Groups.route) {
             GroupsScreen(
-                onBack = { navController.popBackStack() },
+                openDrawer = openDrawer,
                 onGroupClick = { id -> navController.navigate(Screen.Group.createRoute(id)) },
                 onAddGroup = { navController.navigate(Screen.Group.createRoute(0)) }
             )
@@ -123,7 +125,7 @@ fun TutorBillingApp(
         // Classes list screen
         composable(Screen.Classes.route) {
             ClassesScreen(
-                onBack = { navController.popBackStack() },
+                openDrawer = openDrawer,
                 onStudentClick = { id ->
                     navController.navigate(Screen.Student.createRoute(id))
                 }
@@ -133,7 +135,7 @@ fun TutorBillingApp(
         // Lessons list screen
         composable(Screen.Lessons.route) {
             LessonsScreen(
-                onBack = { navController.popBackStack() },
+                openDrawer = openDrawer,
                 onLessonClick = { studentId, lessonId, groupId ->
                     navController.navigate(
                         Screen.Lesson.createRoute(lessonId, studentId, groupId)
@@ -148,7 +150,7 @@ fun TutorBillingApp(
         // Revenue screen
         composable(Screen.Revenue.route) {
             RevenueScreen(
-                onBack = { navController.popBackStack() },
+                openDrawer = openDrawer,
                 onInvoice = { id -> navController.navigate(Screen.Invoice.createRoute(id)) },
                 onPastInvoices = { navController.navigate(Screen.PastInvoices.route) }
             )
@@ -182,7 +184,7 @@ fun TutorBillingApp(
         // Settings screen
         composable(Screen.Settings.route) {
             SettingsScreen(
-                onBack = { navController.popBackStack() },
+                openDrawer = openDrawer,
                 onPrivacyPolicy = { navController.navigate(Screen.PrivacyPolicy.route) },
                 onLogin = { navController.navigate(Screen.Login.route) },
                 onRegister = { navController.navigate(Screen.Register.route) },

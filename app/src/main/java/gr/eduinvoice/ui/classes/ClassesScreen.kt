@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
@@ -19,11 +18,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.utils.getFullName
+import gr.eduinvoice.ui.design.NavigationMenuButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ClassesScreen(
-    onBack: () -> Unit,
+    openDrawer: () -> Unit,
     onStudentClick: (Long) -> Unit,
     viewModel: ClassesViewModel = hiltViewModel()
 ) {
@@ -41,11 +41,7 @@ fun ClassesScreen(
         topBar = {
             AppTopBar(
                 title = "Classes",
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
+                navigationIcon = { NavigationMenuButton(openDrawer) }
             )
         }
     ) { padding ->

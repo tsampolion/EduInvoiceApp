@@ -9,6 +9,8 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import gr.eduinvoice.ui.design.AppColors
 import gr.eduinvoice.ui.design.Dimensions
+import gr.eduinvoice.ui.design.AppTopBar
+import gr.eduinvoice.ui.design.NavigationMenuButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -32,6 +34,7 @@ fun HomeMenuScreen(
     onNavigateToNewLesson: () -> Unit,
     onRevenue: () -> Unit,
     onSettings: () -> Unit,
+    onOpenDrawer: () -> Unit,
     viewModel: HomeMenuViewModel = hiltViewModel()
 ) {
     var showFabMenu by remember { mutableStateOf(false) }
@@ -39,6 +42,12 @@ fun HomeMenuScreen(
 
 
     Scaffold(
+        topBar = {
+            AppTopBar(
+                title = stringResource(R.string.app_name),
+                navigationIcon = { NavigationMenuButton(onOpenDrawer) }
+            )
+        },
         bottomBar = {
             Row(
                 modifier = Modifier

@@ -5,11 +5,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
+import gr.eduinvoice.ui.design.NavigationMenuButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,7 +29,7 @@ import java.time.format.DateTimeFormatter
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LessonsScreen(
-    onBack: () -> Unit,
+    openDrawer: () -> Unit,
     onLessonClick: (Long, Long, Long) -> Unit,
     onAddLesson: () -> Unit,
     onInvoice: (Long?) -> Unit,
@@ -42,11 +42,7 @@ fun LessonsScreen(
         topBar = {
             AppTopBar(
                 title = "Lessons",
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
+                navigationIcon = { NavigationMenuButton(openDrawer) }
             )
         },
         floatingActionButton = {

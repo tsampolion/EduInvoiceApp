@@ -93,7 +93,7 @@ class LessonsScreenTest {
         )
         val vm = LessonsViewModel(lessonUseCases, userProvider)
         composeRule.setContent {
-            LessonsScreen(onBack = {}, onLessonClick = { _, _, _ -> }, onAddLesson = {}, onInvoice = {}, onPastInvoices = {}, viewModel = vm)
+            LessonsScreen(openDrawer = {}, onLessonClick = { _, _, _ -> }, onAddLesson = {}, onInvoice = {}, onPastInvoices = {}, viewModel = vm)
         }
         composeRule.waitForIdle()
         val header1 = composeRule.onNodeWithTag("header_1").fetchSemanticsNode().positionInRoot.y
@@ -123,7 +123,7 @@ class LessonsScreenTest {
         val vm = LessonsViewModel(lessonUseCases, userProvider)
         var clicked = false
         composeRule.setContent {
-            LessonsScreen(onBack = {}, onLessonClick = { _, _, _ -> clicked = true }, onAddLesson = {}, onInvoice = {}, onPastInvoices = {}, viewModel = vm)
+            LessonsScreen(openDrawer = {}, onLessonClick = { _, _, _ -> clicked = true }, onAddLesson = {}, onInvoice = {}, onPastInvoices = {}, viewModel = vm)
         }
         composeRule.waitForIdle()
         composeRule.onNodeWithText("10:00 • 60 min").performClick()
