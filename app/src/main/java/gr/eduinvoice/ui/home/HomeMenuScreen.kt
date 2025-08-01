@@ -7,6 +7,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
+import android.util.Log
+import gr.eduinvoice.BuildConfig
 import gr.eduinvoice.ui.design.AppColors
 import gr.eduinvoice.ui.design.Dimensions
 import gr.eduinvoice.ui.design.AppTopBar
@@ -39,6 +41,19 @@ fun HomeMenuScreen(
 ) {
     var showFabMenu by remember { mutableStateOf(false) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    if (BuildConfig.DEBUG) {
+        Log.d("HomeMenuScreen", "Collected uiState -> $uiState")
+    }
+
+    val studentButtonColor = if (uiState.studentCount > 0) {
+        AppColors.successContainer
+    } else {
+        AppColors.errorContainer
+    }
+    if (BuildConfig.DEBUG) {
+        Log.d("HomeMenuScreen", "Student button color recalculated for count ${uiState.studentCount}")
+    }
+    val studentButtonColors = ButtonDefaults.buttonColors(containerColor = studentButtonColor)
 
 
     Scaffold(
@@ -122,7 +137,7 @@ fun HomeMenuScreen(
                 Button(
                     onClick = onNavigateToStudent,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.primaryContainer)
+                    colors = studentButtonColors
                 ) { Text("Students") }
                 Button(
                     onClick = onClassesClick,
