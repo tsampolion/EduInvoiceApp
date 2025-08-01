@@ -4,14 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.eduinvoice.data.model.User
-import gr.eduinvoice.data.user.UserPreferencesRepository
 import gr.eduinvoice.domain.user.UserUseCases
+import gr.eduinvoice.ui.SharedUserViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val useCases: UserUseCases,
-    private val prefs: UserPreferencesRepository
+    private val userViewModel: SharedUserViewModel
 ) : ViewModel() {
 
     data class ProfileUiState(
@@ -34,9 +32,7 @@ class ProfileViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            prefs.loggedInUserId.flatMapLatest { id ->
-                id?.let { useCases.getUserProfile(it) } ?: flowOf(null)
-            }.collect { user ->
+            userViewModel.currentUser.collect { user ->
                 _uiState.value = ProfileUiState(
                     user = user,
                     fullName = user?.fullName ?: "",
