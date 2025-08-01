@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.6] - 2025-08-17
+### Fixed
+- Database provider now opens the database immediately and recovers from corrupt files.
+
 ## [0.23.5] - 2025-08-16
 ### Added
 - SharedUserViewModel exposes logged-in user and login status.
