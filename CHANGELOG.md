@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.2] - 2025-08-13
+### Changed
+- Added hamburger menu button on top-level screens to open the navigation drawer.
+
 ## [0.23.1] - 2025-08-12
 ### Changed
 - Invoice utilities now return operation success and log failures.

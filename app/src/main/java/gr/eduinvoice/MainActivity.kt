@@ -27,6 +27,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navController: NavHostController
 
+    fun openDrawer() {
+        drawerLayout.openDrawer(GravityCompat.START)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -57,7 +61,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    TutorBillingApp(navController)
+                    TutorBillingApp(navController, ::openDrawer)
                 }
             }
         }

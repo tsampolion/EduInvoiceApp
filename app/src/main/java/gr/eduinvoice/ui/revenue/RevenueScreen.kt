@@ -4,12 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import gr.eduinvoice.ui.design.AppColors
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
 import gr.eduinvoice.ui.design.MetricCard
+import gr.eduinvoice.ui.design.NavigationMenuButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -26,7 +26,7 @@ import gr.eduinvoice.ui.revenue.StudentDebt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RevenueScreen(
-    onBack: () -> Unit,
+    openDrawer: () -> Unit,
     onInvoice: (Long?) -> Unit,
     onPastInvoices: () -> Unit,
     viewModel: RevenueViewModel = hiltViewModel(),
@@ -40,11 +40,7 @@ fun RevenueScreen(
         topBar = {
             AppTopBar(
                 title = "Revenue",
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
+                navigationIcon = { NavigationMenuButton(openDrawer) }
             )
         }
     ) { padding ->

@@ -5,11 +5,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import gr.eduinvoice.ui.design.AppColors
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
+import gr.eduinvoice.ui.design.NavigationMenuButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -28,7 +28,7 @@ import gr.eduinvoice.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onBack: () -> Unit,
+    openDrawer: () -> Unit,
     onPrivacyPolicy: () -> Unit,
     onLogin: () -> Unit,
     onRegister: () -> Unit,
@@ -84,14 +84,7 @@ fun SettingsScreen(
         topBar = {
             AppTopBar(
                 title = stringResource(R.string.settings),
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
-                        )
-                    }
-                }
+                navigationIcon = { NavigationMenuButton(openDrawer) }
             )
         }
     ) { padding ->
