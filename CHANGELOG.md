@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.5] - 2025-08-16
+### Added
+- SharedUserViewModel exposes logged-in user and login status.
+- Settings and Profile screens now observe this shared state.
+
 ## [0.23.4] - 2025-08-15
 ### Added
 - ViewModel logs student and lesson counts as they load.
