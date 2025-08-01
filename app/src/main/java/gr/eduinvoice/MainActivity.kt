@@ -17,6 +17,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.material.navigation.NavigationView
 import android.view.MenuItem
+import android.view.View
 import gr.eduinvoice.ui.settings.SettingsViewModel
 import gr.eduinvoice.ui.theme.TutorBillingTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -64,6 +65,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     TutorBillingApp(navController, ::openDrawer)
                 }
             }
+        }
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            toolbar.visibility =
+                if (destination.route == Screen.Welcome.route) View.GONE else View.VISIBLE
         }
     }
 

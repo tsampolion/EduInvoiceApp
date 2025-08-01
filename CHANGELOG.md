@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.3] - 2025-08-14
+### Added
+- Toolbar now hides on the Welcome screen and a hamburger button opens the drawer.
+
 ## [0.23.2] - 2025-08-13
 ### Changed
 - Added hamburger menu button on top-level screens to open the navigation drawer.

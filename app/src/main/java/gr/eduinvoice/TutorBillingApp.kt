@@ -53,7 +53,8 @@ fun TutorBillingApp(
             gr.eduinvoice.ui.welcome.WelcomeScreen(
                 onSignIn = { navController.navigate(Screen.Login.route) },
                 onSignUp = { navController.navigate(Screen.Register.route) },
-                onSettings = { navController.navigate(Screen.Settings.route) }
+                onSettings = { navController.navigate(Screen.Settings.route) },
+                onMenuClick = openDrawer
             )
         }
 
