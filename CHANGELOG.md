@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.4] - 2025-08-15
+### Added
+- ViewModel logs student and lesson counts as they load.
+- HomeMenuScreen logs collected state and button color recomputation.
+
 ## [0.23.3] - 2025-08-14
 ### Added
 - Toolbar now hides on the Welcome screen and a hamburger button opens the drawer.

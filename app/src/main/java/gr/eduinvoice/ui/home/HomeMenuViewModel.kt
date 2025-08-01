@@ -2,6 +2,8 @@ package gr.eduinvoice.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.util.Log
+import gr.eduinvoice.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import gr.eduinvoice.data.model.calculateFee
@@ -34,10 +36,19 @@ class HomeMenuViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             currentUserProvider.loggedInUserId.filterNotNull().flatMapLatest { uid ->
+                if (BuildConfig.DEBUG) {
+                    Log.d("HomeMenuViewModel", "Fetching data for user $uid")
+                }
                 combine(
                     studentUseCases.getActiveStudents(uid),
                     lessonUseCases.getAllLessons(uid)
                 ) { students, lessons ->
+                    if (BuildConfig.DEBUG) {
+                        Log.d(
+                            "HomeMenuViewModel",
+                            "Loaded ${students.size} students and ${lessons.size} lessons"
+                        )
+                    }
                     val classCount = students
                         .map { it.className }
                         .filterNot { it.isBlank() || it.equals("unknown", true) }
@@ -74,6 +85,9 @@ class HomeMenuViewModel @Inject constructor(
                     )
                 }
             }.collect { state ->
+                if (BuildConfig.DEBUG) {
+                    Log.d("HomeMenuViewModel", "New UI state -> $state")
+                }
                 _uiState.value = state
             }
         }
