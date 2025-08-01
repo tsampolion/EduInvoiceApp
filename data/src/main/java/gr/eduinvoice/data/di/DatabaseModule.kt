@@ -30,7 +30,10 @@ object DatabaseModule {
         require(pass.isNotEmpty()) { "Database passphrase unavailable" }
         val passphrase = SQLiteDatabase.getBytes(pass.toCharArray())
         return try {
-            EduInvoiceDatabase.getDatabase(context, passphrase)
+            val db = EduInvoiceDatabase.getDatabase(context, passphrase)
+            // Force open to catch corruption immediately
+            db.openHelper.writableDatabase
+            db
         } catch (e: SQLiteException) {
             Log.e("DatabaseModule", "Database open failed, attempting recovery", e)
             val dbFile = context.getDatabasePath(DatabaseConstants.DATABASE_NAME)
@@ -39,7 +42,9 @@ object DatabaseModule {
                 Log.e("DatabaseModule", "Failed to delete corrupt DB at ${dbFile.absolutePath}")
                 throw IllegalStateException("Unable to delete corrupt database")
             }
-            EduInvoiceDatabase.getDatabase(context, passphrase)
+            val db = EduInvoiceDatabase.getDatabase(context, passphrase)
+            db.openHelper.writableDatabase
+            db
         }
     }
 
