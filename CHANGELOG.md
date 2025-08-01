@@ -1,6 +1,7 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
 ## [0.23.1] - 2025-08-12
 ### Changed
 - Invoice utilities now return operation success and log failures.
@@ -15,9 +16,11 @@ All notable changes to this project will be documented in this file.
 - Drawer selections navigate using a stored `NavHostController`.
 - Added open/close string resources and vector assets.
 - Build now includes `appcompat` and `drawerlayout`.
+
 ## [0.22.16] - 2025-08-10
 ### Build/CI
 - Added `androidx.appcompat` and `androidx.drawerlayout` dependencies.
+
 ## [0.22.15] - 2025-08-09
 ### Added
 - MainActivity handles navigation drawer item clicks and stores the app's `NavHostController`.
