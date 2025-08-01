@@ -8,7 +8,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.eduinvoice.data.settings.AppSettings
 import gr.eduinvoice.data.settings.SettingsRepository
 import gr.eduinvoice.data.repository.BackupRepository
-import gr.eduinvoice.ui.SharedUserViewModel
+import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.domain.user.UserUseCases
 import gr.eduinvoice.data.model.User
 import android.database.sqlite.SQLiteException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,6 +18,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -26,7 +29,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val repository: SettingsRepository,
-    private val userViewModel: SharedUserViewModel,
+    private val currentUserProvider: CurrentUserProvider,
+    private val userUseCases: UserUseCases,
     private val backupRepository: BackupRepository
 ) : ViewModel() {
 
@@ -43,9 +47,12 @@ class SettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            val userFlow = currentUserProvider.loggedInUserId.flatMapLatest { id ->
+                id?.let { userUseCases.getUserProfile(it) } ?: flowOf(null)
+            }
             combine(
                 repository.settings,
-                userViewModel.currentUser
+                userFlow
             ) { settings, user ->
                 SettingsUiState(settings, user)
             }.collect { state ->

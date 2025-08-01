@@ -4,7 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [0.23.6] - 2025-08-17
 ### Fixed
+- Settings and Profile viewmodels now derive the logged-in user from
+  `CurrentUserProvider` directly.
+- Removed the obsolete `SharedUserViewModel`.
 - Database provider now opens the database immediately and recovers from corrupt files.
+
 
 ## [0.23.5] - 2025-08-16
 ### Added
