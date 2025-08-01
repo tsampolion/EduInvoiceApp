@@ -42,6 +42,15 @@ fun TutorBillingApp(
     val sessionViewModel: SessionViewModel = hiltViewModel()
     val loggedIn by sessionViewModel.isLoggedIn.collectAsStateWithLifecycle()
 
+    LaunchedEffect(loggedIn) {
+        val currentRoute = navController.currentBackStackEntry?.destination?.route
+        if (!loggedIn && currentRoute != Screen.Welcome.route) {
+            navController.navigate(Screen.Welcome.route) {
+                popUpTo(0)
+            }
+        }
+    }
+
     val startDestination = if (loggedIn) Screen.Home.route else Screen.Welcome.route
 
     NavHost(
