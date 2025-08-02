@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.7] - 2025-08-18
+### Changed
+- Register screen now specifies `MenuAnchorType.PrimaryNotEditable` for the
+  years-of-experience dropdown.
+
 ## [0.23.6] - 2025-08-17
 ### Fixed
 - Settings and Profile viewmodels now derive the logged-in user from
