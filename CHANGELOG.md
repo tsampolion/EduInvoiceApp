@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.10] - 2025-08-02
+### Fixed
+- Logged database passphrase length and ensured SQLCipher libraries load before Room initialization.
+- Added defensive passphrase validation during database access.
+
 ## [0.23.9] - 2025-08-02
 ### Fixed
 - Updated StudentScreenTest fake `LessonDao` to include `userId` in `deleteById`.

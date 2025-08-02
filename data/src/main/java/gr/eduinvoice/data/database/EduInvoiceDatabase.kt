@@ -1,21 +1,22 @@
 package gr.eduinvoice.data.database
 
 import android.content.Context
+import android.util.Log
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import net.sqlcipher.database.SupportFactory
 import gr.eduinvoice.data.dao.GroupDao
 import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.dao.StudentDao
 import gr.eduinvoice.data.dao.UserDao
+import gr.eduinvoice.data.database.MIGRATION_12_13
 import gr.eduinvoice.data.model.GroupStudentCrossRef
 import gr.eduinvoice.data.model.Lesson
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.data.model.User
-import gr.eduinvoice.data.database.MIGRATION_12_13
+import net.sqlcipher.database.SupportFactory
 
 @Database(
     entities = [Student::class, Lesson::class, StudentGroup::class, GroupStudentCrossRef::class, User::class],
@@ -39,6 +40,8 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 
     companion object {
+        private const val TAG = "EduInvoiceDatabase"
+
         @Volatile
         private var INSTANCE: EduInvoiceDatabase? = null
 
@@ -46,6 +49,11 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
             context: Context,
             passphrase: ByteArray
         ): EduInvoiceDatabase {
+            if (passphrase.isEmpty() || passphrase.all { it == 0.toByte() }) {
+                Log.e(TAG, "Invalid database passphrase; length=${'$'}{passphrase.size}")
+                throw IllegalArgumentException("Invalid database passphrase")
+            }
+            Log.d(TAG, "Using passphrase length ${'$'}{passphrase.size}")
             return INSTANCE ?: synchronized(this) {
                 val factory = SupportFactory(passphrase)
                 val instance = Room.databaseBuilder(
