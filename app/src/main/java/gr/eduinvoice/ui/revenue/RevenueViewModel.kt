@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.eduinvoice.data.model.calculateFee
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
+import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.flow.first
 import gr.eduinvoice.ui.revenue.StudentDebt
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.firstOrNull
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
@@ -21,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class RevenueViewModel @Inject constructor(
     private val studentUseCases: StudentUseCases,
-    private val lessonUseCases: LessonUseCases
+    private val lessonUseCases: LessonUseCases,
+    private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RevenueUiState())
@@ -109,7 +112,8 @@ class RevenueViewModel @Inject constructor(
                 .filter { !it.isPaid }
                 .map { it.id }
             if (ids.isNotEmpty()) {
-                lessonUseCases.updateLessonPaidStatus(ids, true)
+                val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+                lessonUseCases.updateLessonPaidStatus(ids, true, uid)
             }
         }
     }

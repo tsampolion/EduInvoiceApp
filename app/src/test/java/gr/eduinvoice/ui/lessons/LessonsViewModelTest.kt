@@ -192,7 +192,7 @@ class LessonsViewModelTest {
         override fun getAllActiveStudents(userId: Long): Flow<List<Student>> =
             flow.map { list -> list.filter { it.ownerId == userId } }
         override fun getArchivedStudents(userId: Long): Flow<List<Student>> = flowOf(emptyList())
-        override suspend fun restoreStudent(studentId: Long) {}
+        override suspend fun restoreStudent(studentId: Long, userId: Long) {}
         override fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?> =
             flow.map { list -> list.find { it.id == studentId && it.ownerId == userId } }
         override suspend fun getActiveStudentCount(userId: Long): Int = flow.value.count { it.ownerId == userId }
@@ -214,10 +214,10 @@ class LessonsViewModelTest {
         override fun getLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override fun getUnpaidLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override fun getUnpaidLessonsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
-        override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean) {
+        override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean, userId: Long) {
             flow.value = flow.value.map { if (it.lesson.id in ids) it.copy(lesson = it.lesson.copy(isPaid = paid)) else it }
         }
-        override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean) {
+        override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean, userId: Long) {
             flow.value = flow.value.map { if (it.lesson.id in ids) it.copy(lesson = it.lesson.copy(isInvoiced = invoiced)) else it }
         }
         override fun isLessonInvoiced(lessonId: Long, userId: Long): Flow<Boolean?> =

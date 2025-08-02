@@ -21,7 +21,8 @@ class StudentRepository @Inject constructor(
         studentDao.getAllActiveStudents(userId)
     fun getArchivedStudents(userId: Long): Flow<List<Student>> =
         studentDao.getArchivedStudents(userId)
-    suspend fun restoreStudent(studentId: Long) = studentDao.restoreStudent(studentId)
+    suspend fun restoreStudent(studentId: Long, userId: Long) =
+        studentDao.restoreStudent(studentId, userId)
     suspend fun getActiveStudentCount(userId: Long): Int =
         studentDao.getActiveStudentCount(userId)
     suspend fun classNameExists(name: String, userId: Long): Boolean =

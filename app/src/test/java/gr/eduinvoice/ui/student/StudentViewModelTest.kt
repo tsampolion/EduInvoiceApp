@@ -156,7 +156,7 @@ class StudentViewModelTest {
         override fun getAllActiveStudents(userId: Long): Flow<List<Student>> =
             flow.map { list -> list.filter { it.ownerId == userId } }
         override fun getArchivedStudents(userId: Long): Flow<List<Student>> = flowOf(emptyList())
-        override suspend fun restoreStudent(studentId: Long) {}
+        override suspend fun restoreStudent(studentId: Long, userId: Long) {}
         override fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?> = getStudentById(studentId, userId)
         override suspend fun getActiveStudentCount(userId: Long): Int = flow.value.count { it.ownerId == userId }
         override suspend fun classNameExists(name: String, userId: Long): Int = flow.value.count { it.className.equals(name, true) }
@@ -182,8 +182,8 @@ class StudentViewModelTest {
         override fun getLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override fun getUnpaidLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override fun getUnpaidLessonsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
-        override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean) {}
-        override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean) {}
+        override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean, userId: Long) {}
+        override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean, userId: Long) {}
         override fun isLessonInvoiced(lessonId: Long, userId: Long): Flow<Boolean?> =
             flow.map { list -> list.find { it.id == lessonId && it.ownerId == userId }?.isInvoiced }
         override fun getLessonsWithStudents(userId: Long) = flowOf(emptyList<gr.eduinvoice.data.database.LessonWithStudent>())

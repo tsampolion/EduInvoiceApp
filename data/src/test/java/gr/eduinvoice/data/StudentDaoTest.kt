@@ -50,7 +50,7 @@ class StudentDaoTest {
         dao.softDeleteStudent(id, 0)
         val archived = dao.getArchivedStudents(0).first()
         assertEquals(1, archived.size)
-        dao.restoreStudent(id)
+        dao.restoreStudent(id, 0)
         val active = dao.getAllActiveStudents(0).first()
         assertEquals(id, active.first().id)
     }
@@ -62,5 +62,15 @@ class StudentDaoTest {
         val student = dao.getStudentByIdAny(id, 0).first()
         assertNotNull(student)
         assertEquals(false, student?.isActive)
+
+    }
+
+    @Test
+    fun restoreStudentRejectsDifferentUser() = runBlocking {
+        val id = dao.insert(Student(name = "Dora", surname = "", parentMobile = "", className = "", rate = 13.0))
+        dao.softDeleteStudent(id, 0)
+        dao.restoreStudent(id, 1)
+        val archived = dao.getArchivedStudents(0).first()
+        assertEquals(1, archived.size)
     }
 }

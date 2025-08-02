@@ -88,6 +88,12 @@ fun ResetPasswordScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
+                    value = uiState.code,
+                    onValueChange = viewModel::updateCode,
+                    label = { Text(stringResource(R.string.verification_code)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
                     value = uiState.password,
                     onValueChange = viewModel::updatePassword,
                     label = { Text(stringResource(R.string.password)) },

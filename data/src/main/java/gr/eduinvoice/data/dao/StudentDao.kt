@@ -27,8 +27,8 @@ interface StudentDao {
     @Query("SELECT * FROM students WHERE isActive = 0 AND ownerId = :userId ORDER BY name ASC")
     fun getArchivedStudents(userId: Long): Flow<List<Student>>
 
-    @Query("UPDATE students SET isActive = 1 WHERE id = :studentId")
-    suspend fun restoreStudent(studentId: Long)
+    @Query("UPDATE students SET isActive = 1 WHERE id = :studentId AND ownerId = :userId")
+    suspend fun restoreStudent(studentId: Long, userId: Long)
 
     @Query("SELECT * FROM students WHERE id = :studentId AND ownerId = :userId")
     fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?>
