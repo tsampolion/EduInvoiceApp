@@ -4,6 +4,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -13,6 +14,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import gr.eduinvoice.data.dao.*
 import gr.eduinvoice.data.database.EduInvoiceDatabase
+import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.data.model.*
 import gr.eduinvoice.data.repository.*
 import gr.eduinvoice.data.settings.SettingsRepository
@@ -80,7 +82,7 @@ class SettingsScreenFlowTest {
             .allowMainThreadQueries()
             .build()
         backupRepo = BackupRepository(db)
-        loginViewModel = LoginViewModel(userUseCases, prefs)
+        loginViewModel = LoginViewModel(userUseCases, prefs, context)
         runBlocking { prefs.setLoggedInUser(null) }
     }
 
@@ -91,7 +93,7 @@ class SettingsScreenFlowTest {
             val showSettings = remember { mutableStateOf(false) }
             if (showSettings.value) {
                 SettingsScreen(
-                    onBack = { showSettings.value = false },
+                    openDrawer = { },
                     onPrivacyPolicy = {},
                     onLogin = {},
                     onRegister = {},
@@ -168,22 +170,23 @@ class SettingsScreenFlowTest {
             override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean) {}
             override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean) {}
             override fun isLessonInvoiced(lessonId: Long, userId: Long): Flow<Boolean?> = flowOf(null)
-            override fun getLessonsWithStudents(userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
+            override fun getLessonsWithStudents(userId: Long): Flow<List<LessonWithStudent>> =
+                flowOf(emptyList<LessonWithStudent>())
             override fun getLessonsWithStudentsByStudent(
                 studentId: Long,
                 userId: Long
-            ): Flow<List<LessonWithStudent>> = flowOf(emptyList())
+            ): Flow<List<LessonWithStudent>> = flowOf(emptyList<LessonWithStudent>())
             override fun getLessonsWithStudentsInDateRange(
                 startDate: String,
                 endDate: String,
                 userId: Long
-            ): Flow<List<LessonWithStudent>> = flowOf(emptyList())
+            ): Flow<List<LessonWithStudent>> = flowOf(emptyList<LessonWithStudent>())
             override fun getLessonsWithStudentsByStudentAndDateRange(
                 studentId: Long,
                 startDate: String,
                 endDate: String,
                 userId: Long
-            ): Flow<List<LessonWithStudent>> = flowOf(emptyList())
+            ): Flow<List<LessonWithStudent>> = flowOf(emptyList<LessonWithStudent>())
         }
         val groupDao = object : GroupDao {
             override suspend fun insertGroup(group: StudentGroup) = 1L
@@ -229,7 +232,7 @@ class SettingsScreenFlowTest {
             val showSettings = remember { mutableStateOf(false) }
             if (showSettings.value) {
                 SettingsScreen(
-                    onBack = { showSettings.value = false },
+                    openDrawer = { },
                     onPrivacyPolicy = {},
                     onLogin = {},
                     onRegister = {},
@@ -248,6 +251,7 @@ class SettingsScreenFlowTest {
                     onNavigateToNewLesson = {},
                     onRevenue = {},
                     onSettings = { showSettings.value = true },
+                    onOpenDrawer = { },
                     viewModel = homeVm
                 )
             }
@@ -265,9 +269,9 @@ class SettingsScreenFlowTest {
             val screen = remember { mutableStateOf("login") }
             if (screen.value == "settings") {
                 SettingsScreen(
-                    onBack = { screen.value = "login" },
+                    openDrawer = { },
                     onPrivacyPolicy = {},
-                    onLogin = {},
+                    onLogin = { screen.value = "login" },
                     onRegister = {},
                     onLogout = {},
                     onSwitchAccount = {},
@@ -287,7 +291,7 @@ class SettingsScreenFlowTest {
 
         composeRule.onNodeWithContentDescription("Settings").performClick()
         composeRule.onNodeWithText("Sign In").assertExists()
-        composeRule.onNodeWithContentDescription("Back").performClick()
+        composeRule.onNodeWithText("Sign In").performClick()
         composeRule.onNodeWithText("Username").performTextInput("bob")
         composeRule.onNodeWithText("Password").performTextInput("pass")
         composeRule.onNodeWithText("Login").performClick()

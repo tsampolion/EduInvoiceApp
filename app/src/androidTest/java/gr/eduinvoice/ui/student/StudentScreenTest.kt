@@ -60,7 +60,7 @@ class StudentScreenTest {
             override suspend fun insert(lesson: Lesson): Long = 1L
             override suspend fun update(lesson: Lesson) {}
             override suspend fun delete(lesson: Lesson) {}
-            override suspend fun deleteById(lessonId: Long) {}
+            override suspend fun deleteById(lessonId: Long, userId: Long) {}
             override fun getLessonById(lessonId: Long, userId: Long): Flow<Lesson?> = flowOf(null)
             override fun getLessonsByStudentId(studentId: Long, userId: Long): Flow<List<Lesson>> = lessonFlow.asStateFlow()
             override fun getAllLessons(userId: Long): Flow<List<Lesson>> = lessonFlow.asStateFlow()
