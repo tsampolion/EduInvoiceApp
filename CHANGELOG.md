@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.13] - 2025-08-02
+### Changed
+- Separated financial calculations into `FinancialService` and slimmed down `TutorBillingRepository`.
+- Group lesson creation now uses a Room transaction to ensure all-or-nothing inserts.
+### Added
+- Test verifying transaction rollback when a group lesson insert fails.
+
 ## [0.23.12] - 2025-08-02
 ### Fixed
 - Restoring students and updating lesson statuses now require matching owner IDs.

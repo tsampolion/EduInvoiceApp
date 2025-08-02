@@ -17,6 +17,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import kotlin.test.assertFailsWith
 
 @RunWith(RobolectricTestRunner::class)
 class AddGroupLessonIntegrationTest {
@@ -81,5 +82,23 @@ class AddGroupLessonIntegrationTest {
         assertEquals(3, ids.size)
         val lessons = db.lessonDao().getAllLessons(userId).first()
         assertEquals(3, lessons.size)
+    }
+
+    @Test
+    fun partialFailureRollsBack() = runBlocking {
+        val userId = 1L
+        val s1 = db.studentDao().insert(Student(ownerId = userId, name = "Dan", surname = "", parentMobile = "", className = "", rate = 10.0))
+        val s2 = db.studentDao().insert(Student(ownerId = userId, name = "Eve", surname = "", parentMobile = "", className = "", rate = 12.0))
+        val gId = db.groupDao().insertGroup(StudentGroup(ownerId = userId, name = "Group C"))
+        db.groupDao().insertCrossRef(GroupStudentCrossRef(groupId = gId, studentId = s1, ownerId = userId))
+        db.groupDao().insertCrossRef(GroupStudentCrossRef(groupId = gId, studentId = s2, ownerId = userId))
+
+        val lesson = Lesson(id = 1, ownerId = userId, studentId = 0, date = "2024-03-01", startTime = "08:00", durationMinutes = 60)
+        val useCase = AddGroupLesson(repository)
+
+        assertFailsWith<Exception> { useCase(gId, lesson, userId) }
+
+        val lessons = db.lessonDao().getAllLessons(userId).first()
+        assertEquals(0, lessons.size)
     }
 }
