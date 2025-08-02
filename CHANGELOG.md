@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.10] - 2025-08-02
+### Fixed
+- Initialize `navController` before usage to avoid startup crash and handle toolbar visibility within `LaunchedEffect`.
+
 ## [0.23.9] - 2025-08-02
 ### Fixed
 - Updated StudentScreenTest fake `LessonDao` to include `userId` in `deleteById`.

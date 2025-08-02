@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.GravityCompat
@@ -57,10 +58,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .setNavigationItemSelectedListener(this)
 
             findViewById<ComposeView>(R.id.compose_view).setContent {
+                navController = rememberNavController()
                 val viewModel: SettingsViewModel = hiltViewModel()
                 val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
                 TutorBillingTheme(darkTheme = uiState.settings.darkTheme) {
-                    navController = rememberNavController()
+                    LaunchedEffect(navController) {
+                        navController.addOnDestinationChangedListener { _, destination, _ ->
+                            toolbar.visibility =
+                                if (destination.route == Screen.Welcome.route) {
+                                    View.GONE
+                                } else {
+                                    View.VISIBLE
+                                }
+                        }
+                    }
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
@@ -68,11 +79,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         TutorBillingApp(navController, ::openDrawer)
                     }
                 }
-            }
-
-            navController.addOnDestinationChangedListener { _, destination, _ ->
-                toolbar.visibility =
-                    if (destination.route == Screen.Welcome.route) View.GONE else View.VISIBLE
             }
         } catch (e: DatabaseInitException) {
             showDatabaseErrorDialog()
