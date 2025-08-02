@@ -8,6 +8,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import gr.eduinvoice.data.BuildConfig
 import gr.eduinvoice.data.database.DatabaseConstants
 import gr.eduinvoice.data.database.DatabaseInitException
 import gr.eduinvoice.data.database.EduInvoiceDatabase
@@ -40,6 +41,10 @@ object DatabaseModule {
             db.openHelper.writableDatabase
             db
         } catch (e: SQLiteException) {
+            if (!BuildConfig.DEBUG) {
+                Log.e("DatabaseModule", "Database open failed", e)
+                throw DatabaseInitException("Database open failed", e)
+            }
             Log.e("DatabaseModule", "Database open failed, attempting recovery", e)
             val dbFile = context.getDatabasePath(DatabaseConstants.DATABASE_NAME)
             try {
