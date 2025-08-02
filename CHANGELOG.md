@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.11] - 2025-08-02
+### Fixed
+- Recover from corrupt database files in debug builds by deleting and rebuilding once on initialization failure.
+
 ## [0.23.10] - 2025-08-02
 ### Fixed
 - Logged database passphrase length and ensured SQLCipher libraries load before Room initialization.
