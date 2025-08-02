@@ -1,18 +1,22 @@
 {
   "project_info": {
-    "project_number": "123456789",
-    "project_id": "tutorbillingapp"
+    "project_number": "824043669156",
+    "project_id": "eduinvoiceapp",
+    "storage_bucket": "eduinvoiceapp.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:123456789:android:abcdef123456",
+        "mobilesdk_app_id": "1:824043669156:android:5c1ff54dba981bbe528831",
         "android_client_info": {
           "package_name": "gr.eduinvoice"
         }
       },
+      "oauth_client": [],
       "api_key": [
-        {"current_key": ""}
+        {
+          "current_key": "AIzaSyB3vmpNxsgTJy4c8dhf4Bxt9a9UnaOBkHk"
+        }
       ],
       "services": {
         "appinvite_service": {
@@ -20,5 +24,6 @@
         }
       }
     }
-  ]
+  ],
+  "configuration_version": "1"
 }
