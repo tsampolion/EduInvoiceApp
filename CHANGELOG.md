@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.7] - 2025-08-18
+### Added
+- Plaintext database files are automatically migrated into the new encrypted format.
+
 ## [0.23.6] - 2025-08-17
 ### Fixed
 - Settings and Profile viewmodels now derive the logged-in user from
