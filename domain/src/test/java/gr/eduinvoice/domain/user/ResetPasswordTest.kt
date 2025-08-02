@@ -46,7 +46,7 @@ class ResetPasswordTest {
             )
         )
         val useCase = ResetPassword(repository)
-        val result = useCase("bob", "Bob", "new")
+        val result = useCase("bob", "Bob", "123456", "new")
         assertTrue(result)
         val auth = repository.authenticate("bob", "new")
         assertTrue(auth != null)
@@ -64,7 +64,7 @@ class ResetPasswordTest {
             )
         )
         val useCase = ResetPassword(repository)
-        val result = useCase("bob", "Alice", "new")
+        val result = useCase("bob", "Bob", "wrong", "new")
         assertFalse(result)
     }
 }

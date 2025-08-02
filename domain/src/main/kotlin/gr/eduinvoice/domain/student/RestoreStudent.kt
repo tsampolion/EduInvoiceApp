@@ -6,5 +6,6 @@ import javax.inject.Inject
 class RestoreStudent @Inject constructor(
     private val repository: StudentRepository
 ) {
-    suspend operator fun invoke(id: Long) = repository.restoreStudent(id)
+    suspend operator fun invoke(id: Long, userId: Long) =
+        repository.restoreStudent(id, userId)
 }

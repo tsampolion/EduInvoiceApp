@@ -43,13 +43,16 @@ class LessonsViewModel @Inject constructor(
             } else if (paid && lesson != null) {
                 _uiState.update { it.copy(dialog = LessonDialog.GenerateInvoice(lessonId, lesson.student.id)) }
             } else {
-                lessonUseCases.updateLessonPaidStatus(listOf(lessonId), paid)
+                lessonUseCases.updateLessonPaidStatus(listOf(lessonId), paid, userId)
             }
         }
     }
 
     fun applyPaidStatus(lessonId: Long, paid: Boolean) {
-        viewModelScope.launch { lessonUseCases.updateLessonPaidStatus(listOf(lessonId), paid) }
+        viewModelScope.launch {
+            val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+            lessonUseCases.updateLessonPaidStatus(listOf(lessonId), paid, userId)
+        }
         _uiState.update { it.copy(dialog = null) }
     }
 

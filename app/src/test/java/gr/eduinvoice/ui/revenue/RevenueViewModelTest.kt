@@ -33,6 +33,7 @@ import gr.eduinvoice.domain.student.SoftDeleteStudent
 import gr.eduinvoice.domain.student.RestoreStudent
 import gr.eduinvoice.domain.student.GetActiveStudentCount
 import gr.eduinvoice.domain.student.ClassNameExists
+import gr.eduinvoice.FakeUserProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,6 +62,7 @@ class RevenueViewModelTest {
     private val studentDao = FakeStudentDao(studentFlow)
     private val lessonDao = FakeLessonDao(lessonFlow)
     private val groupDao = FakeGroupDao()
+    private val userProvider = FakeUserProvider(1L)
     private val studentRepository = StudentRepository(studentDao)
     private val tutorBillingRepository = TutorBillingRepository(studentDao, lessonDao, groupDao)
     private val studentUseCases = StudentUseCases(
@@ -103,7 +105,7 @@ class RevenueViewModelTest {
             Lesson(id = 3, studentId = 2, date = today, startTime = "12:00", durationMinutes = 120, isPaid = false)
         )
 
-        val vm = RevenueViewModel(studentUseCases, lessonUseCases)
+        val vm = RevenueViewModel(studentUseCases, lessonUseCases, userProvider)
         advanceUntilIdle()
 
         val debts = vm.uiState.value.debts
@@ -129,7 +131,7 @@ class RevenueViewModelTest {
         override fun getStudentById(studentId: Long, userId: Long): Flow<Student?> = flow.map { list -> list.find { it.id == studentId } }
         override fun getAllActiveStudents(userId: Long): Flow<List<Student>> = flow.asStateFlow()
         override fun getArchivedStudents(userId: Long): Flow<List<Student>> = flowOf(emptyList())
-        override suspend fun restoreStudent(studentId: Long) {}
+        override suspend fun restoreStudent(studentId: Long, userId: Long) {}
         override fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?> = flow.map { list -> list.find { it.id == studentId } }
         override suspend fun getActiveStudentCount(userId: Long): Int = flow.value.size
         override suspend fun classNameExists(name: String, userId: Long): Int = flow.value.count { it.className.equals(name, true) }
@@ -150,10 +152,10 @@ class RevenueViewModelTest {
         override fun getLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override fun getUnpaidLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override fun getUnpaidLessonsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
-        override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean) {
+        override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean, userId: Long) {
             flow.value = flow.value.map { if (it.id in ids) it.copy(isPaid = paid) else it }
         }
-        override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean) {
+        override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean, userId: Long) {
             flow.value = flow.value.map { if (it.id in ids) it.copy(isInvoiced = invoiced) else it }
         }
         override fun isLessonInvoiced(lessonId: Long, userId: Long): Flow<Boolean?> = flow.map { list ->

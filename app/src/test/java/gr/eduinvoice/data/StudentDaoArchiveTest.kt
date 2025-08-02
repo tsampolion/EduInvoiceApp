@@ -42,7 +42,7 @@ class StudentDaoArchiveTest {
         dao.softDeleteStudent(id, 0)
         val archived = dao.getArchivedStudents(0).first()
         assertEquals(1, archived.size)
-        dao.restoreStudent(id)
+        dao.restoreStudent(id, 0)
         val active = dao.getAllActiveStudents(0).first()
         assertEquals(1, active.size)
         assertEquals(id, active.first().id)

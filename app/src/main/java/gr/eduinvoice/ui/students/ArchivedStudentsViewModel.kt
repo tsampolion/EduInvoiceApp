@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.eduinvoice.data.model.StudentWithEarnings
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
+import gr.eduinvoice.data.user.CurrentUserProvider
 import gr.eduinvoice.utils.EarningsCalculator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,12 +15,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 
 @HiltViewModel
 class ArchivedStudentsViewModel @Inject constructor(
     private val studentUseCases: StudentUseCases,
-    private val lessonUseCases: LessonUseCases
+    private val lessonUseCases: LessonUseCases,
+    private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StudentsUiState())
@@ -78,7 +81,8 @@ class ArchivedStudentsViewModel @Inject constructor(
 
     fun restoreStudent(studentId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            studentUseCases.restoreStudent(studentId)
+            val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+            studentUseCases.restoreStudent(studentId, uid)
         }
     }
 }

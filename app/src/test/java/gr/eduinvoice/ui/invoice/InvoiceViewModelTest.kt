@@ -13,6 +13,7 @@ import gr.eduinvoice.data.repository.StudentRepository
 import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
+import gr.eduinvoice.FakeUserProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,7 +47,7 @@ class InvoiceViewModelTest {
         override fun getStudentById(studentId: Long, userId: Long) = studentFlow.map { list -> list.find { it.id == studentId } }
         override fun getAllActiveStudents(userId: Long) = studentFlow.asStateFlow()
         override fun getArchivedStudents(userId: Long) = flowOf(emptyList<Student>())
-        override suspend fun restoreStudent(studentId: Long) {}
+        override suspend fun restoreStudent(studentId: Long, userId: Long) {}
         override fun getStudentByIdAny(studentId: Long, userId: Long) = getStudentById(studentId, userId)
         override suspend fun getActiveStudentCount(userId: Long) = studentFlow.value.size
         override suspend fun classNameExists(name: String, userId: Long) = 0
@@ -67,10 +68,10 @@ class InvoiceViewModelTest {
         override fun getLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long) = flowOf(emptyList<Lesson>())
         override fun getUnpaidLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long) = flowOf(emptyList<Lesson>())
         override fun getUnpaidLessonsInDateRange(startDate: String, endDate: String, userId: Long) = flowOf(emptyList<Lesson>())
-        override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean) {
+        override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean, userId: Long) {
             lessonFlow.value = lessonFlow.value.map { if (it.id in ids) it.copy(isPaid = paid) else it }
         }
-        override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean) {
+        override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean, userId: Long) {
             lessonFlow.value = lessonFlow.value.map { if (it.id in ids) it.copy(isInvoiced = invoiced) else it }
         }
         override fun isLessonInvoiced(lessonId: Long, userId: Long) = lessonFlow.map { list -> list.find { it.id == lessonId }?.isInvoiced }
@@ -129,7 +130,7 @@ class InvoiceViewModelTest {
         val lesson = Lesson(id = 1, studentId = 1, date = "2024-01-01", startTime = "10:00", durationMinutes = 60)
         lessonFlow.value = listOf(lesson)
 
-        val vm = InvoiceViewModel(SavedStateHandle(), lessonUseCases, studentUseCases)
+        val vm = InvoiceViewModel(SavedStateHandle(), lessonUseCases, studentUseCases, FakeUserProvider(1L))
         vm.markAsPaid(listOf(1))
         advanceUntilIdle()
 

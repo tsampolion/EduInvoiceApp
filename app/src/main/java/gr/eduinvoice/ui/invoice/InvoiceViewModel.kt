@@ -8,12 +8,14 @@ import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
+import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -22,7 +24,8 @@ import javax.inject.Inject
 class InvoiceViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val lessonUseCases: LessonUseCases,
-    private val studentUseCases: StudentUseCases
+    private val studentUseCases: StudentUseCases,
+    private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
 
     private val defaultStudentId: Long? =
@@ -100,8 +103,9 @@ class InvoiceViewModel @Inject constructor(
 
     fun markAsPaid(ids: List<Long>) {
         viewModelScope.launch {
-            lessonUseCases.updateLessonPaidStatus(ids, true)
-            lessonUseCases.updateLessonInvoicedStatus(ids, true)
+            val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+            lessonUseCases.updateLessonPaidStatus(ids, true, uid)
+            lessonUseCases.updateLessonInvoicedStatus(ids, true, uid)
         }
     }
 }

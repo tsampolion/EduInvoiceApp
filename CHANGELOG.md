@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [0.23.12] - 2025-08-02
 ### Fixed
+- Restoring students and updating lesson statuses now require matching owner IDs.
+- Password reset flow includes verification code check.
 - Passphrase generation now uses `SecureRandom` and the database no longer logs passphrase length.
 ### Added
 - Tests covering passphrase generation, encryption, and decryption utilities.
