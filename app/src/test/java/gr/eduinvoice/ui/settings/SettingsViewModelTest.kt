@@ -11,6 +11,7 @@ import gr.eduinvoice.data.repository.BackupRepository
 import gr.eduinvoice.data.repository.UserRepository
 import gr.eduinvoice.data.settings.SettingsRepository
 import gr.eduinvoice.data.user.UserPreferencesRepository
+import gr.eduinvoice.data.user.userPrefsDataStore
 import gr.eduinvoice.domain.user.UserUseCases
 import gr.eduinvoice.domain.user.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -44,7 +45,7 @@ class SettingsViewModelTest {
             .allowMainThreadQueries()
             .build()
         backupRepo = BackupRepository(db)
-        prefs = UserPreferencesRepository(context)
+        prefs = UserPreferencesRepository(context, context.userPrefsDataStore)
         val userDao = object : UserDao {
             override suspend fun insert(user: User) = 0L
             override suspend fun update(user: User) {}

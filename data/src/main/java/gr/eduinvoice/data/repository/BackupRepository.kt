@@ -1,6 +1,7 @@
 package gr.eduinvoice.data.repository
 
 import android.database.Cursor
+import android.util.Log
 import androidx.room.withTransaction
 import gr.eduinvoice.data.database.DatabaseConstants
 import gr.eduinvoice.data.database.EduInvoiceDatabase
@@ -108,7 +109,8 @@ class BackupRepository @Inject constructor(
                 dump.lessons.forEach { lessonDao.insert(it) }
             }
             Result.success(Unit)
-        } catch (e: kotlinx.serialization.SerializationException) {
+        } catch (e: Exception) {
+            Log.e("BackupRepository", "restoreFromJson failed", e)
             Result.failure(e)
         }
     }

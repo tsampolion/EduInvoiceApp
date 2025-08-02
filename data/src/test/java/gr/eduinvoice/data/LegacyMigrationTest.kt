@@ -9,6 +9,7 @@ import gr.eduinvoice.data.database.MIGRATION_12_13
 import gr.eduinvoice.data.di.DatabaseModule
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.user.UserPreferencesRepository
+import gr.eduinvoice.data.user.userPrefsDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -26,7 +27,7 @@ class LegacyMigrationTest {
     @Before
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
-        prefs = UserPreferencesRepository(context)
+        prefs = UserPreferencesRepository(context, context.userPrefsDataStore)
         runBlocking { prefs.setDbPassphrase("secret") }
     }
 

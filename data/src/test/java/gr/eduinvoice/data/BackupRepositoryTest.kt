@@ -51,4 +51,12 @@ class BackupRepositoryTest {
         val result = repo.restoreFromJson("{}")
         assert(result.isFailure)
     }
+
+    @Test
+    fun restoreFailsOnDatabaseError() = runBlocking {
+        val json = """{"students":[],"lessons":[],"groups":[],"crossRefs":[],"users":[]}"""
+        db.close()
+        val result = repo.restoreFromJson(json)
+        assert(result.isFailure)
+    }
 }

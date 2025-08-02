@@ -29,6 +29,8 @@ jobs:
       - name: Build, Test and Lint
         run: |
           ./gradlew clean assemble test lintDebug
+      - name: Dependency check
+        run: ./gradlew dependencyCheckAnalyze
       - name: Run instrumented tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
