@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [0.23.11] - 2025-08-02
 ### Fixed
 - Recover from corrupt database files in debug builds by deleting and rebuilding once on initialization failure.
+- Google services config updated and BuildConfig now exposes the Firebase API key.
 
 ## [0.23.10] - 2025-08-02
 ### Fixed

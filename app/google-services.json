@@ -1,7 +1,7 @@
 {
   "project_info": {
-    "project_number": "824043669156",
     "project_id": "eduinvoiceapp",
+    "project_number": "824043669156",
     "storage_bucket": "eduinvoiceapp.firebasestorage.app"
   },
   "client": [
