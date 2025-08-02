@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import gr.eduinvoice.data.database.DatabaseConstants
+import gr.eduinvoice.data.database.DatabaseInitException
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.database.LegacyMigration
 import gr.eduinvoice.data.repository.BackupRepository
@@ -39,19 +40,26 @@ object DatabaseModule {
         } catch (e: SQLiteException) {
             Log.e("DatabaseModule", "Database open failed, attempting recovery", e)
             val dbFile = context.getDatabasePath(DatabaseConstants.DATABASE_NAME)
-            val legacyJson = LegacyMigration.migrateIfNeeded(context)
-            val deleted = dbFile.delete()
-            if (!deleted) {
-                Log.e("DatabaseModule", "Failed to delete corrupt DB at ${dbFile.absolutePath}")
-                throw IllegalStateException("Unable to delete corrupt database")
+            return try {
+                val legacyJson = LegacyMigration.migrateIfNeeded(context)
+                if (!dbFile.delete()) {
+                    Log.e(
+                        "DatabaseModule",
+                        "Failed to delete corrupt DB at ${dbFile.absolutePath}"
+                    )
+                    throw DatabaseInitException("Unable to delete corrupt database", e)
+                }
+                val db = EduInvoiceDatabase.getDatabase(context, passphrase)
+                db.openHelper.writableDatabase
+                legacyJson?.let {
+                    val repo = BackupRepository(db)
+                    runBlocking(Dispatchers.IO) { repo.restoreFromJson(it) }
+                }
+                db
+            } catch (recovery: Exception) {
+                Log.e("DatabaseModule", "Database recovery failed", recovery)
+                throw DatabaseInitException("Database recovery failed", recovery)
             }
-            val db = EduInvoiceDatabase.getDatabase(context, passphrase)
-            db.openHelper.writableDatabase
-            legacyJson?.let {
-                val repo = BackupRepository(db)
-                runBlocking(Dispatchers.IO) { repo.restoreFromJson(it) }
-            }
-            db
         }
     }
 
