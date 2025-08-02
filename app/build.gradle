@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
@@ -8,7 +10,15 @@ plugins {
     id 'com.google.firebase.crashlytics'
 }
 
-def firebaseKey = findProperty('FIREBASE_API_KEY') ?: System.getenv('FIREBASE_API_KEY')
+def firebaseKey = ""
+def googleServicesFile = file("google-services.json")
+if (googleServicesFile.exists()) {
+    def json = new JsonSlurper().parse(googleServicesFile)
+    firebaseKey = json.client?.getAt(0)?.api_key?.getAt(0)?.current_key
+}
+if (!firebaseKey) {
+    throw new GradleException("Firebase API key missing in google-services.json")
+}
 
 android {
     namespace "gr.eduinvoice"
@@ -18,10 +28,10 @@ android {
         applicationId "gr.eduinvoice"
         minSdk 26
         targetSdk 35
-        versionCode 22
-        versionName "0.23.10"
+        versionCode 23
+        versionName "0.23.11"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField "String", "FIREBASE_API_KEY", "\"${firebaseKey ?: ''}\""
+        buildConfigField "String", "FIREBASE_API_KEY", "\"${firebaseKey}\""
     }
 
     signingConfigs {
