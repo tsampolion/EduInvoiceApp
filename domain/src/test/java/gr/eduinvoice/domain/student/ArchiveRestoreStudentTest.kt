@@ -41,7 +41,7 @@ class ArchiveRestoreStudentTest {
         val archive = SoftDeleteStudent(repository)
         val restore = RestoreStudent(repository)
         val id = insert(Student(name = "Bob", surname = "", parentMobile = "", className = "B", rate = 15.0))
-        archive(id)
+        archive(id, 0)
         val archived = db.studentDao().getArchivedStudents(0).first()
         assertEquals(1, archived.size)
         restore(id)
