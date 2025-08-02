@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ## [0.23.8] - 2025-08-19
 ### Added
 - Legacy plaintext databases are automatically converted to SQLCipher on first launch with a fallback export dialog if migration fails.
+### Fixed
+- Startup shows an error dialog guiding the user to Settings → Restore Backup when the database fails to open.
 
 ## [0.23.7] - 2025-08-18
 ### Added
@@ -144,7 +146,8 @@ All notable changes to this project will be documented in this file.
 ### Feature: Multi-User Architecture
 - Completed the foundational refactoring to enforce strict multi-user data isolation.
 - All data access and manipulation (including `softDeleteStudent` and `deleteById`) now filter by the `ownerId`.
-- The `userId` is sourced from a `CurrentUserProvider` in ViewModels and propagated through all application layers (Domain, Data, DAOs) to ensure users can only access their own data.
+- The `userId` is sourced from a `CurrentUserProvider` in ViewModels and propagated 
+through all application layers (Domain, Data, DAOs) to ensure users can only access their own data.
 - The database schema was updated to store the `owning user ID` in group-student cross-reference tables.
 
 ## [0.20] - 2025-07-24
@@ -156,7 +159,8 @@ All notable changes to this project will be documented in this file.
 ## [0.19] - 2025-07-23
 ### Feature: UI/UX Refinements
 - Improved the invoicing workflow with clearer PDF rendering logic and validation for date ranges. Users are now shown errors if PDF operations fail.
-- Redesigned multiple core screens (Welcome, Settings, Login) to align with a consistent Material 3 design, using standardized components like `AppTopBar` and `MetricCard`.
+- Redesigned multiple core screens (Welcome, Settings, Login) to align with a consistent Material 3 design,
+using standardized components like `AppTopBar` and `MetricCard`.
 - Enhanced user experience by making key screens scrollable, adding keyboard padding, and making date/time fields directly interactive.
 
 ## [0.18] - 2025-07-22
