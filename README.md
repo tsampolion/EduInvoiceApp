@@ -11,7 +11,7 @@ EduInvoice is an Android application for managing tutoring sessions and invoices
 - Monitor revenue and past invoices
 - Theme and preference settings via DataStore
 - Backup and restore your data to JSON
-- SQLCipher-encrypted database
+- SQLCipher-encrypted database with automatic migration from legacy plaintext
 - Sliding navigation drawer for quick navigation between screens
 
 ## Prerequisites
@@ -59,7 +59,7 @@ in isolation:
 
 ## Backup & Migration
 
-Use the Settings screen to export your entire database to a JSON file and restore it later. When upgrading from versions prior to 0.21.9, create a backup first and restore it after updating so the new SQLCipher encrypted database is populated.
+Use the Settings screen to export your entire database to a JSON file and restore it later. From version `0.23` onward the app automatically converts any legacy plaintext database to SQLCipher on first launch. If the migration fails, a dialog prompts you to export the original database to JSON so it can be restored after reinstalling.
 
 ## Database migrations
 
