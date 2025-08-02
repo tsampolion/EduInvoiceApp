@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.23.7] - 2025-08-18
+### Added
+- Plaintext database files are automatically migrated into the new encrypted format.
 ### Fixed
 - Replaced deprecated status bar color setter with property assignment.
 
