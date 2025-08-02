@@ -2,17 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.23.9] - 2025-08-20
+## [0.23.9] - 2025-08-02
 ### Fixed
 - Updated StudentScreenTest fake `LessonDao` to include `userId` in `deleteById`.
+- Login screen test now includes password reset use case and context dependency.
 
-## [0.23.8] - 2025-08-19
+## [0.23.8] - 2025-08-02
 ### Added
 - Legacy plaintext databases are automatically converted to SQLCipher on first launch with a fallback export dialog if migration fails.
 ### Fixed
 - Startup shows an error dialog guiding the user to Settings → Restore Backup when the database fails to open.
 
-## [0.23.7] - 2025-08-18
+## [0.23.7] - 2025-08-02
 ### Added
 - Plaintext database files are automatically migrated into the new encrypted format.
 ### Changed
@@ -21,39 +22,39 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Replaced deprecated status bar color setter with property assignment.
 
-## [0.23.6] - 2025-08-17
+## [0.23.6] - 2025-08-02
 ### Fixed
 - Settings and Profile viewmodels now derive the logged-in user from
   `CurrentUserProvider` directly.
 - Removed the obsolete `SharedUserViewModel`.
 - Database provider now opens the database immediately and recovers from corrupt files.
 
-## [0.23.5] - 2025-08-16
+## [0.23.5] - 2025-08-02
 ### Added
 - SharedUserViewModel exposes logged-in user and login status.
 - Settings and Profile screens now observe this shared state.
 
-## [0.23.4] - 2025-08-15
+## [0.23.4] - 2025-08-02
 ### Added
 - ViewModel logs student and lesson counts as they load.
 - HomeMenuScreen logs collected state and button color recomputation.
 
-## [0.23.3] - 2025-08-14
+## [0.23.3] - 2025-08-01
 ### Added
 - Toolbar now hides on the Welcome screen and a hamburger button opens the drawer.
 
-## [0.23.2] - 2025-08-13
+## [0.23.2] - 2025-08-01
 ### Changed
 - Added hamburger menu button on top-level screens to open the navigation drawer.
 
-## [0.23.1] - 2025-08-12
+## [0.23.1] - 2025-08-01
 ### Changed
 - Invoice utilities now return operation success and log failures.
 - Database initialization aborts if old DB cannot be removed.
 - PassphraseCrypto throws on encryption/decryption errors.
 - Invoice numbers sanitized before creating PDF filenames.
 
-## [0.23] - 2025-08-11
+## [0.23] - 2025-08-01
 ### Feature: Navigation Drawer
 - Introduced a sliding drawer with header and menu for quick navigation.
 - Updated MainActivity layout with toolbar and drawer integration.
@@ -61,44 +62,44 @@ All notable changes to this project will be documented in this file.
 - Added open/close string resources and vector assets.
 - Build now includes `appcompat` and `drawerlayout`.
 
-## [0.22.16] - 2025-08-10
+## [0.22.16] - 2025-08-01
 ### Build/CI
 - Added `androidx.appcompat` and `androidx.drawerlayout` dependencies.
 
-## [0.22.15] - 2025-08-09
+## [0.22.15] - 2025-08-01
 ### Added
 - MainActivity handles navigation drawer item clicks and stores the app's `NavHostController`.
 
-## [0.22.14] - 2025-08-08
+## [0.22.14] - 2025-07-31
 ### Changed
 - `TutorBillingApp` now accepts an optional `NavHostController` parameter for easier navigation testing.
 
-## [0.22.13] - 2025-08-07
+## [0.22.13] - 2025-07-31
 ### Added
 - Vector assets for bottom navigation icons.
 - Drawer open/close messages in `strings.xml` and wired up `MainActivity` to use them.
 
-## [0.22.12] - 2025-08-06
+## [0.22.12] - 2025-07-31
 ### Added
 - Main activity layout with drawer, toolbar, compose host and navigation view.
 
-## [0.22.11] - 2025-08-05
+## [0.22.11] - 2025-07-31
 ### Added
 - Navigation drawer header layout resource.
 
-## [0.22.10] - 2025-08-04
+## [0.22.10] - 2025-07-31
 ### Added
 - Navigation drawer menu resource for Home, Students, Lessons, Groups and Settings.
 
-## [0.22.9] - 2025-08-03
+## [0.22.9] - 2025-07-31
 ### Fixed
 - Login error message now uses a string resource and displays with smaller typography.
 
-## [0.22.8] - 2025-08-02
+## [0.22.8] - 2025-07-31
 ### Added
 - Prompt to enable Autofill when no service is active on login or registration screens.
 
-## [0.22.7] - 2025-08-01
+## [0.22.7] - 2025-07-31
 ### Added
 - `FormCard` composable for consistent form styling.
 ### Changed

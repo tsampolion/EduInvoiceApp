@@ -48,11 +48,12 @@ class LoginScreenTest {
             createUser = CreateUser(repo),
             authenticateUser = AuthenticateUser(repo),
             getUserProfile = GetUserProfile(repo),
-            updateUser = UpdateUser(repo)
+            updateUser = UpdateUser(repo),
+            resetPassword = ResetPassword(repo)
         )
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val prefs = UserPreferencesRepository(context)
-        viewModel = LoginViewModel(useCases, prefs)
+        viewModel = LoginViewModel(useCases, prefs, context)
     }
 
     @Test
@@ -62,7 +63,7 @@ class LoginScreenTest {
             LoginScreen(
                 onBack = {},
                 onLoggedIn = { loggedIn = true },
-                onRegister = {},
+                onResetPassword = {},
                 onSettings = {},
                 viewModel = viewModel
             )
