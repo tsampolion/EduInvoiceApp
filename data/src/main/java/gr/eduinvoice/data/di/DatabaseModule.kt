@@ -8,6 +8,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import gr.eduinvoice.data.database.DatabaseConstants
 import gr.eduinvoice.data.database.EduInvoiceDatabase
+import gr.eduinvoice.data.database.LegacyMigration
+import gr.eduinvoice.data.repository.BackupRepository
 import gr.eduinvoice.data.user.UserPreferencesRepository
 import net.sqlcipher.database.SQLiteDatabase
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +39,7 @@ object DatabaseModule {
         } catch (e: SQLiteException) {
             Log.e("DatabaseModule", "Database open failed, attempting recovery", e)
             val dbFile = context.getDatabasePath(DatabaseConstants.DATABASE_NAME)
+            val legacyJson = LegacyMigration.migrateIfNeeded(context)
             val deleted = dbFile.delete()
             if (!deleted) {
                 Log.e("DatabaseModule", "Failed to delete corrupt DB at ${dbFile.absolutePath}")
@@ -44,6 +47,10 @@ object DatabaseModule {
             }
             val db = EduInvoiceDatabase.getDatabase(context, passphrase)
             db.openHelper.writableDatabase
+            legacyJson?.let {
+                val repo = BackupRepository(db)
+                runBlocking(Dispatchers.IO) { repo.restoreFromJson(it) }
+            }
             db
         }
     }
