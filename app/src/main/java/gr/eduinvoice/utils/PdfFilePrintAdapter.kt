@@ -37,15 +37,35 @@ class PdfFilePrintAdapter(private val context: Context, private val file: File) 
         cancellationSignal: CancellationSignal,
         callback: WriteResultCallback
     ) {
+        if (cancellationSignal.isCanceled) {
+            callback.onWriteCancelled()
+            return
+        }
         try {
             FileInputStream(file).use { input ->
                 FileOutputStream(destination.fileDescriptor).use { output ->
-                    input.copyTo(output)
+                    val buffer = ByteArray(8 * 1024)
+                    var bytes: Int
+                    while (input.read(buffer).also { bytes = it } >= 0) {
+                        if (cancellationSignal.isCanceled) {
+                            callback.onWriteCancelled()
+                            return
+                        }
+                        output.write(buffer, 0, bytes)
+                    }
                 }
             }
-            callback.onWriteFinished(arrayOf(PageRange.ALL_PAGES))
+            if (cancellationSignal.isCanceled) {
+                callback.onWriteCancelled()
+            } else {
+                callback.onWriteFinished(arrayOf(PageRange.ALL_PAGES))
+            }
         } catch (e: IOException) {
-            callback.onWriteFailed("Failed to write PDF: ${e.message}")
+            if (cancellationSignal.isCanceled) {
+                callback.onWriteCancelled()
+            } else {
+                callback.onWriteFailed("Failed to write PDF: ${e.message}")
+            }
         }
     }
 }
