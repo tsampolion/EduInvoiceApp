@@ -50,10 +50,9 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
             passphrase: ByteArray
         ): EduInvoiceDatabase {
             if (passphrase.isEmpty() || passphrase.all { it == 0.toByte() }) {
-                Log.e(TAG, "Invalid database passphrase; length=${'$'}{passphrase.size}")
+                Log.e(TAG, "Invalid database passphrase")
                 throw IllegalArgumentException("Invalid database passphrase")
             }
-            Log.d(TAG, "Using passphrase length ${'$'}{passphrase.size}")
             return INSTANCE ?: synchronized(this) {
                 val factory = SupportFactory(passphrase)
                 val instance = Room.databaseBuilder(

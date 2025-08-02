@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.12] - 2025-08-02
+### Fixed
+- Passphrase generation now uses `SecureRandom` and the database no longer logs passphrase length.
+### Added
+- Tests covering passphrase generation, encryption, and decryption utilities.
+
 ## [0.23.11] - 2025-08-02
 ### Fixed
 - Recover from corrupt database files in debug builds by deleting and rebuilding once on initialization failure.
