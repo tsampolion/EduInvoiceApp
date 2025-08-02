@@ -16,6 +16,7 @@ import gr.eduinvoice.data.model.GroupStudentCrossRef
 import gr.eduinvoice.data.repository.GroupRepository
 import gr.eduinvoice.data.repository.StudentRepository
 import gr.eduinvoice.data.repository.TutorBillingRepository
+import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
@@ -60,7 +61,7 @@ class StudentScreenTest {
             override suspend fun insert(lesson: Lesson): Long = 1L
             override suspend fun update(lesson: Lesson) {}
             override suspend fun delete(lesson: Lesson) {}
-            override suspend fun deleteById(lessonId: Long) {}
+            override suspend fun deleteById(lessonId: Long, userId: Long) {}
             override fun getLessonById(lessonId: Long, userId: Long): Flow<Lesson?> = flowOf(null)
             override fun getLessonsByStudentId(studentId: Long, userId: Long): Flow<List<Lesson>> = lessonFlow.asStateFlow()
             override fun getAllLessons(userId: Long): Flow<List<Lesson>> = lessonFlow.asStateFlow()
@@ -71,10 +72,10 @@ class StudentScreenTest {
             override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean) {}
             override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean) {}
             override fun isLessonInvoiced(lessonId: Long, userId: Long): Flow<Boolean?> = flowOf(null)
-            override fun getLessonsWithStudents(userId: Long) = flowOf(emptyList<gr.eduinvoice.data.database.LessonWithStudent>())
-            override fun getLessonsWithStudentsByStudent(studentId: Long, userId: Long) = flowOf(emptyList<gr.eduinvoice.data.database.LessonWithStudent>())
-            override fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String, userId: Long) = flowOf(emptyList<gr.eduinvoice.data.database.LessonWithStudent>())
-            override fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long) = flowOf(emptyList<gr.eduinvoice.data.database.LessonWithStudent>())
+            override fun getLessonsWithStudents(userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList<LessonWithStudent>())
+            override fun getLessonsWithStudentsByStudent(studentId: Long, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList<LessonWithStudent>())
+            override fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList<LessonWithStudent>())
+            override fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList<LessonWithStudent>())
         }
         val groupDao = object : GroupDao {
             override suspend fun insertGroup(group: StudentGroup): Long = 1L

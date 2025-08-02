@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.9] - 2025-08-20
+### Fixed
+- Login screen test now includes password reset use case and context dependency.
+
 ## [0.23.8] - 2025-08-19
 ### Added
 - Legacy plaintext databases are automatically converted to SQLCipher on first launch with a fallback export dialog if migration fails.
