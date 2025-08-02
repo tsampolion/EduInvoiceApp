@@ -4,6 +4,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -251,7 +252,7 @@ class SettingsScreenFlowTest {
                     onNavigateToNewLesson = {},
                     onRevenue = {},
                     onSettings = { showSettings.value = true },
-                    onOpenDrawer = {},
+                    onOpenDrawer = { },
                     viewModel = homeVm
                 )
             }
@@ -271,7 +272,7 @@ class SettingsScreenFlowTest {
                 SettingsScreen(
                     openDrawer = { screen.value = "login" },
                     onPrivacyPolicy = {},
-                    onLogin = {},
+                    onLogin = { screen.value = "login" },
                     onRegister = {},
                     onLogout = {},
                     onSwitchAccount = {},
@@ -291,7 +292,7 @@ class SettingsScreenFlowTest {
 
         composeRule.onNodeWithContentDescription("Settings").performClick()
         composeRule.onNodeWithText("Sign In").assertExists()
-        composeRule.onNodeWithContentDescription("Back").performClick()
+        composeRule.onNodeWithText("Sign In").performClick()
         composeRule.onNodeWithText("Username").performTextInput("bob")
         composeRule.onNodeWithText("Password").performTextInput("pass")
         composeRule.onNodeWithText("Login").performClick()
