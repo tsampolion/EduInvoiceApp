@@ -7,12 +7,12 @@ import android.util.Base64
 import android.util.Log
 import java.security.GeneralSecurityException
 import java.security.KeyStore
+import java.security.SecureRandom
 import java.io.IOException
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
-import kotlin.random.Random
 
 private const val KEY_ALIAS = "db_passphrase_key"
 private const val ENC_PREFIX = "enc:"
@@ -46,7 +46,7 @@ private fun getSecretKey(): SecretKey {
 
     fun generatePassphrase(): String {
         val bytes = ByteArray(32)
-        Random.nextBytes(bytes)
+        SecureRandom().nextBytes(bytes)
         return Base64.encodeToString(bytes, Base64.NO_WRAP)
     }
 
