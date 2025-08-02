@@ -188,6 +188,7 @@ class SettingsScreenFlowTest {
                 endDate: String,
                 userId: Long
             ): Flow<List<LessonWithStudent>> = flowOf(emptyList<LessonWithStudent>())
+            override suspend fun insertGroupLessons(lessons: List<Lesson>): List<Long> = lessons.map { it.id }
         }
         val groupDao = object : GroupDao {
             override suspend fun insertGroup(group: StudentGroup) = 1L

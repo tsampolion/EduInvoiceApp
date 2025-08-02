@@ -10,6 +10,13 @@ interface LessonDao {
     @Insert
     suspend fun insert(lesson: Lesson): Long
 
+    @Transaction
+    suspend fun insertGroupLessons(lessons: List<Lesson>): List<Long> {
+        val ids = mutableListOf<Long>()
+        lessons.forEach { lesson -> ids += insert(lesson) }
+        return ids
+    }
+
     @Update
     suspend fun update(lesson: Lesson)
 

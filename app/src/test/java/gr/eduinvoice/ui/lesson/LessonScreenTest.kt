@@ -88,6 +88,11 @@ class LessonScreenTest {
         override fun getLessonsWithStudentsByStudent(studentId: Long, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
+
+        override suspend fun insertGroupLessons(lessons: List<Lesson>): List<Long> {
+            lessons.forEach { insert(it) }
+            return lessons.map { it.id }
+        }
     }
 
     private val groupDao = object : GroupDao {

@@ -79,6 +79,11 @@ class InvoiceViewModelTest {
         override fun getLessonsWithStudentsByStudent(studentId: Long, userId: Long) = flowOf(emptyList<gr.eduinvoice.data.database.LessonWithStudent>())
         override fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String, userId: Long) = flowOf(emptyList<gr.eduinvoice.data.database.LessonWithStudent>())
         override fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long) = flowOf(emptyList<gr.eduinvoice.data.database.LessonWithStudent>())
+
+        override suspend fun insertGroupLessons(lessons: List<Lesson>): List<Long> {
+            lessons.forEach { insert(it) }
+            return lessons.map { it.id }
+        }
     }
 
     private val groupDao = object : GroupDao {
