@@ -3,19 +3,24 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.23.13] - 2025-08-02
+### Added
+- Test verifying transaction rollback when a group lesson insert fails.
+- Unit tests covering print job cancellation.
 ### Changed
 - Separated financial calculations into `FinancialService` and slimmed down `TutorBillingRepository`.
 - Group lesson creation now uses a Room transaction to ensure all-or-nothing inserts.
-### Added
-- Test verifying transaction rollback when a group lesson insert fails.
+- Replaced PDF layout magic numbers with named constants.
+### Fixed
+- Invoice number validated to allow only alphanumerics.
+- Print adapter respects cancellation signals during PDF copy.
 
 ## [0.23.12] - 2025-08-02
+### Added
+- Tests covering passphrase generation, encryption, and decryption utilities.
 ### Fixed
 - Restoring students and updating lesson statuses now require matching owner IDs.
 - Password reset flow includes verification code check.
 - Passphrase generation now uses `SecureRandom` and the database no longer logs passphrase length.
-### Added
-- Tests covering passphrase generation, encryption, and decryption utilities.
 
 ## [0.23.11] - 2025-08-02
 ### Fixed

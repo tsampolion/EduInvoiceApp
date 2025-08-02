@@ -21,6 +21,22 @@ import java.io.IOException
 object PdfGenerator {
     private const val TAG = "PdfGenerator"
 
+    // Units are PostScript points (1 pt = 1/72 inch)
+    private const val PAGE_WIDTH_PT = 595 // A4 width
+    private const val PAGE_HEIGHT_PT = 842 // A4 height
+    private const val HEADER_HEIGHT_PT = 80f
+    private const val LEFT_MARGIN_PT = 40f
+    private const val CONTENT_START_Y_PT = 110
+    private const val STUDENT_COLUMN_X_PT = 180f
+    private const val AMOUNT_COLUMN_RIGHT_OFFSET_PT = 120f
+    private const val TOTAL_Y_OFFSET_PT = 25f
+    private const val LOGO_X_OFFSET_PT = 20f
+    private const val LOGO_Y_OFFSET_PT = 10f
+    private const val TUTOR_TEXT_X_PT = 100f
+    private const val TUTOR_NAME_Y_PT = 40f
+    private const val TUTOR_ADDRESS_Y_PT = 60f
+    private const val INVOICE_NUMBER_X_OFFSET_PT = 200f
+
     fun createInvoicePdf(
         context: Context,
         directory: File,
@@ -32,9 +48,15 @@ object PdfGenerator {
         tutorAddress: String = "123 Education Lane",
         currencySymbol: String = "€"
     ): Result<Uri> {
+        val sanitizedInvoice = invoiceNumber.filter { it.isLetterOrDigit() }
+        if (sanitizedInvoice.isEmpty()) {
+            Log.e(TAG, "Invalid invoice number: $invoiceNumber")
+            return Result.failure(IllegalArgumentException("Invoice number must be alphanumeric"))
+        }
+
         val pdf = PdfDocument()
-        val width = 595
-        val pageInfo = PdfDocument.PageInfo.Builder(width, 842, 1).create()
+        val width = PAGE_WIDTH_PT
+        val pageInfo = PdfDocument.PageInfo.Builder(width, PAGE_HEIGHT_PT, 1).create()
         val page = pdf.startPage(pageInfo)
         val canvas = page.canvas
 
@@ -46,7 +68,7 @@ object PdfGenerator {
             context,
             canvas,
             width,
-            invoiceNumber,
+            sanitizedInvoice,
             colorScheme,
             typography,
             infoPaint,
@@ -66,7 +88,7 @@ object PdfGenerator {
         val (y, total) = drawInvoiceRows(
             canvas,
             lessons,
-            110,
+            CONTENT_START_Y_PT,
             width,
             infoPaint,
             textPaint,
@@ -76,13 +98,13 @@ object PdfGenerator {
 
         canvas.drawText(
             "Total: $currencySymbol%.2f".format(total),
-            width - 120f,
-            (y + 25).toFloat(),
+            width - AMOUNT_COLUMN_RIGHT_OFFSET_PT,
+            (y + TOTAL_Y_OFFSET_PT).toFloat(),
             infoPaint
         )
 
         return try {
-            val uri = writePdfToFile(context, pdf, page, logo, directory, invoiceNumber)
+            val uri = writePdfToFile(context, pdf, page, logo, directory, sanitizedInvoice)
             Result.success(uri)
         } catch (e: IOException) {
             Log.e(TAG, "Failed to write invoice PDF", e)
@@ -102,18 +124,24 @@ object PdfGenerator {
         tutorAddress: String,
     ): Bitmap {
         val headerPaint = Paint().apply { color = colorScheme.primary.toArgb() }
-        canvas.drawRect(0f, 0f, width.toFloat(), 80f, headerPaint)
-        val logo = BitmapFactory.decodeResource(context.resources, gr.eduinvoice.R.drawable.tutorbilling_logo)
-        canvas.drawBitmap(logo, 20f, 10f, null)
+        canvas.drawRect(0f, 0f, width.toFloat(), HEADER_HEIGHT_PT, headerPaint)
+        val logo =
+            BitmapFactory.decodeResource(context.resources, gr.eduinvoice.R.drawable.tutorbilling_logo)
+        canvas.drawBitmap(logo, LOGO_X_OFFSET_PT, LOGO_Y_OFFSET_PT, null)
 
         val titlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = colorScheme.onPrimary.toArgb()
             textSize = typography.titleLarge.fontSize.value * 2
             typeface = Typeface.DEFAULT_BOLD
         }
-        canvas.drawText(tutorName, 100f, 40f, titlePaint)
-        canvas.drawText(tutorAddress, 100f, 60f, titlePaint)
-        canvas.drawText("Invoice #$invoiceNumber", width - 200f, 40f, infoPaint)
+        canvas.drawText(tutorName, TUTOR_TEXT_X_PT, TUTOR_NAME_Y_PT, titlePaint)
+        canvas.drawText(tutorAddress, TUTOR_TEXT_X_PT, TUTOR_ADDRESS_Y_PT, titlePaint)
+        canvas.drawText(
+            "Invoice #$invoiceNumber",
+            width - INVOICE_NUMBER_X_OFFSET_PT,
+            TUTOR_NAME_Y_PT,
+            infoPaint
+        )
         return logo
     }
 
@@ -128,23 +156,28 @@ object PdfGenerator {
         currencySymbol: String
     ): Pair<Int, Double> {
         var y = startY
-        canvas.drawText("Date", 40f, y.toFloat(), infoPaint)
-        canvas.drawText("Student", 180f, y.toFloat(), infoPaint)
-        canvas.drawText("Amount", width - 120f, y.toFloat(), infoPaint)
+        canvas.drawText("Date", LEFT_MARGIN_PT, y.toFloat(), infoPaint)
+        canvas.drawText("Student", STUDENT_COLUMN_X_PT, y.toFloat(), infoPaint)
+        canvas.drawText("Amount", width - AMOUNT_COLUMN_RIGHT_OFFSET_PT, y.toFloat(), infoPaint)
         y += 10
-        canvas.drawLine(40f, y.toFloat(), width - 40f, y.toFloat(), linePaint)
+        canvas.drawLine(LEFT_MARGIN_PT, y.toFloat(), width - LEFT_MARGIN_PT, y.toFloat(), linePaint)
         y += 20
         var total = 0.0
         lessons.forEach { item ->
-            canvas.drawText(item.lesson.date, 40f, y.toFloat(), textPaint)
-            canvas.drawText(item.student.getFullName(), 180f, y.toFloat(), textPaint)
+            canvas.drawText(item.lesson.date, LEFT_MARGIN_PT, y.toFloat(), textPaint)
+            canvas.drawText(item.student.getFullName(), STUDENT_COLUMN_X_PT, y.toFloat(), textPaint)
             val amount = item.calculateFee()
             total += amount
-            canvas.drawText("$currencySymbol%.2f".format(amount), width - 120f, y.toFloat(), textPaint)
+            canvas.drawText(
+                "$currencySymbol%.2f".format(amount),
+                width - AMOUNT_COLUMN_RIGHT_OFFSET_PT,
+                y.toFloat(),
+                textPaint
+            )
             y += 20
         }
         y += 10
-        canvas.drawLine(40f, y.toFloat(), width - 40f, y.toFloat(), linePaint)
+        canvas.drawLine(LEFT_MARGIN_PT, y.toFloat(), width - LEFT_MARGIN_PT, y.toFloat(), linePaint)
         return y to total
     }
 
