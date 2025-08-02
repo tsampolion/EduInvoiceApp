@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Logged database passphrase length and ensured SQLCipher libraries load before Room initialization.
 - Added defensive passphrase validation during database access.
+- Initialize `navController` before usage to avoid startup crash and handle toolbar visibility within `LaunchedEffect`.
 
 ## [0.23.9] - 2025-08-02
 ### Fixed
