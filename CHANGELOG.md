@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.13] - 2025-08-02
+### Fixed
+- Invoice number validated to allow only alphanumerics.
+- Print adapter respects cancellation signals during PDF copy.
+### Changed
+- Replaced PDF layout magic numbers with named constants.
+### Added
+- Unit tests covering print job cancellation.
+
 ## [0.23.12] - 2025-08-02
 ### Fixed
 - Restoring students and updating lesson statuses now require matching owner IDs.
