@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 ## [0.23.7] - 2025-08-18
 ### Added
 - Plaintext database files are automatically migrated into the new encrypted format.
+### Changed
+- Register screen now specifies `MenuAnchorType.PrimaryNotEditable` for the
+  years-of-experience dropdown.
 ### Fixed
 - Replaced deprecated status bar color setter with property assignment.
 
@@ -14,7 +17,6 @@ All notable changes to this project will be documented in this file.
   `CurrentUserProvider` directly.
 - Removed the obsolete `SharedUserViewModel`.
 - Database provider now opens the database immediately and recovers from corrupt files.
-
 
 ## [0.23.5] - 2025-08-16
 ### Added
