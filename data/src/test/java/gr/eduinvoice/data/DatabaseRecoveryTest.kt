@@ -5,6 +5,7 @@ import androidx.test.core.app.ApplicationProvider
 import gr.eduinvoice.data.database.DatabaseConstants
 import gr.eduinvoice.data.di.DatabaseModule
 import gr.eduinvoice.data.user.UserPreferencesRepository
+import gr.eduinvoice.data.user.userPrefsDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -22,7 +23,7 @@ class DatabaseRecoveryTest {
     @Before
     fun setup() {
         context = ApplicationProvider.getApplicationContext()
-        prefs = UserPreferencesRepository(context)
+        prefs = UserPreferencesRepository(context, context.userPrefsDataStore)
         runBlocking { prefs.setDbPassphrase("secret") }
     }
 

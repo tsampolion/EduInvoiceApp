@@ -12,6 +12,7 @@ import gr.eduinvoice.data.model.User
 import gr.eduinvoice.data.repository.PasswordHasher
 import gr.eduinvoice.data.repository.UserRepository
 import gr.eduinvoice.data.user.UserPreferencesRepository
+import gr.eduinvoice.data.user.userPrefsDataStore
 import gr.eduinvoice.domain.user.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -52,7 +53,7 @@ class LoginScreenTest {
             resetPassword = ResetPassword(repo)
         )
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val prefs = UserPreferencesRepository(context)
+        val prefs = UserPreferencesRepository(context, context.userPrefsDataStore)
         viewModel = LoginViewModel(useCases, prefs, context)
     }
 

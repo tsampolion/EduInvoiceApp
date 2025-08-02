@@ -20,6 +20,7 @@ import gr.eduinvoice.data.model.*
 import gr.eduinvoice.data.repository.*
 import gr.eduinvoice.data.settings.SettingsRepository
 import gr.eduinvoice.data.user.UserPreferencesRepository
+import gr.eduinvoice.data.user.userPrefsDataStore
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
 import gr.eduinvoice.domain.user.*
@@ -77,7 +78,7 @@ class SettingsScreenFlowTest {
             updateUser = UpdateUser(userRepo),
             resetPassword = ResetPassword(userRepo)
         )
-        prefs = UserPreferencesRepository(context)
+        prefs = UserPreferencesRepository(context, context.userPrefsDataStore)
         settingsRepo = SettingsRepository(context)
         val db = Room.inMemoryDatabaseBuilder(context, EduInvoiceDatabase::class.java)
             .allowMainThreadQueries()

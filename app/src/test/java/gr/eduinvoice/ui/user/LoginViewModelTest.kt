@@ -8,6 +8,7 @@ import gr.eduinvoice.data.dao.UserDao
 import gr.eduinvoice.data.model.User
 import gr.eduinvoice.data.repository.UserRepository
 import gr.eduinvoice.data.user.UserPreferencesRepository
+import gr.eduinvoice.data.user.userPrefsDataStore
 import gr.eduinvoice.domain.user.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -49,7 +50,7 @@ class LoginViewModelTest {
         resetPassword = ResetPassword(userRepo)
     )
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private val prefs = UserPreferencesRepository(context)
+    private val prefs = UserPreferencesRepository(context, context.userPrefsDataStore)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test

@@ -1,25 +1,28 @@
 package gr.eduinvoice.data.user
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
-import android.util.Log
-import gr.eduinvoice.data.user.ENCRYPTED_PREFIX
-import gr.eduinvoice.data.user.PassphraseCrypto
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private val Context.userPrefsDataStore by preferencesDataStore(name = "user_prefs")
+val Context.userPrefsDataStore by preferencesDataStore(name = "user_prefs")
 
 @Singleton
 class UserPreferencesRepository @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val dataStore: DataStore<Preferences>
 ) : CurrentUserProvider {
     private val crypto = PassphraseCrypto(context)
     private object Keys {
@@ -27,22 +30,24 @@ class UserPreferencesRepository @Inject constructor(
         val DB_PASSPHRASE = stringPreferencesKey("db_passphrase")
     }
 
-    override val loggedInUserId: Flow<Long?> = context.userPrefsDataStore.data.map { prefs ->
+    override val loggedInUserId: Flow<Long?> = dataStore.data.map { prefs ->
         prefs[Keys.LOGGED_IN_USER]
     }
 
     suspend fun getDbPassphrase(): String {
-        var stored = context.userPrefsDataStore.data.first()[Keys.DB_PASSPHRASE]
+        var stored = dataStore.data
+            .catch { e -> if (e is IOException) emit(emptyPreferences()) else throw e }
+            .first()[Keys.DB_PASSPHRASE]
         if (stored == null) {
             val pass = crypto.generatePassphrase()
             val enc = crypto.encrypt(pass)
             stored = enc
-            context.userPrefsDataStore.edit { it[Keys.DB_PASSPHRASE] = enc }
+            dataStore.edit { it[Keys.DB_PASSPHRASE] = enc }
             return pass
         }
         if (!crypto.isEncrypted(stored)) {
             val enc = crypto.encrypt(stored)
-            context.userPrefsDataStore.edit { it[Keys.DB_PASSPHRASE] = enc }
+            dataStore.edit { it[Keys.DB_PASSPHRASE] = enc }
             stored = enc
         }
         return crypto.decrypt(stored)
@@ -50,11 +55,11 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setDbPassphrase(passphrase: String) {
         val enc = crypto.encrypt(passphrase)
-        context.userPrefsDataStore.edit { it[Keys.DB_PASSPHRASE] = enc }
+        dataStore.edit { it[Keys.DB_PASSPHRASE] = enc }
     }
 
     suspend fun setLoggedInUser(id: Long?) {
-        context.userPrefsDataStore.edit {
+        dataStore.edit {
             if (id != null) it[Keys.LOGGED_IN_USER] = id else it.remove(Keys.LOGGED_IN_USER)
         }
     }

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.14] - 2025-08-02
+### Changed
+- Gracefully handle DataStore I/O errors when fetching DB passphrase.
+- Backup restoration now logs and returns failure on unexpected exceptions.
+- Updated `androidx.security:security-crypto` to 1.1.0.
+- CI runs OWASP DependencyCheck for vulnerability scanning.
+
 ## [0.23.13] - 2025-08-02
 ### Added
 - Test verifying transaction rollback when a group lesson insert fails.
