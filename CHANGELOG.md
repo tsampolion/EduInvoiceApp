@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.8] - 2025-08-19
+### Fixed
+- Startup shows an error dialog guiding the user to Settings → Restore Backup when the database fails to open.
+
 ## [0.23.7] - 2025-08-18
 ### Added
 - Plaintext database files are automatically migrated into the new encrypted format.

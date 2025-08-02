@@ -124,6 +124,8 @@
     <string name="backup_restore">Restore Backup</string>
     <string name="backup_restored">Backup restored</string>
     <string name="invalid_backup">Invalid backup file</string>
+    <string name="db_init_error_title">Database Error</string>
+    <string name="db_init_error_message">The database could not be opened. Please restore from backup via Settings → Restore Backup.</string>
     <!-- Navigation drawer -->
     <string name="home">Home</string>
     <string name="groups">Groups</string>
