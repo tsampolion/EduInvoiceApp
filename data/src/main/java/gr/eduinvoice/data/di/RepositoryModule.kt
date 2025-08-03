@@ -1,56 +1,12 @@
 package gr.eduinvoice.data.di
 
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import gr.eduinvoice.data.dao.LessonDao
-import gr.eduinvoice.data.dao.GroupDao
-import gr.eduinvoice.data.dao.StudentDao
-import gr.eduinvoice.data.dao.UserDao
-import gr.eduinvoice.data.repository.StudentRepository
-import gr.eduinvoice.data.repository.TutorBillingRepository
-import gr.eduinvoice.data.repository.GroupRepository
-import gr.eduinvoice.data.repository.UserRepository
-import gr.eduinvoice.data.repository.BackupRepository
-import gr.eduinvoice.data.service.FinancialService
-import gr.eduinvoice.data.database.EduInvoiceDatabase
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object RepositoryModule {
-    @Provides
-    @Singleton
-    fun provideStudentRepository(studentDao: StudentDao): StudentRepository =
-        StudentRepository(studentDao)
-
-    @Provides
-    @Singleton
-    fun provideGroupRepository(groupDao: GroupDao): GroupRepository =
-        GroupRepository(groupDao)
-
-    @Provides
-    @Singleton
-    fun provideUserRepository(userDao: UserDao): UserRepository =
-        UserRepository(userDao)
-
-    @Provides
-    @Singleton
-    fun provideTutorBillingRepository(
-        studentDao: StudentDao,
-        lessonDao: LessonDao,
-        groupDao: GroupDao
-    ): TutorBillingRepository = TutorBillingRepository(studentDao, lessonDao, groupDao)
-
-    @Provides
-    @Singleton
-    fun provideFinancialService(
-        studentDao: StudentDao,
-        lessonDao: LessonDao
-    ): FinancialService = FinancialService(studentDao, lessonDao)
-
-    @Provides
-    @Singleton
-    fun provideBackupRepository(db: EduInvoiceDatabase): BackupRepository = BackupRepository(db)
+    // All repositories have @Inject constructors, so they are provided automatically by Hilt
+    // No manual providers needed
 }
