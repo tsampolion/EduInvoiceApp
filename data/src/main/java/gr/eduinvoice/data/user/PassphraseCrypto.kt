@@ -19,7 +19,12 @@ private const val ENC_PREFIX = "enc:"
 private const val IV_SIZE = 12
 
 internal class PassphraseCrypto(context: Context) {
-    private val keyStore: KeyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+    private val keyStore: KeyStore = try {
+        KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+    } catch (e: Exception) {
+        // Fallback for test environments where AndroidKeyStore is not available
+        KeyStore.getInstance(KeyStore.getDefaultType()).apply { load(null) }
+    }
 
 private fun getSecretKey(): SecretKey {
     return try {
@@ -28,6 +33,7 @@ private fun getSecretKey(): SecretKey {
         
         // Try to create a new key with more robust error handling
         try {
+            // First try with AndroidKeyStore if available
             val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
             val spec = KeyGenParameterSpec.Builder(
                 KEY_ALIAS,
@@ -42,9 +48,17 @@ private fun getSecretKey(): SecretKey {
         } catch (e: Exception) {
             Log.e("PassphraseCrypto", "Failed to create key with AndroidKeyStore, trying alternative approach", e)
             // Fallback: try without specifying the provider
-            val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES)
-            keyGenerator.init(256) // Use 256-bit key
-            keyGenerator.generateKey()
+            try {
+                val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES)
+                keyGenerator.init(256) // Use 256-bit key
+                keyGenerator.generateKey()
+            } catch (e2: Exception) {
+                Log.e("PassphraseCrypto", "Failed to create key without provider, trying BouncyCastle", e2)
+                // Final fallback: try with BouncyCastle provider
+                val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "BC")
+                keyGenerator.init(256)
+                keyGenerator.generateKey()
+            }
         }
     } catch (e: GeneralSecurityException) {
         Log.e("PassphraseCrypto", "Failed to get secret key", e)

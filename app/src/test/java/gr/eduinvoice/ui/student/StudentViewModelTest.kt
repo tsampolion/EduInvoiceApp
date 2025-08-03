@@ -88,7 +88,7 @@ class StudentViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun deleteStudentClearsLoading() = runTest {
-        val student = Student(id = 1, name = "Bob", surname = "", parentMobile = "", className = "A", rate = 10.0)
+        val student = Student(id = 1, ownerId = 1L, name = "Bob", surname = "", parentMobile = "", className = "A", rate = 10.0)
         studentFlow.value = listOf(student)
         val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 1L)), userProvider)
         advanceUntilIdle()

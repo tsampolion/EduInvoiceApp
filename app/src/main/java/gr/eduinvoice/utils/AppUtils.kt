@@ -16,7 +16,7 @@ fun formatAsCurrency(amount: Double, locale: Locale = Locale.getDefault()): Stri
 
 fun Double.formatAsCurrency(symbol: String = "€", decimals: Int = 2): String {
     val safeDecimals = decimals.coerceIn(0, 2)
-    val symbols = DecimalFormatSymbols().apply { currencySymbol = symbol }
+    val symbols = DecimalFormatSymbols(Locale("el", "GR")).apply { currencySymbol = "" }
     val pattern = "#,##0.${"0".repeat(safeDecimals)}"
     val formatter = DecimalFormat(pattern, symbols).apply {
         minimumFractionDigits = safeDecimals

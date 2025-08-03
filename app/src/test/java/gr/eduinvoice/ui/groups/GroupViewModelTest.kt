@@ -27,7 +27,7 @@ import org.junit.runner.RunWith
 import gr.eduinvoice.BouncyCastleTestRunner
 
 @RunWith(BouncyCastleTestRunner::class)
-class GroupViewModelTest : gr.eduinvoice.data.TestBase() {
+class GroupViewModelTest : gr.eduinvoice.TestBase() {
 
     @get:Rule
     val dispatcherRule = MainDispatcherRule()

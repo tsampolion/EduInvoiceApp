@@ -16,13 +16,13 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 
 @RunWith(BouncyCastleTestRunner::class)
-class InvoicePdfTest {
+class InvoicePdfTest : gr.eduinvoice.TestBase() {
     @Test
     fun createInvoicePdfWritesToFile() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val dir = kotlin.io.path.createTempDirectory().toFile()
-        val lesson = Lesson(id = 1, studentId = 1, date = "2024-01-01", startTime = "10:00", durationMinutes = 60)
-        val student = Student(id = 1, name = "Bob", surname = "", parentMobile = "", className = "A", rate = 10.0)
+        val lesson = Lesson(id = 1, studentId = 1, ownerId = 1L, date = "2024-01-01", startTime = "10:00", durationMinutes = 60)
+        val student = Student(id = 1, ownerId = 1L, name = "Bob", surname = "", parentMobile = "", className = "A", rate = 10.0)
         val lessons = listOf(LessonWithStudent(lesson, student))
 
         val result = PdfGenerator.createInvoicePdf(context, dir, lessons, "001", lightColorScheme(), Typography())
@@ -38,8 +38,8 @@ class InvoicePdfTest {
     fun createInvoicePdfFailsForInvalidDir() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val invalidDir = kotlin.io.path.createTempFile().toFile()
-        val lesson = Lesson(id = 1, studentId = 1, date = "2024-01-01", startTime = "10:00", durationMinutes = 60)
-        val student = Student(id = 1, name = "Bob", surname = "", parentMobile = "", className = "A", rate = 10.0)
+        val lesson = Lesson(id = 1, studentId = 1, ownerId = 1L, date = "2024-01-01", startTime = "10:00", durationMinutes = 60)
+        val student = Student(id = 1, ownerId = 1L, name = "Bob", surname = "", parentMobile = "", className = "A", rate = 10.0)
         val lessons = listOf(LessonWithStudent(lesson, student))
 
         val result = PdfGenerator.createInvoicePdf(context, invalidDir, lessons, "002", lightColorScheme(), Typography())

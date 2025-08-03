@@ -13,7 +13,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(BouncyCastleTestRunner::class)
 @Config(sdk = [34])
-class StudentCardTest : gr.eduinvoice.data.TestBase() {
+class StudentCardTest : gr.eduinvoice.TestBase() {
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -35,7 +35,7 @@ class StudentCardTest : gr.eduinvoice.data.TestBase() {
             StudentCard(student, onStudentClick = {}, onDeleteClick = {})
         }
         composeRule.waitForIdle()
-        composeRule.onNodeWithText("€10.00/hour").assertExists()
+        composeRule.onNodeWithText("€10,00/hour").assertExists()
     }
 
     @Test
@@ -45,6 +45,6 @@ class StudentCardTest : gr.eduinvoice.data.TestBase() {
             StudentCard(student, onStudentClick = {}, onDeleteClick = {})
         }
         composeRule.waitForIdle()
-        composeRule.onNodeWithText("€10.00/lesson").assertExists()
+        composeRule.onNodeWithText("€10,00/lesson").assertExists()
     }
 }

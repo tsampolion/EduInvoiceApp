@@ -19,6 +19,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.Json
 import org.junit.After
 import org.junit.Assert.assertNotNull
@@ -30,7 +32,7 @@ import org.junit.runner.RunWith
 import gr.eduinvoice.BouncyCastleTestRunner
 
 @RunWith(BouncyCastleTestRunner::class)
-class SettingsViewModelTest : gr.eduinvoice.data.TestBase() {
+class SettingsViewModelTest : gr.eduinvoice.TestBase() {
     @get:Rule val dispatcherRule = MainDispatcherRule()
 
     private lateinit var db: EduInvoiceDatabase
@@ -45,7 +47,17 @@ class SettingsViewModelTest : gr.eduinvoice.data.TestBase() {
             .allowMainThreadQueries()
             .build()
         backupRepo = BackupRepository(db)
-        prefs = UserPreferencesRepository(context, context.userPrefsDataStore)
+        // Use a mock DataStore for tests to avoid file system issues
+        val mockDataStore = object : androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> {
+            private val prefs = MutableStateFlow(androidx.datastore.preferences.core.emptyPreferences())
+            override val data: kotlinx.coroutines.flow.Flow<androidx.datastore.preferences.core.Preferences> = prefs.asStateFlow()
+            override suspend fun updateData(transform: suspend (androidx.datastore.preferences.core.Preferences) -> androidx.datastore.preferences.core.Preferences): androidx.datastore.preferences.core.Preferences {
+                val newPrefs = transform(prefs.value)
+                prefs.value = newPrefs
+                return newPrefs
+            }
+        }
+        prefs = UserPreferencesRepository(context, mockDataStore)
         val userDao = object : UserDao {
             override suspend fun insert(user: User) = 0L
             override suspend fun update(user: User) {}
@@ -83,8 +95,8 @@ class SettingsViewModelTest : gr.eduinvoice.data.TestBase() {
     fun restoreBackupDatabaseErrorEmitsError() = runTest {
         val dump = BackupRepository.BackupDump(
             students = listOf(
-                gr.eduinvoice.data.model.Student(id = 1, name = "A", surname = "", parentMobile = "", className = "A", rate = 10.0),
-                gr.eduinvoice.data.model.Student(id = 1, name = "B", surname = "", parentMobile = "", className = "A", rate = 10.0)
+                gr.eduinvoice.data.model.Student(id = 1, ownerId = 1L, name = "A", surname = "", parentMobile = "", className = "A", rate = 10.0),
+                gr.eduinvoice.data.model.Student(id = 1, ownerId = 1L, name = "B", surname = "", parentMobile = "", className = "A", rate = 10.0)
             ),
             lessons = emptyList(),
             groups = emptyList(),

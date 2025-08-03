@@ -1,4 +1,4 @@
-package gr.eduinvoice.data
+package gr.eduinvoice
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.BeforeClass

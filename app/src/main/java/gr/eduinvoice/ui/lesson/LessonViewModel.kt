@@ -100,7 +100,8 @@ class LessonViewModel @Inject constructor(
     private fun loadLesson() {
         viewModelScope.launch(Dispatchers.IO) {
             lessonId?.takeIf { it != 0L }?.let { id ->
-                lessonUseCases.getLessonById(id).collect { lesson ->
+                val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+                lessonUseCases.getLessonById(id, userId).collect { lesson ->
                     lesson?.let { l ->
                         _uiState.update { state ->
                             state.copy(
@@ -156,7 +157,8 @@ class LessonViewModel @Inject constructor(
 
     fun updateSelectedGroup(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            groupUseCases.getGroupStudents(id).collect { students ->
+            val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+            groupUseCases.getGroupStudents(id, userId).collect { students ->
                 groupMembers[id] = students
                 _uiState.update { it.copy(selectedGroupId = id, selectedStudentId = null, isGroupLesson = true) }
             }
@@ -232,7 +234,8 @@ class LessonViewModel @Inject constructor(
                         notes = state.notes.ifBlank { null },
                         isPaid = state.isPaid
                     )
-                    lessonUseCases.addGroupLesson(state.selectedGroupId!!, lesson)
+                    val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+                    lessonUseCases.addGroupLesson(state.selectedGroupId!!, lesson, userId)
                 } else if (sId != null) {
                     if (lessonId == null || lessonId == 0L) {
                         val lesson = Lesson(

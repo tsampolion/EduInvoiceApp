@@ -35,7 +35,7 @@ import java.time.LocalDate
 
 @RunWith(BouncyCastleTestRunner::class)
 @Config(sdk = [34])
-class LessonsScreenTest {
+class LessonsScreenTest : gr.eduinvoice.TestBase() {
 
     @get:Rule
     val composeRule = createComposeRule()
@@ -64,14 +64,15 @@ class LessonsScreenTest {
 
     @Test
     fun headersDisplayedInOrder() = runTest {
-        val s1 = Student(id = 1, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
-        val s2 = Student(id = 2, name = "Bob", surname = "", parentMobile = "", className = "", rate = 10.0)
+        val s1 = Student(id = 1, ownerId = 1L, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
+        val s2 = Student(id = 2, ownerId = 1L, name = "Bob", surname = "", parentMobile = "", className = "", rate = 10.0)
         val today = LocalDate.now().toString()
         lessonFlow.value = listOf(
             LessonWithStudent(
                 Lesson(
                     id = 1,
                     studentId = 1,
+                    ownerId = 1L,
                     date = today,
                     startTime = "10:00",
                     durationMinutes = 60,
@@ -84,6 +85,7 @@ class LessonsScreenTest {
                 Lesson(
                     id = 2,
                     studentId = 2,
+                    ownerId = 1L,
                     date = today,
                     startTime = "11:00",
                     durationMinutes = 60,
@@ -106,13 +108,14 @@ class LessonsScreenTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun checkboxAndClickCallbacksWork() = runTest {
-        val s1 = Student(id = 1, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
+        val s1 = Student(id = 1, ownerId = 1L, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
         val today = LocalDate.now().toString()
         lessonFlow.value = listOf(
             LessonWithStudent(
                 Lesson(
                     id = 1,
                     studentId = 1,
+                    ownerId = 1L,
                     date = today,
                     startTime = "10:00",
                     durationMinutes = 60,

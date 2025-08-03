@@ -60,8 +60,8 @@ class LessonsViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun sortsLessonsByDateDescending() = runTest {
-        val s1 = Student(id = 1, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
-        val s2 = Student(id = 2, name = "Bob", surname = "B", parentMobile = "", className = "", rate = 10.0)
+        val s1 = Student(id = 1, ownerId = 1L, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
+        val s2 = Student(id = 2, ownerId = 1L, name = "Bob", surname = "B", parentMobile = "", className = "", rate = 10.0)
         val today = LocalDate.now().toString()
         val yesterday = LocalDate.now().minusDays(1).toString()
         lessonFlow.value = listOf(
@@ -69,6 +69,7 @@ class LessonsViewModelTest {
                 Lesson(
                     id = 1,
                     studentId = 1,
+                    ownerId = 1L,
                     date = yesterday,
                     startTime = "10:00",
                     durationMinutes = 60
@@ -79,6 +80,7 @@ class LessonsViewModelTest {
                 Lesson(
                     id = 2,
                     studentId = 2,
+                    ownerId = 1L,
                     date = today,
                     startTime = "11:00",
                     durationMinutes = 60
@@ -97,13 +99,14 @@ class LessonsViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun updatePaidShowsGenerateInvoiceForUninvoicedLesson() = runTest {
-        val student = Student(id = 1, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
+        val student = Student(id = 1, ownerId = 1L, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
         val today = LocalDate.now().toString()
         lessonFlow.value = listOf(
             LessonWithStudent(
                 Lesson(
                     id = 1,
                     studentId = 1,
+                    ownerId = 1L,
                     date = today,
                     startTime = "10:00",
                     durationMinutes = 60,
@@ -131,13 +134,14 @@ class LessonsViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun updatePaidShowsAlreadyInvoicedDialogWhenLessonInvoiced() = runTest {
-        val student = Student(id = 1, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
+        val student = Student(id = 1, ownerId = 1L, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
         val today = LocalDate.now().toString()
         lessonFlow.value = listOf(
             LessonWithStudent(
                 Lesson(
                     id = 1,
                     studentId = 1,
+                    ownerId = 1L,
                     date = today,
                     startTime = "10:00",
                     durationMinutes = 60,
@@ -216,7 +220,11 @@ class LessonsViewModelTest {
         override fun getUnpaidLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override fun getUnpaidLessonsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean, userId: Long) {
-            flow.value = flow.value.map { if (it.lesson.id in ids) it.copy(lesson = it.lesson.copy(isPaid = paid)) else it }
+            flow.value = flow.value.map { 
+                if (it.lesson.id in ids && it.lesson.ownerId == userId) 
+                    it.copy(lesson = it.lesson.copy(isPaid = paid)) 
+                else it 
+            }
         }
         override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean, userId: Long) {
             flow.value = flow.value.map { if (it.lesson.id in ids) it.copy(lesson = it.lesson.copy(isInvoiced = invoiced)) else it }
