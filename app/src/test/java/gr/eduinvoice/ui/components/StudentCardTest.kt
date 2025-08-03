@@ -13,12 +13,13 @@ import org.robolectric.annotation.Config
 
 @RunWith(BouncyCastleTestRunner::class)
 @Config(sdk = [34])
-class StudentCardTest {
+class StudentCardTest : gr.eduinvoice.data.TestBase() {
     @get:Rule
     val composeRule = createComposeRule()
 
     private fun baseStudent(rateType: String) = Student(
         id = 1,
+        ownerId = 1L,
         name = "Alice",
         surname = "",
         parentMobile = "",

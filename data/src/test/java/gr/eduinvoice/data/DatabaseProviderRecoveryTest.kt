@@ -15,7 +15,7 @@ import gr.eduinvoice.data.BouncyCastleTestRunner
 import org.junit.Assert.assertTrue
 
 @RunWith(BouncyCastleTestRunner::class)
-class DatabaseProviderRecoveryTest {
+class DatabaseProviderRecoveryTest : TestBase() {
     private lateinit var context: Context
     private lateinit var prefs: UserPreferencesRepository
 

@@ -17,7 +17,7 @@ import gr.eduinvoice.data.BouncyCastleTestRunner
 import java.io.IOException
 
 @RunWith(BouncyCastleTestRunner::class)
-class UserPreferencesRepositoryTest {
+class UserPreferencesRepositoryTest : TestBase() {
     private lateinit var repo: UserPreferencesRepository
 
     @Before

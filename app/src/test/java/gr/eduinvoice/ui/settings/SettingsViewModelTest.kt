@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 import gr.eduinvoice.BouncyCastleTestRunner
 
 @RunWith(BouncyCastleTestRunner::class)
-class SettingsViewModelTest {
+class SettingsViewModelTest : gr.eduinvoice.data.TestBase() {
     @get:Rule val dispatcherRule = MainDispatcherRule()
 
     private lateinit var db: EduInvoiceDatabase

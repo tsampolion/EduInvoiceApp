@@ -12,7 +12,7 @@ import org.junit.runner.RunWith
 import gr.eduinvoice.data.BouncyCastleTestRunner
 
 @RunWith(BouncyCastleTestRunner::class)
-class PassphraseCryptoTest {
+class PassphraseCryptoTest : TestBase() {
     private lateinit var crypto: PassphraseCrypto
 
     @Before

@@ -20,7 +20,7 @@ import org.junit.runner.RunWith
 import gr.eduinvoice.data.BouncyCastleTestRunner
 
 @RunWith(BouncyCastleTestRunner::class)
-class LegacyMigrationTest {
+class LegacyMigrationTest : TestBase() {
     private lateinit var context: Context
     private lateinit var prefs: UserPreferencesRepository
 

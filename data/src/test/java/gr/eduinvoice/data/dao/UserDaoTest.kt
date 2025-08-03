@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
 import gr.eduinvoice.data.BouncyCastleTestRunner
 
 @RunWith(BouncyCastleTestRunner::class)
-class UserDaoTest {
+class UserDaoTest : gr.eduinvoice.data.TestBase() {
     private lateinit var db: EduInvoiceDatabase
     private lateinit var dao: UserDao
 
@@ -47,9 +47,14 @@ class UserDaoTest {
         assertEquals("Bob", user?.fullName)
     }
 
-    @Test(expected = android.database.sqlite.SQLiteConstraintException::class)
+    @Test
     fun insertingDuplicateUsernameFails() = runBlocking {
         dao.insert(User(username = "bob", passwordHash = "p1", fullName = "B"))
-        dao.insert(User(username = "bob", passwordHash = "p2", fullName = "B2"))
+        try {
+            dao.insert(User(username = "bob", passwordHash = "p2", fullName = "B2"))
+            throw AssertionError("Expected SQLiteConstraintException was not thrown")
+        } catch (e: android.database.sqlite.SQLiteConstraintException) {
+            // Expected exception
+        }
     }
 }

@@ -27,7 +27,7 @@ import org.junit.runner.RunWith
 import gr.eduinvoice.BouncyCastleTestRunner
 
 @RunWith(BouncyCastleTestRunner::class)
-class GroupViewModelTest {
+class GroupViewModelTest : gr.eduinvoice.data.TestBase() {
 
     @get:Rule
     val dispatcherRule = MainDispatcherRule()
@@ -67,8 +67,9 @@ class GroupViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun toggleStudentUpdatesSelection() = runTest {
-        val s1 = Student(id = 1, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
-        val s2 = Student(id = 2, name = "Bob", surname = "", parentMobile = "", className = "", rate = 15.0)
+        val userId = 5L
+        val s1 = Student(id = 1, ownerId = userId, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
+        val s2 = Student(id = 2, ownerId = userId, name = "Bob", surname = "", parentMobile = "", className = "", rate = 15.0)
         studentFlow.value = listOf(s1, s2)
 
         val vm = GroupViewModel(groupUseCases, studentUseCases, SavedStateHandle(), userProvider)
@@ -84,8 +85,9 @@ class GroupViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun saveNewGroupInsertsGroupAndMembers() = runTest {
-        val s1 = Student(id = 1, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
-        val s2 = Student(id = 2, name = "Bob", surname = "", parentMobile = "", className = "", rate = 15.0)
+        val userId = 5L
+        val s1 = Student(id = 1, ownerId = userId, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
+        val s2 = Student(id = 2, ownerId = userId, name = "Bob", surname = "", parentMobile = "", className = "", rate = 15.0)
         studentFlow.value = listOf(s1, s2)
 
         val vm = GroupViewModel(groupUseCases, studentUseCases, SavedStateHandle(), userProvider)

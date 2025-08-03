@@ -24,7 +24,7 @@ import org.junit.runner.RunWith
 import gr.eduinvoice.BouncyCastleTestRunner
 
 @RunWith(BouncyCastleTestRunner::class)
-class LoginViewModelTest {
+class LoginViewModelTest : gr.eduinvoice.data.TestBase() {
     @get:Rule val dispatcherRule = MainDispatcherRule()
 
     private val storedUser = User(

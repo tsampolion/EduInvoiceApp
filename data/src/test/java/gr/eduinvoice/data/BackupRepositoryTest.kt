@@ -16,7 +16,7 @@ import org.junit.runner.RunWith
 import gr.eduinvoice.data.BouncyCastleTestRunner
 
 @RunWith(BouncyCastleTestRunner::class)
-class BackupRepositoryTest {
+class BackupRepositoryTest : TestBase() {
     private lateinit var db: EduInvoiceDatabase
     private lateinit var repo: BackupRepository
 
@@ -36,12 +36,13 @@ class BackupRepositoryTest {
 
     @Test
     fun exportAndRestoreRoundTrip() = runBlocking {
-        db.studentDao().insert(Student(name = "Test", surname = "", parentMobile = "", className = "A", rate = 10.0))
+        val userId = 1L
+        db.studentDao().insert(Student(ownerId = userId, name = "Test", surname = "", parentMobile = "", className = "A", rate = 10.0))
         val json = repo.exportJson()
         db.clearAllTables()
         val result = repo.restoreFromJson(json)
         assert(result.isSuccess)
-        val students = db.studentDao().getAllActiveStudents(0).first()
+        val students = db.studentDao().getAllActiveStudents(userId).first()
         assertEquals(1, students.size)
         assertEquals("Test", students.first().name)
     }
