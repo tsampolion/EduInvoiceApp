@@ -2,15 +2,17 @@ package gr.eduinvoice.ui.components
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.RateTypes
+import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.StudentWithEarnings
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import gr.eduinvoice.BouncyCastleTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(BouncyCastleTestRunner::class)
+@Config(sdk = [34])
 class StudentCardTest {
     @get:Rule
     val composeRule = createComposeRule()
@@ -31,7 +33,8 @@ class StudentCardTest {
         composeRule.setContent {
             StudentCard(student, onStudentClick = {}, onDeleteClick = {})
         }
-        composeRule.onNodeWithText("€10.0/hour").assertExists()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("€10.00/hour").assertExists()
     }
 
     @Test
@@ -40,6 +43,7 @@ class StudentCardTest {
         composeRule.setContent {
             StudentCard(student, onStudentClick = {}, onDeleteClick = {})
         }
-        composeRule.onNodeWithText("€10.0/lesson").assertExists()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("€10.00/lesson").assertExists()
     }
 }

@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.16] - 2025-08-02
+### Fixed
+- Align Compose UI tests with current layouts and formatting; add SDK 34 annotations.
+
 ## [0.23.15] - 2025-08-02
 ### Fixed
 - Register BouncyCastle provider during Robolectric tests to resolve cryptography errors.
