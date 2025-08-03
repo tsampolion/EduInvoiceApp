@@ -54,9 +54,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             drawerLayout.addDrawerListener(toggle)
             toggle.syncState()
 
-            findViewById<NavigationView>(R.id.navigation_view)
-                .setNavigationItemSelectedListener(this)
-
             findViewById<ComposeView>(R.id.compose_view).setContent {
                 navController = rememberNavController()
                 val viewModel: SettingsViewModel = hiltViewModel()
@@ -80,6 +77,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     }
                 }
             }
+
+            findViewById<NavigationView>(R.id.navigation_view)
+                .setNavigationItemSelectedListener(this)
         } catch (e: DatabaseInitException) {
             showDatabaseErrorDialog()
         }
