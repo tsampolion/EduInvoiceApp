@@ -21,9 +21,9 @@ import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import gr.eduinvoice.BouncyCastleTestRunner
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(BouncyCastleTestRunner::class)
 class RegisterViewModelTest {
     @get:Rule val dispatcherRule = MainDispatcherRule()
 

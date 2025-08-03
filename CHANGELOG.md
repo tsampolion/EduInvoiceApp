@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.15] - 2025-08-02
+### Fixed
+- Register BouncyCastle provider during Robolectric tests to resolve cryptography errors.
+### Build
+- Added BouncyCastle provider dependency for test scope.
+
 ## [0.23.14] - 2025-08-02
 ### Changed
 - Gracefully handle DataStore I/O errors when fetching DB passphrase.
