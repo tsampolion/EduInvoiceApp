@@ -17,7 +17,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import kotlin.test.assertFailsWith
 
 @RunWith(RobolectricTestRunner::class)
 class AddGroupLessonIntegrationTest {
@@ -96,7 +95,13 @@ class AddGroupLessonIntegrationTest {
         val lesson = Lesson(id = 1, ownerId = userId, studentId = 0, date = "2024-03-01", startTime = "08:00", durationMinutes = 60)
         val useCase = AddGroupLesson(repository)
 
-        assertFailsWith<Exception> { useCase(gId, lesson, userId) }
+        try {
+            useCase(gId, lesson, userId)
+            // If we reach here, the test should fail
+            throw AssertionError("Expected exception was not thrown")
+        } catch (e: Exception) {
+            // Expected exception
+        }
 
         val lessons = db.lessonDao().getAllLessons(userId).first()
         assertEquals(0, lessons.size)

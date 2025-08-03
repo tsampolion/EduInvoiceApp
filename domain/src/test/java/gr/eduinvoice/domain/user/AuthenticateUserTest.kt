@@ -14,9 +14,9 @@ import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import gr.eduinvoice.domain.BouncyCastleTestRunner
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(BouncyCastleTestRunner::class)
 class AuthenticateUserTest {
     private lateinit var db: EduInvoiceDatabase
     private lateinit var repository: UserRepository

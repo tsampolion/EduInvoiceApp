@@ -42,11 +42,12 @@ class AddLessonIntegrationTest {
 
     @Test
     fun addsLessonToDatabase() = runBlocking {
-        val studentId = db.studentDao().insert(Student(name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0))
-        val lesson = Lesson(studentId = studentId, date = "2024-01-03", startTime = "10:00", durationMinutes = 60)
+        val userId = 1L
+        val studentId = db.studentDao().insert(Student(ownerId = userId, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0))
+        val lesson = Lesson(ownerId = userId, studentId = studentId, date = "2024-01-03", startTime = "10:00", durationMinutes = 60)
         val useCase = AddLesson(repository)
-        useCase(lesson)
-        val lessons = db.lessonDao().getLessonsByStudentId(studentId, 0).first()
+        useCase(lesson, userId)
+        val lessons = db.lessonDao().getLessonsByStudentId(studentId, userId).first()
         assertEquals(1, lessons.size)
     }
 }

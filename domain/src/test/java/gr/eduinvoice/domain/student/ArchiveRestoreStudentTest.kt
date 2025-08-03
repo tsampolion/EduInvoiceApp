@@ -37,15 +37,16 @@ class ArchiveRestoreStudentTest {
 
     @Test
     fun archiveAndRestoreStudent() = runBlocking {
+        val userId = 1L
         val insert = InsertStudent(repository)
         val archive = SoftDeleteStudent(repository)
         val restore = RestoreStudent(repository)
-        val id = insert(Student(name = "Bob", surname = "", parentMobile = "", className = "B", rate = 15.0))
-        archive(id, 0)
-        val archived = db.studentDao().getArchivedStudents(0).first()
+        val id = insert(Student(ownerId = userId, name = "Bob", surname = "", parentMobile = "", className = "B", rate = 15.0))
+        archive(id, userId)
+        val archived = db.studentDao().getArchivedStudents(userId).first()
         assertEquals(1, archived.size)
-        restore(id)
-        val active = db.studentDao().getAllActiveStudents(0).first()
+        restore(id, userId)
+        val active = db.studentDao().getAllActiveStudents(userId).first()
         assertEquals(id, active.first().id)
     }
 }
