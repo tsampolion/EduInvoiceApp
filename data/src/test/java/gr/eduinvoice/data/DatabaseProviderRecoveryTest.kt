@@ -11,10 +11,10 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import gr.eduinvoice.data.BouncyCastleTestRunner
 import org.junit.Assert.assertTrue
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(BouncyCastleTestRunner::class)
 class DatabaseProviderRecoveryTest {
     private lateinit var context: Context
     private lateinit var prefs: UserPreferencesRepository

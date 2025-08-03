@@ -10,12 +10,12 @@ import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.utils.PdfGenerator
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import gr.eduinvoice.BouncyCastleTestRunner
 import java.io.File
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(BouncyCastleTestRunner::class)
 class InvoicePdfTest {
     @Test
     fun createInvoicePdfWritesToFile() {

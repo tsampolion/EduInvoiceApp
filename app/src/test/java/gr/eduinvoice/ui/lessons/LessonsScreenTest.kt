@@ -29,10 +29,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import gr.eduinvoice.BouncyCastleTestRunner
 import java.time.LocalDate
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(BouncyCastleTestRunner::class)
 class LessonsScreenTest {
 
     @get:Rule

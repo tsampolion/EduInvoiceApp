@@ -15,9 +15,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
+import gr.eduinvoice.data.BouncyCastleTestRunner
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(BouncyCastleTestRunner::class)
 class LessonDaoTest {
 
     private lateinit var db: EduInvoiceDatabase
