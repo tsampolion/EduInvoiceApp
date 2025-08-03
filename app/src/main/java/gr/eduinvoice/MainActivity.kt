@@ -29,7 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navController: NavHostController
+    private var navController: NavHostController? = null
 
     fun openDrawer() {
         drawerLayout.openDrawer(GravityCompat.START)
@@ -55,12 +55,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             toggle.syncState()
 
             findViewById<ComposeView>(R.id.compose_view).setContent {
-                navController = rememberNavController()
+                val controller = rememberNavController()
+                navController = controller
                 val viewModel: SettingsViewModel = hiltViewModel()
                 val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
                 TutorBillingTheme(darkTheme = uiState.settings.darkTheme) {
-                    LaunchedEffect(navController) {
-                        navController.addOnDestinationChangedListener { _, destination, _ ->
+                    LaunchedEffect(controller) {
+                        controller.addOnDestinationChangedListener { _, destination, _ ->
                             toolbar.visibility =
                                 if (destination.route == Screen.Welcome.route) {
                                     View.GONE
@@ -73,7 +74,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        TutorBillingApp(navController, ::openDrawer)
+                        TutorBillingApp(controller, ::openDrawer)
                     }
                 }
             }
@@ -95,12 +96,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        val controller = navController
+        if (controller == null) {
+            // Navigation controller not yet initialized, ignore the navigation
+            drawerLayout.closeDrawer(GravityCompat.START)
+            return true
+        }
+        
         when (item.itemId) {
-            R.id.nav_home -> navController.navigate(Screen.Home.route)
-            R.id.nav_students -> navController.navigate(Screen.Students.route)
-            R.id.nav_lessons -> navController.navigate(Screen.Lessons.route)
-            R.id.nav_groups -> navController.navigate(Screen.Groups.route)
-            R.id.nav_settings -> navController.navigate(Screen.Settings.route)
+            R.id.nav_home -> controller.navigate(Screen.Home.route)
+            R.id.nav_students -> controller.navigate(Screen.Students.route)
+            R.id.nav_lessons -> controller.navigate(Screen.Lessons.route)
+            R.id.nav_groups -> controller.navigate(Screen.Groups.route)
+            R.id.nav_settings -> controller.navigate(Screen.Settings.route)
             else -> return false
         }
         drawerLayout.closeDrawer(GravityCompat.START)

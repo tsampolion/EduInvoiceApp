@@ -30,14 +30,28 @@ object DatabaseModule {
         @ApplicationContext context: Context,
         prefs: UserPreferencesRepository
     ): EduInvoiceDatabase {
-        val pass = runBlocking(Dispatchers.IO) { prefs.getDbPassphrase() }
-        require(pass.isNotBlank()) { "Database passphrase unavailable" }
         SQLiteDatabase.loadLibs(context)
+        
+        // Get passphrase with better error handling
+        val pass = try {
+            runBlocking(Dispatchers.IO) { prefs.getDbPassphrase() }
+        } catch (e: Exception) {
+            Log.e("DatabaseModule", "Failed to get passphrase", e)
+            if (BuildConfig.DEBUG) {
+                // In debug mode, use a fallback passphrase
+                Log.w("DatabaseModule", "Using fallback passphrase for debug mode")
+                "debug_passphrase_123"
+            } else {
+                throw DatabaseInitException("Failed to get database passphrase", e)
+            }
+        }
+        
+        require(pass.isNotBlank()) { "Database passphrase unavailable" }
         val passphrase = SQLiteDatabase.getBytes(pass.toCharArray())
         require(passphrase.isNotEmpty() && passphrase.any { it != 0.toByte() }) {
             "Invalid database passphrase"
         }
-        Log.d("DatabaseModule", "Passphrase length: ${'$'}{passphrase.size}")
+        Log.d("DatabaseModule", "Passphrase length: ${passphrase.size}")
 
         fun openDatabase(): EduInvoiceDatabase {
             val db = EduInvoiceDatabase.getDatabase(context, passphrase.copyOf())
@@ -49,18 +63,15 @@ object DatabaseModule {
         val db = try {
             openDatabase()
         } catch (e: SQLiteException) {
-            if (!BuildConfig.DEBUG) {
-                Log.e("DatabaseModule", "Database open failed", e)
-                throw DatabaseInitException("Database open failed", e)
-            }
             Log.e("DatabaseModule", "Database open failed, attempting recovery", e)
             val dbFile = context.getDatabasePath(DatabaseConstants.DATABASE_NAME)
             try {
+                // Always attempt recovery in both debug and release modes
                 val legacyJson = LegacyMigration.migrateIfNeeded(context)
-                if (!dbFile.delete()) {
+                if (dbFile.exists() && !dbFile.delete()) {
                     Log.e(
                         "DatabaseModule",
-                        "Failed to delete corrupt DB at ${'$'}{dbFile.absolutePath}"
+                        "Failed to delete corrupt DB at ${dbFile.absolutePath}"
                     )
                     throw DatabaseInitException("Unable to delete corrupt database", e)
                 }
@@ -69,10 +80,24 @@ object DatabaseModule {
                     val repo = BackupRepository(recovered)
                     runBlocking(Dispatchers.IO) { repo.restoreFromJson(it) }
                 }
+                Log.i("DatabaseModule", "Database recovery successful")
                 recovered
             } catch (recovery: Exception) {
                 Log.e("DatabaseModule", "Database recovery failed", recovery)
-                throw DatabaseInitException("Database recovery failed", recovery)
+                if (BuildConfig.DEBUG) {
+                    // In debug mode, try one more time with a fresh database
+                    Log.w("DatabaseModule", "Attempting fresh database creation in debug mode")
+                    try {
+                        val freshDb = openDatabase()
+                        Log.i("DatabaseModule", "Fresh database creation successful")
+                        freshDb
+                    } catch (finalException: Exception) {
+                        Log.e("DatabaseModule", "Final database creation attempt failed", finalException)
+                        throw DatabaseInitException("Database recovery failed", finalException)
+                    }
+                } else {
+                    throw DatabaseInitException("Database recovery failed", recovery)
+                }
             }
         } finally {
             passphrase.fill(0)

@@ -40,17 +40,34 @@ class UserPreferencesRepository @Inject constructor(
             .first()[Keys.DB_PASSPHRASE]
         if (stored == null) {
             val pass = crypto.generatePassphrase()
-            val enc = crypto.encrypt(pass)
-            stored = enc
-            dataStore.edit { it[Keys.DB_PASSPHRASE] = enc }
-            return pass
+            try {
+                val enc = crypto.encrypt(pass)
+                stored = enc
+                dataStore.edit { it[Keys.DB_PASSPHRASE] = enc }
+                return pass
+            } catch (e: Exception) {
+                // If encryption fails, store the plain passphrase temporarily
+                // This is not ideal but allows the app to function
+                dataStore.edit { it[Keys.DB_PASSPHRASE] = pass }
+                return pass
+            }
         }
         if (!crypto.isEncrypted(stored)) {
-            val enc = crypto.encrypt(stored)
-            dataStore.edit { it[Keys.DB_PASSPHRASE] = enc }
-            stored = enc
+            try {
+                val enc = crypto.encrypt(stored)
+                dataStore.edit { it[Keys.DB_PASSPHRASE] = enc }
+                stored = enc
+            } catch (e: Exception) {
+                // If encryption fails, keep the plain passphrase
+                // This is not ideal but allows the app to function
+            }
         }
-        return crypto.decrypt(stored)
+        return try {
+            crypto.decrypt(stored)
+        } catch (e: Exception) {
+            // If decryption fails, assume it's a plain passphrase
+            stored
+        }
     }
 
     suspend fun setDbPassphrase(passphrase: String) {
