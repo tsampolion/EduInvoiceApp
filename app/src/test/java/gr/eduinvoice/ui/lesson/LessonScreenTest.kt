@@ -1,11 +1,11 @@
 package gr.eduinvoice.ui.lesson
 
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import gr.eduinvoice.MainDispatcherRule
 import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.dao.StudentDao
@@ -41,8 +41,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import gr.eduinvoice.BouncyCastleTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(BouncyCastleTestRunner::class)
+@Config(sdk = [34])
 class LessonScreenTest {
 
     @get:Rule
@@ -164,8 +166,10 @@ class LessonScreenTest {
         composeRule.setContent {
             LessonScreen(studentId = null, lessonId = 0L, onNavigateBack = {}, viewModel = vm)
         }
+        composeRule.waitForIdle()
 
         composeRule.onNode(hasText("Date") and hasClickAction()).performClick()
+        composeRule.waitForIdle()
 
         composeRule.onNode(isDialog()).assertExists()
     }
@@ -176,8 +180,10 @@ class LessonScreenTest {
         composeRule.setContent {
             LessonScreen(studentId = null, lessonId = 0L, onNavigateBack = {}, viewModel = vm)
         }
+        composeRule.waitForIdle()
 
         composeRule.onNode(hasText("Start Time") and hasClickAction()).performClick()
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithText("Select time").assertExists()
     }

@@ -1,10 +1,10 @@
 package gr.eduinvoice.ui.lessons
 
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.isToggleable
 import gr.eduinvoice.MainDispatcherRule
 import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.data.model.Lesson
@@ -30,9 +30,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import gr.eduinvoice.BouncyCastleTestRunner
+import org.robolectric.annotation.Config
 import java.time.LocalDate
 
 @RunWith(BouncyCastleTestRunner::class)
+@Config(sdk = [34])
 class LessonsScreenTest {
 
     @get:Rule
@@ -129,6 +131,7 @@ class LessonsScreenTest {
         composeRule.onNodeWithText("10:00 • 60 min").performClick()
         composeRule.waitForIdle()
         assertTrue(clicked)
+        composeRule.waitForIdle()
         composeRule.onAllNodes(isToggleable())[0].performClick()
         advanceUntilIdle()
         assertTrue(vm.uiState.value.lessons.first().lesson.isPaid)
