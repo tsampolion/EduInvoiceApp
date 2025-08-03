@@ -25,6 +25,8 @@ class BackupRepository @Inject constructor(
         val users: List<User>
     )
 
+    private val json = Json { ignoreUnknownKeys = true }
+
     suspend fun exportJson(): String {
         val readable = db.openHelper.readableDatabase
         val students = readable.query("SELECT * FROM ${DatabaseConstants.STUDENTS_TABLE}").use { cursor ->
@@ -85,17 +87,17 @@ class BackupRepository @Inject constructor(
                 ) }.toList()
         }
         val dump = BackupDump(students, lessons, groups, crossRefs, users)
-        return Json.encodeToString(BackupDump.serializer(), dump)
+        return json.encodeToString(BackupDump.serializer(), dump)
     }
 
     suspend fun restoreFromJson(json: String): Result<Unit> {
         return try {
-            val element = Json.parseToJsonElement(json).jsonObject
+            val element = this.json.parseToJsonElement(json).jsonObject
             val required = listOf("students", "lessons", "groups", "crossRefs", "users")
             if (!required.all { element.containsKey(it) }) {
                 return Result.failure(IllegalArgumentException("Backup JSON missing required fields"))
             }
-            val dump = Json.decodeFromString(BackupDump.serializer(), json)
+            val dump = this.json.decodeFromString(BackupDump.serializer(), json)
             db.withTransaction {
                 db.clearAllTables()
                 val studentDao = db.studentDao()

@@ -98,6 +98,7 @@ class GroupViewModelTest {
         advanceUntilIdle()
 
         assertEquals(1, groupFlow.value.size)
+        assertEquals(5L, groupFlow.value.first().ownerId)
         assertEquals(mapOf(1L to 5L, 2L to 5L), relations[1L])
     }
 

@@ -24,12 +24,17 @@ class LessonsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            currentUserProvider.loggedInUserId.filterNotNull().flatMapLatest { uid ->
-                lessonUseCases.getLessonsWithStudents(uid)
-            }.collect { list ->
-                val sorted = list.sortedBy { it.student.getFullName() }
-                _uiState.update { it.copy(lessons = sorted) }
-            }
+            currentUserProvider.loggedInUserId
+                .filterNotNull()
+                .flatMapLatest { uid -> lessonUseCases.getLessonsWithStudents(uid) }
+                .collect { list ->
+                    val sorted =
+                        list.sortedWith(
+                            compareByDescending<LessonWithStudent> { it.lesson.date }
+                                .thenByDescending { it.lesson.startTime }
+                        )
+                    _uiState.update { it.copy(lessons = sorted) }
+                }
         }
     }
 
