@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.18] - 2025-08-03
+### Fixed
+- Initialize `navController` before usage to avoid startup crash.
+
 ## [0.23.17] - 2025-08-02
 ### Fixed
 - Groups now store owner IDs and link selected students on save.
