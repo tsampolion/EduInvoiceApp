@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.18] - 2025-08-02
+### Fixed
+- Validate SQLCipher passphrase and rebuild database after removing corrupt file in debug builds.
+
 ## [0.23.17] - 2025-08-02
 ### Fixed
 - Groups now store owner IDs and link selected students on save.
