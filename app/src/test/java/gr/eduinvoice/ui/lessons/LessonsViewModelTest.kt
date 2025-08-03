@@ -59,34 +59,31 @@ class LessonsViewModelTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun sortsLessonsByStudentName() = runTest {
+    fun sortsLessonsByDateDescending() = runTest {
         val s1 = Student(id = 1, name = "Alice", surname = "A", parentMobile = "", className = "", rate = 10.0)
         val s2 = Student(id = 2, name = "Bob", surname = "B", parentMobile = "", className = "", rate = 10.0)
         val today = LocalDate.now().toString()
+        val yesterday = LocalDate.now().minusDays(1).toString()
         lessonFlow.value = listOf(
             LessonWithStudent(
                 Lesson(
                     id = 1,
-                    studentId = 2,
-                    date = today,
+                    studentId = 1,
+                    date = yesterday,
                     startTime = "10:00",
-                    durationMinutes = 60,
-                    notes = null,
-                    isPaid = false
+                    durationMinutes = 60
                 ),
-                s2
+                s1
             ),
             LessonWithStudent(
                 Lesson(
                     id = 2,
-                    studentId = 1,
+                    studentId = 2,
                     date = today,
                     startTime = "11:00",
-                    durationMinutes = 60,
-                    notes = null,
-                    isPaid = false
+                    durationMinutes = 60
                 ),
-                s1
+                s2
             )
         )
 
@@ -94,8 +91,7 @@ class LessonsViewModelTest {
         advanceUntilIdle()
 
         val list = vm.uiState.value.lessons
-        assertEquals(2, list.size)
-        assertEquals(listOf(s1.id, s2.id), list.map { it.student.id })
+        assertEquals(listOf(2L, 1L), list.map { it.lesson.id })
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -125,6 +121,11 @@ class LessonsViewModelTest {
         advanceUntilIdle()
 
         assertEquals(LessonDialog.GenerateInvoice(1, 1), vm.uiState.value.dialog)
+        // Paid status should not change until confirmation
+        assertEquals(false, lessonFlow.value.first().lesson.isPaid)
+        vm.applyPaidStatus(1, true)
+        advanceUntilIdle()
+        assertEquals(true, lessonFlow.value.first().lesson.isPaid)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

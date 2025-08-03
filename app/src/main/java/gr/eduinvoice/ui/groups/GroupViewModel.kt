@@ -57,11 +57,14 @@ class GroupViewModel @Inject constructor(
         viewModelScope.launch {
             val userId = currentUserProvider.loggedInUserId.first() ?: 0L
             val state = _uiState.value
-            val group = StudentGroup(id = groupId, name = state.name)
-            val id = if (groupId == 0L) groupUseCases.insertGroup(group) else {
-                groupUseCases.updateGroup(group)
-                groupId
-            }
+            val group = StudentGroup(id = groupId, ownerId = userId, name = state.name)
+            val id =
+                if (groupId == 0L) {
+                    groupUseCases.insertGroup(group)
+                } else {
+                    groupUseCases.updateGroup(group)
+                    groupId
+                }
 
             val selected = state.students.filter { it.selected }.map { it.id }.toSet()
             val toAdd = selected - originalStudents

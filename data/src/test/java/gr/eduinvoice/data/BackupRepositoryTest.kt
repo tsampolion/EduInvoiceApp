@@ -53,6 +53,13 @@ class BackupRepositoryTest {
     }
 
     @Test
+    fun restoreIgnoresUnknownFields() = runBlocking {
+        val json = """{"students":[],"lessons":[],"groups":[],"crossRefs":[],"users":[],"extra":42}"""
+        val result = repo.restoreFromJson(json)
+        assert(result.isSuccess)
+    }
+
+    @Test
     fun restoreFailsOnDatabaseError() = runBlocking {
         val json = """{"students":[],"lessons":[],"groups":[],"crossRefs":[],"users":[]}"""
         db.close()

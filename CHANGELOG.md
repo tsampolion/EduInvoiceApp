@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.17] - 2025-08-02
+### Fixed
+- Groups now store owner IDs and link selected students on save.
+- Lessons list sorts by date and defers paid status until confirmed.
+- Backup restore ignores unknown JSON fields and surfaces parse errors.
+
 ## [0.23.16] - 2025-08-02
 ### Fixed
 - Align Compose UI tests with current layouts and formatting; add SDK 34 annotations.
