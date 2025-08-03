@@ -31,15 +31,23 @@ object DatabaseModule {
         prefs: UserPreferencesRepository
     ): EduInvoiceDatabase {
         val pass = runBlocking(Dispatchers.IO) { prefs.getDbPassphrase() }
-        require(pass.isNotEmpty()) { "Database passphrase unavailable" }
+        require(pass.isNotBlank()) { "Database passphrase unavailable" }
         SQLiteDatabase.loadLibs(context)
         val passphrase = SQLiteDatabase.getBytes(pass.toCharArray())
+        require(passphrase.isNotEmpty() && passphrase.any { it != 0.toByte() }) {
+            "Invalid database passphrase"
+        }
         Log.d("DatabaseModule", "Passphrase length: ${'$'}{passphrase.size}")
-        val db = try {
+
+        fun openDatabase(): EduInvoiceDatabase {
             val db = EduInvoiceDatabase.getDatabase(context, passphrase.copyOf())
             // Force open to catch corruption immediately
             db.openHelper.writableDatabase
-            db
+            return db
+        }
+
+        val db = try {
+            openDatabase()
         } catch (e: SQLiteException) {
             if (!BuildConfig.DEBUG) {
                 Log.e("DatabaseModule", "Database open failed", e)
@@ -56,13 +64,12 @@ object DatabaseModule {
                     )
                     throw DatabaseInitException("Unable to delete corrupt database", e)
                 }
-                val db = EduInvoiceDatabase.getDatabase(context, passphrase.copyOf())
-                db.openHelper.writableDatabase
+                val recovered = openDatabase()
                 legacyJson?.let {
-                    val repo = BackupRepository(db)
+                    val repo = BackupRepository(recovered)
                     runBlocking(Dispatchers.IO) { repo.restoreFromJson(it) }
                 }
-                db
+                recovered
             } catch (recovery: Exception) {
                 Log.e("DatabaseModule", "Database recovery failed", recovery)
                 throw DatabaseInitException("Database recovery failed", recovery)
