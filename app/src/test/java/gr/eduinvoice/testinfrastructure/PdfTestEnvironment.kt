@@ -3,7 +3,7 @@ package gr.eduinvoice.testinfrastructure
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.PdfDocument
+import android.graphics.pdf.PdfDocument
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.net.Uri
