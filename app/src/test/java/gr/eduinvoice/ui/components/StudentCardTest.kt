@@ -9,11 +9,15 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import gr.eduinvoice.BouncyCastleTestRunner
+import gr.eduinvoice.MainDispatcherRule
 import org.robolectric.annotation.Config
 
 @RunWith(BouncyCastleTestRunner::class)
 @Config(sdk = [34])
 class StudentCardTest : gr.eduinvoice.TestBase() {
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+    
     @get:Rule
     val composeRule = createComposeRule()
 

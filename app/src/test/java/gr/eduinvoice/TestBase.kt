@@ -5,5 +5,14 @@ import org.junit.BeforeClass
 import java.security.Security
 
 abstract class TestBase {
-    // BouncyCastle setup is handled by BouncyCastleTestRunner
+    companion object {
+        @BeforeClass
+        @JvmStatic
+        fun setupTestEnvironment() {
+            // Ensure BouncyCastle provider is available
+            if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
+                Security.addProvider(BouncyCastleProvider())
+            }
+        }
+    }
 } 
