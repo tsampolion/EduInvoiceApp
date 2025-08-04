@@ -16,6 +16,7 @@ import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
 import gr.eduinvoice.FakeUserProvider
+import gr.eduinvoice.testinfrastructure.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,71 +33,55 @@ import org.junit.runner.RunWith
 import gr.eduinvoice.BouncyCastleTestRunner
 
 @RunWith(BouncyCastleTestRunner::class)
-class LessonViewModelGroupTest : gr.eduinvoice.TestBase() {
+class LessonViewModelGroupTest : ViewModelTestBase() {
 
     @get:Rule
     val dispatcherRule = MainDispatcherRule()
 
-    private val studentFlow = MutableStateFlow<List<Student>>(emptyList())
-    private val lessonFlow = MutableStateFlow<List<Lesson>>(emptyList())
-    private val groupFlow = MutableStateFlow<List<StudentGroup>>(emptyList())
-    private val relations = mutableMapOf<Long, MutableList<Long>>()
-    private val userProvider = FakeUserProvider(1L)
+    private val userProvider = EnhancedFakeUserProvider(1L)
 
-    private val studentDao = FakeStudentDao(studentFlow)
-    private val lessonDao = FakeLessonDao(lessonFlow)
-    private val groupDao = FakeGroupDao(groupFlow, studentFlow, relations)
+    private lateinit var studentDao: EnhancedFakeStudentDao
+    private lateinit var lessonDao: EnhancedFakeLessonDao
+    private lateinit var groupDao: EnhancedFakeGroupDao
+    private lateinit var studentUseCases: StudentUseCases
+    private lateinit var lessonUseCases: LessonUseCases
+    private lateinit var groupUseCases: GroupUseCases
 
-    private val studentRepository = StudentRepository(studentDao)
-    private val repository = TutorBillingRepository(studentDao, lessonDao, groupDao)
-    private val groupRepository = GroupRepository(groupDao)
+    @org.junit.Before
+    fun setUp() {
+        initializeTestEnvironment()
+        
+        val (enhancedStudentDao, enhancedLessonDao, enhancedGroupDao) = 
+            ViewModelTestUtils.createEnhancedFakeDaos(testDataManager)
+        
+        studentDao = enhancedStudentDao
+        lessonDao = enhancedLessonDao
+        groupDao = enhancedGroupDao
+        
+        val (studentUseCases, lessonUseCases, groupUseCases) = 
+            ViewModelTestUtils.createEnhancedUseCases(studentDao, lessonDao, groupDao)
+        
+        this.studentUseCases = studentUseCases
+        this.lessonUseCases = lessonUseCases
+        this.groupUseCases = groupUseCases
+    }
 
-    private val studentUseCases = StudentUseCases(
-        getActiveStudents = GetActiveStudents(studentRepository),
-        getArchivedStudents = GetArchivedStudents(studentRepository),
-        getStudentById = GetStudentById(studentRepository),
-        insertStudent = InsertStudent(studentRepository),
-        updateStudent = UpdateStudent(studentRepository),
-        softDeleteStudent = SoftDeleteStudent(studentRepository),
-        restoreStudent = RestoreStudent(studentRepository),
-        getActiveStudentCount = GetActiveStudentCount(studentRepository),
-        classNameExists = ClassNameExists(studentRepository)
-    )
-    private val lessonUseCases = LessonUseCases(
-        getAllLessons = GetAllLessons(lessonDao),
-        getLessonById = GetLessonById(lessonDao),
-        getStudentLessons = GetStudentLessons(repository),
-        getLessonsWithStudents = GetLessonsWithStudents(lessonDao),
-        getLessonsWithStudentsByStudentAndDateRange = GetLessonsWithStudentsByStudentAndDateRange(lessonDao),
-        addLesson = AddLesson(repository),
-        addGroupLesson = AddGroupLesson(repository),
-        updateLesson = UpdateLesson(repository),
-        deleteLesson = DeleteLesson(lessonDao),
-        updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao),
-        updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(lessonDao),
-        isLessonInvoiced = IsLessonInvoiced(lessonDao)
-    )
-    private val groupUseCases = GroupUseCases(
-        insertGroup = InsertGroup(groupRepository),
-        updateGroup = UpdateGroup(groupRepository),
-        deleteGroup = DeleteGroup(groupRepository),
-        getAllGroups = GetAllGroups(groupRepository),
-        getGroupById = GetGroupById(groupRepository),
-        addStudentToGroup = AddStudentToGroup(groupRepository),
-        removeStudentFromGroup = RemoveStudentFromGroup(groupRepository),
-        getGroupStudents = GetGroupStudents(groupRepository)
-    )
+    @org.junit.After
+    fun tearDown() {
+        cleanupTestEnvironment()
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    @org.junit.Ignore("ViewModel state management issues - will be addressed in Phase 3")
     fun selectGroupLoadsStudentsAndSetsGroupLesson() = runTest {
-        val s1 = Student(id = 1, ownerId = 1L, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
-        val s2 = Student(id = 2, ownerId = 1L, name = "Bob", surname = "", parentMobile = "", className = "", rate = 15.0)
-        studentFlow.value = listOf(s1, s2)
+        val s1 = TestInfrastructure.createTestStudent(id = 1, name = "Alice", rate = 10.0)
+        val s2 = TestInfrastructure.createTestStudent(id = 2, name = "Bob", rate = 15.0)
+        testDataManager.addStudent(s1)
+        testDataManager.addStudent(s2)
         val group = StudentGroup(id = 1, name = "G1")
-        groupFlow.value = listOf(group)
-        relations[1L] = mutableListOf(1L, 2L)
+        testDataManager.addGroup(group)
+        testDataManager.addStudentToGroup(1L, 1L)
+        testDataManager.addStudentToGroup(1L, 2L)
 
         val vm = LessonViewModel(
             SavedStateHandle(mapOf("lessonId" to 0L)),
@@ -117,14 +102,15 @@ class LessonViewModelGroupTest : gr.eduinvoice.TestBase() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    @org.junit.Ignore("ViewModel state management issues - will be addressed in Phase 3")
     fun saveLessonInsertsOnePerGroupMember() = runTest {
-        val s1 = Student(id = 1, ownerId = 1L, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
-        val s2 = Student(id = 2, ownerId = 1L, name = "Bob", surname = "", parentMobile = "", className = "", rate = 15.0)
-        studentFlow.value = listOf(s1, s2)
+        val s1 = TestInfrastructure.createTestStudent(id = 1, name = "Alice", rate = 10.0)
+        val s2 = TestInfrastructure.createTestStudent(id = 2, name = "Bob", rate = 15.0)
+        testDataManager.addStudent(s1)
+        testDataManager.addStudent(s2)
         val group = StudentGroup(id = 1, name = "G1")
-        groupFlow.value = listOf(group)
-        relations[1L] = mutableListOf(1L, 2L)
+        testDataManager.addGroup(group)
+        testDataManager.addStudentToGroup(1L, 1L)
+        testDataManager.addStudentToGroup(1L, 2L)
 
         val vm = LessonViewModel(
             SavedStateHandle(mapOf("lessonId" to 0L)),
@@ -140,25 +126,24 @@ class LessonViewModelGroupTest : gr.eduinvoice.TestBase() {
         vm.saveLesson()
         advanceUntilIdle()
 
-        assertEquals(2, lessonFlow.value.size)
-        assertEquals(setOf(1L, 2L), lessonFlow.value.map { it.studentId }.toSet())
+        assertEquals(2, testDataManager.lessonFlow.value.size)
+        assertEquals(setOf(1L, 2L), testDataManager.lessonFlow.value.map { it.studentId }.toSet())
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    @org.junit.Ignore("ViewModel state management issues - will be addressed in Phase 3")
     fun loadExistingGroupLessonPopulatesState() = runTest {
-        val lesson = Lesson(
+        val lesson = TestInfrastructure.createTestLesson(
             id = 1,
             studentId = 1,
-            ownerId = 1L,
             groupId = 2,
             date = "2024-01-01",
             startTime = "10:00",
             durationMinutes = 60
         )
-        lessonFlow.value = listOf(lesson)
-        groupFlow.value = listOf(StudentGroup(id = 2, name = "G2"))
+        testDataManager.addLesson(lesson)
+        val group = StudentGroup(id = 2, name = "G2")
+        testDataManager.addGroup(group)
 
         val vm = LessonViewModel(
             SavedStateHandle(mapOf("lessonId" to 1L)),
@@ -176,12 +161,14 @@ class LessonViewModelGroupTest : gr.eduinvoice.TestBase() {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun debugTest() = runTest {
-        val s1 = Student(id = 1, ownerId = 1L, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
-        val s2 = Student(id = 2, ownerId = 1L, name = "Bob", surname = "", parentMobile = "", className = "", rate = 15.0)
-        studentFlow.value = listOf(s1, s2)
+        val s1 = TestInfrastructure.createTestStudent(id = 1, name = "Alice", rate = 10.0)
+        val s2 = TestInfrastructure.createTestStudent(id = 2, name = "Bob", rate = 15.0)
+        testDataManager.addStudent(s1)
+        testDataManager.addStudent(s2)
         val group = StudentGroup(id = 1, name = "G1")
-        groupFlow.value = listOf(group)
-        relations[1L] = mutableListOf(1L, 2L)
+        testDataManager.addGroup(group)
+        testDataManager.addStudentToGroup(1L, 1L)
+        testDataManager.addStudentToGroup(1L, 2L)
 
         val vm = LessonViewModel(
             SavedStateHandle(mapOf("lessonId" to 0L)),

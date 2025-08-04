@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import gr.eduinvoice.MainDispatcherRule
+import gr.eduinvoice.testinfrastructure.*
 import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.data.model.Lesson
 import gr.eduinvoice.data.model.Student
@@ -35,7 +36,7 @@ import java.time.LocalDate
 
 @RunWith(BouncyCastleTestRunner::class)
 @Config(sdk = [34])
-class LessonsScreenTest : gr.eduinvoice.TestBase() {
+class LessonsScreenTest : ComposeTestBase() {
 
     @get:Rule
     val composeRule = createComposeRule()
@@ -63,10 +64,9 @@ class LessonsScreenTest : gr.eduinvoice.TestBase() {
     )
 
     @Test
-    @org.junit.Ignore("Compose UI tests require complex Robolectric setup - will be addressed in Phase 3")
     fun headersDisplayedInOrder() = runTest {
-        val s1 = Student(id = 1, ownerId = 1L, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
-        val s2 = Student(id = 2, ownerId = 1L, name = "Bob", surname = "", parentMobile = "", className = "", rate = 10.0)
+        val s1 = TestInfrastructure.createTestStudent(id = 1, name = "Alice", rate = 10.0)
+        val s2 = TestInfrastructure.createTestStudent(id = 2, name = "Bob", rate = 10.0)
         val today = LocalDate.now().toString()
         lessonFlow.value = listOf(
             LessonWithStudent(
@@ -97,10 +97,9 @@ class LessonsScreenTest : gr.eduinvoice.TestBase() {
             )
         )
         val vm = LessonsViewModel(lessonUseCases, userProvider)
-        composeRule.setContent {
+        setComposeContent {
             LessonsScreen(openDrawer = {}, onLessonClick = { _, _, _ -> }, onAddLesson = {}, onInvoice = {}, onPastInvoices = {}, viewModel = vm)
         }
-        composeRule.waitForIdle()
         val header1 = composeRule.onNodeWithTag("header_1").fetchSemanticsNode().positionInRoot.y
         val header2 = composeRule.onNodeWithTag("header_2").fetchSemanticsNode().positionInRoot.y
         assertTrue(header1 < header2)
@@ -108,9 +107,8 @@ class LessonsScreenTest : gr.eduinvoice.TestBase() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    @org.junit.Ignore("Compose UI tests require complex Robolectric setup - will be addressed in Phase 3")
     fun checkboxAndClickCallbacksWork() = runTest {
-        val s1 = Student(id = 1, ownerId = 1L, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
+        val s1 = TestInfrastructure.createTestStudent(id = 1, name = "Alice", rate = 10.0)
         val today = LocalDate.now().toString()
         lessonFlow.value = listOf(
             LessonWithStudent(
@@ -129,14 +127,13 @@ class LessonsScreenTest : gr.eduinvoice.TestBase() {
         )
         val vm = LessonsViewModel(lessonUseCases, userProvider)
         var clicked = false
-        composeRule.setContent {
+        setComposeContent {
             LessonsScreen(openDrawer = {}, onLessonClick = { _, _, _ -> clicked = true }, onAddLesson = {}, onInvoice = {}, onPastInvoices = {}, viewModel = vm)
         }
-        composeRule.waitForIdle()
         composeRule.onNodeWithText("10:00 • 60 min").performClick()
-        composeRule.waitForIdle()
+        waitForComposeIdle()
         assertTrue(clicked)
-        composeRule.waitForIdle()
+        waitForComposeIdle()
         composeRule.onAllNodes(isToggleable())[0].performClick()
         advanceUntilIdle()
         assertTrue(vm.uiState.value.lessons.first().lesson.isPaid)

@@ -7,6 +7,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import gr.eduinvoice.MainDispatcherRule
+import gr.eduinvoice.testinfrastructure.*
 import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.dao.StudentDao
 import gr.eduinvoice.data.dao.GroupDao
@@ -45,7 +46,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(BouncyCastleTestRunner::class)
 @Config(sdk = [34])
-class LessonScreenTest : gr.eduinvoice.TestBase() {
+class LessonScreenTest : ComposeTestBase() {
 
     @get:Rule
     val composeRule = createComposeRule()
@@ -161,31 +162,27 @@ class LessonScreenTest : gr.eduinvoice.TestBase() {
     }
 
     @Test
-    @org.junit.Ignore("Compose UI tests require complex Robolectric setup - will be addressed in Phase 3")
     fun dateFieldOpensDatePicker() {
         val vm = createViewModel()
-        composeRule.setContent {
+        setComposeContent {
             LessonScreen(studentId = null, lessonId = 0L, onNavigateBack = {}, viewModel = vm)
         }
-        composeRule.waitForIdle()
 
         composeRule.onNode(hasText("Date") and hasClickAction()).performClick()
-        composeRule.waitForIdle()
+        waitForComposeIdle()
 
         composeRule.onNode(isDialog()).assertExists()
     }
 
     @Test
-    @org.junit.Ignore("Compose UI tests require complex Robolectric setup - will be addressed in Phase 3")
     fun timeFieldOpensTimePicker() {
         val vm = createViewModel()
-        composeRule.setContent {
+        setComposeContent {
             LessonScreen(studentId = null, lessonId = 0L, onNavigateBack = {}, viewModel = vm)
         }
-        composeRule.waitForIdle()
 
         composeRule.onNode(hasText("Start Time") and hasClickAction()).performClick()
-        composeRule.waitForIdle()
+        waitForComposeIdle()
 
         composeRule.onNodeWithText("Select time").assertExists()
     }

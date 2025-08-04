@@ -7,6 +7,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.data.model.Lesson
 import gr.eduinvoice.data.model.Student
+import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.data.model.RateTypes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -140,10 +141,13 @@ class TestDataManager {
     private val _studentFlow = MutableStateFlow<List<Student>>(emptyList())
     private val _lessonFlow = MutableStateFlow<List<Lesson>>(emptyList())
     private val _lessonWithStudentFlow = MutableStateFlow<List<LessonWithStudent>>(emptyList())
+    private val _groupFlow = MutableStateFlow<List<StudentGroup>>(emptyList())
+    private val _groupStudentRelations = mutableMapOf<Long, MutableSet<Long>>()
     
     val studentFlow: StateFlow<List<Student>> = _studentFlow
     val lessonFlow: StateFlow<List<Lesson>> = _lessonFlow
     val lessonWithStudentFlow: StateFlow<List<LessonWithStudent>> = _lessonWithStudentFlow
+    val groupFlow: StateFlow<List<StudentGroup>> = _groupFlow
     
     /**
      * Setup test data with coordinated state management
@@ -151,11 +155,13 @@ class TestDataManager {
     fun setupTestData(
         students: List<Student> = emptyList(),
         lessons: List<Lesson> = emptyList(),
-        lessonsWithStudents: List<LessonWithStudent> = emptyList()
+        lessonsWithStudents: List<LessonWithStudent> = emptyList(),
+        groups: List<StudentGroup> = emptyList()
     ) {
         _studentFlow.value = students
         _lessonFlow.value = lessons
         _lessonWithStudentFlow.value = lessonsWithStudents
+        _groupFlow.value = groups
     }
     
     /**
@@ -200,5 +206,40 @@ class TestDataManager {
      */
     fun getLessonById(id: Long): Lesson? {
         return _lessonFlow.value.find { it.id == id }
+    }
+    
+    /**
+     * Add a group to the test data
+     */
+    fun addGroup(group: StudentGroup) {
+        _groupFlow.value = _groupFlow.value + group
+    }
+    
+    /**
+     * Add a student to a group
+     */
+    fun addStudentToGroup(groupId: Long, studentId: Long) {
+        if (!_groupStudentRelations.containsKey(groupId)) {
+            _groupStudentRelations[groupId] = mutableSetOf()
+        }
+        _groupStudentRelations[groupId]!!.add(studentId)
+    }
+    
+    /**
+     * Get students in a group
+     */
+    fun getStudentsInGroup(groupId: Long): Set<Long> {
+        return _groupStudentRelations[groupId] ?: emptySet()
+    }
+    
+    /**
+     * Clear all test data
+     */
+    fun clearTestData() {
+        _studentFlow.value = emptyList()
+        _lessonFlow.value = emptyList()
+        _lessonWithStudentFlow.value = emptyList()
+        _groupFlow.value = emptyList()
+        _groupStudentRelations.clear()
     }
 } 

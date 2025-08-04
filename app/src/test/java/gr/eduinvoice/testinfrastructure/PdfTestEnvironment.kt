@@ -1,7 +1,6 @@
 package gr.eduinvoice.testinfrastructure
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.PdfDocument
@@ -23,11 +22,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-/**
- * Enhanced PDF testing environment with proper resource management
- */
 class PdfTestEnvironment {
-    
     companion object {
         private const val PAGE_WIDTH = 595
         private const val PAGE_HEIGHT = 842
@@ -35,16 +30,10 @@ class PdfTestEnvironment {
         private const val LINE_HEIGHT = 20
         private const val FONT_SIZE = 12f
         
-        /**
-         * Create a test PDF document with proper lifecycle management
-         */
         fun createTestPdfDocument(): PdfDocument {
             return PdfDocument()
         }
         
-        /**
-         * Create a test PDF page with basic content
-         */
         fun createTestPdfPage(document: PdfDocument, content: String = "Test PDF Content"): PdfDocument.Page {
             val pageInfo = PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, 1).create()
             val page = document.startPage(pageInfo)
@@ -63,55 +52,32 @@ class PdfTestEnvironment {
                 textSize = FONT_SIZE
                 typeface = Typeface.DEFAULT
             }
-            
-            val bounds = Rect(MARGIN, MARGIN, PAGE_WIDTH - MARGIN, PAGE_HEIGHT - MARGIN)
-            val staticLayout = StaticLayout.Builder.obtain(
-                content, 0, content.length, textPaint, bounds.width()
-            ).setAlignment(Layout.Alignment.ALIGN_NORMAL)
-                .setLineSpacing(0f, 1f)
-                .setIncludePad(false)
-                .build()
-            
-            canvas.save()
-            canvas.translate(bounds.left.toFloat(), bounds.top.toFloat())
-            staticLayout.draw(canvas)
-            canvas.restore()
+            canvas.drawText(content, MARGIN.toFloat(), MARGIN.toFloat(), textPaint)
             
             return page
         }
         
-        /**
-         * Validate PDF file exists and has content
-         */
         fun validatePdfFile(file: File): Boolean {
-            return file.exists() && file.length() > 0
+            return file.exists() && file.length() > 0 && file.extension.lowercase() == "pdf"
         }
         
-        /**
-         * Get PDF file size in bytes
-         */
         fun getPdfFileSize(file: File): Long {
             return if (file.exists()) file.length() else 0L
         }
         
-        /**
-         * Create a simple test PDF file
-         */
         fun createSimpleTestPdf(directory: File, filename: String = "test.pdf"): File {
-            val document = createTestPdfDocument()
-            val file = File(directory, filename)
-            
+            val pdf = PdfDocument()
             try {
-                val page = createTestPdfPage(document, "Simple Test PDF Content")
-                document.finishPage(page)
+                val page = createTestPdfPage(pdf, "Simple Test PDF Content")
+                pdf.finishPage(page)
                 
+                val file = File(directory, filename)
                 FileOutputStream(file).use { outputStream ->
-                    document.writeTo(outputStream)
+                    pdf.writeTo(outputStream)
                 }
-                
                 return file
             } finally {
-                document.close()
+                pdf.close()
             }
         }
     }
@@ -119,64 +85,53 @@ class PdfTestEnvironment {
     private var testDirectory: File? = null
     private val createdFiles = mutableListOf<File>()
     
-    /**
-     * Initialize the test environment
-     */
     fun initialize(): File {
-        testDirectory = TestInfrastructure.createTestDirectory()
+        if (testDirectory == null) {
+            testDirectory = TestInfrastructure.createTestDirectory()
+        }
         return testDirectory!!
     }
     
-    /**
-     * Clean up test resources
-     */
     fun cleanup() {
         createdFiles.forEach { file ->
-            try {
-                if (file.exists()) {
-                    file.delete()
-                }
-            } catch (e: Exception) {
-                println("Warning: Could not delete test file: ${e.message}")
+            if (file.exists()) {
+                file.delete()
             }
         }
         createdFiles.clear()
         
         testDirectory?.let { dir ->
-            TestInfrastructure.cleanupTestResources(dir)
-            testDirectory = null
+            if (dir.exists()) {
+                TestInfrastructure.cleanupTestResources(dir)
+            }
         }
+        testDirectory = null
     }
     
-    /**
-     * Create a test PDF with invoice content
-     */
     fun createTestInvoicePdf(
         lessons: List<LessonWithStudent>,
         invoiceNumber: String = "INV-${System.currentTimeMillis()}"
     ): File {
         val directory = testDirectory ?: initialize()
-        val document = createTestPdfDocument()
-        val file = File(directory, "invoice-$invoiceNumber.pdf")
+        val pdf = PdfDocument()
         
         try {
-            val page = createInvoicePage(document, lessons, invoiceNumber)
-            document.finishPage(page)
+            val page = createInvoicePage(pdf, lessons, invoiceNumber)
+            pdf.finishPage(page)
             
+            val file = File(directory, "invoice-$invoiceNumber.pdf")
             FileOutputStream(file).use { outputStream ->
-                document.writeTo(outputStream)
+                pdf.writeTo(outputStream)
             }
             
             createdFiles.add(file)
             return file
+            
         } finally {
-            document.close()
+            pdf.close()
         }
     }
     
-    /**
-     * Create an invoice page with lesson data
-     */
     private fun createInvoicePage(
         document: PdfDocument,
         lessons: List<LessonWithStudent>,
@@ -276,9 +231,9 @@ class PdfTestEnvironment {
 /**
  * Enhanced TestPdfGenerator with proper resource management
  */
-class TestPdfGenerator : PdfGenerator {
+class TestPdfGenerator {
     
-    override fun createInvoicePdf(
+    fun createInvoicePdf(
         context: Context,
         directory: File,
         lessons: List<LessonWithStudent>,

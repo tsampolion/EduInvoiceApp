@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import gr.eduinvoice.data.model.RateTypes
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.StudentWithEarnings
+import gr.eduinvoice.testinfrastructure.*
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,43 +16,30 @@ import org.robolectric.annotation.Config
 
 @RunWith(BouncyCastleTestRunner::class)
 @Config(sdk = [34], manifest = Config.NONE)
-class StudentCardTest : gr.eduinvoice.TestBase() {
-    @get:Rule
-    val mainDispatcherRule = MainDispatcherRule()
-    
-    @get:Rule
-    val composeRule: ComposeContentTestRule = createComposeRule()
+class StudentCardTest : ComposeTestBase() {
 
-    private fun baseStudent(rateType: String) = Student(
+    private fun baseStudent(rateType: String) = TestInfrastructure.createTestStudent(
         id = 1,
-        ownerId = 1L,
         name = "Alice",
-        surname = "",
-        parentMobile = "",
-        className = "",
         rate = 10.0,
         rateType = rateType
     )
 
     @Test
-    @org.junit.Ignore("Compose UI tests require complex Robolectric setup - will be addressed in Phase 3")
     fun hourlyRateShowsCorrectLabel() {
         val student = StudentWithEarnings(baseStudent(RateTypes.HOURLY), 0.0, 0.0)
-        composeRule.setContent {
+        setComposeContent {
             StudentCard(student, onStudentClick = {}, onDeleteClick = {})
         }
-        composeRule.waitForIdle()
         composeRule.onNodeWithText("€10,00/hour").assertExists()
     }
 
     @Test
-    @org.junit.Ignore("Compose UI tests require complex Robolectric setup - will be addressed in Phase 3")
     fun perLessonRateShowsCorrectLabel() {
         val student = StudentWithEarnings(baseStudent(RateTypes.PER_LESSON), 0.0, 0.0)
-        composeRule.setContent {
+        setComposeContent {
             StudentCard(student, onStudentClick = {}, onDeleteClick = {})
         }
-        composeRule.waitForIdle()
         composeRule.onNodeWithText("€10,00/lesson").assertExists()
     }
 }
