@@ -1,7 +1,6 @@
 package gr.eduinvoice.utils
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
@@ -10,7 +9,6 @@ import android.net.Uri
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.graphics.toArgb
-import androidx.core.content.FileProvider
 import gr.eduinvoice.data.database.LessonWithStudent
 import java.io.File
 import java.io.FileOutputStream
@@ -178,16 +176,16 @@ object TestPdfGenerator {
         directory: File,
         invoiceNumber: String
     ): Uri {
-        try {
-            pdf.finishPage(page)
-            if (!directory.exists() && !directory.mkdirs()) {
-                throw IOException("Could not create directory")
-            }
-            val file = File(directory, "invoice-$invoiceNumber.pdf")
-            FileOutputStream(file).use { pdf.writeTo(it) }
-            return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-        } finally {
+        pdf.finishPage(page)
+        if (!directory.exists() && !directory.mkdirs()) {
             pdf.close()
+            throw IOException("Could not create directory")
         }
+        val file = File(directory, "invoice-$invoiceNumber.pdf")
+        FileOutputStream(file).use { pdf.writeTo(it) }
+        pdf.close()
+        
+        // For tests, return a simple file:// URI instead of using FileProvider
+        return Uri.fromFile(file)
     }
 } 
