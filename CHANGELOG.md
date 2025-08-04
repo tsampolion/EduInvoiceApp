@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.19] - 2025-08-04
+### Changed
+- Overhauled test infrastructure for clearer PDF and Compose setups.
+- Improved group data handling for more reliable relationships.
+
 ## [0.23.18] - 2025-08-03
 ### Fixed
 - Validate SQLCipher passphrase and rebuild database after removing corrupt file in debug builds.
