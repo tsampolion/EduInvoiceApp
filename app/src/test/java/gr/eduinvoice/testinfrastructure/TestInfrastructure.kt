@@ -226,6 +226,13 @@ class TestDataManager {
     }
     
     /**
+     * Get group-student relations map
+     */
+    fun getGroupStudentRelations(): MutableMap<Long, MutableSet<Long>> {
+        return _groupStudentRelations
+    }
+    
+    /**
      * Clear all test data
      */
     fun clearTestData() {

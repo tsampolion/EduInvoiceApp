@@ -349,10 +349,14 @@ object ViewModelTestUtils {
             testDataManager.lessonFlow as MutableStateFlow,
             testDataManager.lessonWithStudentFlow as MutableStateFlow
         )
+        
+        // Use the shared group-student relations map from TestDataManager
+        val groupStudentRelations = testDataManager.getGroupStudentRelations()
+        
         val groupDao = EnhancedFakeGroupDao(
-            MutableStateFlow(emptyList()),
+            testDataManager.groupFlow as MutableStateFlow,
             testDataManager.studentFlow as MutableStateFlow,
-            mutableMapOf()
+            groupStudentRelations
         )
         
         return Triple(studentDao, lessonDao, groupDao)
