@@ -2,7 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.23.19] - 2025-08-03
+## [0.23.19] - 2025-08-04
+### Changed
+- Overhauled test infrastructure for clearer PDF and Compose setups.
+- Improved group data handling for more reliable relationships.
 ### Fixed
 - Use `android.graphics.pdf.PdfDocument` in test utilities to resolve compilation errors.
 
