@@ -1,7 +1,7 @@
 # Simple script to create a PR from Cursor changes
 # This script is designed to be beginner-friendly
 
-Write-Host "🚀 Creating Pull Request from Cursor changes..." -ForegroundColor Green
+Write-Host "Creating Pull Request from Cursor changes..." -ForegroundColor Green
 
 # Ask for a simple description of what you changed
 $Description = Read-Host "What did you change? (e.g., 'Fixed login bug', 'Added new feature')"
@@ -10,7 +10,7 @@ $Description = Read-Host "What did you change? (e.g., 'Fixed login bug', 'Added 
 $Date = Get-Date -Format "MMdd"
 $BranchName = "cursor-changes-$Date"
 
-Write-Host "�� Creating branch: $BranchName" -ForegroundColor Yellow
+Write-Host "Creating branch: $BranchName" -ForegroundColor Yellow
 
 # Create and switch to new branch
 git checkout -b $BranchName
@@ -25,10 +25,10 @@ git commit -m "Cursor changes: $Description"
 git push -u origin $BranchName
 
 # Create the Pull Request
-Write-Host "🔗 Creating Pull Request..." -ForegroundColor Yellow
+Write-Host "Creating Pull Request..." -ForegroundColor Yellow
 
 gh pr create --title "Cursor Changes: $Description" --body "Changes made in Cursor IDE: $Description" --base main
 
-Write-Host "✅ Done! Your Pull Request has been created!" -ForegroundColor Green
-Write-Host "🌿 Branch: $BranchName" -ForegroundColor Cyan
-Write-Host "�� You can now review and merge your changes on GitHub" -ForegroundColor Cyan 
+Write-Host "Done! Your Pull Request has been created!" -ForegroundColor Green
+Write-Host "Branch: $BranchName" -ForegroundColor Cyan
+Write-Host "You can now review and merge your changes on GitHub" -ForegroundColor Cyan 
