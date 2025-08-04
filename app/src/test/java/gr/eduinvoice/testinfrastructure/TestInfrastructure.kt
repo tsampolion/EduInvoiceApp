@@ -65,6 +65,7 @@ abstract class TestInfrastructure {
             id: Long = 1L,
             studentId: Long = 1L,
             ownerId: Long = 1L,
+            groupId: Long? = null,
             date: String = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE),
             startTime: String = "10:00",
             durationMinutes: Int = 60,
@@ -74,6 +75,7 @@ abstract class TestInfrastructure {
             id = id,
             studentId = studentId,
             ownerId = ownerId,
+            groupId = groupId,
             date = date,
             startTime = startTime,
             durationMinutes = durationMinutes,
@@ -117,7 +119,7 @@ abstract class TestInfrastructure {
 /**
  * Enhanced test dispatcher rule for better coroutine handling
  */
-class EnhancedTestDispatcherRule(
+open class EnhancedTestDispatcherRule(
     private val dispatcher: TestDispatcher = UnconfinedTestDispatcher()
 ) : TestWatcher() {
     
@@ -183,15 +185,6 @@ class TestDataManager {
      */
     fun addLessonWithStudent(lessonWithStudent: LessonWithStudent) {
         _lessonWithStudentFlow.value = _lessonWithStudentFlow.value + lessonWithStudent
-    }
-    
-    /**
-     * Clear all test data
-     */
-    fun clearTestData() {
-        _studentFlow.value = emptyList()
-        _lessonFlow.value = emptyList()
-        _lessonWithStudentFlow.value = emptyList()
     }
     
     /**

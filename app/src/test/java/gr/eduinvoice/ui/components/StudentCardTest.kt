@@ -31,7 +31,7 @@ class StudentCardTest : ComposeTestBase() {
         setComposeContent {
             StudentCard(student, onStudentClick = {}, onDeleteClick = {})
         }
-        composeRule.onNodeWithText("€10,00/hour").assertExists()
+        composeTestRule.onNodeWithText("€10,00/hour").assertExists()
     }
 
     @Test
@@ -40,6 +40,6 @@ class StudentCardTest : ComposeTestBase() {
         setComposeContent {
             StudentCard(student, onStudentClick = {}, onDeleteClick = {})
         }
-        composeRule.onNodeWithText("€10,00/lesson").assertExists()
+        composeTestRule.onNodeWithText("€10,00/lesson").assertExists()
     }
 }

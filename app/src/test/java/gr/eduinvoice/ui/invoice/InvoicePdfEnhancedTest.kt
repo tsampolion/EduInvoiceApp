@@ -106,7 +106,8 @@ class InvoicePdfEnhancedTest : gr.eduinvoice.TestBase() {
     @Test
     fun testFeeCalculationLogic() {
         // Test fee calculation logic independently
-        val fees = PdfContentTest.testFeeCalculation()
+        val pdfContentTest = PdfContentTest()
+        val fees = pdfContentTest.testFeeCalculation()
         
         // Validate hourly rate calculations
         val hourly60min = fees["hourly_60min"]!!

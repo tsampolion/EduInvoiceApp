@@ -23,7 +23,7 @@ import org.robolectric.annotation.Config
     manifest = Config.NONE,
     application = ComposeTestApplication::class
 )
-abstract class ComposeTestEnvironment {
+open class ComposeTestEnvironment {
     
     @get:Rule
     val composeTestRule: ComposeContentTestRule = createComposeRule()
@@ -75,7 +75,7 @@ class ComposeTestApplication : Application() {
 /**
  * Base class for Compose UI tests with enhanced configuration
  */
-abstract class ComposeTestBase : ComposeTestEnvironment() {
+open class ComposeTestBase : ComposeTestEnvironment() {
     
     /**
      * Initialize test environment
