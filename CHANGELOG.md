@@ -2,7 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.24.0] - 2025-01-27
+## [0.24.1] - 2025-08-05
+### Added
+- **Database Resilience Overhaul**: Comprehensive database health monitoring, integrity validation, and recovery mechanisms.
+  - **DatabaseHealthMonitor**: Real-time health monitoring with performance metrics, maintenance operations, and integrity checks.
+  - **DatabaseIntegrityValidator**: Comprehensive data validation and repair mechanisms for orphaned records, invalid data, and constraint violations.
+  - **DatabaseFallbackManager**: Graceful degradation with read-only mode, offline mode, and automatic recovery procedures.
+  - **Enhanced BackupRepository**: Automatic backup creation before risky operations with retention policies and cleanup mechanisms.
+
+### Infrastructure
+- **Database Resilience Components**: 
+  - `DatabaseHealthMonitor.kt` - Comprehensive health monitoring and maintenance
+  - `DatabaseIntegrityValidator.kt` - Data validation and repair mechanisms
+  - `DatabaseFallbackManager.kt` - Graceful degradation and recovery management
+  - Enhanced `BackupRepository.kt` - Automatic backup with retention policies
+  - `DatabaseResilienceTest.kt` - Comprehensive test suite for resilience components
+- **Dependency Injection**: Updated `DatabaseModule.kt` with new resilience component providers
+
+## [0.24.0] - 2025-08-05
 ### Added
 - **Strategic Plan Documentation**: Comprehensive 12-week strategic plan for transforming EduInvoiceApp into a production-ready, enterprise-grade application.
   - **Phase 1: Foundation & Stability** (Weeks 1-4): Database resilience, memory optimization, error handling, network resilience, performance optimization, concurrent operation safety, and testing infrastructure.

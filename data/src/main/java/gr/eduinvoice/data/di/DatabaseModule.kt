@@ -13,8 +13,11 @@ import gr.eduinvoice.data.database.DatabaseConstants
 import gr.eduinvoice.data.database.DatabaseInitException
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.database.LegacyMigration
+import gr.eduinvoice.data.fallback.DatabaseFallbackManager
+import gr.eduinvoice.data.monitoring.DatabaseHealthMonitor
 import gr.eduinvoice.data.repository.BackupRepository
 import gr.eduinvoice.data.user.UserPreferencesRepository
+import gr.eduinvoice.data.validation.DatabaseIntegrityValidator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.sqlcipher.database.SQLiteDatabase
@@ -77,7 +80,7 @@ object DatabaseModule {
                 }
                 val recovered = openDatabase()
                 legacyJson?.let {
-                    val repo = BackupRepository(recovered)
+                    val repo = BackupRepository(context, recovered)
                     runBlocking(Dispatchers.IO) { repo.restoreFromJson(it) }
                 }
                 Log.i("DatabaseModule", "Database recovery successful")
@@ -106,4 +109,32 @@ object DatabaseModule {
     }
 
     // DatabaseModule only provides the Room database instance.
+    
+    @Provides
+    @Singleton
+    fun provideDatabaseHealthMonitor(
+        @ApplicationContext context: Context,
+        database: EduInvoiceDatabase
+    ): DatabaseHealthMonitor {
+        return DatabaseHealthMonitor(context, database)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideDatabaseIntegrityValidator(
+        database: EduInvoiceDatabase
+    ): DatabaseIntegrityValidator {
+        return DatabaseIntegrityValidator(database)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideDatabaseFallbackManager(
+        @ApplicationContext context: Context,
+        database: EduInvoiceDatabase,
+        healthMonitor: DatabaseHealthMonitor,
+        integrityValidator: DatabaseIntegrityValidator
+    ): DatabaseFallbackManager {
+        return DatabaseFallbackManager(context, database, healthMonitor, integrityValidator)
+    }
 }

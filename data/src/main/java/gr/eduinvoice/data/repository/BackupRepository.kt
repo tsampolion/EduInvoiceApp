@@ -1,21 +1,35 @@
 package gr.eduinvoice.data.repository
 
+import android.content.Context
 import android.database.Cursor
 import android.util.Log
 import androidx.room.withTransaction
 import gr.eduinvoice.data.database.DatabaseConstants
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.model.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class BackupRepository @Inject constructor(
+    private val context: Context,
     private val db: EduInvoiceDatabase
 ) {
+    
+    companion object {
+        private const val TAG = "BackupRepository"
+        private const val BACKUP_DIR = "backups"
+        private const val MAX_BACKUP_FILES = 10
+        private const val BACKUP_RETENTION_DAYS = 30
+    }
     @Serializable
     data class BackupDump(
         val students: List<Student>,
@@ -116,4 +130,175 @@ class BackupRepository @Inject constructor(
             Result.failure(e)
         }
     }
+    
+    /**
+     * Create automatic backup before risky operations
+     */
+    suspend fun createAutomaticBackup(): BackupResult {
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.i(TAG, "Creating automatic backup")
+                
+                // Create backup directory if it doesn't exist
+                val backupDir = File(context.filesDir, BACKUP_DIR)
+                if (!backupDir.exists()) {
+                    backupDir.mkdirs()
+                }
+                
+                // Generate backup filename with timestamp
+                val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+                val backupFileName = "auto_backup_$timestamp.json"
+                val backupFile = File(backupDir, backupFileName)
+                
+                // Export data to JSON
+                val jsonData = exportJson()
+                
+                // Write to file
+                backupFile.writeText(jsonData)
+                
+                // Clean up old backups
+                cleanupOldBackups(backupDir)
+                
+                Log.i(TAG, "Automatic backup created successfully: ${backupFile.absolutePath}")
+                BackupResult.Success(backupFile.absolutePath)
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to create automatic backup", e)
+                BackupResult.Failure("Failed to create automatic backup: ${e.message}")
+            }
+        }
+    }
+    
+    /**
+     * Restore from automatic backup
+     */
+    suspend fun restoreFromAutomaticBackup(): RestoreResult {
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.i(TAG, "Attempting to restore from automatic backup")
+                
+                val backupDir = File(context.filesDir, BACKUP_DIR)
+                if (!backupDir.exists()) {
+                    return@withContext RestoreResult.Failure("No backup directory found")
+                }
+                
+                // Find the most recent backup file
+                val backupFiles = backupDir.listFiles { file ->
+                    file.name.startsWith("auto_backup_") && file.name.endsWith(".json")
+                }?.sortedByDescending { it.lastModified() }
+                
+                if (backupFiles.isNullOrEmpty()) {
+                    return@withContext RestoreResult.Failure("No automatic backup files found")
+                }
+                
+                val latestBackup = backupFiles.first()
+                Log.i(TAG, "Restoring from backup: ${latestBackup.name}")
+                
+                // Read backup file
+                val jsonData = latestBackup.readText()
+                
+                // Restore data
+                val restoreResult = restoreFromJson(jsonData)
+                if (restoreResult.isSuccess) {
+                    Log.i(TAG, "Automatic backup restore completed successfully")
+                    RestoreResult.Success("Restored from ${latestBackup.name}")
+                } else {
+                    Log.e(TAG, "Automatic backup restore failed")
+                    RestoreResult.Failure("Restore failed: ${restoreResult.exceptionOrNull()?.message}")
+                }
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to restore from automatic backup", e)
+                RestoreResult.Failure("Failed to restore from automatic backup: ${e.message}")
+            }
+        }
+    }
+    
+    /**
+     * Get list of available backups
+     */
+    fun getAvailableBackups(): List<BackupInfo> {
+        return try {
+            val backupDir = File(context.filesDir, BACKUP_DIR)
+            if (!backupDir.exists()) {
+                return emptyList()
+            }
+            
+            backupDir.listFiles { file ->
+                file.name.endsWith(".json")
+            }?.map { file ->
+                BackupInfo(
+                    name = file.name,
+                    size = file.length(),
+                    lastModified = file.lastModified(),
+                    path = file.absolutePath
+                )
+            }?.sortedByDescending { it.lastModified } ?: emptyList()
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to get available backups", e)
+            emptyList()
+        }
+    }
+    
+    /**
+     * Clean up old backup files
+     */
+    private fun cleanupOldBackups(backupDir: File) {
+        try {
+            val backupFiles = backupDir.listFiles { file ->
+                file.name.endsWith(".json")
+            }?.sortedByDescending { it.lastModified() }
+            
+            if (backupFiles != null) {
+                // Remove files exceeding maximum count
+                if (backupFiles.size > MAX_BACKUP_FILES) {
+                    val filesToDelete = backupFiles.drop(MAX_BACKUP_FILES)
+                    filesToDelete.forEach { file ->
+                        if (file.delete()) {
+                            Log.i(TAG, "Deleted old backup file: ${file.name}")
+                        }
+                    }
+                }
+                
+                // Remove files older than retention period
+                val cutoffTime = System.currentTimeMillis() - (BACKUP_RETENTION_DAYS * 24 * 60 * 60 * 1000L)
+                backupFiles.forEach { file ->
+                    if (file.lastModified() < cutoffTime) {
+                        if (file.delete()) {
+                            Log.i(TAG, "Deleted expired backup file: ${file.name}")
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to cleanup old backups", e)
+        }
+    }
+    
+    /**
+     * Backup operation results
+     */
+    sealed class BackupResult {
+        data class Success(val filePath: String) : BackupResult()
+        data class Failure(val message: String) : BackupResult()
+    }
+    
+    /**
+     * Restore operation results
+     */
+    sealed class RestoreResult {
+        data class Success(val message: String) : RestoreResult()
+        data class Failure(val message: String) : RestoreResult()
+    }
+    
+    /**
+     * Backup file information
+     */
+    data class BackupInfo(
+        val name: String,
+        val size: Long,
+        val lastModified: Long,
+        val path: String
+    )
 }

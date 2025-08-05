@@ -26,7 +26,7 @@ object LegacyMigration {
                 .fallbackToDestructiveMigration(false)
                 .addMigrations(MIGRATION_12_13)
                 .build()
-            val repo = BackupRepository(db)
+            val repo = BackupRepository(context, db)
             val json = runBlocking(Dispatchers.IO) { repo.exportJson() }
             db.close()
             json
