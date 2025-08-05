@@ -133,4 +133,31 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="autofill_setup_message">Enable Autofill in settings to save and fill passwords automatically.</string>
+
+    <!-- Error handling strings -->
+    <string name="error_something_went_wrong">Something went wrong</string>
+    <string name="error_try_again_later">Please try again later</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="retry">Retry</string>
+    <string name="report">Report</string>
+    <string name="hide_details">Hide Details</string>
+    <string name="show_details">Show Details</string>
+    <string name="error_occurred">Error Occurred</string>
+    <string name="error_network_timeout">Network Timeout</string>
+    <string name="error_no_connection">No Connection</string>
+    <string name="error_network_error">Network Error</string>
+    <string name="error_io_error">File Operation Error</string>
+    <string name="error_permission_denied">Permission Denied</string>
+    <string name="error_validation_failed">Validation Failed</string>
+    <string name="error_invalid_state">Invalid State</string>
+    <string name="error_memory_error">Memory Error</string>
+    <string name="error_unknown">Unknown Error</string>
+    <string name="suggestion_check_network">Please check your internet connection</string>
+    <string name="suggestion_check_permissions">Please check app permissions</string>
+    <string name="suggestion_check_input">Please check your input</string>
+    <string name="suggestion_restart_app">Please restart the app</string>
+    <string name="suggestion_clear_memory">Please close other apps and try again</string>
+    <string name="error_no_connection_message">Unable to connect to the server. Please check your internet connection and try again.</string>
+    <string name="error_network_timeout_message">The connection timed out. Please check your internet connection and try again.</string>
+    <string name="check_settings">Check Settings</string>
 </resources>
