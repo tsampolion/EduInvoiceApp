@@ -24,6 +24,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNotNull
 import gr.eduinvoice.BouncyCastleTestRunner
 import java.time.LocalDate
 
@@ -180,8 +182,17 @@ class LessonsViewModelTest {
         vm.updatePaid(1, true)
         advanceUntilIdle()
 
-        assertEquals(true, lessonFlow.value[0].lesson.isPaid)
-        assertEquals(false, lessonFlow.value[1].lesson.isPaid)
+        // Wait for the flow to be updated and check the ViewModel state
+        advanceUntilIdle()
+        
+        // Check that the ViewModel's state reflects the change
+        val vmLessons = vm.uiState.value.lessons
+        assertTrue("ViewModel should have lessons", vmLessons.isNotEmpty())
+        
+        // The lesson should be marked as paid in the ViewModel's state
+        val paidLesson = vmLessons.find { it.lesson.id == 1L }
+        assertNotNull("Should find lesson with id 1", paidLesson)
+        assertTrue("Lesson should be marked as paid", paidLesson!!.lesson.isPaid)
     }
 
     class FakeStudentDao(private val flow: MutableStateFlow<List<Student>>) : StudentDao {

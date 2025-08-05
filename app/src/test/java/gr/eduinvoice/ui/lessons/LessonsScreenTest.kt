@@ -35,7 +35,7 @@ import org.robolectric.annotation.Config
 import java.time.LocalDate
 
 @RunWith(BouncyCastleTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [34], manifest = Config.NONE)
 class LessonsScreenTest : ComposeTestBase() {
 
     @get:Rule

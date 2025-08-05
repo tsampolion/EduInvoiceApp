@@ -101,15 +101,10 @@ class LessonViewModelGroupTest : ViewModelTestBase() {
         )
         
         advanceUntilIdle()
-        println("=== Initial VM State ===")
-        println("UI State: ${vm.uiState.value}")
         
         // Test group selection
         vm.updateSelectedGroup(1)
         advanceUntilIdle()
-        
-        println("=== After updateSelectedGroup ===")
-        println("UI State: ${vm.uiState.value}")
         
         // Verify the state
         assertEquals(1L, vm.uiState.value.selectedGroupId)
@@ -159,10 +154,6 @@ class LessonViewModelGroupTest : ViewModelTestBase() {
         testDataManager.addStudentToGroup(1L, 1L)
         testDataManager.addStudentToGroup(1L, 2L)
 
-        println("Debug: Students in testDataManager: ${testDataManager.studentFlow.value}")
-        println("Debug: Groups in testDataManager: ${testDataManager.groupFlow.value}")
-        println("Debug: Group-student relations: ${testDataManager.getGroupStudentRelations()}")
-
         val vm = LessonViewModel(
             SavedStateHandle(mapOf("lessonId" to 0L)),
             lessonUseCases,
@@ -172,12 +163,8 @@ class LessonViewModelGroupTest : ViewModelTestBase() {
         )
         advanceUntilIdle()
 
-        println("Debug: Initial VM state: ${vm.uiState.value}")
-
         vm.updateSelectedGroup(1)
         advanceUntilIdle()
-
-        println("Debug: After updateSelectedGroup VM state: ${vm.uiState.value}")
 
         assertEquals(1L, vm.uiState.value.selectedGroupId)
         assertEquals(true, vm.uiState.value.isGroupLesson)

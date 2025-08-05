@@ -158,15 +158,9 @@ class LessonViewModel @Inject constructor(
     fun updateSelectedGroup(id: Long) {
         viewModelScope.launch {
             val userId = currentUserProvider.loggedInUserId.first() ?: 0L
-            println("Debug: updateSelectedGroup called with id=$id, userId=$userId")
             groupUseCases.getGroupStudents(id, userId).collect { students ->
-                println("Debug: getGroupStudents returned ${students.size} students: ${students.map { it.id }}")
                 groupMembers[id] = students
-                _uiState.update { 
-                    val newState = it.copy(selectedGroupId = id, selectedStudentId = null, isGroupLesson = true)
-                    println("Debug: Updated UI state: selectedGroupId=${newState.selectedGroupId}, isGroupLesson=${newState.isGroupLesson}")
-                    newState
-                }
+                _uiState.update { it.copy(selectedGroupId = id, selectedStudentId = null, isGroupLesson = true) }
             }
         }
     }

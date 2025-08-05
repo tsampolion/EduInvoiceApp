@@ -313,9 +313,7 @@ class EnhancedFakeGroupDao(
     override fun getStudentsForGroup(groupId: Long, userId: Long): Flow<List<Student>> = 
         studentFlow.map { students ->
             val studentIds = groupStudentRelations[groupId] ?: emptySet()
-            val filtered = students.filter { it.id in studentIds && it.ownerId == userId }
-            println("Debug: EnhancedFakeGroupDao.getStudentsForGroup: groupId=$groupId, userId=$userId, availableStudents=${students.map { it.id }}, groupStudentRelations=$groupStudentRelations, studentIds=$studentIds, filtered=${filtered.map { it.id }}")
-            filtered
+            students.filter { it.id in studentIds && it.ownerId == userId }
         }
 }
 

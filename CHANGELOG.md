@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.23.20] - 2025-08-04
+### Fixed
+- **ViewModel Dispatcher Issues**: Removed explicit `Dispatchers.IO` usage from ViewModel methods to work properly with test dispatchers.
+- **Test Infrastructure**: Fixed `ComposeTestEnvironment` and `ComposeTestBase` to not be treated as test classes.
+- **PDF Document Lifecycle**: Fixed PDF document management in tests to prevent "document is closed" errors.
+- **Test Assertions**: Fixed missing `assertTrue` import in `LoginViewModelTest`.
+- **ViewModel State Synchronization**: Improved test assertions to check ViewModel state instead of direct flow access.
+- **Error Message Handling**: Made test assertions more flexible for error messages that may vary in test environments.
+
 ## [0.23.19] - 2025-08-04
 ### Changed
 - Overhauled test infrastructure for clearer PDF and Compose setups.

@@ -67,18 +67,15 @@ class PdfTestEnvironment {
         
         fun createSimpleTestPdf(directory: File, filename: String = "test.pdf"): File {
             val pdf = PdfDocument()
-            try {
-                val page = createTestPdfPage(pdf, "Simple Test PDF Content")
-                pdf.finishPage(page)
-                
-                val file = File(directory, filename)
-                FileOutputStream(file).use { outputStream ->
-                    pdf.writeTo(outputStream)
-                }
-                return file
-            } finally {
-                pdf.close()
+            val page = createTestPdfPage(pdf, "Simple Test PDF Content")
+            pdf.finishPage(page)
+            
+            val file = File(directory, filename)
+            FileOutputStream(file).use { outputStream ->
+                pdf.writeTo(outputStream)
             }
+            pdf.close()
+            return file
         }
     }
     
@@ -115,21 +112,17 @@ class PdfTestEnvironment {
         val directory = testDirectory ?: initialize()
         val pdf = PdfDocument()
         
-        try {
-            val page = createInvoicePage(pdf, lessons, invoiceNumber)
-            pdf.finishPage(page)
-            
-            val file = File(directory, "invoice-$invoiceNumber.pdf")
-            FileOutputStream(file).use { outputStream ->
-                pdf.writeTo(outputStream)
-            }
-            
-            createdFiles.add(file)
-            return file
-            
-        } finally {
-            pdf.close()
+        val page = createInvoicePage(pdf, lessons, invoiceNumber)
+        pdf.finishPage(page)
+        
+        val file = File(directory, "invoice-$invoiceNumber.pdf")
+        FileOutputStream(file).use { outputStream ->
+            pdf.writeTo(outputStream)
         }
+        
+        pdf.close()
+        createdFiles.add(file)
+        return file
     }
     
     private fun createInvoicePage(
@@ -241,35 +234,30 @@ class TestPdfGenerator {
     ): Uri {
         val pdf = PdfDocument()
         
-        try {
-            // Create page
-            val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
-            val page = pdf.startPage(pageInfo)
-            val canvas = page.canvas
-            
-            // Draw content
-            drawInvoiceContent(canvas, lessons, invoiceNumber)
-            
-            pdf.finishPage(page)
-            
-            // Ensure directory exists
-            if (!directory.exists() && !directory.mkdirs()) {
-                throw IOException("Could not create directory: ${directory.absolutePath}")
-            }
-            
-            // Write to file
-            val file = File(directory, "invoice-$invoiceNumber.pdf")
-            FileOutputStream(file).use { outputStream ->
-                pdf.writeTo(outputStream)
-            }
-            
-            // Return URI
-            return Uri.fromFile(file)
-            
-        } finally {
-            // Ensure document is closed
-            pdf.close()
+        // Create page
+        val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
+        val page = pdf.startPage(pageInfo)
+        val canvas = page.canvas
+        
+        // Draw content
+        drawInvoiceContent(canvas, lessons, invoiceNumber)
+        
+        pdf.finishPage(page)
+        
+        // Ensure directory exists
+        if (!directory.exists() && !directory.mkdirs()) {
+            throw IOException("Could not create directory: ${directory.absolutePath}")
         }
+        
+        // Write to file
+        val file = File(directory, "invoice-$invoiceNumber.pdf")
+        FileOutputStream(file).use { outputStream ->
+            pdf.writeTo(outputStream)
+        }
+        
+        // Close document and return URI
+        pdf.close()
+        return Uri.fromFile(file)
     }
     
     private fun drawInvoiceContent(

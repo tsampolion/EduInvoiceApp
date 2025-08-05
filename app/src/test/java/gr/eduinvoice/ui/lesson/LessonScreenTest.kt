@@ -45,7 +45,7 @@ import gr.eduinvoice.BouncyCastleTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(BouncyCastleTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [34], manifest = Config.NONE)
 class LessonScreenTest : ComposeTestBase() {
 
     @get:Rule

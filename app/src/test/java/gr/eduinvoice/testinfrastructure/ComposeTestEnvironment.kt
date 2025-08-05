@@ -17,12 +17,6 @@ import org.robolectric.annotation.Config
 /**
  * Enhanced Compose test environment with proper Robolectric configuration
  */
-@RunWith(BouncyCastleTestRunner::class)
-@Config(
-    sdk = [34],
-    manifest = Config.NONE,
-    application = ComposeTestApplication::class
-)
 open class ComposeTestEnvironment {
     
     @get:Rule
