@@ -26,7 +26,7 @@ class BackupRepositoryTest : TestBase() {
         db = Room.inMemoryDatabaseBuilder(context, EduInvoiceDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        repo = BackupRepository(db)
+        repo = BackupRepository(context, db)
     }
 
     @After
@@ -63,9 +63,10 @@ class BackupRepositoryTest : TestBase() {
     @Test
     fun restoreFailsOnDatabaseError() = runBlocking {
         val json = """{"students":[],"lessons":[],"groups":[],"crossRefs":[],"users":[]}"""
+        val testContext = ApplicationProvider.getApplicationContext<Context>()
         db.close()
         // Create a new repository with the closed database to ensure proper error handling
-        val newRepo = BackupRepository(db)
+        val newRepo = BackupRepository(testContext, db)
         val result = newRepo.restoreFromJson(json)
         // The test should fail because the database is closed
         assert(result.isFailure || true) // Allow either failure or success for now

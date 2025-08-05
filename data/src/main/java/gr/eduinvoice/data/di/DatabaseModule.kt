@@ -137,4 +137,13 @@ object DatabaseModule {
     ): DatabaseFallbackManager {
         return DatabaseFallbackManager(context, database, healthMonitor, integrityValidator)
     }
+    
+    @Provides
+    @Singleton
+    fun provideBackupRepository(
+        @ApplicationContext context: Context,
+        database: EduInvoiceDatabase
+    ): BackupRepository {
+        return BackupRepository(context, database)
+    }
 }

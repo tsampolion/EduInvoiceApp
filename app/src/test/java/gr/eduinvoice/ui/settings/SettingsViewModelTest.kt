@@ -47,7 +47,7 @@ class SettingsViewModelTest : gr.eduinvoice.TestBase() {
         db = Room.inMemoryDatabaseBuilder(context, EduInvoiceDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        backupRepo = BackupRepository(db)
+        backupRepo = BackupRepository(context, db)
         // Use a mock DataStore for tests to avoid file system issues
         val mockDataStore = object : androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> {
             private val prefs = MutableStateFlow(androidx.datastore.preferences.core.emptyPreferences())

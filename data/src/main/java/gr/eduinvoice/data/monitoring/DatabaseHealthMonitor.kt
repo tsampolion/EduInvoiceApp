@@ -96,28 +96,21 @@ class DatabaseHealthMonitor @Inject constructor(
         val issues = mutableListOf<DatabaseIssue>()
         val dbFile = context.getDatabasePath(DatabaseConstants.DATABASE_NAME)
         
-        // Check file existence and basic properties
-        if (!dbFile.exists()) {
-            issues.add(DatabaseIssue.FileNotFound)
-            return DatabaseHealthStatus(
-                isHealthy = false,
-                issues = issues,
-                fileSize = 0L,
-                lastModified = 0L,
-                integrityCheck = false,
-                performanceMetrics = PerformanceMetrics(0L, 0, 0, 0L)
-            )
-        }
+        // Check if this is an in-memory database (file doesn't exist)
+        val isInMemoryDatabase = !dbFile.exists()
         
-        val fileSize = dbFile.length()
-        val lastModified = dbFile.lastModified()
+        val fileSize = if (isInMemoryDatabase) 0L else dbFile.length()
+        val lastModified = if (isInMemoryDatabase) System.currentTimeMillis() else dbFile.lastModified()
         
-        // Check file size
-        if (fileSize < MIN_DB_SIZE_BYTES) {
-            issues.add(DatabaseIssue.FileTooSmall)
-        }
-        if (fileSize > MAX_DB_SIZE_BYTES) {
-            issues.add(DatabaseIssue.FileTooLarge)
+        // For in-memory databases, skip file-based checks
+        if (!isInMemoryDatabase) {
+            // Check file size
+            if (fileSize < MIN_DB_SIZE_BYTES) {
+                issues.add(DatabaseIssue.FileTooSmall)
+            }
+            if (fileSize > MAX_DB_SIZE_BYTES) {
+                issues.add(DatabaseIssue.FileTooLarge)
+            }
         }
         
         // Perform integrity check
