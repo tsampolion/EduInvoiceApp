@@ -73,15 +73,95 @@ class LessonViewModelGroupTest : ViewModelTestBase() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
+    fun testGroupSelectionIsolated() = runTest {
+        // Setup minimal test data
+        val s1 = TestInfrastructure.createTestStudent(id = 1, name = "Alice", rate = 10.0)
+        val s2 = TestInfrastructure.createTestStudent(id = 2, name = "Bob", rate = 15.0)
+        testDataManager.addStudent(s1)
+        testDataManager.addStudent(s2)
+        
+        val group = StudentGroup(id = 1, ownerId = 1L, name = "G1")
+        testDataManager.addGroup(group)
+        
+        // Add students to group
+        testDataManager.addStudentToGroup(1L, 1L)
+        testDataManager.addStudentToGroup(1L, 2L)
+        
+        println("=== Test Setup Complete ===")
+        println("Students: ${testDataManager.studentFlow.value.map { "${it.id}:${it.name}" }}")
+        println("Groups: ${testDataManager.groupFlow.value.map { "${it.id}:${it.name}" }}")
+        println("Group relations: ${testDataManager.getGroupStudentRelations()}")
+        
+        val vm = LessonViewModel(
+            SavedStateHandle(mapOf("lessonId" to 0L)),
+            lessonUseCases,
+            studentUseCases,
+            groupUseCases,
+            userProvider
+        )
+        
+        advanceUntilIdle()
+        println("=== Initial VM State ===")
+        println("UI State: ${vm.uiState.value}")
+        
+        // Test group selection
+        vm.updateSelectedGroup(1)
+        advanceUntilIdle()
+        
+        println("=== After updateSelectedGroup ===")
+        println("UI State: ${vm.uiState.value}")
+        
+        // Verify the state
+        assertEquals(1L, vm.uiState.value.selectedGroupId)
+        assertEquals(true, vm.uiState.value.isGroupLesson)
+        assertEquals(null, vm.uiState.value.selectedStudentId)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testBasicStateUpdates() = runTest {
+        val vm = LessonViewModel(
+            SavedStateHandle(mapOf("lessonId" to 0L)),
+            lessonUseCases,
+            studentUseCases,
+            groupUseCases,
+            userProvider
+        )
+        advanceUntilIdle()
+
+        // Test basic state updates that don't involve database operations
+        vm.updateDate("01-01-2024")
+        vm.updateStartTime("10:00")
+        vm.updateDuration("60")
+        vm.updateNotes("Test notes")
+        vm.updatePaid(true)
+        vm.toggleGroupLesson(true)
+
+        advanceUntilIdle()
+
+        assertEquals("01-01-2024", vm.uiState.value.date)
+        assertEquals("10:00", vm.uiState.value.startTime)
+        assertEquals("60", vm.uiState.value.durationMinutes)
+        assertEquals("Test notes", vm.uiState.value.notes)
+        assertEquals(true, vm.uiState.value.isPaid)
+        assertEquals(true, vm.uiState.value.isGroupLesson)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
     fun selectGroupLoadsStudentsAndSetsGroupLesson() = runTest {
         val s1 = TestInfrastructure.createTestStudent(id = 1, name = "Alice", rate = 10.0)
         val s2 = TestInfrastructure.createTestStudent(id = 2, name = "Bob", rate = 15.0)
         testDataManager.addStudent(s1)
         testDataManager.addStudent(s2)
-        val group = StudentGroup(id = 1, name = "G1")
+        val group = StudentGroup(id = 1, ownerId = 1L, name = "G1")
         testDataManager.addGroup(group)
         testDataManager.addStudentToGroup(1L, 1L)
         testDataManager.addStudentToGroup(1L, 2L)
+
+        println("Debug: Students in testDataManager: ${testDataManager.studentFlow.value}")
+        println("Debug: Groups in testDataManager: ${testDataManager.groupFlow.value}")
+        println("Debug: Group-student relations: ${testDataManager.getGroupStudentRelations()}")
 
         val vm = LessonViewModel(
             SavedStateHandle(mapOf("lessonId" to 0L)),
@@ -92,8 +172,12 @@ class LessonViewModelGroupTest : ViewModelTestBase() {
         )
         advanceUntilIdle()
 
+        println("Debug: Initial VM state: ${vm.uiState.value}")
+
         vm.updateSelectedGroup(1)
         advanceUntilIdle()
+
+        println("Debug: After updateSelectedGroup VM state: ${vm.uiState.value}")
 
         assertEquals(1L, vm.uiState.value.selectedGroupId)
         assertEquals(true, vm.uiState.value.isGroupLesson)
@@ -107,7 +191,7 @@ class LessonViewModelGroupTest : ViewModelTestBase() {
         val s2 = TestInfrastructure.createTestStudent(id = 2, name = "Bob", rate = 15.0)
         testDataManager.addStudent(s1)
         testDataManager.addStudent(s2)
-        val group = StudentGroup(id = 1, name = "G1")
+        val group = StudentGroup(id = 1, ownerId = 1L, name = "G1")
         testDataManager.addGroup(group)
         testDataManager.addStudentToGroup(1L, 1L)
         testDataManager.addStudentToGroup(1L, 2L)
@@ -142,7 +226,7 @@ class LessonViewModelGroupTest : ViewModelTestBase() {
             durationMinutes = 60
         )
         testDataManager.addLesson(lesson)
-        val group = StudentGroup(id = 2, name = "G2")
+        val group = StudentGroup(id = 2, ownerId = 1L, name = "G2")
         testDataManager.addGroup(group)
 
         val vm = LessonViewModel(
@@ -165,7 +249,7 @@ class LessonViewModelGroupTest : ViewModelTestBase() {
         val s2 = TestInfrastructure.createTestStudent(id = 2, name = "Bob", rate = 15.0)
         testDataManager.addStudent(s1)
         testDataManager.addStudent(s2)
-        val group = StudentGroup(id = 1, name = "G1")
+        val group = StudentGroup(id = 1, ownerId = 1L, name = "G1")
         testDataManager.addGroup(group)
         testDataManager.addStudentToGroup(1L, 1L)
         testDataManager.addStudentToGroup(1L, 2L)

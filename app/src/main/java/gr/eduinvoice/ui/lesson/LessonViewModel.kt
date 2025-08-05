@@ -72,7 +72,7 @@ class LessonViewModel @Inject constructor(
     }
 
     private fun loadStudentInfo() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             studentUseCases.getActiveStudents().collect { list ->
                 val selectedId = studentId?.takeIf { it != 0L } ?: _uiState.value.selectedStudentId
                 val selectedStudent = list.firstOrNull { it.id == selectedId }
@@ -90,7 +90,7 @@ class LessonViewModel @Inject constructor(
     }
 
     private fun loadGroups() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             groupUseCases.getAllGroups().collect { groups ->
                 _uiState.update { it.copy(availableGroups = groups) }
             }
@@ -98,7 +98,7 @@ class LessonViewModel @Inject constructor(
     }
 
     private fun loadLesson() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             lessonId?.takeIf { it != 0L }?.let { id ->
                 val userId = currentUserProvider.loggedInUserId.first() ?: 0L
                 lessonUseCases.getLessonById(id, userId).collect { lesson ->
@@ -137,7 +137,7 @@ class LessonViewModel @Inject constructor(
     }
 
     fun updateSelectedStudent(id: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             studentUseCases.getStudentById(id).collect { student ->
                 student?.let { s ->
                     _uiState.update {
@@ -156,11 +156,17 @@ class LessonViewModel @Inject constructor(
     }
 
     fun updateSelectedGroup(id: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+            println("Debug: updateSelectedGroup called with id=$id, userId=$userId")
             groupUseCases.getGroupStudents(id, userId).collect { students ->
+                println("Debug: getGroupStudents returned ${students.size} students: ${students.map { it.id }}")
                 groupMembers[id] = students
-                _uiState.update { it.copy(selectedGroupId = id, selectedStudentId = null, isGroupLesson = true) }
+                _uiState.update { 
+                    val newState = it.copy(selectedGroupId = id, selectedStudentId = null, isGroupLesson = true)
+                    println("Debug: Updated UI state: selectedGroupId=${newState.selectedGroupId}, isGroupLesson=${newState.isGroupLesson}")
+                    newState
+                }
             }
         }
     }
@@ -210,7 +216,7 @@ class LessonViewModel @Inject constructor(
     }
 
     fun saveLesson() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val state = _uiState.value
             var duration = state.durationMinutes.toIntOrNull() ?: 0
             if (state.rateType == RateTypes.PER_LESSON) {
@@ -280,7 +286,7 @@ class LessonViewModel @Inject constructor(
     }
 
     fun deleteLesson() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             lessonId?.takeIf { it != 0L }?.let { id ->
                 val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
                 lessonUseCases.deleteLesson(id, uid)

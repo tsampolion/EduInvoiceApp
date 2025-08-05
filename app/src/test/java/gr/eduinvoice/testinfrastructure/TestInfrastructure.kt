@@ -216,6 +216,7 @@ class TestDataManager {
             _groupStudentRelations[groupId] = mutableSetOf()
         }
         _groupStudentRelations[groupId]!!.add(studentId)
+        println("Debug: TestDataManager.addStudentToGroup: groupId=$groupId, studentId=$studentId, relations=$_groupStudentRelations")
     }
     
     /**
