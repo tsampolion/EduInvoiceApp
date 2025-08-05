@@ -23,6 +23,9 @@ import android.view.View
 import gr.eduinvoice.data.database.DatabaseInitException
 import gr.eduinvoice.ui.settings.SettingsViewModel
 import gr.eduinvoice.ui.theme.TutorBillingTheme
+import gr.eduinvoice.ui.components.ErrorBoundary
+import gr.eduinvoice.utils.ErrorHandler
+import gr.eduinvoice.analytics.ErrorReporter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -30,6 +33,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private lateinit var drawerLayout: DrawerLayout
     private var navController: NavHostController? = null
+    
+    // Error handling components
+    private lateinit var errorHandler: ErrorHandler
+    private lateinit var errorReporter: ErrorReporter
 
     fun openDrawer() {
         drawerLayout.openDrawer(GravityCompat.START)
@@ -37,6 +44,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Initialize error handling components
+        errorHandler = ErrorHandler(this)
+        errorReporter = ErrorReporter(this)
+        
         setContentView(R.layout.activity_main)
         try {
             val toolbar = findViewById<Toolbar>(R.id.toolbar)
@@ -74,7 +86,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        TutorBillingApp(controller, ::openDrawer)
+                        // Wrap the main app with ErrorBoundary
+                        ErrorBoundary(
+                            onError = { error ->
+                                errorReporter.reportError(error, "MainActivity")
+                            }
+                        ) {
+                            TutorBillingApp(controller, ::openDrawer)
+                        }
                     }
                 }
             }
@@ -82,15 +101,40 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             findViewById<NavigationView>(R.id.navigation_view)
                 .setNavigationItemSelectedListener(this)
         } catch (e: DatabaseInitException) {
-            showDatabaseErrorDialog()
+            handleDatabaseInitError(e)
+        } catch (e: Exception) {
+            handleUnexpectedError(e)
         }
     }
 
-    private fun showDatabaseErrorDialog() {
+    private fun handleDatabaseInitError(error: DatabaseInitException) {
+        // Report error to analytics
+        errorReporter.reportError(error, "MainActivity_DatabaseInit")
+        
+        // Handle with error handler for user-friendly message
+        val errorResult = errorHandler.handleError(error, "Database Initialization")
+        
+        // Show enhanced error dialog
         AlertDialog.Builder(this)
-            .setTitle(R.string.db_init_error_title)
-            .setMessage(R.string.db_init_error_message)
-            .setPositiveButton(R.string.ok) { _, _ -> finish() }
+            .setTitle(getString(R.string.error_occurred))
+            .setMessage(errorResult.userMessage)
+            .setPositiveButton(getString(R.string.ok)) { _, _ -> finish() }
+            .setOnDismissListener { finish() }
+            .show()
+    }
+    
+    private fun handleUnexpectedError(error: Exception) {
+        // Report error to analytics
+        errorReporter.reportError(error, "MainActivity_Unexpected")
+        
+        // Handle with error handler for user-friendly message
+        val errorResult = errorHandler.handleError(error, "App Initialization")
+        
+        // Show enhanced error dialog
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.error_occurred))
+            .setMessage(errorResult.userMessage)
+            .setPositiveButton(getString(R.string.ok)) { _, _ -> finish() }
             .setOnDismissListener { finish() }
             .show()
     }

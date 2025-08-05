@@ -33,6 +33,7 @@ import gr.eduinvoice.ui.user.LoginScreen
 import gr.eduinvoice.ui.user.RegisterScreen
 import gr.eduinvoice.ui.user.SessionViewModel
 import gr.eduinvoice.ui.user.ResetPasswordScreen
+import gr.eduinvoice.ui.components.ErrorBoundary
 
 @Composable
 fun TutorBillingApp(
@@ -53,10 +54,21 @@ fun TutorBillingApp(
 
     val startDestination = if (loggedIn) Screen.Home.route else Screen.Welcome.route
 
-    NavHost(
-        navController = navController,
-        startDestination = startDestination
+    // Wrap navigation with ErrorBoundary for session management errors
+    ErrorBoundary(
+        onError = { error ->
+            // Session errors are handled gracefully - redirect to welcome
+            if (loggedIn) {
+                navController.navigate(Screen.Welcome.route) {
+                    popUpTo(0)
+                }
+            }
+        }
     ) {
+        NavHost(
+            navController = navController,
+            startDestination = startDestination
+        ) {
         // Authentication
         composable(Screen.Welcome.route) {
             gr.eduinvoice.ui.welcome.WelcomeScreen(
@@ -258,6 +270,7 @@ fun TutorBillingApp(
                 onNavigateBack = { navController.popBackStack() },
                 viewModel = viewModel
             )
+        }
         }
     }
 }

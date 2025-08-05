@@ -25,10 +25,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import gr.eduinvoice.BouncyCastleTestRunner
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 
 @RunWith(BouncyCastleTestRunner::class)
 class StudentViewModelTest {
@@ -39,6 +42,7 @@ class StudentViewModelTest {
     private val studentFlow = MutableStateFlow<List<Student>>(emptyList())
     private val lessonFlow = MutableStateFlow<List<Lesson>>(emptyList())
     private val userProvider = FakeUserProvider(1L)
+    private lateinit var context: Context
 
     private val studentDao = FakeStudentDao(studentFlow)
     private val lessonDao = FakeLessonDao(lessonFlow)
@@ -71,10 +75,15 @@ class StudentViewModelTest {
         isLessonInvoiced = IsLessonInvoiced(lessonDao)
     )
 
+    @Before
+    fun setUp() {
+        context = ApplicationProvider.getApplicationContext()
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun saveStudentClearsLoading() = runTest {
-        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 0L)), userProvider)
+        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 0L)), userProvider, context)
         vm.updateName("Alice")
         vm.updateSurname("Smith")
         vm.updateSelectedClass("A")
@@ -90,7 +99,7 @@ class StudentViewModelTest {
     fun deleteStudentClearsLoading() = runTest {
         val student = Student(id = 1, ownerId = 1L, name = "Bob", surname = "", parentMobile = "", className = "A", rate = 10.0)
         studentFlow.value = listOf(student)
-        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 1L)), userProvider)
+        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 1L)), userProvider, context)
         advanceUntilIdle()
         vm.deleteStudent()
         advanceUntilIdle()
@@ -106,7 +115,7 @@ class StudentViewModelTest {
         studentFlow.value = listOf(student)
         lessonFlow.value = listOf(myLesson, otherLesson)
 
-        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 1L)), userProvider)
+        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 1L)), userProvider, context)
         advanceUntilIdle()
 
         assertEquals(listOf(myLesson), vm.uiState.value.lessons)
@@ -115,7 +124,7 @@ class StudentViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun saveStudentInvalidRateShowsError() = runTest {
-        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 0L)), userProvider)
+        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 0L)), userProvider, context)
         vm.updateName("Alice")
         vm.updateSurname("Smith")
         vm.updateSelectedClass("A")
@@ -129,7 +138,7 @@ class StudentViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun saveStudentInvalidEmailShowsError() = runTest {
-        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 0L)), userProvider)
+        val vm = StudentViewModel(studentUseCases, lessonUseCases, SavedStateHandle(mapOf("studentId" to 0L)), userProvider, context)
         vm.updateName("Alice")
         vm.updateSurname("Smith")
         vm.updateSelectedClass("A")

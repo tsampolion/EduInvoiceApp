@@ -5,6 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import android.content.Context
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.RateTypes
@@ -21,6 +23,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.util.Patterns
 import android.database.sqlite.SQLiteException
+import gr.eduinvoice.utils.ErrorHandler
+import gr.eduinvoice.utils.RetryManager
+import gr.eduinvoice.analytics.ErrorReporter
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -29,7 +34,8 @@ class StudentViewModel @Inject constructor(
     private val studentUseCases: StudentUseCases,
     private val lessonUseCases: LessonUseCases,
     savedStateHandle: SavedStateHandle,
-    private val currentUserProvider: CurrentUserProvider
+    private val currentUserProvider: CurrentUserProvider,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     val studentId: Long = savedStateHandle.get<Long>("studentId") ?: 0L
@@ -39,6 +45,11 @@ class StudentViewModel @Inject constructor(
     // UI State
     private val _uiState = MutableStateFlow(StudentUiState(isEditMode = studentId == 0L))
     val uiState: StateFlow<StudentUiState> = _uiState.asStateFlow()
+    
+    // Error handling components
+    private val errorHandler = ErrorHandler(context)
+    private val retryManager = RetryManager()
+    private val errorReporter = ErrorReporter(context)
 
     // Navigation callback
     private var onNavigateBack: (() -> Unit)? = null
@@ -55,11 +66,21 @@ class StudentViewModel @Inject constructor(
 
     private fun loadData() {
         viewModelScope.launch {
-            currentUserProvider.loggedInUserId
-                .filterNotNull()
-                .flatMapLatest { studentAndLessonsFlow(it) }
-                .catch { e -> _uiState.update { it.copy(errorMessage = e.message) } }
-                .collect { (student, lessons) -> mapToUiState(student, lessons) }
+            try {
+                currentUserProvider.loggedInUserId
+                    .filterNotNull()
+                    .flatMapLatest { studentAndLessonsFlow(it) }
+                    .catch { e -> 
+                        val errorResult = errorHandler.handleError(e, "StudentViewModel_LoadData")
+                        errorReporter.reportError(e, "StudentViewModel_LoadData")
+                        _uiState.update { it.copy(errorMessage = errorResult.userMessage) }
+                    }
+                    .collect { (student, lessons) -> mapToUiState(student, lessons) }
+            } catch (e: Exception) {
+                val errorResult = errorHandler.handleError(e, "StudentViewModel_LoadData")
+                errorReporter.reportError(e, "StudentViewModel_LoadData")
+                _uiState.update { it.copy(errorMessage = errorResult.userMessage) }
+            }
         }
     }
 
@@ -225,24 +246,47 @@ class StudentViewModel @Inject constructor(
         _uiState.update { it.copy(isLoading = true) }
 
         try {
-            val userId = currentUserProvider.loggedInUserId.first() ?: 0L
-            if (state.selectedClass == "Custom" && studentUseCases.classNameExists(className, userId)) {
-                _uiState.update { it.copy(isLoading = false, errorMessage = "Class already exists") }
-                return
+            // Use retry manager for save operation
+            val result = retryManager.executeWithRetry(
+                operation = {
+                    val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+                    if (state.selectedClass == "Custom" && studentUseCases.classNameExists(className, userId)) {
+                        throw IllegalArgumentException("Class already exists")
+                    }
+                    val student = buildStudent(rate, className, userId, state)
+                    saveToRepository(student)
+                    student
+                },
+                maxRetries = 2,
+                retryId = "save_student_${studentId}",
+                shouldRetry = { error ->
+                    errorHandler.shouldRetry(error)
+                },
+                onRetry = { error, attempt ->
+                    errorReporter.reportError(error, "StudentViewModel_Save_Retry_$attempt")
+                }
+            )
+            
+            if (result.isSuccess) {
+                withContext(Dispatchers.Main) {
+                    _uiState.update { it.copy(isLoading = false) }
+                    navigateBack()
+                }
+            } else {
+                val error = result.exceptionOrNull() ?: Exception("Unknown save error")
+                val errorResult = errorHandler.handleError(error, "StudentViewModel_Save")
+                errorReporter.reportError(error, "StudentViewModel_Save")
+                
+                _uiState.update {
+                    it.copy(isLoading = false, errorMessage = errorResult.userMessage)
+                }
             }
-            val student = buildStudent(rate, className, userId, state)
-            saveToRepository(student)
-            withContext(Dispatchers.Main) {
-                _uiState.update { it.copy(isLoading = false) }
-                navigateBack()
-            }
-        } catch (e: IllegalArgumentException) {
+        } catch (e: Exception) {
+            val errorResult = errorHandler.handleError(e, "StudentViewModel_Save")
+            errorReporter.reportError(e, "StudentViewModel_Save")
+            
             _uiState.update {
-                it.copy(isLoading = false, errorMessage = "Invalid student data: ${e.message}")
-            }
-        } catch (e: SQLiteException) {
-            _uiState.update {
-                it.copy(isLoading = false, errorMessage = "Database error while saving student: ${e.message}")
+                it.copy(isLoading = false, errorMessage = errorResult.userMessage)
             }
         }
     }
@@ -264,29 +308,45 @@ class StudentViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true) }
 
             try {
-                _uiState.value.student?.let { student ->
-                    val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
-                    studentUseCases.softDeleteStudent(student.id, uid)
-
+                val result = retryManager.executeWithRetry(
+                    operation = {
+                        _uiState.value.student?.let { student ->
+                            val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+                            studentUseCases.softDeleteStudent(student.id, uid)
+                            student
+                        } ?: throw IllegalArgumentException("No student to delete")
+                    },
+                    maxRetries = 2,
+                    retryId = "delete_student_${studentId}",
+                    shouldRetry = { error ->
+                        errorHandler.shouldRetry(error)
+                    },
+                    onRetry = { error, attempt ->
+                        errorReporter.reportError(error, "StudentViewModel_Delete_Retry_$attempt")
+                    }
+                )
+                
+                if (result.isSuccess) {
                     // Clear loading and navigate back on main thread
                     withContext(Dispatchers.Main) {
                         _uiState.update { it.copy(isLoading = false) }
                         onNavigateBack?.invoke()
                     }
+                } else {
+                    val error = result.exceptionOrNull() ?: Exception("Unknown delete error")
+                    val errorResult = errorHandler.handleError(error, "StudentViewModel_Delete")
+                    errorReporter.reportError(error, "StudentViewModel_Delete")
+                    
+                    _uiState.update {
+                        it.copy(isLoading = false, errorMessage = errorResult.userMessage)
+                    }
                 }
-            } catch (e: SQLiteException) {
+            } catch (e: Exception) {
+                val errorResult = errorHandler.handleError(e, "StudentViewModel_Delete")
+                errorReporter.reportError(e, "StudentViewModel_Delete")
+                
                 _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = "Database error while deleting student: ${e.message}"
-                    )
-                }
-            } catch (e: IllegalArgumentException) {
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        errorMessage = "Invalid request to delete student: ${e.message}"
-                    )
+                    it.copy(isLoading = false, errorMessage = errorResult.userMessage)
                 }
             }
         }
