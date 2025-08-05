@@ -87,6 +87,36 @@ open class ComposeTestBase : ComposeTestEnvironment() {
 }
 
 /**
+ * Robolectric-compatible Compose test base that doesn't launch activities
+ */
+open class RobolectricComposeTestBase {
+    
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+    
+    @get:Rule
+    val enhancedDispatcherRule = EnhancedTestDispatcherRule(UnconfinedTestDispatcher())
+    
+    /**
+     * Get test context for Compose operations
+     */
+    protected fun getTestContext(): Context = ApplicationProvider.getApplicationContext()
+    
+    /**
+     * Set up Compose content for Robolectric tests
+     */
+    protected fun setComposeContent(
+        composeTestRule: ComposeContentTestRule,
+        content: @androidx.compose.runtime.Composable () -> Unit
+    ) {
+        composeTestRule.setContent {
+            content()
+        }
+        composeTestRule.waitForIdle()
+    }
+}
+
+/**
  * Enhanced test dispatcher rule specifically for Compose testing
  */
 class ComposeTestDispatcherRule(

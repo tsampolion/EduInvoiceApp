@@ -25,6 +25,7 @@ import kotlinx.serialization.json.Json
 import org.junit.After
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -93,22 +94,50 @@ class SettingsViewModelTest : gr.eduinvoice.TestBase() {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun restoreBackupDatabaseErrorEmitsError() = runTest {
-        // Close the database to create a database error scenario
-        db.close()
-        
+        // Create a backup with invalid data that will cause a database error
         val dump = BackupRepository.BackupDump(
             students = listOf(
-                gr.eduinvoice.data.model.Student(id = 1, ownerId = 1L, name = "A", surname = "", parentMobile = "", className = "A", rate = 10.0)
+                gr.eduinvoice.data.model.Student(
+                    id = 1, 
+                    ownerId = 1L, 
+                    name = "A", 
+                    surname = "", 
+                    parentMobile = "", 
+                    className = "A", 
+                    rate = 10.0,
+                    parentEmail = null,
+                    rateType = "hourly",
+                    isActive = true
+                )
             ),
-            lessons = emptyList(),
+            lessons = listOf(
+                gr.eduinvoice.data.model.Lesson(
+                    id = 1,
+                    ownerId = 1L,
+                    studentId = 999L, // Invalid student ID that doesn't exist
+                    date = "2024-01-01",
+                    startTime = "10:00",
+                    durationMinutes = 60,
+                    notes = null,
+                    isPaid = false,
+                    isInvoiced = false,
+                    groupId = null
+                )
+            ),
             groups = emptyList(),
             crossRefs = emptyList(),
             users = emptyList()
         )
         val json = Json.encodeToString(BackupRepository.BackupDump.serializer(), dump)
-        viewModel.restoreBackup(json)
+        
+        // The restoreBackup method should return false when there's a database error
+        val result = viewModel.restoreBackup(json)
         advanceUntilIdle()
-        // Check that an error message is emitted (the exact message may vary)
+        
+        // Since we have an invalid student ID, the restore should fail due to foreign key constraint
+        assertFalse("Restore should fail when there's a database error", result)
+        
+        // Check that an error message is emitted
         assertNotNull("Error message should be emitted", viewModel.errorMessage.value)
         assertTrue("Error message should not be empty", viewModel.errorMessage.value!!.isNotEmpty())
     }

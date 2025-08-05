@@ -81,7 +81,21 @@ class SettingsViewModel @Inject constructor(
     suspend fun restoreBackup(json: String): Boolean {
         return try {
             Json.parseToJsonElement(json)
-            backupRepository.restoreFromJson(json).isSuccess
+            val result = backupRepository.restoreFromJson(json)
+            if (result.isSuccess) {
+                true
+            } else {
+                val exception = result.exceptionOrNull()
+                when (exception) {
+                    is SQLiteException -> {
+                        _errorMessage.value = "Database error while restoring backup: ${exception.message}".trim()
+                    }
+                    else -> {
+                        _errorMessage.value = "Failed to restore backup: ${exception?.message ?: "Unknown error"}".trim()
+                    }
+                }
+                false
+            }
         } catch (e: SerializationException) {
             _errorMessage.value = "Invalid backup data: ${e.message}".trim()
             false

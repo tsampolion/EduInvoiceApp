@@ -28,6 +28,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.assertNotNull
 import gr.eduinvoice.BouncyCastleTestRunner
 import java.time.LocalDate
+import org.junit.Assert.assertFalse
 
 @RunWith(BouncyCastleTestRunner::class)
 class LessonsViewModelTest {
@@ -167,11 +168,11 @@ class LessonsViewModelTest {
     fun updatePaidAffectsOnlyCurrentUserLesson() = runTest {
         val today = LocalDate.now().toString()
         val mine = LessonWithStudent(
-            Lesson(id = 1, studentId = 1, ownerId = 1, date = today, startTime = "10:00", durationMinutes = 60),
+            Lesson(id = 1, studentId = 1, ownerId = 1, date = today, startTime = "10:00", durationMinutes = 60, isPaid = false),
             Student(id = 1, ownerId = 1, name = "Me", surname = "", parentMobile = "", className = "", rate = 10.0)
         )
         val theirs = LessonWithStudent(
-            Lesson(id = 2, studentId = 2, ownerId = 2, date = today, startTime = "11:00", durationMinutes = 60),
+            Lesson(id = 2, studentId = 2, ownerId = 2, date = today, startTime = "11:00", durationMinutes = 60, isPaid = false),
             Student(id = 2, ownerId = 2, name = "You", surname = "", parentMobile = "", className = "", rate = 10.0)
         )
         lessonFlow.value = listOf(mine, theirs)
@@ -179,20 +180,25 @@ class LessonsViewModelTest {
         val vm = LessonsViewModel(lessonUseCases, userProvider)
         advanceUntilIdle()
 
-        vm.updatePaid(1, true)
+        // Ensure initial state is correct - only current user's lesson should be visible
+        assertEquals(1, vm.uiState.value.lessons.size)
+        assertFalse(vm.uiState.value.lessons.first().lesson.isPaid)
+
+        // Update paid status for current user's lesson
+        vm.updatePaid(1L, true)
         advanceUntilIdle()
 
-        // Wait for the flow to be updated and check the ViewModel state
+        // The updatePaid method shows a dialog instead of directly updating paid status
+        // Check that a dialog is shown
+        assertNotNull(vm.uiState.value.dialog)
+        assertTrue(vm.uiState.value.dialog is LessonDialog.GenerateInvoice)
+        
+        // Apply the paid status to actually update it
+        vm.applyPaidStatus(1L, true)
         advanceUntilIdle()
-        
-        // Check that the ViewModel's state reflects the change
-        val vmLessons = vm.uiState.value.lessons
-        assertTrue("ViewModel should have lessons", vmLessons.isNotEmpty())
-        
-        // The lesson should be marked as paid in the ViewModel's state
-        val paidLesson = vmLessons.find { it.lesson.id == 1L }
-        assertNotNull("Should find lesson with id 1", paidLesson)
-        assertTrue("Lesson should be marked as paid", paidLesson!!.lesson.isPaid)
+
+        // Verify the lesson is marked as paid
+        assertTrue(vm.uiState.value.lessons.first().lesson.isPaid)
     }
 
     class FakeStudentDao(private val flow: MutableStateFlow<List<Student>>) : StudentDao {
