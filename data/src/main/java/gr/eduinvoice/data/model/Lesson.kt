@@ -40,7 +40,9 @@ data class Lesson(
     @ColumnInfo(defaultValue = "0")
     val isPaid: Boolean = false, // Default to false (0 in database)
     @ColumnInfo(defaultValue = "0")
-    val isInvoiced: Boolean = false
+    val isInvoiced: Boolean = false,
+    @ColumnInfo(defaultValue = "0")
+    val lastModified: Long = System.currentTimeMillis()
 ) {
     // Helper functions for date/time conversion
     fun getLocalDate(): LocalDate = LocalDate.parse(date)

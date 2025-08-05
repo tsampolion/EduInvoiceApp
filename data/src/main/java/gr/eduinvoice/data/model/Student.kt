@@ -25,5 +25,7 @@ data class Student(
     @ColumnInfo(defaultValue = "'hourly'")
     val rateType: String = RateTypes.HOURLY,
     @ColumnInfo(defaultValue = "1")
-    val isActive: Boolean = true // Default to active
+    val isActive: Boolean = true, // Default to active
+    @ColumnInfo(defaultValue = "0")
+    val lastModified: Long = System.currentTimeMillis()
 )

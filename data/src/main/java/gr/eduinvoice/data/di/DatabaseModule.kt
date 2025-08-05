@@ -16,7 +16,12 @@ import gr.eduinvoice.data.database.LegacyMigration
 import gr.eduinvoice.data.fallback.DatabaseFallbackManager
 import gr.eduinvoice.data.monitoring.DatabaseHealthMonitor
 import gr.eduinvoice.data.repository.BackupRepository
+import gr.eduinvoice.data.repository.OfflineDataManager
+import gr.eduinvoice.data.repository.SyncRepository
+import gr.eduinvoice.data.sync.ConflictResolver
+import gr.eduinvoice.data.sync.SyncManager
 import gr.eduinvoice.data.user.UserPreferencesRepository
+import gr.eduinvoice.data.utils.NetworkMonitor
 import gr.eduinvoice.data.validation.DatabaseIntegrityValidator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -145,5 +150,52 @@ object DatabaseModule {
         database: EduInvoiceDatabase
     ): BackupRepository {
         return BackupRepository(context, database)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideNetworkMonitor(
+        @ApplicationContext context: Context
+    ): NetworkMonitor {
+        return NetworkMonitor(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideOfflineDataManager(
+        @ApplicationContext context: Context
+    ): OfflineDataManager {
+        return OfflineDataManager(context)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideConflictResolver(): ConflictResolver {
+        return ConflictResolver()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideSyncManager(
+        @ApplicationContext context: Context,
+        offlineDataManager: OfflineDataManager,
+        networkMonitor: NetworkMonitor,
+        conflictResolver: ConflictResolver
+    ): SyncManager {
+        return SyncManager(context, offlineDataManager, networkMonitor, conflictResolver)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideSyncRepository(
+        @ApplicationContext context: Context,
+        studentDao: gr.eduinvoice.data.dao.StudentDao,
+        lessonDao: gr.eduinvoice.data.dao.LessonDao,
+        groupDao: gr.eduinvoice.data.dao.GroupDao,
+        offlineDataManager: OfflineDataManager,
+        syncManager: SyncManager,
+        networkMonitor: NetworkMonitor
+    ): SyncRepository {
+        return SyncRepository(context, studentDao, lessonDao, groupDao, offlineDataManager, syncManager, networkMonitor)
     }
 }

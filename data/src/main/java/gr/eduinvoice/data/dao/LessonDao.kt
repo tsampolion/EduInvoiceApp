@@ -69,6 +69,7 @@ interface LessonDao {
                lessons.notes AS lesson_notes,
                lessons.isPaid AS lesson_isPaid,
                lessons.isInvoiced AS lesson_isInvoiced,
+               lessons.lastModified AS lesson_lastModified,
                students.id AS student_id,
                students.name AS student_name,
                students.surname AS student_surname,
@@ -78,7 +79,8 @@ interface LessonDao {
               students.rate AS student_rate,
               students.rateType AS student_rateType,
               students.ownerId AS student_ownerId,
-              students.isActive AS student_isActive
+              students.isActive AS student_isActive,
+              students.lastModified AS student_lastModified
         FROM lessons JOIN students ON lessons.studentId = students.id
         WHERE lessons.ownerId = :userId AND students.ownerId = :userId
         ORDER BY lessons.date DESC, lessons.startTime DESC
@@ -99,6 +101,7 @@ interface LessonDao {
                lessons.notes AS lesson_notes,
                lessons.isPaid AS lesson_isPaid,
                lessons.isInvoiced AS lesson_isInvoiced,
+               lessons.lastModified AS lesson_lastModified,
                students.id AS student_id,
                students.name AS student_name,
                students.surname AS student_surname,
@@ -108,7 +111,8 @@ interface LessonDao {
               students.rate AS student_rate,
               students.rateType AS student_rateType,
               students.ownerId AS student_ownerId,
-              students.isActive AS student_isActive
+              students.isActive AS student_isActive,
+              students.lastModified AS student_lastModified
         FROM lessons JOIN students ON lessons.studentId = students.id
         WHERE lessons.studentId = :studentId AND lessons.ownerId = :userId AND students.ownerId = :userId
         ORDER BY lessons.date DESC, lessons.startTime DESC
@@ -129,6 +133,7 @@ interface LessonDao {
                lessons.notes AS lesson_notes,
                lessons.isPaid AS lesson_isPaid,
                lessons.isInvoiced AS lesson_isInvoiced,
+               lessons.lastModified AS lesson_lastModified,
                students.id AS student_id,
                students.name AS student_name,
                students.surname AS student_surname,
@@ -138,7 +143,8 @@ interface LessonDao {
               students.rate AS student_rate,
               students.rateType AS student_rateType,
               students.ownerId AS student_ownerId,
-              students.isActive AS student_isActive
+              students.isActive AS student_isActive,
+              students.lastModified AS student_lastModified
         FROM lessons JOIN students ON lessons.studentId = students.id
         WHERE lessons.date BETWEEN :startDate AND :endDate AND lessons.ownerId = :userId AND students.ownerId = :userId
         ORDER BY lessons.date DESC, lessons.startTime DESC
@@ -159,6 +165,7 @@ interface LessonDao {
                lessons.notes AS lesson_notes,
                lessons.isPaid AS lesson_isPaid,
                lessons.isInvoiced AS lesson_isInvoiced,
+               lessons.lastModified AS lesson_lastModified,
                students.id AS student_id,
                students.name AS student_name,
                students.surname AS student_surname,
@@ -168,7 +175,8 @@ interface LessonDao {
               students.rate AS student_rate,
               students.rateType AS student_rateType,
               students.ownerId AS student_ownerId,
-              students.isActive AS student_isActive
+              students.isActive AS student_isActive,
+              students.lastModified AS student_lastModified
         FROM lessons JOIN students ON lessons.studentId = students.id
         WHERE lessons.studentId = :studentId AND lessons.date BETWEEN :startDate AND :endDate AND lessons.ownerId = :userId AND students.ownerId = :userId
         ORDER BY lessons.date DESC, lessons.startTime DESC
