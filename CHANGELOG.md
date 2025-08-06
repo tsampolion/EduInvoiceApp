@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.24.5] - 2025-01-27
+### Added
+- **Network Resilience Implementation**: Comprehensive offline-first architecture with network connectivity monitoring, data synchronization, and conflict resolution.
+  - **OfflineDataManager**: Manages offline data storage and synchronization queue with JSON serialization and pending operation tracking.
+  - **SyncManager**: Coordinates data synchronization between local and remote sources with exponential backoff retry logic.
+  - **ConflictResolver**: Intelligent conflict resolution with timestamp-based merging and field-level conflict handling.
+  - **SyncRepository**: Repository with offline support and synchronization logic for all data operations.
+  - **NetworkMonitor**: Real-time network connectivity monitoring with connection type detection and quality assessment.
+  - **ExponentialBackoff**: Intelligent retry mechanism with exponential backoff, jitter, and error-specific strategies.
+
+### Infrastructure
+- **Network Resilience Components**:
+  - `OfflineDataManager.kt` - Offline data storage and queue management
+  - `SyncManager.kt` - Data synchronization coordination
+  - `ConflictResolver.kt` - Intelligent conflict resolution
+  - `SyncRepository.kt` - Repository with offline support
+  - `NetworkMonitor.kt` - Network connectivity monitoring
+  - `ExponentialBackoff.kt` - Intelligent retry mechanism
+- **Network Resilience Features**:
+  - Offline-first architecture with local data persistence
+  - Real-time network connectivity monitoring
+  - Automatic data synchronization when network is available
+  - Intelligent conflict resolution with timestamp-based merging
+  - Exponential backoff retry with error-specific strategies
+  - Comprehensive test coverage for all network components
+- **Database Schema Updates**:
+  - Added `lastModified` fields to `Student` and `Lesson` models for conflict resolution
+  - Incremented database version to 15 with auto-migration
+  - Updated DAO queries to include timestamp fields
+
 ## [0.24.4] - 2025-01-27
 ### Added
 - **Error Handling Integration**: Comprehensive integration of error handling components throughout the application.

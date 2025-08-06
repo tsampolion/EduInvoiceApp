@@ -13,7 +13,7 @@ class ExponentialBackoffTest {
     @Test
     fun testCalculateDelay_FirstAttempt_ReturnsBaseDelay() {
         // Given
-        val backoff = ExponentialBackoff(baseDelayMs = 1000L)
+        val backoff = ExponentialBackoff(baseDelayMs = 1000L, jitterFactor = 0.0)
 
         // When
         val delay = backoff.calculateDelay(1)
@@ -25,7 +25,7 @@ class ExponentialBackoffTest {
     @Test
     fun testCalculateDelay_SecondAttempt_ReturnsExponentialDelay() {
         // Given
-        val backoff = ExponentialBackoff(baseDelayMs = 1000L)
+        val backoff = ExponentialBackoff(baseDelayMs = 1000L, jitterFactor = 0.0)
 
         // When
         val delay = backoff.calculateDelay(2)
@@ -37,7 +37,7 @@ class ExponentialBackoffTest {
     @Test
     fun testCalculateDelay_ThirdAttempt_ReturnsExponentialDelay() {
         // Given
-        val backoff = ExponentialBackoff(baseDelayMs = 1000L)
+        val backoff = ExponentialBackoff(baseDelayMs = 1000L, jitterFactor = 0.0)
 
         // When
         val delay = backoff.calculateDelay(3)
@@ -49,7 +49,7 @@ class ExponentialBackoffTest {
     @Test
     fun testCalculateDelay_ExceedsMaxDelay_ReturnsMaxDelay() {
         // Given
-        val backoff = ExponentialBackoff(baseDelayMs = 1000L, maxDelayMs = 3000L)
+        val backoff = ExponentialBackoff(baseDelayMs = 1000L, maxDelayMs = 3000L, jitterFactor = 0.0)
 
         // When
         val delay = backoff.calculateDelay(5)
@@ -224,7 +224,7 @@ class ExponentialBackoffTest {
         val permanentError = IOException("Permission denied")
 
         // When
-        val result = backoff.executeWithRetry(operation = suspend {
+        val result: Result<Unit> = backoff.executeWithRetry(operation = suspend {
             throw permanentError
         })
 
@@ -240,7 +240,7 @@ class ExponentialBackoffTest {
         var attempts = 0
 
         // When
-        val result = backoff.executeWithRetry(
+        val result: Result<Unit> = backoff.executeWithRetry(
             operation = suspend {
                 attempts++
                 throw SocketTimeoutException("Connection timed out")
@@ -259,7 +259,7 @@ class ExponentialBackoffTest {
         var attempts = 0
 
         // When
-        val result = backoff.executeWithRetry(
+        val result: Result<Unit> = backoff.executeWithRetry(
             operation = suspend {
                 attempts++
                 throw IOException("Network error")
@@ -283,7 +283,7 @@ class ExponentialBackoffTest {
         var callbackCalls = 0
 
         // When
-        backoff.executeWithRetry(
+        val result: Result<Unit> = backoff.executeWithRetry(
             operation = suspend {
                 attempts++
                 throw SocketTimeoutException("Connection timed out")

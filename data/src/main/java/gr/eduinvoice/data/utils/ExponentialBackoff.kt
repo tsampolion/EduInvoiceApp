@@ -33,20 +33,21 @@ class ExponentialBackoff(
      * Determine if an operation should be retried based on the error and attempt count
      */
     fun shouldRetry(attempt: Int, error: Throwable): Boolean {
-        if (attempt >= maxRetries) return false
+        if (attempt > maxRetries) return false
 
         return when (error) {
             is java.net.SocketTimeoutException -> true
             is java.net.UnknownHostException -> true
             is java.net.ConnectException -> true
-            is java.io.IOException -> {
-                // Retry IO errors except for specific cases
-                !isPermanentError(error)
-            }
             is java.net.SocketException -> true
             is javax.net.ssl.SSLException -> {
                 // Retry SSL errors except for certificate issues
-                !(error.message?.contains("certificate", ignoreCase = true) ?: false)
+                val message = error.message ?: ""
+                !message.contains("certificate", ignoreCase = true)
+            }
+            is java.io.IOException -> {
+                // Retry IO errors except for specific cases
+                !isPermanentError(error)
             }
             else -> false
         }

@@ -32,9 +32,6 @@ class NetworkMonitorTest {
         network = mockk()
         networkCapabilities = mockk()
 
-        // Mock static method
-        // mockkStatic(ConnectivityManager::class) // This line is removed as per the new_code
-
         networkMonitor = NetworkMonitor(context)
     }
 
