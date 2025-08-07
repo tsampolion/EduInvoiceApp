@@ -26,6 +26,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import gr.eduinvoice.BouncyCastleTestRunner
+import gr.eduinvoice.testinfrastructure.createMockConcurrencyController
 
 @RunWith(BouncyCastleTestRunner::class)
 class InvoiceViewModelTest {
@@ -103,7 +104,8 @@ class InvoiceViewModelTest {
     }
 
     private val studentRepository = StudentRepository(studentDao)
-    private val tutorBillingRepository = TutorBillingRepository(studentDao, lessonDao, groupDao)
+    private val mockConcurrencyController = createMockConcurrencyController()
+    private val tutorBillingRepository = TutorBillingRepository(studentDao, lessonDao, groupDao, mockConcurrencyController)
 
     private val studentUseCases = StudentUseCases(
         getActiveStudents = GetActiveStudents(studentRepository),

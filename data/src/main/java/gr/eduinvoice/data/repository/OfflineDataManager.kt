@@ -64,12 +64,12 @@ class OfflineDataManager @Inject constructor(
             if (!file.exists()) return@withContext null
             
             val json = file.readText()
-                                when (type) {
-                        "student" -> gson.fromJson(json, Student::class.java)
-                        "lesson" -> gson.fromJson(json, Lesson::class.java)
-                        "group" -> gson.fromJson(json, StudentGroup::class.java)
-                        else -> gson.fromJson(json, Any::class.java)
-                    }
+            when (type) {
+                "student" -> gson.fromJson(json, Student::class.java)
+                "lesson" -> gson.fromJson(json, Lesson::class.java)
+                "group" -> gson.fromJson(json, StudentGroup::class.java)
+                else -> gson.fromJson(json, Any::class.java)
+            }
         } catch (e: Exception) {
             null
         }

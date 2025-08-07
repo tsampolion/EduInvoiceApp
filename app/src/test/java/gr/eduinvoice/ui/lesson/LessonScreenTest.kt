@@ -103,7 +103,8 @@ class LessonScreenTest : RobolectricComposeTestBase() {
     }
 
     private val studentRepository = StudentRepository(studentDao)
-    private val repository = TutorBillingRepository(studentDao, lessonDao, groupDao)
+    private val mockConcurrencyController = createMockConcurrencyController()
+    private val repository = TutorBillingRepository(studentDao, lessonDao, groupDao, mockConcurrencyController)
     private val groupRepository = GroupRepository(groupDao)
 
     private val studentUseCases = StudentUseCases(

@@ -1,5 +1,9 @@
 package gr.eduinvoice.data.repository
 
+import gr.eduinvoice.data.concurrency.ConcurrencyController
+import gr.eduinvoice.data.concurrency.OperationType
+import gr.eduinvoice.data.concurrency.OperationPriority
+import gr.eduinvoice.data.concurrency.TransactionIsolationLevel
 import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.dao.StudentDao
 import gr.eduinvoice.data.model.Lesson
@@ -11,60 +15,79 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * TutorBillingRepository is the single source of truth for all data operations.
- *
- * This class sits between the UI layer (ViewModels) and the data layer (DAOs),
- * providing a clean API that hides the complexity of data operations.
- * It offers methods to add, update, delete, and query students and lessons.
- *
- * @Inject tells Hilt to automatically provide the DAOs when creating this repository.
- * @Singleton ensures a single instance is used throughout the app.
+ * Enhanced TutorBillingRepository with concurrency safety
+ * 
+ * This repository now uses the ConcurrencyController to ensure:
+ * - Thread-safe database operations
+ * - Proper transaction management
+ * - Conflict resolution for concurrent operations
+ * - Automatic rollback on failures
+ * - Operation queuing for conflicting operations
  */
 @Singleton
 class TutorBillingRepository @Inject constructor(
     private val studentDao: StudentDao,
     private val lessonDao: LessonDao,
-    private val groupDao: gr.eduinvoice.data.dao.GroupDao
+    private val groupDao: gr.eduinvoice.data.dao.GroupDao,
+    private val concurrencyController: ConcurrencyController
 ) {
 
     // ===== Student Operations =====
 
     /**
-     * Adds a new student to the database.
-     * Validates the student data before saving.
-     *
-     * @return The ID of the newly created student
-     * @throws IllegalArgumentException if student data is invalid
+     * Adds a new student to the database with concurrency safety
      */
     suspend fun addStudent(student: Student): Long {
         require(student.name.isNotBlank()) { "First name cannot be empty" }
-        return studentDao.insert(student)
+        
+        return concurrencyController.executeSafeOperation(
+            operation = { studentDao.insert(student) },
+            operationType = OperationType.WRITE,
+            resourceId = "student_${student.ownerId}",
+            priority = OperationPriority.NORMAL,
+            useTransaction = true,
+            isolationLevel = TransactionIsolationLevel.SERIALIZABLE
+        ).getOrThrow()
     }
 
     /**
-     * Updates an existing student's information.
-     * Automatically updates the 'updatedAt' timestamp.
+     * Updates an existing student's information with concurrency safety
      */
     suspend fun updateStudent(student: Student) {
-        studentDao.update(student)
+        concurrencyController.executeSafeOperation(
+            operation = { studentDao.update(student) },
+            operationType = OperationType.UPDATE,
+            resourceId = "student_${student.id}",
+            priority = OperationPriority.NORMAL,
+            useTransaction = true
+        ).getOrThrow()
     }
 
     /**
-     * Soft deletes a student by setting 'isActive' to false.
+     * Soft deletes a student with concurrency safety
      */
     suspend fun deleteStudent(studentId: Long, userId: Long) {
-        studentDao.softDeleteStudent(studentId, userId)
+        concurrencyController.executeSafeOperation(
+            operation = { studentDao.softDeleteStudent(studentId, userId) },
+            operationType = OperationType.DELETE,
+            resourceId = "student_$studentId",
+            priority = OperationPriority.HIGH,
+            useTransaction = true
+        ).getOrThrow()
     }
 
     /**
-     * Gets a single student by ID.
+     * Gets a single student by ID with read-only safety
      */
     suspend fun getStudent(studentId: Long, userId: Long): Student? {
-        return studentDao.getStudentById(studentId, userId).first()
+        return concurrencyController.executeReadOnlyOperation(
+            operation = { studentDao.getStudentById(studentId, userId).first() },
+            resourceId = "student_$studentId"
+        ).getOrNull()
     }
 
     /**
-     * Gets all active students as a Flow.
+     * Gets all active students as a Flow (read-only)
      */
     fun getAllActiveStudents(userId: Long): Flow<List<Student>> {
         return studentDao.getAllActiveStudents(userId)
@@ -73,57 +96,142 @@ class TutorBillingRepository @Inject constructor(
     // ===== Lesson Operations =====
 
     /**
-     * Adds a new lesson to the database.
-     * Validates that the student exists and is active.
-     *
-     * @return The ID of the newly created lesson
-     * @throws IllegalArgumentException if data is invalid
-     * @throws IllegalStateException if student doesn't exist or is inactive
+     * Adds a new lesson with concurrency safety and validation
      */
     suspend fun addLesson(lesson: Lesson, userId: Long): Long {
         require(lesson.durationMinutes > 0) { "Lesson duration must be positive" }
-        val student = studentDao.getStudentById(lesson.studentId, userId).first()
-        checkNotNull(student) { "Cannot add lesson for a non-existent student" }
-        check(student.isActive) { "Cannot add lesson for an inactive student" }
-        return lessonDao.insert(lesson)
+        
+        return concurrencyController.executeSafeOperation(
+            operation = {
+                // Validate student exists and is active within transaction
+                val student = studentDao.getStudentById(lesson.studentId, userId).first()
+                checkNotNull(student) { "Cannot add lesson for a non-existent student" }
+                check(student.isActive) { "Cannot add lesson for an inactive student" }
+                
+                lessonDao.insert(lesson)
+            },
+            operationType = OperationType.WRITE,
+            resourceId = "lesson_student_${lesson.studentId}",
+            priority = OperationPriority.NORMAL,
+            useTransaction = true,
+            isolationLevel = TransactionIsolationLevel.SERIALIZABLE
+        ).getOrThrow()
     }
 
+    /**
+     * Adds group lessons with concurrency safety
+     */
     suspend fun addGroupLesson(groupId: Long, lesson: Lesson, userId: Long): List<Long> {
         require(lesson.durationMinutes > 0) { "Lesson duration must be positive" }
-        val students = groupDao.getStudentsForGroup(groupId, userId).first()
-        val lessons = students.map { student ->
-            lesson.copy(studentId = student.id, groupId = groupId)
-        }
-        return lessonDao.insertGroupLessons(lessons)
+        
+        return concurrencyController.executeSafeOperation(
+            operation = {
+                val students = groupDao.getStudentsForGroup(groupId, userId).first()
+                val lessons = students.map { student ->
+                    lesson.copy(studentId = student.id, groupId = groupId)
+                }
+                lessonDao.insertGroupLessons(lessons)
+            },
+            operationType = OperationType.BATCH,
+            resourceId = "group_$groupId",
+            priority = OperationPriority.NORMAL,
+            useTransaction = true
+        ).getOrThrow()
     }
 
     /**
-     * Updates an existing lesson.
-     * Automatically updates the 'updatedAt' timestamp.
+     * Updates an existing lesson with concurrency safety
      */
     suspend fun updateLesson(lesson: Lesson) {
-        lessonDao.update(lesson)
+        concurrencyController.executeSafeOperation(
+            operation = { lessonDao.update(lesson) },
+            operationType = OperationType.UPDATE,
+            resourceId = "lesson_${lesson.id}",
+            priority = OperationPriority.NORMAL,
+            useTransaction = true
+        ).getOrThrow()
     }
 
     /**
-     * Deletes a lesson permanently by its ID.
+     * Deletes a lesson with concurrency safety
      */
     suspend fun deleteLesson(lessonId: Long, userId: Long) {
-        lessonDao.deleteById(lessonId, userId)
+        concurrencyController.executeSafeOperation(
+            operation = { lessonDao.deleteById(lessonId, userId) },
+            operationType = OperationType.DELETE,
+            resourceId = "lesson_$lessonId",
+            priority = OperationPriority.HIGH,
+            useTransaction = true
+        ).getOrThrow()
     }
 
     /**
-     * Gets all lessons for a specific student as a Flow.
+     * Gets lessons for a student with read-only safety
      */
     fun getLessonsForStudent(studentId: Long, userId: Long): Flow<List<Lesson>> {
         return lessonDao.getLessonsByStudentId(studentId, userId)
     }
 
     /**
-     * Gets lessons with full student data for a specific student.
+     * Gets lessons with student data with read-only safety
      */
     fun getLessonsWithStudentData(studentId: Long, userId: Long): Flow<List<LessonWithStudent>> {
         return lessonDao.getLessonsWithStudentsByStudent(studentId, userId)
     }
 
+    // ===== Batch Operations =====
+
+    /**
+     * Performs batch student operations with concurrency safety
+     */
+    suspend fun batchUpdateStudents(students: List<Student>): List<Result<Unit>> {
+        val operations = students.map { student ->
+            suspend { studentDao.update(student) }
+        }
+        
+        return concurrencyController.executeBatchSafeOperations(
+            operations = operations,
+            operationType = OperationType.BATCH,
+            resourceId = "batch_students",
+            priority = OperationPriority.NORMAL,
+            useTransaction = true
+        ).map { results ->
+            results.map { Result.success(Unit) }
+        }.getOrElse {
+            students.map { Result.failure(Exception("Batch operation failed")) }
+        }
+    }
+
+    /**
+     * Performs batch lesson operations with concurrency safety
+     */
+    suspend fun batchUpdateLessons(lessons: List<Lesson>): List<Result<Unit>> {
+        val operations = lessons.map { lesson ->
+            suspend { lessonDao.update(lesson) }
+        }
+        
+        return concurrencyController.executeBatchSafeOperations(
+            operations = operations,
+            operationType = OperationType.BATCH,
+            resourceId = "batch_lessons",
+            priority = OperationPriority.NORMAL,
+            useTransaction = true
+        ).map { results ->
+            results.map { Result.success(Unit) }
+        }.getOrElse {
+            lessons.map { Result.failure(Exception("Batch operation failed")) }
+        }
+    }
+
+    // ===== Health Check =====
+
+    /**
+     * Performs health check on concurrency components
+     */
+    suspend fun performHealthCheck() = concurrencyController.performHealthCheck()
+
+    /**
+     * Gets concurrency statistics
+     */
+    fun getConcurrencyStatistics() = concurrencyController.getConcurrencyStatistics()
 }

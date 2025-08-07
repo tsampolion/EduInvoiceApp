@@ -30,6 +30,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import gr.eduinvoice.BouncyCastleTestRunner
+import gr.eduinvoice.testinfrastructure.createMockConcurrencyController
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 
@@ -48,7 +49,8 @@ class StudentViewModelTest {
     private val lessonDao = FakeLessonDao(lessonFlow)
     private val groupDao = FakeGroupDao()
     private val studentRepository = StudentRepository(studentDao)
-    private val tutorBillingRepository = TutorBillingRepository(studentDao, lessonDao, groupDao)
+    private val mockConcurrencyController = createMockConcurrencyController()
+    private val tutorBillingRepository = TutorBillingRepository(studentDao, lessonDao, groupDao, mockConcurrencyController)
     private val studentUseCases = StudentUseCases(
         getActiveStudents = GetActiveStudents(studentRepository),
         getArchivedStudents = GetArchivedStudents(studentRepository),

@@ -96,6 +96,7 @@ class NetworkMonitor @Inject constructor(
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
             .build()
 
+        @SuppressLint("MissingPermission")
         connectivityManager.registerNetworkCallback(networkRequest, callback)
 
         // Send initial state
@@ -130,6 +131,7 @@ class NetworkMonitor @Inject constructor(
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
             .build()
 
+        @SuppressLint("MissingPermission")
         connectivityManager.registerNetworkCallback(networkRequest, callback)
 
         // Send initial state

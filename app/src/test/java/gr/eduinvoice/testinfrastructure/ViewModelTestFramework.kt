@@ -2,6 +2,12 @@ package gr.eduinvoice.testinfrastructure
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import gr.eduinvoice.data.concurrency.ConcurrencyController
+import gr.eduinvoice.data.concurrency.OperationType
+import gr.eduinvoice.data.concurrency.OperationPriority
+import gr.eduinvoice.data.concurrency.TransactionIsolationLevel
+import gr.eduinvoice.data.concurrency.ConcurrencyStats
+import gr.eduinvoice.data.concurrency.HealthCheckResult
 import gr.eduinvoice.data.dao.GroupDao
 import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.dao.StudentDao
@@ -17,6 +23,9 @@ import gr.eduinvoice.data.user.CurrentUserProvider
 import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,8 +33,62 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.runBlocking
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
+import kotlin.Result
+
+/**
+ * Creates a mock ConcurrencyController for testing
+ */
+fun createMockConcurrencyController(): ConcurrencyController {
+    return mockk<ConcurrencyController>(relaxed = true) {
+        coEvery { 
+            executeSafeOperation<Any>(any(), any(), any(), any(), any(), any()) 
+        } answers {
+            val operation = firstArg<suspend () -> Any>()
+            try {
+                runBlocking { Result.success(operation()) }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+        
+        coEvery { 
+            executeReadOnlyOperation<Any>(any(), any()) 
+        } answers {
+            val operation = firstArg<suspend () -> Any>()
+            try {
+                runBlocking { Result.success(operation()) }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+        
+        coEvery { 
+            executeBatchSafeOperations<Any>(any(), any(), any(), any(), any()) 
+        } answers {
+            val operations = firstArg<List<suspend () -> Any>>()
+            try {
+                val results = mutableListOf<Any>()
+                runBlocking {
+                    for (operation in operations) {
+                        results.add(operation())
+                    }
+                }
+                Result.success(results)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+        
+        coEvery { performHealthCheck() } returns HealthCheckResult(isHealthy = true)
+        every { getConcurrencyStatistics() } returns ConcurrencyStats()
+        every { getActiveResourceLocks() } returns emptySet()
+        coEvery { releaseAllResourceLocks() } returns Unit
+        coEvery { emergencyCleanup() } returns Unit
+    }
+}
 
 /**
  * Enhanced ViewModel testing framework with proper state management
@@ -399,7 +462,8 @@ object ViewModelTestUtils {
         groupDao: EnhancedFakeGroupDao
     ): Triple<StudentUseCases, LessonUseCases, GroupUseCases> {
         val studentRepository = StudentRepository(studentDao)
-        val repository = TutorBillingRepository(studentDao, lessonDao, groupDao)
+        val mockConcurrencyController = createMockConcurrencyController()
+        val repository = TutorBillingRepository(studentDao, lessonDao, groupDao, mockConcurrencyController)
         val groupRepository = GroupRepository(groupDao)
         
         val studentUseCases = StudentUseCases(

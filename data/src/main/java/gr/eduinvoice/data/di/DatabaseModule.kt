@@ -18,6 +18,9 @@ import gr.eduinvoice.data.monitoring.DatabaseHealthMonitor
 import gr.eduinvoice.data.repository.BackupRepository
 import gr.eduinvoice.data.repository.OfflineDataManager
 import gr.eduinvoice.data.repository.SyncRepository
+import gr.eduinvoice.data.concurrency.ConcurrencyController
+import gr.eduinvoice.data.concurrency.OperationQueueManager
+import gr.eduinvoice.data.concurrency.TransactionManager
 import gr.eduinvoice.data.sync.ConflictResolver
 import gr.eduinvoice.data.sync.SyncManager
 import gr.eduinvoice.data.user.UserPreferencesRepository
@@ -197,5 +200,30 @@ object DatabaseModule {
         networkMonitor: NetworkMonitor
     ): SyncRepository {
         return SyncRepository(context, studentDao, lessonDao, groupDao, offlineDataManager, syncManager, networkMonitor)
+    }
+    
+    // ===== Concurrency Components =====
+    
+    @Provides
+    @Singleton
+    fun provideTransactionManager(
+        database: EduInvoiceDatabase
+    ): TransactionManager {
+        return TransactionManager(database)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideOperationQueueManager(): OperationQueueManager {
+        return OperationQueueManager()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideConcurrencyController(
+        transactionManager: TransactionManager,
+        operationQueueManager: OperationQueueManager
+    ): ConcurrencyController {
+        return ConcurrencyController(transactionManager, operationQueueManager)
     }
 }

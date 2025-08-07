@@ -29,6 +29,7 @@ import org.junit.Assert.assertNotNull
 import gr.eduinvoice.BouncyCastleTestRunner
 import java.time.LocalDate
 import org.junit.Assert.assertFalse
+import gr.eduinvoice.testinfrastructure.createMockConcurrencyController
 
 @RunWith(BouncyCastleTestRunner::class)
 class LessonsViewModelTest {
@@ -44,7 +45,8 @@ class LessonsViewModelTest {
     private val studentDao = FakeStudentDao(studentFlow)
     private val lessonDao = FakeLessonDao(lessonFlow)
     private val groupDao = FakeGroupDao()
-    private val repository = TutorBillingRepository(studentDao, lessonDao, groupDao)
+    private val mockConcurrencyController = createMockConcurrencyController()
+    private val repository = TutorBillingRepository(studentDao, lessonDao, groupDao, mockConcurrencyController)
     private val lessonUseCases = LessonUseCases(
         getAllLessons = GetAllLessons(lessonDao),
         getLessonById = GetLessonById(lessonDao),
