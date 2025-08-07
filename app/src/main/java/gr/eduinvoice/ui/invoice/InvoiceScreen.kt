@@ -145,25 +145,22 @@ fun InvoiceScreen(
                 confirmButton = {
                     val colors = MaterialTheme.colorScheme
                     val fonts = MaterialTheme.typography
-                    TextButton(onClick = {
+                TextButton(onClick = {
                         val selected = lessons.filter { selectedLessons.contains(it.lesson.id) }
                         val rawNumber = System.currentTimeMillis().toString()
                         val invoiceNumber = rawNumber.replace(Regex("[^A-Za-z0-9_-]"), "_")
-                        val result = gr.eduinvoice.utils.PdfGenerator.createInvoicePdf(
-                            context = context,
-                            directory = File(context.filesDir, "invoices"),
-                            lessons = selected,
-                            invoiceNumber = invoiceNumber,
-                            colorScheme = colors,
-                            typography = fonts,
-                            tutorName = user?.fullName ?: "Tutor Name",
-                            tutorAddress = user?.subjectSpecialty ?: "",
-                            currencySymbol = settings.currencySymbol
+                        val invoiceData = gr.eduinvoice.utils.InvoiceData(
+                            student = students.firstOrNull { it.id == selectedStudentId } ?: return@TextButton,
+                            lessons = selected
                         )
+                        val outDir = File(context.filesDir, "invoices").apply { mkdirs() }
+                        val outFile = File(outDir, "${invoiceNumber}.pdf")
+                        val theme = gr.eduinvoice.utils.PdfThemes.Default
+                        val result = gr.eduinvoice.utils.ModernPdfGenerator(context, theme).generateInvoice(invoiceData, outFile)
                         result.fold(
-                            onSuccess = { uri ->
+                            onSuccess = { jUri ->
                                 viewModel.markAsPaid(selected.map { it.lesson.id })
-                                generatedInvoice = uri
+                                generatedInvoice = android.net.Uri.parse(jUri.toString())
                                 showConfirm = false
                             },
                             onFailure = {

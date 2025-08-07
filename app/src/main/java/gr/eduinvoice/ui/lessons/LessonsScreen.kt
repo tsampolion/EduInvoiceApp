@@ -66,13 +66,27 @@ fun LessonsScreen(
     ) { padding ->
         var searchActive by remember { mutableStateOf(false) }
         val query by viewModel.searchQuery.collectAsStateWithLifecycle()
+        val lessonsHistory = remember(query) { emptyList<String>() }
         ModernSearchBar(
             query = query,
             onQueryChange = viewModel::updateSearchQuery,
             onVoiceInput = {},
             onSearch = {},
             active = searchActive,
-            onActiveChange = { searchActive = it }
+            onActiveChange = { searchActive = it },
+            suggestionsContent = {
+                Column(Modifier.fillMaxWidth()) {
+                    lessonsHistory.forEach { item ->
+                        Text(
+                            text = item,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
+                        )
+                        HorizontalDivider()
+                    }
+                }
+            }
         )
         var showFilters by remember { mutableStateOf(false) }
         Row(

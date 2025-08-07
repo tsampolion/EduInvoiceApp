@@ -9,6 +9,10 @@ import gr.eduinvoice.domain.group.GroupUseCases
 import gr.eduinvoice.domain.user.UserUseCases
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.mutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -28,7 +32,16 @@ object TestInfrastructure {
      */
     fun createTestEnvironment(database: EduInvoiceDatabase): TestEnvironment {
         val studentRepository = StudentRepository(database.studentDao())
-        val lessonRepository = LessonRepository(database.lessonDao())
+        // Use TutorBillingRepository instead of non-existent LessonRepository
+        val lessonRepository = TutorBillingRepository(
+            database.studentDao(),
+            database.lessonDao(),
+            database.groupDao(),
+            gr.eduinvoice.data.concurrency.ConcurrencyController(
+                gr.eduinvoice.data.concurrency.TransactionManager(database),
+                gr.eduinvoice.data.concurrency.OperationQueueManager()
+            )
+        )
         val groupRepository = GroupRepository(database.groupDao())
         val userRepository = UserRepository(database.userDao())
         
@@ -100,7 +113,7 @@ object TestInfrastructure {
     data class TestEnvironment(
         val database: EduInvoiceDatabase,
         val studentRepository: StudentRepository,
-        val lessonRepository: LessonRepository,
+        val lessonRepository: TutorBillingRepository,
         val groupRepository: GroupRepository,
         val userRepository: UserRepository,
         val studentUseCases: StudentUseCases,
@@ -154,6 +167,20 @@ object TestInfrastructure {
             durationMinutes = durationMinutes,
             notes = "Test lesson",
             ownerId = ownerId
+        )
+        
+        fun createTestLessonWithStudent(
+            student: Student,
+            lessonId: Long = 1L,
+            date: String = LocalDate.now().toString(),
+            durationMinutes: Int = 60
+        ): Lesson = Lesson.create(
+            studentId = student.id,
+            date = LocalDate.parse(date),
+            startTime = LocalTime.of(10, 0),
+            durationMinutes = durationMinutes,
+            notes = "Test lesson",
+            ownerId = student.ownerId
         )
         
         fun createTestGroup(
@@ -227,6 +254,40 @@ object TestInfrastructure {
         fun isValidRate(rate: Double): Boolean {
             return rate > 0 && rate <= 1000
         }
+        
+        fun isValidName(name: String): Boolean {
+            return name.isNotBlank() && name.length <= 50 && name.matches(Regex("^[a-zA-Z\\s]+$"))
+        }
+        
+        fun isValidClassName(className: String): Boolean {
+            return className.isNotBlank() && className.length <= 30
+        }
+        
+        fun isValidDate(date: String): Boolean {
+            return try {
+                LocalDate.parse(date)
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
+        
+        fun isValidTime(time: String): Boolean {
+            return try {
+                LocalTime.parse(time)
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
+        
+        fun isValidDuration(duration: Int): Boolean {
+            return duration > 0 && duration <= 480 // Max 8 hours
+        }
+        
+        fun isValidNotes(notes: String): Boolean {
+            return notes.length <= 500
+        }
     }
     
     /**
@@ -250,5 +311,24 @@ object TestInfrastructure {
             operation()
             return getMemoryUsage() - initialMemory
         }
+    }
+    
+    /**
+     * Test data manager for managing test state
+     */
+    object TestDataManager {
+        private val studentFlow: MutableStateFlow<List<Student>> = mutableStateFlow(emptyList())
+        private val lessonFlow: MutableStateFlow<List<Lesson>> = mutableStateFlow(emptyList())
+        private val lessonWithStudentFlow: MutableStateFlow<List<gr.eduinvoice.data.database.LessonWithStudent>> = mutableStateFlow(emptyList())
+        private val groupFlow: MutableStateFlow<List<StudentGroup>> = mutableStateFlow(emptyList())
+        
+        fun getGroupStudentRelations(): List<GroupStudentCrossRef> {
+            return emptyList() // Implement as needed
+        }
+        
+        fun getStudentFlow(): StateFlow<List<Student>> = studentFlow.asStateFlow()
+        fun getLessonFlow(): StateFlow<List<Lesson>> = lessonFlow.asStateFlow()
+        fun getLessonWithStudentFlow(): StateFlow<List<gr.eduinvoice.data.database.LessonWithStudent>> = lessonWithStudentFlow.asStateFlow()
+        fun getGroupFlow(): StateFlow<List<StudentGroup>> = groupFlow.asStateFlow()
     }
 } 

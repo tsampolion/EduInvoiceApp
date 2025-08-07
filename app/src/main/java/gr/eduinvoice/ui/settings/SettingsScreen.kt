@@ -157,6 +157,27 @@ fun SettingsScreen(
                     )
                 }
             }
+            SettingCard(containerColor = AppColors.tertiaryContainer) {
+                var expanded by remember { mutableStateOf(false) }
+                ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+                    OutlinedTextField(
+                        value = state.settings.pdfThemeKey,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("PDF Theme") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        listOf("default").forEach { key ->
+                            DropdownMenuItem(text = { Text(key) }, onClick = {
+                                viewModel.updatePdfTheme(key)
+                                expanded = false
+                            })
+                        }
+                    }
+                }
+            }
             Text(stringResource(R.string.account), style = MaterialTheme.typography.titleMedium)
             val loggedIn = state.user != null
             if (BuildConfig.DEBUG) {

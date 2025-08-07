@@ -4,18 +4,11 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import gr.eduinvoice.data.concurrency.ConcurrencyController
-import gr.eduinvoice.data.concurrency.ConcurrencyStats
-import gr.eduinvoice.data.concurrency.HealthCheckResult
-import gr.eduinvoice.data.concurrency.OperationType
-import gr.eduinvoice.data.concurrency.OperationPriority
-import gr.eduinvoice.data.concurrency.TransactionIsolationLevel
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.model.Lesson
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.repository.TutorBillingRepository
-import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.mockk
+import gr.eduinvoice.domain.testinfrastructure.createMockConcurrencyController
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -25,55 +18,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-/**
- * Creates a mock ConcurrencyController for testing
- */
-fun createMockConcurrencyController(): ConcurrencyController {
-    return mockk<ConcurrencyController>(relaxed = true) {
-        coEvery { 
-            executeSafeOperation(any(), any(), any(), any(), any(), any()) 
-        } answers {
-            val operation = firstArg<suspend () -> Any>()
-            try {
-                kotlin.Result.success(operation())
-            } catch (e: Exception) {
-                kotlin.Result.failure(e)
-            }
-        }
-        
-        coEvery { 
-            executeReadOnlyOperation(any(), any()) 
-        } answers {
-            val operation = firstArg<suspend () -> Any>()
-            try {
-                kotlin.Result.success(operation())
-            } catch (e: Exception) {
-                kotlin.Result.failure(e)
-            }
-        }
-        
-        coEvery { 
-            executeBatchSafeOperations(any(), any(), any(), any(), any()) 
-        } answers {
-            val operations = firstArg<List<suspend () -> Any>>()
-            try {
-                val results = mutableListOf<Any>()
-                for (operation in operations) {
-                    results.add(operation())
-                }
-                kotlin.Result.success(results)
-            } catch (e: Exception) {
-                kotlin.Result.failure(e)
-            }
-        }
-        
-        coEvery { performHealthCheck() } returns HealthCheckResult(isHealthy = true)
-        every { getConcurrencyStatistics() } returns ConcurrencyStats()
-        every { getActiveResourceLocks() } returns emptySet()
-        coEvery { releaseAllResourceLocks() } returns Unit
-        coEvery { emergencyCleanup() } returns Unit
-    }
-}
+/** Using shared mock from test infrastructure */
 
 @RunWith(RobolectricTestRunner::class)
 class UpdateLessonTest {
@@ -114,11 +59,11 @@ class UpdateLessonTest {
         )
 
         val useCase = UpdateLesson(repository)
-        useCase(updatedLesson, userId)
+        useCase(updatedLesson)
 
         val savedLesson = db.lessonDao().getLessonById(lessonId, userId).first()
-        assertEquals("2024-01-06", savedLesson.date)
-        assertEquals("11:00", savedLesson.startTime)
-        assertEquals(90, savedLesson.durationMinutes)
+        assertEquals("2024-01-06", savedLesson?.date)
+        assertEquals("11:00", savedLesson?.startTime)
+        assertEquals(90, savedLesson?.durationMinutes)
     }
 }

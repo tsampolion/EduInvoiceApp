@@ -24,6 +24,9 @@ import gr.eduinvoice.ui.design.NavigationMenuButton
 import gr.eduinvoice.ui.components.ModernSearchBar
 import gr.eduinvoice.ui.components.ModernFilterSheet
 import gr.eduinvoice.ui.components.FilterOptions
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,13 +53,27 @@ fun GroupsScreen(
     ) { padding ->
         var searchActive by remember { mutableStateOf(false) }
         var query by remember { mutableStateOf("") }
+        val groupsHistory = remember(query) { emptyList<String>() }
         ModernSearchBar(
             query = query,
             onQueryChange = { query = it },
             onVoiceInput = {},
             onSearch = {},
             active = searchActive,
-            onActiveChange = { searchActive = it }
+            onActiveChange = { searchActive = it },
+            suggestionsContent = {
+                Column(Modifier.fillMaxWidth()) {
+                    groupsHistory.forEach { item ->
+                        Text(
+                            text = item,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = gr.eduinvoice.ui.design.Dimensions.PaddingMedium, vertical = 8.dp)
+                        )
+                        HorizontalDivider()
+                    }
+                }
+            }
         )
         var showFilters by remember { mutableStateOf(false) }
         Row(

@@ -58,6 +58,8 @@ class ModernSearchRepository @Inject constructor(
             groups = emptyList()
         )
         addToHistory(query)
+        // Persist to DataStore
+        searchHistoryRepository.add(query)
         // persist asynchronously (callers should launch)
         return result
     }

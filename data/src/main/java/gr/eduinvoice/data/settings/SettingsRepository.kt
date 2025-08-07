@@ -17,7 +17,8 @@ private val Context.settingsDataStore by preferencesDataStore(name = "settings")
 data class AppSettings(
     val currencySymbol: String = "€",
     val roundingDecimals: Int = 2,
-    val darkTheme: Boolean = false
+    val darkTheme: Boolean = false,
+    val pdfThemeKey: String = "default"
 )
 
 @Singleton
@@ -28,13 +29,15 @@ class SettingsRepository @Inject constructor(
         val CURRENCY = stringPreferencesKey("currency_symbol")
         val ROUNDING = intPreferencesKey("rounding_decimals")
         val DARK_THEME = booleanPreferencesKey("dark_theme")
+        val PDF_THEME = stringPreferencesKey("pdf_theme")
     }
 
     val settings: Flow<AppSettings> = context.settingsDataStore.data.map { prefs ->
         AppSettings(
             currencySymbol = prefs[Keys.CURRENCY] ?: "€",
             roundingDecimals = (prefs[Keys.ROUNDING] ?: 2).coerceIn(0, 2),
-            darkTheme = prefs[Keys.DARK_THEME] ?: false
+            darkTheme = prefs[Keys.DARK_THEME] ?: false,
+            pdfThemeKey = prefs[Keys.PDF_THEME] ?: "default"
         )
     }
 
@@ -48,5 +51,9 @@ class SettingsRepository @Inject constructor(
 
     suspend fun setDarkTheme(enabled: Boolean) {
         context.settingsDataStore.edit { it[Keys.DARK_THEME] = enabled }
+    }
+
+    suspend fun setPdfThemeKey(key: String) {
+        context.settingsDataStore.edit { it[Keys.PDF_THEME] = key }
     }
 }

@@ -76,6 +76,10 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { repository.setDarkTheme(enabled) }
     }
 
+    fun updatePdfTheme(key: String) {
+        viewModelScope.launch { repository.setPdfThemeKey(key) }
+    }
+
     suspend fun exportBackup(): String = backupRepository.exportJson()
 
     suspend fun restoreBackup(json: String): Boolean {

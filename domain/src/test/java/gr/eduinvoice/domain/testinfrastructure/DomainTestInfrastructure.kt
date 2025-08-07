@@ -28,7 +28,17 @@ object DomainTestInfrastructure {
      */
     fun createDomainTestEnvironment(database: EduInvoiceDatabase): DomainTestEnvironment {
         val studentRepository = StudentRepository(database.studentDao())
-        val lessonRepository = LessonRepository(database.lessonDao())
+        // TutorBillingRepository manages lessons with concurrency; use it for lesson use-cases
+        val lessonRepository = TutorBillingRepository(
+            database.studentDao(),
+            database.lessonDao(),
+            database.groupDao(),
+            // Provide lightweight concurrency controller for tests
+            gr.eduinvoice.data.concurrency.ConcurrencyController(
+                gr.eduinvoice.data.concurrency.TransactionManager(database),
+                gr.eduinvoice.data.concurrency.OperationQueueManager()
+            )
+        )
         val groupRepository = GroupRepository(database.groupDao())
         val userRepository = UserRepository(database.userDao())
 
@@ -100,7 +110,7 @@ object DomainTestInfrastructure {
     data class DomainTestEnvironment(
         val database: EduInvoiceDatabase,
         val studentRepository: StudentRepository,
-        val lessonRepository: LessonRepository,
+        val lessonRepository: TutorBillingRepository,
         val groupRepository: GroupRepository,
         val userRepository: UserRepository,
         val studentUseCases: StudentUseCases,
