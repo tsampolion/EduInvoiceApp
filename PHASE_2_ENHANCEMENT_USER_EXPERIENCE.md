@@ -1,16 +1,16 @@
 # Phase 2: Enhancement & User Experience
 **Timeline**: Weeks 5-8  
-**Focus**: User experience improvements, advanced features, analytics, and quality assurance
+**Focus**: User experience improvements, modern UI design, advanced features, analytics, and quality assurance
 
 ## Overview
-Phase 2 builds upon the solid foundation established in Phase 1 to enhance user experience, implement advanced features, add comprehensive analytics, and ensure quality through rigorous testing. This phase focuses on making the app more user-friendly, feature-rich, and production-ready.
+Phase 2 builds upon the solid foundation established in Phase 1 to enhance user experience, implement modern UI design, add advanced features, modernize PDF generation, add comprehensive analytics, and ensure quality through rigorous testing. This phase focuses on making the app more user-friendly, visually appealing, feature-rich, and production-ready.
 
-## Week 5: User Experience Improvements
+## Week 5: Modern UI & User Experience
 
-### Task 2.1: Loading States & User Feedback
-**Priority**: MEDIUM  
+### Task 2.1: Modern Loading States & User Feedback
+**Priority**: HIGH  
 **Timeline**: Week 5  
-**Effort**: 2-3 days  
+**Effort**: 3-4 days  
 **Dependencies**: Phase 1 completion
 
 #### Current Issues
@@ -19,46 +19,48 @@ Phase 2 builds upon the solid foundation established in Phase 1 to enhance user 
 - Limited progress indicators for long operations
 - No success/error feedback for operations
 - Missing empty state handling
+- Basic UI without modern design elements
 
 #### Solution
-Implement comprehensive loading and feedback system with skeleton screens, progress indicators, and user-friendly feedback mechanisms.
+Implement comprehensive loading and feedback system with skeleton screens, progress indicators, user-friendly feedback mechanisms, and modern UI design elements.
 
 #### Detailed Actions
 
-1. **Add skeleton loading screens**
+1. **Add modern skeleton loading screens**
    ```kotlin
-   // Create SkeletonComponents.kt
+   // Create ModernSkeletonComponents.kt
    @Composable
-   fun StudentSkeleton() {
+   fun ModernStudentSkeleton() {
        Column(
            modifier = Modifier
                .fillMaxWidth()
                .padding(16.dp)
        ) {
-           // Skeleton implementation for student cards
            repeat(3) {
-               SkeletonCard()
-               Spacer(modifier = Modifier.height(8.dp))
+               ModernSkeletonCard()
+               Spacer(modifier = Modifier.height(12.dp))
            }
        }
    }
    
    @Composable
-   fun SkeletonCard() {
+   fun ModernSkeletonCard() {
        Card(
            modifier = Modifier
                .fillMaxWidth()
-               .height(80.dp)
+               .height(100.dp),
+           shape = RoundedCornerShape(16.dp),
+           elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
        ) {
            Row(
                modifier = Modifier
                    .fillMaxSize()
                    .padding(16.dp)
            ) {
-               // Skeleton avatar
-               Box(
+               // Modern skeleton avatar with shimmer
+               ShimmerBox(
                    modifier = Modifier
-                       .size(48.dp)
+                       .size(56.dp)
                        .background(
                            color = MaterialTheme.colorScheme.surfaceVariant,
                            shape = CircleShape
@@ -67,22 +69,23 @@ Implement comprehensive loading and feedback system with skeleton screens, progr
                
                Spacer(modifier = Modifier.width(16.dp))
                
-               Column {
-                   // Skeleton text lines
-                   SkeletonText(width = 120.dp, height = 16.dp)
+               Column(modifier = Modifier.weight(1f)) {
+                   ShimmerText(width = 140.dp, height = 18.dp)
                    Spacer(modifier = Modifier.height(8.dp))
-                   SkeletonText(width = 80.dp, height = 14.dp)
+                   ShimmerText(width = 100.dp, height = 14.dp)
+                   Spacer(modifier = Modifier.height(8.dp))
+                   ShimmerText(width = 80.dp, height = 12.dp)
                }
            }
        }
    }
    ```
 
-2. **Implement progress indicators for long operations**
+2. **Implement modern progress indicators**
    ```kotlin
-   // Create ProgressIndicators.kt
+   // Create ModernProgressIndicators.kt
    @Composable
-   fun OperationProgressIndicator(
+   fun ModernOperationProgressIndicator(
        operation: String,
        progress: Float,
        onCancel: () -> Unit
@@ -90,139 +93,59 @@ Implement comprehensive loading and feedback system with skeleton screens, progr
        Card(
            modifier = Modifier
                .fillMaxWidth()
-               .padding(16.dp)
+               .padding(16.dp),
+           shape = RoundedCornerShape(16.dp),
+           elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
        ) {
            Column(
-               modifier = Modifier.padding(16.dp)
+               modifier = Modifier.padding(20.dp)
            ) {
-               Text(
-                   text = operation,
-                   style = MaterialTheme.typography.bodyMedium
-               )
+               Row(
+                   modifier = Modifier.fillMaxWidth(),
+                   horizontalArrangement = Arrangement.SpaceBetween,
+                   verticalAlignment = Alignment.CenterVertically
+               ) {
+                   Text(
+                       text = operation,
+                       style = MaterialTheme.typography.titleMedium,
+                       color = MaterialTheme.colorScheme.onSurface
+                   )
+                   
+                   IconButton(onClick = onCancel) {
+                       Icon(
+                           Icons.Default.Close,
+                           contentDescription = "Cancel",
+                           tint = MaterialTheme.colorScheme.onSurfaceVariant
+                       )
+                   }
+               }
                
-               Spacer(modifier = Modifier.height(8.dp))
+               Spacer(modifier = Modifier.height(12.dp))
                
                LinearProgressIndicator(
                    progress = progress,
-                   modifier = Modifier.fillMaxWidth()
+                   modifier = Modifier.fillMaxWidth(),
+                   color = MaterialTheme.colorScheme.primary,
+                   trackColor = MaterialTheme.colorScheme.surfaceVariant
                )
                
                Spacer(modifier = Modifier.height(8.dp))
                
-               Row(
-                   modifier = Modifier.fillMaxWidth(),
-                   horizontalArrangement = Arrangement.SpaceBetween
-               ) {
-                   Text(
-                       text = "${(progress * 100).toInt()}%",
-                       style = MaterialTheme.typography.bodySmall
-                   )
-                   
-                   TextButton(onClick = onCancel) {
-                       Text("Cancel")
-                   }
-               }
-           }
-       }
-   }
-   ```
-
-3. **Add success/error feedback for all operations**
-   ```kotlin
-   // Create FeedbackComponents.kt
-   @Composable
-   fun SuccessSnackbar(
-       message: String,
-       onDismiss: () -> Unit
-   ) {
-       Snackbar(
-           modifier = Modifier.padding(16.dp),
-           action = {
-               TextButton(onClick = onDismiss) {
-                   Text("Dismiss")
-               }
-           }
-       ) {
-           Row(
-               verticalAlignment = Alignment.CenterVertically
-           ) {
-               Icon(
-                   imageVector = Icons.Default.CheckCircle,
-                   contentDescription = null,
-                   tint = MaterialTheme.colorScheme.primary
+               Text(
+                   text = "${(progress * 100).toInt()}%",
+                   style = MaterialTheme.typography.labelMedium,
+                   color = MaterialTheme.colorScheme.onSurfaceVariant
                )
-               Spacer(modifier = Modifier.width(8.dp))
-               Text(message)
-           }
-       }
-   }
-   
-   @Composable
-   fun ErrorSnackbar(
-       message: String,
-       onRetry: () -> Unit,
-       onDismiss: () -> Unit
-   ) {
-       Snackbar(
-           modifier = Modifier.padding(16.dp),
-           action = {
-               Row {
-                   TextButton(onClick = onRetry) {
-                       Text("Retry")
-                   }
-                   TextButton(onClick = onDismiss) {
-                       Text("Dismiss")
-                   }
-               }
-           }
-       ) {
-           Row(
-               verticalAlignment = Alignment.CenterVertically
-           ) {
-               Icon(
-                   imageVector = Icons.Default.Error,
-                   contentDescription = null,
-                   tint = MaterialTheme.colorScheme.error
-               )
-               Spacer(modifier = Modifier.width(8.dp))
-               Text(message)
            }
        }
    }
    ```
 
-4. **Implement pull-to-refresh functionality**
+3. **Add modern empty states**
    ```kotlin
-   // Create PullToRefresh.kt
+   // Create ModernEmptyStates.kt
    @Composable
-   fun PullToRefreshList(
-       onRefresh: () -> Unit,
-       content: @Composable () -> Unit
-   ) {
-       val pullRefreshState = rememberPullRefreshState(
-           refreshing = false,
-           onRefresh = onRefresh
-       )
-       
-       Box(
-           modifier = Modifier.pullRefresh(pullRefreshState)
-       ) {
-           content()
-           
-           PullRefreshIndicator(
-               refreshing = false,
-               state = pullRefreshState,
-               modifier = Modifier.align(Alignment.TopCenter)
-           )
-       }
-   }
-   ```
-
-5. **Add empty state handling**
-   ```kotlin
-   // Create EmptyStates.kt
-   @Composable
-   fun EmptyState(
+   fun ModernEmptyState(
        icon: ImageVector,
        title: String,
        message: String,
@@ -236,22 +159,36 @@ Implement comprehensive loading and feedback system with skeleton screens, progr
            horizontalAlignment = Alignment.CenterHorizontally,
            verticalArrangement = Arrangement.Center
        ) {
-           Icon(
-               imageVector = icon,
-               contentDescription = null,
-               modifier = Modifier.size(64.dp),
-               tint = MaterialTheme.colorScheme.onSurfaceVariant
-           )
+           Card(
+               modifier = Modifier.size(120.dp),
+               shape = CircleShape,
+               colors = CardDefaults.cardColors(
+                   containerColor = MaterialTheme.colorScheme.primaryContainer
+               )
+           ) {
+               Box(
+                   modifier = Modifier.fillMaxSize(),
+                   contentAlignment = Alignment.Center
+               ) {
+                   Icon(
+                       imageVector = icon,
+                       contentDescription = null,
+                       modifier = Modifier.size(48.dp),
+                       tint = MaterialTheme.colorScheme.onPrimaryContainer
+                   )
+               }
+           }
            
-           Spacer(modifier = Modifier.height(16.dp))
+           Spacer(modifier = Modifier.height(24.dp))
            
            Text(
                text = title,
                style = MaterialTheme.typography.headlineSmall,
-               textAlign = TextAlign.Center
+               textAlign = TextAlign.Center,
+               color = MaterialTheme.colorScheme.onSurface
            )
            
-           Spacer(modifier = Modifier.height(8.dp))
+           Spacer(modifier = Modifier.height(12.dp))
            
            Text(
                text = message,
@@ -261,9 +198,15 @@ Implement comprehensive loading and feedback system with skeleton screens, progr
            )
            
            if (actionText != null && onAction != null) {
-               Spacer(modifier = Modifier.height(24.dp))
+               Spacer(modifier = Modifier.height(32.dp))
                
-               Button(onClick = onAction) {
+               Button(
+                   onClick = onAction,
+                   shape = RoundedCornerShape(12.dp),
+                   colors = ButtonDefaults.buttonColors(
+                       containerColor = MaterialTheme.colorScheme.primary
+                   )
+               ) {
                    Text(actionText)
                }
            }
@@ -271,19 +214,45 @@ Implement comprehensive loading and feedback system with skeleton screens, progr
    }
    ```
 
+4. **Implement edge-to-edge design**
+   ```kotlin
+   // Create EdgeToEdgeScaffold.kt
+   @Composable
+   fun EdgeToEdgeScaffold(
+       topBar: @Composable (() -> Unit)? = null,
+       bottomBar: @Composable (() -> Unit)? = null,
+       content: @Composable (PaddingValues) -> Unit
+   ) {
+       val systemUiController = rememberSystemUiController()
+       val statusBarColor = Color.Transparent
+       val navigationBarColor = Color.Transparent
+       
+       SideEffect {
+           systemUiController.setStatusBarColor(statusBarColor)
+           systemUiController.setNavigationBarColor(navigationBarColor)
+       }
+       
+       Scaffold(
+           topBar = topBar,
+           bottomBar = bottomBar,
+           content = content
+       )
+   }
+   ```
+
 #### Files to Create
-- `app/src/main/java/gr/eduinvoice/ui/components/SkeletonComponents.kt`
-- `app/src/main/java/gr/eduinvoice/ui/components/ProgressIndicators.kt`
-- `app/src/main/java/gr/eduinvoice/ui/components/FeedbackComponents.kt`
-- `app/src/main/java/gr/eduinvoice/ui/components/PullToRefresh.kt`
-- `app/src/main/java/gr/eduinvoice/ui/components/EmptyStates.kt`
+- `app/src/main/java/gr/eduinvoice/ui/components/ModernSkeletonComponents.kt`
+- `app/src/main/java/gr/eduinvoice/ui/components/ModernProgressIndicators.kt`
+- `app/src/main/java/gr/eduinvoice/ui/components/ModernEmptyStates.kt`
+- `app/src/main/java/gr/eduinvoice/ui/components/EdgeToEdgeScaffold.kt`
+- `app/src/main/java/gr/eduinvoice/ui/components/ShimmerEffects.kt`
 
 #### Success Criteria
-- All operations provide clear feedback
-- Loading states prevent user confusion
-- Empty states guide user actions
-- Pull-to-refresh works smoothly
-- Success/error messages are user-friendly
+- All operations provide clear, modern feedback
+- Loading states prevent user confusion with smooth animations
+- Empty states guide user actions with modern design
+- Edge-to-edge design implemented across all screens
+- Modern visual hierarchy established
 
 #### Testing Requirements
 - UI tests for loading states
@@ -291,29 +260,131 @@ Implement comprehensive loading and feedback system with skeleton screens, progr
 - Accessibility tests for progress indicators
 - Performance tests for skeleton screens
 
-### Task 2.2: Accessibility Implementation
-**Priority**: MEDIUM  
+### Task 2.2: Modern Navigation & Typography System
+**Priority**: HIGH  
 **Timeline**: Week 5  
 **Effort**: 2-3 days  
 **Dependencies**: Task 2.1
 
 #### Current Issues
+- Traditional navigation drawer
+- Basic typography without hierarchy
+- No modern navigation patterns
 - Limited accessibility support
-- Missing content descriptions
 - No keyboard navigation support
-- Limited screen reader compatibility
-- No high contrast mode support
 
 #### Solution
-Implement comprehensive accessibility features including content descriptions, keyboard navigation, screen reader support, and theme accessibility.
+Implement modern navigation patterns, comprehensive typography system, and enhanced accessibility features.
 
 #### Detailed Actions
 
-1. **Add content descriptions for all UI elements**
+1. **Implement modern bottom navigation**
    ```kotlin
-   // Enhance existing components with accessibility
+   // Create ModernNavigation.kt
    @Composable
-   fun AccessibleStudentCard(
+   fun ModernBottomNavigation(
+       currentRoute: String,
+       onNavigate: (String) -> Unit
+   ) {
+       NavigationBar(
+           containerColor = MaterialTheme.colorScheme.surface,
+           tonalElevation = 8.dp
+       ) {
+           NavigationBarItem(
+               icon = { Icon(Icons.Default.Home, "Home") },
+               label = { Text("Home") },
+               selected = currentRoute == "home",
+               onClick = { onNavigate("home") },
+               colors = NavigationBarItemDefaults.colors(
+                   selectedIconColor = MaterialTheme.colorScheme.primary,
+                   selectedTextColor = MaterialTheme.colorScheme.primary,
+                   unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                   unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+               )
+           )
+           NavigationBarItem(
+               icon = { Icon(Icons.Default.People, "Students") },
+               label = { Text("Students") },
+               selected = currentRoute == "students",
+               onClick = { onNavigate("students") }
+           )
+           NavigationBarItem(
+               icon = { Icon(Icons.Default.Schedule, "Lessons") },
+               label = { Text("Lessons") },
+               selected = currentRoute == "lessons",
+               onClick = { onNavigate("lessons") }
+           )
+           NavigationBarItem(
+               icon = { Icon(Icons.Default.Settings, "Settings") },
+               label = { Text("Settings") },
+               selected = currentRoute == "settings",
+               onClick = { onNavigate("settings") }
+           )
+       }
+   }
+   ```
+
+2. **Create modern typography system**
+   ```kotlin
+   // Create ModernTypography.kt
+   val ModernTypography = Typography(
+       headlineLarge = TextStyle(
+           fontFamily = GoogleFonts.Inter,
+           fontWeight = FontWeight.Bold,
+           fontSize = 32.sp,
+           lineHeight = 40.sp,
+           letterSpacing = (-0.25).sp
+       ),
+       headlineMedium = TextStyle(
+           fontFamily = GoogleFonts.Inter,
+           fontWeight = FontWeight.SemiBold,
+           fontSize = 28.sp,
+           lineHeight = 36.sp,
+           letterSpacing = 0.sp
+       ),
+       titleLarge = TextStyle(
+           fontFamily = GoogleFonts.Inter,
+           fontWeight = FontWeight.SemiBold,
+           fontSize = 22.sp,
+           lineHeight = 28.sp,
+           letterSpacing = 0.sp
+       ),
+       titleMedium = TextStyle(
+           fontFamily = GoogleFonts.Inter,
+           fontWeight = FontWeight.Medium,
+           fontSize = 16.sp,
+           lineHeight = 24.sp,
+           letterSpacing = 0.15.sp
+       ),
+       bodyLarge = TextStyle(
+           fontFamily = GoogleFonts.Inter,
+           fontWeight = FontWeight.Normal,
+           fontSize = 16.sp,
+           lineHeight = 24.sp,
+           letterSpacing = 0.5.sp
+       ),
+       bodyMedium = TextStyle(
+           fontFamily = GoogleFonts.Inter,
+           fontWeight = FontWeight.Normal,
+           fontSize = 14.sp,
+           lineHeight = 20.sp,
+           letterSpacing = 0.25.sp
+       ),
+       labelMedium = TextStyle(
+           fontFamily = GoogleFonts.Inter,
+           fontWeight = FontWeight.Medium,
+           fontSize = 12.sp,
+           lineHeight = 16.sp,
+           letterSpacing = 0.5.sp
+       )
+   )
+   ```
+
+3. **Add comprehensive accessibility support**
+   ```kotlin
+   // Create ModernAccessibility.kt
+   @Composable
+   fun AccessibleModernCard(
        student: Student,
        onClick: () -> Unit
    ) {
@@ -327,795 +398,865 @@ Implement comprehensive accessibility features including content descriptions, k
                .semantics {
                    contentDescription = "Student ${student.name}, Class: ${student.className}"
                    stateDescription = if (student.isActive) "Active" else "Inactive"
-               }
+               },
+           shape = RoundedCornerShape(16.dp),
+           elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
        ) {
-           // Card content
+           // Modern card content
        }
    }
    ```
-
-2. **Implement keyboard navigation support**
-   ```kotlin
-   // Create KeyboardNavigation.kt
-   @Composable
-   fun KeyboardNavigableList(
-       items: List<Any>,
-       onItemSelect: (Any) -> Unit
-   ) {
-       var selectedIndex by remember { mutableStateOf(0) }
-       
-       LaunchedEffect(Unit) {
-           snapshotFlow { selectedIndex }
-               .collect { index ->
-                   // Handle keyboard navigation
-               }
-       }
-       
-       LazyColumn {
-           items(items) { item ->
-               KeyboardNavigableItem(
-                   item = item,
-                   isSelected = items.indexOf(item) == selectedIndex,
-                   onClick = { onItemSelect(item) }
-               )
-           }
-       }
-   }
-   ```
-
-3. **Add screen reader compatibility**
-   ```kotlin
-   // Create ScreenReaderSupport.kt
-   @Composable
-   fun ScreenReaderText(
-       text: String,
-       importance: LiveRegionMode = LiveRegionMode.Polite
-   ) {
-       Text(
-           text = text,
-           modifier = Modifier.semantics {
-               liveRegion = importance
-           }
-       )
-   }
-   ```
-
-4. **Implement high contrast mode support**
-   ```kotlin
-   // Enhance Theme.kt
-   @Composable
-   fun EduInvoiceTheme(
-       darkTheme: Boolean = isSystemInDarkTheme(),
-       highContrast: Boolean = isHighContrastEnabled(),
-       content: @Composable () -> Unit
-   ) {
-       val colorScheme = when {
-           darkTheme && highContrast -> HighContrastDarkColorScheme
-           darkTheme -> DarkColorScheme
-           highContrast -> HighContrastLightColorScheme
-           else -> LightColorScheme
-       }
-       
-       MaterialTheme(
-           colorScheme = colorScheme,
-           content = content
-       )
-   }
-   ```
-
-5. **Add reduced motion support**
-   ```kotlin
-   // Create MotionSupport.kt
-   @Composable
-   fun ReducedMotionAwareAnimation(
-       targetState: Boolean,
-       content: @Composable AnimatedVisibilityScope.() -> Unit
-   ) {
-       val reducedMotion = LocalAccessibilityService.current?.isReduceMotionEnabled ?: false
-       
-       if (reducedMotion) {
-           AnimatedVisibility(
-               visible = targetState,
-               enter = fadeIn(),
-               exit = fadeOut(),
-               content = content
-           )
-       } else {
-           AnimatedVisibility(
-               visible = targetState,
-               enter = slideInVertically() + fadeIn(),
-               exit = slideOutVertically() + fadeOut(),
-               content = content
-           )
-       }
-   }
-   ```
-
-#### Files to Modify
-- All UI components need accessibility attributes
-- `app/src/main/java/gr/eduinvoice/ui/theme/Theme.kt`
 
 #### Files to Create
-- `app/src/main/java/gr/eduinvoice/ui/accessibility/KeyboardNavigation.kt`
-- `app/src/main/java/gr/eduinvoice/ui/accessibility/ScreenReaderSupport.kt`
-- `app/src/main/java/gr/eduinvoice/ui/accessibility/MotionSupport.kt`
+- `app/src/main/java/gr/eduinvoice/ui/navigation/ModernNavigation.kt`
+- `app/src/main/java/gr/eduinvoice/ui/theme/ModernTypography.kt`
+- `app/src/main/java/gr/eduinvoice/ui/accessibility/ModernAccessibility.kt`
 
 #### Success Criteria
+- Modern bottom navigation implemented
+- Typography system with proper hierarchy
 - Accessibility score > 90%
 - Screen reader compatibility verified
 - Keyboard navigation fully functional
-- High contrast mode works correctly
-- Reduced motion respected
 
 #### Testing Requirements
+- Navigation flow tests
+- Typography rendering tests
 - Accessibility testing with screen readers
 - Keyboard navigation tests
-- High contrast mode tests
-- Motion accessibility tests
 
-## Week 6: Advanced Features
+## Week 6: Modern Search & Advanced Features
 
-### Task 2.3: Advanced Search & Filtering
-**Priority**: LOW  
+### Task 2.3: Modern Search & UI Components
+**Priority**: MEDIUM  
 **Timeline**: Week 6  
 **Effort**: 3-4 days  
-**Dependencies**: Task 2.1
+**Dependencies**: Task 2.1, Task 2.2
 
 #### Current Issues
 - Basic search functionality
 - No advanced filtering options
-- No search history
-- No fuzzy search for typos
+- Outdated component patterns
+- No modern search UI
 - Limited search result highlighting
 
 #### Solution
-Implement advanced search and filtering with full-text search, fuzzy matching, search history, and result highlighting.
+Implement advanced search and filtering with modern UI components, fuzzy matching, search history, and result highlighting.
 
 #### Detailed Actions
 
-1. **Add full-text search across all entities**
+1. **Create modern search bar with voice input**
    ```kotlin
-   // Create SearchRepository.kt
-   class SearchRepository @Inject constructor(
-       private val studentDao: StudentDao,
-       private val lessonDao: LessonDao,
-       private val groupDao: GroupDao
-   ) {
-       suspend fun searchAll(
-           query: String,
-           userId: Long
-       ): SearchResult {
-           val students = studentDao.searchStudents(query, userId)
-           val lessons = lessonDao.searchLessons(query, userId)
-           val groups = groupDao.searchGroups(query, userId)
-           
-           return SearchResult(
-               students = students,
-               lessons = lessons,
-               groups = groups
-           )
-       }
-   }
-   ```
-
-2. **Implement advanced filtering options**
-   ```kotlin
-   // Create FilterManager.kt
-   data class FilterOptions(
-       val dateRange: ClosedRange<LocalDate>? = null,
-       val status: List<String> = emptyList(),
-       val classes: List<String> = emptyList(),
-       val priceRange: ClosedRange<Double>? = null
-   )
-   
-   class FilterManager {
-       fun applyFilters(
-           items: List<Any>,
-           filters: FilterOptions
-       ): List<Any> {
-           // Filter implementation
-       }
-   }
-   ```
-
-3. **Add search history and suggestions**
-   ```kotlin
-   // Create SearchHistory.kt
-   class SearchHistory @Inject constructor(
-       private val dataStore: DataStore<Preferences>
-   ) {
-       suspend fun addSearchQuery(query: String)
-       suspend fun getSearchHistory(): List<String>
-       suspend fun getSuggestions(partial: String): List<String>
-   }
-   ```
-
-4. **Implement fuzzy search for typos**
-   ```kotlin
-   // Create FuzzySearch.kt
-   class FuzzySearch {
-       fun calculateSimilarity(str1: String, str2: String): Double
-       fun findSimilarMatches(
-           query: String,
-           candidates: List<String>,
-           threshold: Double = 0.8
-       ): List<String>
-   }
-   ```
-
-5. **Add search result highlighting**
-   ```kotlin
-   // Create SearchHighlighting.kt
+   // Create ModernSearchBar.kt
    @Composable
-   fun HighlightedText(
-       text: String,
-       highlight: String,
-       modifier: Modifier = Modifier
+   fun ModernSearchBar(
+       query: String,
+       onQueryChange: (String) -> Unit,
+       onVoiceInput: () -> Unit,
+       onSearch: (String) -> Unit,
+       active: Boolean,
+       onActiveChange: (Boolean) -> Unit
    ) {
-       val annotatedString = buildAnnotatedString {
-           val regex = Regex(highlight, RegexOption.IGNORE_CASE)
-           val matches = regex.findAll(text)
-           
-           var lastIndex = 0
-           matches.forEach { match ->
-               append(text.substring(lastIndex, match.range.first))
-               withStyle(SpanStyle(backgroundColor = Color.Yellow)) {
-                   append(match.value)
+       SearchBar(
+           query = query,
+           onQueryChange = onQueryChange,
+           onSearch = onSearch,
+           active = active,
+           onActiveChange = onActiveChange,
+           placeholder = { Text("Search students, lessons, or groups...") },
+           leadingIcon = { 
+               Icon(
+                   Icons.Default.Search,
+                   contentDescription = "Search",
+                   tint = MaterialTheme.colorScheme.onSurfaceVariant
+               )
+           },
+           trailingIcon = { 
+               IconButton(onClick = onVoiceInput) {
+                   Icon(
+                       Icons.Default.Mic,
+                       contentDescription = "Voice Input",
+                       tint = MaterialTheme.colorScheme.onSurfaceVariant
+                   )
                }
-               lastIndex = match.range.last + 1
-           }
-           append(text.substring(lastIndex))
+           },
+           modifier = Modifier
+               .fillMaxWidth()
+               .padding(16.dp),
+           shape = RoundedCornerShape(16.dp),
+           colors = SearchBarDefaults.colors(
+               containerColor = MaterialTheme.colorScheme.surfaceVariant,
+               dividerColor = MaterialTheme.colorScheme.outline
+           )
+       ) {
+           // Search suggestions
        }
-       
-       Text(
-           text = annotatedString,
+   }
+   ```
+
+2. **Implement modern component library**
+   ```kotlin
+   // Create ModernComponents.kt
+   @Composable
+   fun ModernCard(
+       modifier: Modifier = Modifier,
+       content: @Composable () -> Unit
+   ) {
+       Card(
            modifier = modifier
+               .fillMaxWidth()
+               .padding(8.dp),
+           elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+           shape = RoundedCornerShape(16.dp),
+           colors = CardDefaults.cardColors(
+               containerColor = MaterialTheme.colorScheme.surface
+           )
+       ) {
+           content()
+       }
+   }
+   
+   @Composable
+   fun ModernChip(
+       text: String,
+       selected: Boolean = false,
+       onClick: () -> Unit
+   ) {
+       FilterChip(
+           selected = selected,
+           onClick = onClick,
+           label = { Text(text) },
+           leadingIcon = if (selected) {
+               { Icon(Icons.Default.Check, contentDescription = null) }
+           } else null,
+           colors = FilterChipDefaults.filterChipColors(
+               selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+               selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+           ),
+           shape = RoundedCornerShape(20.dp)
        )
    }
    ```
 
+3. **Add advanced filtering with modern UI**
+   ```kotlin
+   // Create ModernFiltering.kt
+   @Composable
+   fun ModernFilterSheet(
+       filters: FilterOptions,
+       onFiltersChange: (FilterOptions) -> Unit,
+       onDismiss: () -> Unit
+   ) {
+       ModalBottomSheet(
+           onDismissRequest = onDismiss,
+           sheetState = rememberModalBottomSheetState(),
+           shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+           containerColor = MaterialTheme.colorScheme.surface
+       ) {
+           Column(
+               modifier = Modifier
+                   .fillMaxWidth()
+                   .padding(20.dp)
+           ) {
+               Text(
+                   text = "Filter Options",
+                   style = MaterialTheme.typography.headlineSmall,
+                   modifier = Modifier.padding(bottom = 16.dp)
+               )
+               
+               // Date range filter
+               ModernDateRangeFilter(
+                   dateRange = filters.dateRange,
+                   onDateRangeChange = { onFiltersChange(filters.copy(dateRange = it)) }
+               )
+               
+               Spacer(modifier = Modifier.height(16.dp))
+               
+               // Status filter
+               ModernStatusFilter(
+                   selectedStatuses = filters.status,
+                   onStatusChange = { onFiltersChange(filters.copy(status = it)) }
+               )
+               
+               Spacer(modifier = Modifier.height(24.dp))
+               
+               Row(
+                   modifier = Modifier.fillMaxWidth(),
+                   horizontalArrangement = Arrangement.SpaceBetween
+               ) {
+                   OutlinedButton(
+                       onClick = { onFiltersChange(FilterOptions()) },
+                       shape = RoundedCornerShape(12.dp)
+                   ) {
+                       Text("Clear All")
+                   }
+                   
+                   Button(
+                       onClick = onDismiss,
+                       shape = RoundedCornerShape(12.dp)
+                   ) {
+                       Text("Apply Filters")
+                   }
+               }
+               
+               Spacer(modifier = Modifier.height(32.dp))
+           }
+       }
+   }
+   ```
+
 #### Files to Create
-- `app/src/main/java/gr/eduinvoice/ui/components/SearchBar.kt`
-- `data/src/main/java/gr/eduinvoice/data/repository/SearchRepository.kt`
-- `app/src/main/java/gr/eduinvoice/utils/FilterManager.kt`
-- `app/src/main/java/gr/eduinvoice/utils/SearchHistory.kt`
-- `app/src/main/java/gr/eduinvoice/utils/FuzzySearch.kt`
-- `app/src/main/java/gr/eduinvoice/ui/components/SearchHighlighting.kt`
+- `app/src/main/java/gr/eduinvoice/ui/components/ModernSearchBar.kt`
+- `app/src/main/java/gr/eduinvoice/ui/components/ModernComponents.kt`
+- `app/src/main/java/gr/eduinvoice/ui/components/ModernFiltering.kt`
+- `app/src/main/java/gr/eduinvoice/utils/ModernSearchRepository.kt`
+- `app/src/main/java/gr/eduinvoice/utils/ModernFilterManager.kt`
 
 #### Success Criteria
 - Search results in < 500ms
 - Fuzzy search handles typos
 - Advanced filters work correctly
+- Modern UI components implemented
 - Search history persists
-- Result highlighting is accurate
 
 #### Testing Requirements
 - Search performance tests
 - Fuzzy search accuracy tests
 - Filter functionality tests
-- Search history persistence tests
+- UI component tests
 
-### Task 2.4: Data Export & Import Enhancements
-**Priority**: LOW  
+### Task 2.4: Modern PDF Generation System
+**Priority**: MEDIUM  
 **Timeline**: Week 6  
-**Effort**: 2-3 days  
-**Dependencies**: Task 2.3
+**Effort**: 3-4 days  
+**Dependencies**: Task 2.1, Task 2.2
 
 #### Current Issues
-- Basic backup/restore functionality
-- No multiple export formats
-- No selective data export
-- Limited data import capabilities
-- No export scheduling
+- Basic PDF layout without modern design
+- Poor typography and visual hierarchy
+- No modern color schemes
+- Limited visual appeal
+- Inconsistent branding
 
 #### Solution
-Implement comprehensive data management with multiple export formats, selective exports, data import capabilities, and scheduling.
+Implement modern PDF generation system with Material Design 3 integration, professional typography, modern color schemes, and visual hierarchy.
 
 #### Detailed Actions
 
-1. **Add multiple export formats (CSV, Excel, PDF)**
+1. **Create modern PDF theme system**
    ```kotlin
-   // Create ExportManager.kt
-   enum class ExportFormat {
-       JSON, CSV, EXCEL, PDF
-   }
+   // Create ModernPdfTheme.kt
+   data class ModernPdfTheme(
+       val colorScheme: PdfColorScheme,
+       val typography: PdfTypography,
+       val spacing: PdfSpacing,
+       val shapes: PdfShapes
+   )
    
-   class ExportManager @Inject constructor(
-       private val backupRepository: BackupRepository
-   ) {
-       suspend fun exportData(
-           format: ExportFormat,
-           filters: ExportFilters? = null
-       ): ExportResult {
-           return when (format) {
-               ExportFormat.JSON -> exportToJson(filters)
-               ExportFormat.CSV -> exportToCsv(filters)
-               ExportFormat.EXCEL -> exportToExcel(filters)
-               ExportFormat.PDF -> exportToPdf(filters)
-           }
-       }
-   }
-   ```
-
-2. **Implement selective data export**
-   ```kotlin
-   // Create ExportFilters.kt
-   data class ExportFilters(
-       val includeStudents: Boolean = true,
-       val includeLessons: Boolean = true,
-       val includeGroups: Boolean = true,
-       val includeInvoices: Boolean = true,
-       val dateRange: ClosedRange<LocalDate>? = null,
-       val classes: List<String> = emptyList()
+   data class PdfColorScheme(
+       val primary: Int,
+       val onPrimary: Int,
+       val surface: Int,
+       val onSurface: Int,
+       val surfaceVariant: Int,
+       val outline: Int,
+       val error: Int,
+       val success: Int
+   )
+   
+   data class PdfTypography(
+       val headlineLarge: PdfTextStyle,
+       val headlineMedium: PdfTextStyle,
+       val titleLarge: PdfTextStyle,
+       val titleMedium: PdfTextStyle,
+       val bodyLarge: PdfTextStyle,
+       val bodyMedium: PdfTextStyle,
+       val labelMedium: PdfTextStyle
+   )
+   
+   data class PdfTextStyle(
+       val fontSize: Float,
+       val fontWeight: Int,
+       val letterSpacing: Float = 0f,
+       val lineHeight: Float = 1.2f
    )
    ```
 
-3. **Add data import from external sources**
+2. **Implement modern PDF components**
    ```kotlin
-   // Create ImportManager.kt
-   class ImportManager @Inject constructor(
-       private val backupRepository: BackupRepository
+   // Create ModernPdfComponents.kt
+   class ModernPdfComponents(private val theme: ModernPdfTheme) {
+       
+       fun drawModernHeader(
+           canvas: Canvas,
+           width: Float,
+           height: Float,
+           tutorName: String,
+           tutorAddress: String,
+           invoiceNumber: String,
+           date: String
+       ) {
+           // Modern gradient header
+           val gradient = LinearGradient(
+               0f, 0f, width, height,
+               intArrayOf(theme.colorScheme.primary, theme.colorScheme.primary),
+               floatArrayOf(0f, 1f),
+               Shader.TileMode.CLAMP
+           )
+           
+           val headerPaint = Paint().apply {
+               shader = gradient
+           }
+           canvas.drawRect(0f, 0f, width, height, headerPaint)
+           
+           // Modern logo placement
+           drawLogo(canvas, 40f, 40f)
+           
+           // Typography hierarchy
+           drawTextWithStyle(
+               canvas,
+               tutorName,
+               120f, 50f,
+               theme.typography.headlineLarge,
+               theme.colorScheme.onPrimary
+           )
+           
+           drawTextWithStyle(
+               canvas,
+               tutorAddress,
+               120f, 80f,
+               theme.typography.bodyMedium,
+               theme.colorScheme.onPrimary
+           )
+           
+           // Invoice info card
+           drawInvoiceInfoCard(canvas, width - 300f, 20f, invoiceNumber, date)
+       }
+       
+       fun drawModernTable(
+           canvas: Canvas,
+           lessons: List<LessonWithStudent>,
+           startY: Float,
+           width: Float
+       ): Float {
+           var currentY = startY
+           
+           // Table header with modern styling
+           drawTableHeader(canvas, currentY, width)
+           currentY += 60f
+           
+           // Modern table rows with alternating colors
+           lessons.forEachIndexed { index, lesson ->
+               val isEven = index % 2 == 0
+               drawTableRow(
+                   canvas,
+                   lesson,
+                   currentY,
+                   width,
+                   isEven
+               )
+               currentY += 50f
+           }
+           
+           return currentY
+       }
+   }
+   ```
+
+3. **Create enhanced PDF generator**
+   ```kotlin
+   // Create ModernPdfGenerator.kt
+   class ModernPdfGenerator(
+       private val context: Context,
+       private val theme: ModernPdfTheme
    ) {
-       suspend fun importData(
-           data: String,
-           format: ImportFormat
-       ): ImportResult {
-           return when (format) {
-               ImportFormat.JSON -> importFromJson(data)
-               ImportFormat.CSV -> importFromCsv(data)
-               ImportFormat.EXCEL -> importFromExcel(data)
+       
+       fun generateModernInvoice(
+           invoiceData: InvoiceData,
+           outputFile: File
+       ): Result<Uri> {
+           return try {
+               val pdf = PdfDocument()
+               val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
+               val page = pdf.startPage(pageInfo)
+               val canvas = page.canvas
+               
+               val components = ModernPdfComponents(theme)
+               
+               // Modern header
+               components.drawModernHeader(
+                   canvas,
+                   595f, 120f,
+                   invoiceData.tutorName,
+                   invoiceData.tutorAddress,
+                   invoiceData.invoiceNumber,
+                   invoiceData.invoiceDate.toString()
+               )
+               
+               // Modern content
+               val contentY = components.drawModernTable(
+                   canvas,
+                   invoiceData.lessons,
+                   150f,
+                   595f
+               )
+               
+               // Modern summary section
+               drawModernSummary(canvas, invoiceData, contentY + 50f)
+               
+               // Modern footer
+               drawModernFooter(canvas, 595f, 842f)
+               
+               pdf.finishPage(page)
+               
+               // Save with modern filename
+               val uri = savePdfWithModernName(context, pdf, outputFile, invoiceData.invoiceNumber)
+               pdf.close()
+               
+               Result.success(uri)
+           } catch (e: Exception) {
+               Result.failure(e)
            }
        }
    }
    ```
 
-4. **Implement data validation for imports**
-   ```kotlin
-   // Create DataValidator.kt
-   class DataValidator {
-       fun validateImportData(data: ImportData): ValidationResult
-       fun sanitizeData(data: ImportData): ImportData
-       fun checkForConflicts(data: ImportData): List<Conflict>
-   }
-   ```
+#### Files to Create
+- `app/src/main/java/gr/eduinvoice/utils/ModernPdfTheme.kt`
+- `app/src/main/java/gr/eduinvoice/utils/ModernPdfComponents.kt`
+- `app/src/main/java/gr/eduinvoice/utils/ModernPdfGenerator.kt`
+- `app/src/main/java/gr/eduinvoice/utils/PdfThemeManager.kt`
 
-5. **Add export scheduling**
+#### Success Criteria
+- Modern PDF design with Material Design 3
+- Professional typography and visual hierarchy
+- Consistent branding with app design
+- Improved readability and visual appeal
+- Multiple PDF templates available
+
+#### Testing Requirements
+- PDF generation tests
+- Visual consistency tests
+- Typography rendering tests
+- Performance tests for large documents
+
+## Week 7: Visual Polish & Analytics
+
+### Task 2.5: Micro-interactions & Animations
+**Priority**: MEDIUM  
+**Timeline**: Week 7  
+**Effort**: 3-4 days  
+**Dependencies**: Task 2.1, Task 2.2, Task 2.3
+
+#### Current Issues
+- No haptic feedback
+- Limited micro-animations
+- Static UI transitions
+- No visual feedback for interactions
+- Poor user engagement
+
+#### Solution
+Implement comprehensive micro-interactions, haptic feedback, smooth animations, and visual feedback to enhance user engagement.
+
+#### Detailed Actions
+
+1. **Add haptic feedback system**
    ```kotlin
-   // Create ExportScheduler.kt
-   class ExportScheduler @Inject constructor(
-       private val workManager: WorkManager,
-       private val exportManager: ExportManager
+   // Create HapticFeedback.kt
+   @Composable
+   fun HapticButton(
+       onClick: () -> Unit,
+       modifier: Modifier = Modifier,
+       content: @Composable () -> Unit
    ) {
-       fun scheduleExport(
-           format: ExportFormat,
-           filters: ExportFilters,
-           schedule: ExportSchedule
+       val haptic = LocalHapticFeedback.current
+       
+       Button(
+           onClick = {
+               haptic.performHapticFeedback(HapticFeedbackType.ButtonPress)
+               onClick()
+           },
+           modifier = modifier,
+           shape = RoundedCornerShape(12.dp)
        ) {
-           val exportWork = OneTimeWorkRequestBuilder<ExportWorker>()
-               .setInputData(workDataOf(
-                   "format" to format.name,
-                   "filters" to filters.toJson()
-               ))
-               .setConstraints(schedule.constraints)
-               .build()
-           
-           workManager.enqueue(exportWork)
+           content()
+       }
+   }
+   
+   @Composable
+   fun HapticCard(
+       onClick: () -> Unit,
+       modifier: Modifier = Modifier,
+       content: @Composable () -> Unit
+   ) {
+       val haptic = LocalHapticFeedback.current
+       
+       Card(
+           modifier = modifier
+               .clickable {
+                   haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                   onClick()
+               },
+           shape = RoundedCornerShape(16.dp),
+           elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+       ) {
+           content()
        }
    }
    ```
 
-#### Files to Modify
-- `data/src/main/java/gr/eduinvoice/data/repository/BackupRepository.kt`
-- `app/src/main/java/gr/eduinvoice/ui/settings/SettingsScreen.kt`
+2. **Implement smooth animations**
+   ```kotlin
+   // Create ModernAnimations.kt
+   @Composable
+   fun SmoothTransition(
+       targetState: Boolean,
+       content: @Composable AnimatedVisibilityScope.() -> Unit
+   ) {
+       AnimatedVisibility(
+           visible = targetState,
+           enter = slideInVertically(
+               animationSpec = tween(300, easing = FastOutSlowInEasing)
+           ) + fadeIn(),
+           exit = slideOutVertically(
+               animationSpec = tween(300, easing = FastOutSlowInEasing)
+           ) + fadeOut(),
+           content = content
+       )
+   }
+   
+   @Composable
+   fun AnimatedCounter(
+       count: Int,
+       modifier: Modifier = Modifier
+   ) {
+       var oldCount by remember { mutableStateOf(count) }
+       val animatedCount by animateFloatAsState(
+           targetValue = count.toFloat(),
+           animationSpec = tween(500, easing = FastOutSlowInEasing)
+       )
+       
+       LaunchedEffect(count) {
+           oldCount = count
+       }
+       
+       Text(
+           text = animatedCount.toInt().toString(),
+           modifier = modifier,
+           style = MaterialTheme.typography.headlineMedium
+       )
+   }
+   ```
+
+3. **Add visual feedback for interactions**
+   ```kotlin
+   // Create VisualFeedback.kt
+   @Composable
+   fun RippleCard(
+       onClick: () -> Unit,
+       modifier: Modifier = Modifier,
+       content: @Composable () -> Unit
+   ) {
+       Card(
+           modifier = modifier
+               .clickable(
+                   onClick = onClick,
+                   indication = rememberRipple(bounded = true)
+               ),
+           shape = RoundedCornerShape(16.dp),
+           elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+       ) {
+           content()
+       }
+   }
+   
+   @Composable
+   fun LoadingAnimation(
+       isLoading: Boolean,
+       content: @Composable () -> Unit
+   ) {
+       Box {
+           content()
+           
+           if (isLoading) {
+               Box(
+                   modifier = Modifier
+                       .fillMaxSize()
+                       .background(Color.Black.copy(alpha = 0.3f)),
+                   contentAlignment = Alignment.Center
+               ) {
+                   CircularProgressIndicator(
+                       color = MaterialTheme.colorScheme.primary
+                   )
+               }
+           }
+       }
+   }
+   ```
 
 #### Files to Create
-- `app/src/main/java/gr/eduinvoice/utils/ExportManager.kt`
-- `app/src/main/java/gr/eduinvoice/utils/ImportManager.kt`
-- `app/src/main/java/gr/eduinvoice/utils/DataValidator.kt`
-- `app/src/main/java/gr/eduinvoice/utils/ExportScheduler.kt`
-- `app/src/main/java/gr/eduinvoice/workers/ExportWorker.kt`
+- `app/src/main/java/gr/eduinvoice/ui/interactions/HapticFeedback.kt`
+- `app/src/main/java/gr/eduinvoice/ui/animations/ModernAnimations.kt`
+- `app/src/main/java/gr/eduinvoice/ui/feedback/VisualFeedback.kt`
 
 #### Success Criteria
-- Multiple export formats supported
-- Import validation prevents data corruption
-- Scheduled exports work reliably
-- Selective export functions correctly
-- Data import handles various formats
+- Haptic feedback for all interactions
+- Smooth animations for state transitions
+- Visual feedback for user actions
+- Improved user engagement metrics
+- Consistent interaction patterns
 
 #### Testing Requirements
-- Export format tests
-- Import validation tests
-- Scheduled export tests
-- Data integrity tests
+- Haptic feedback tests
+- Animation performance tests
+- Interaction flow tests
+- User engagement metrics
 
-## Week 7: Analytics & Monitoring
-
-### Task 2.5: User Analytics Implementation
+### Task 2.6: Analytics & Performance Monitoring
 **Priority**: MEDIUM  
 **Timeline**: Week 7  
 **Effort**: 2-3 days  
-**Dependencies**: Task 2.1
+**Dependencies**: Task 2.1, Task 2.3
 
 #### Current Issues
-- Limited user behavior tracking
-- No feature usage analytics
+- Limited analytics implementation
 - No performance monitoring
-- Limited error tracking
-- No business metrics tracking
+- Missing user behavior tracking
+- No business metrics
+- Limited insights into app usage
 
 #### Solution
-Implement comprehensive analytics with user journey tracking, feature usage analytics, performance monitoring, and business metrics.
+Implement comprehensive analytics and performance monitoring to track user behavior, app performance, and business metrics.
 
 #### Detailed Actions
 
-1. **Add user journey tracking**
+1. **Implement user analytics**
    ```kotlin
-   // Create UserJourneyTracker.kt
-   class UserJourneyTracker @Inject constructor(
-       private val analytics: FirebaseAnalytics
+   // Create UserAnalytics.kt
+   class UserAnalytics @Inject constructor(
+       private val firebaseAnalytics: FirebaseAnalytics
    ) {
-       fun trackScreenView(screenName: String, parameters: Map<String, Any> = emptyMap())
-       fun trackUserAction(action: String, parameters: Map<String, Any> = emptyMap())
-       fun trackUserFlow(flowName: String, step: String, parameters: Map<String, Any> = emptyMap())
+       fun trackScreenView(screenName: String) {
+           firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
+               param(FirebaseAnalytics.Param.SCREEN_NAME, screenName)
+           }
+       }
+       
+       fun trackUserAction(action: String, parameters: Map<String, String> = emptyMap()) {
+           firebaseAnalytics.logEvent("user_action") {
+               param("action", action)
+               parameters.forEach { (key, value) ->
+                   param(key, value)
+               }
+           }
+       }
+       
+       fun trackFeatureUsage(feature: String) {
+           firebaseAnalytics.logEvent("feature_usage") {
+               param("feature", feature)
+               param("timestamp", System.currentTimeMillis().toString())
+           }
+       }
    }
    ```
 
-2. **Implement feature usage analytics**
-   ```kotlin
-   // Create FeatureAnalytics.kt
-   class FeatureAnalytics @Inject constructor(
-       private val analytics: FirebaseAnalytics
-   ) {
-       fun trackFeatureUsage(feature: String, parameters: Map<String, Any> = emptyMap())
-       fun trackFeatureAdoption(feature: String, userId: String)
-       fun trackFeatureEngagement(feature: String, duration: Long)
-   }
-   ```
-
-3. **Add performance monitoring**
+2. **Add performance monitoring**
    ```kotlin
    // Create PerformanceMonitor.kt
    class PerformanceMonitor @Inject constructor(
-       private val performance: FirebasePerformance
+       private val firebasePerformance: FirebasePerformance
    ) {
-       fun startTrace(traceName: String): Trace
-       fun trackAppStartTime()
-       fun trackScreenLoadTime(screenName: String)
-       fun trackDatabaseOperation(operation: String, duration: Long)
+       fun startTrace(traceName: String): Trace {
+           return firebasePerformance.newTrace(traceName)
+       }
+       
+       fun monitorScreenLoad(screenName: String) {
+           val trace = startTrace("screen_load_$screenName")
+           trace.start()
+           
+           // Stop trace when screen is fully loaded
+           trace.stop()
+       }
+       
+       fun monitorOperation(operationName: String, operation: suspend () -> Unit) {
+           val trace = startTrace(operationName)
+           trace.start()
+           
+           runBlocking {
+               operation()
+           }
+           
+           trace.stop()
+       }
    }
    ```
 
-4. **Implement error tracking and reporting**
-   ```kotlin
-   // Create ErrorTracker.kt
-   class ErrorTracker @Inject constructor(
-       private val crashlytics: FirebaseCrashlytics
-   ) {
-       fun logError(error: Throwable, context: String = "")
-       fun logNonFatalError(error: Throwable, context: String = "")
-       fun setUserIdentifier(userId: String)
-       fun setCustomKey(key: String, value: String)
-   }
-   ```
-
-5. **Add business metrics tracking**
+3. **Implement business metrics tracking**
    ```kotlin
    // Create BusinessMetrics.kt
    class BusinessMetrics @Inject constructor(
-       private val analytics: FirebaseAnalytics
+       private val userAnalytics: UserAnalytics
    ) {
-       fun trackRevenue(revenue: Double, source: String)
-       fun trackStudentCount(count: Int)
-       fun trackLessonCount(count: Int)
-       fun trackInvoiceGenerated(invoiceId: String, amount: Double)
+       fun trackInvoiceGenerated(amount: Double, lessonCount: Int) {
+           userAnalytics.trackUserAction("invoice_generated", mapOf(
+               "amount" to amount.toString(),
+               "lesson_count" to lessonCount.toString()
+           ))
+       }
+       
+       fun trackStudentAdded(studentType: String) {
+           userAnalytics.trackUserAction("student_added", mapOf(
+               "student_type" to studentType
+           ))
+       }
+       
+       fun trackLessonCompleted(duration: Int, rate: Double) {
+           userAnalytics.trackUserAction("lesson_completed", mapOf(
+               "duration" to duration.toString(),
+               "rate" to rate.toString()
+           ))
+       }
    }
    ```
 
 #### Files to Create
-- `app/src/main/java/gr/eduinvoice/analytics/AnalyticsManager.kt`
-- `app/src/main/java/gr/eduinvoice/analytics/UserJourneyTracker.kt`
-- `app/src/main/java/gr/eduinvoice/analytics/FeatureAnalytics.kt`
+- `app/src/main/java/gr/eduinvoice/analytics/UserAnalytics.kt`
 - `app/src/main/java/gr/eduinvoice/analytics/PerformanceMonitor.kt`
-- `app/src/main/java/gr/eduinvoice/analytics/ErrorTracker.kt`
 - `app/src/main/java/gr/eduinvoice/analytics/BusinessMetrics.kt`
 
 #### Success Criteria
-- All user interactions tracked
-- Performance metrics collected
-- Error reporting automated
-- Business metrics accurate
-- Analytics data privacy compliant
+- Comprehensive user behavior tracking
+- Performance monitoring implemented
+- Business metrics collected
+- Analytics dashboard functional
+- Performance insights available
 
 #### Testing Requirements
-- Analytics tracking tests
+- Analytics data accuracy tests
 - Performance monitoring tests
-- Error reporting tests
+- Business metrics validation
 - Privacy compliance tests
 
-### Task 2.6: Performance Monitoring
+## Week 8: Accessibility & Visual Testing
+
+### Task 2.7: Comprehensive Accessibility & Visual Testing
 **Priority**: MEDIUM  
-**Timeline**: Week 7  
-**Effort**: 2-3 days  
-**Dependencies**: Task 2.5
-
-#### Current Issues
-- No performance monitoring in production
-- No app startup time monitoring
-- No memory usage tracking
-- No database query performance monitoring
-- No battery usage monitoring
-
-#### Solution
-Implement comprehensive performance tracking with startup time monitoring, memory usage tracking, database performance monitoring, and battery usage tracking.
-
-#### Detailed Actions
-
-1. **Add app startup time monitoring**
-   ```kotlin
-   // Create StartupMonitor.kt
-   class StartupMonitor @Inject constructor(
-       private val performance: FirebasePerformance
-   ) {
-       private var startTime: Long = 0
-       
-       fun recordStartTime() {
-           startTime = System.currentTimeMillis()
-       }
-       
-       fun recordStartupComplete() {
-           val duration = System.currentTimeMillis() - startTime
-           performance.newTrace("app_startup").apply {
-               putMetric("duration", duration)
-               stop()
-           }
-       }
-   }
-   ```
-
-2. **Implement memory usage tracking**
-   ```kotlin
-   // Create MemoryMonitor.kt
-   class MemoryMonitor @Inject constructor(
-       private val performance: FirebasePerformance
-   ) {
-       fun trackMemoryUsage() {
-           val runtime = Runtime.getRuntime()
-           val usedMemory = runtime.totalMemory() - runtime.freeMemory()
-           val maxMemory = runtime.maxMemory()
-           
-           performance.newTrace("memory_usage").apply {
-               putMetric("used_memory_mb", usedMemory / 1024 / 1024)
-               putMetric("max_memory_mb", maxMemory / 1024 / 1024)
-               putMetric("memory_percentage", (usedMemory.toFloat() / maxMemory) * 100)
-               stop()
-           }
-       }
-   }
-   ```
-
-3. **Add database query performance monitoring**
-   ```kotlin
-   // Create DatabasePerformanceMonitor.kt
-   class DatabasePerformanceMonitor @Inject constructor(
-       private val performance: FirebasePerformance
-   ) {
-       suspend fun <T> monitorQuery(
-           queryName: String,
-           query: suspend () -> T
-       ): T {
-           val startTime = System.currentTimeMillis()
-           return try {
-               query().also {
-                   val duration = System.currentTimeMillis() - startTime
-                   performance.newTrace("database_query").apply {
-                       putAttribute("query_name", queryName)
-                       putMetric("duration_ms", duration)
-                       stop()
-                   }
-               }
-           } catch (e: Exception) {
-               performance.newTrace("database_query_error").apply {
-                   putAttribute("query_name", queryName)
-                   putAttribute("error", e.message ?: "Unknown error")
-                   stop()
-               }
-               throw e
-           }
-       }
-   }
-   ```
-
-4. **Implement UI rendering performance tracking**
-   ```kotlin
-   // Create UiPerformanceMonitor.kt
-   @Composable
-   fun TrackUiPerformance(
-       screenName: String,
-       content: @Composable () -> Unit
-   ) {
-       val performance = LocalFirebasePerformance.current
-       
-       DisposableEffect(Unit) {
-           val trace = performance.newTrace("ui_render")
-           trace.putAttribute("screen", screenName)
-           trace.start()
-           
-           onDispose {
-               trace.stop()
-           }
-       }
-       
-       content()
-   }
-   ```
-
-5. **Add battery usage monitoring**
-   ```kotlin
-   // Create BatteryMonitor.kt
-   class BatteryMonitor @Inject constructor(
-       private val context: Context,
-       private val performance: FirebasePerformance
-   ) {
-       fun trackBatteryUsage() {
-           val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-           val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-           
-           performance.newTrace("battery_usage").apply {
-               putMetric("battery_level", batteryLevel)
-               stop()
-           }
-       }
-   }
-   ```
-
-#### Files to Create
-- `app/src/main/java/gr/eduinvoice/monitoring/PerformanceMonitor.kt`
-- `app/src/main/java/gr/eduinvoice/monitoring/StartupMonitor.kt`
-- `app/src/main/java/gr/eduinvoice/monitoring/MemoryMonitor.kt`
-- `app/src/main/java/gr/eduinvoice/monitoring/DatabasePerformanceMonitor.kt`
-- `app/src/main/java/gr/eduinvoice/monitoring/UiPerformanceMonitor.kt`
-- `app/src/main/java/gr/eduinvoice/monitoring/BatteryMonitor.kt`
-
-#### Success Criteria
-- Performance metrics collected
-- Performance regression detection
-- Battery usage optimized
-- Memory usage tracked
-- Database performance monitored
-
-#### Testing Requirements
-- Performance benchmark tests
-- Memory leak detection tests
-- Battery usage tests
-- Database performance tests
-
-## Week 8: Quality Assurance
-
-### Task 2.7: Comprehensive Testing
-**Priority**: HIGH  
 **Timeline**: Week 8  
 **Effort**: 3-4 days  
 **Dependencies**: All previous tasks
 
 #### Current Issues
-- Need comprehensive testing of new features
-- No performance regression tests
+- Limited accessibility testing
+- No visual consistency testing
+- Missing performance regression tests
 - Limited security testing
-- No accessibility testing
-- Missing integration tests for new features
+- No comprehensive quality assurance
 
 #### Solution
-Implement full test coverage for all new features including unit tests, integration tests, UI tests, performance tests, and security tests.
+Implement comprehensive testing including accessibility, visual consistency, performance, security, and quality assurance.
 
 #### Detailed Actions
 
-1. **Add unit tests for all new features**
+1. **Accessibility testing suite**
    ```kotlin
-   // Create comprehensive unit tests
-   @RunWith(MockitoJUnitRunner::class)
-   class SearchRepositoryTest {
-       @Mock
-       private lateinit var studentDao: StudentDao
-       
-       @InjectMocks
-       private lateinit var searchRepository: SearchRepository
+   // Create AccessibilityTests.kt
+   @RunWith(AndroidJUnit4::class)
+   class AccessibilityTests {
+       @Test
+       fun testScreenReaderCompatibility() {
+           // Test screen reader compatibility
+       }
        
        @Test
-       fun `search returns correct results`() = runTest {
-           // Test implementation
+       fun testKeyboardNavigation() {
+           // Test keyboard navigation
+       }
+       
+       @Test
+       fun testHighContrastMode() {
+           // Test high contrast mode
+       }
+       
+       @Test
+       fun testLargeTextSupport() {
+           // Test large text support
        }
    }
    ```
 
-2. **Implement integration tests for user flows**
+2. **Visual consistency testing**
    ```kotlin
-   // Create integration tests
+   // Create VisualTests.kt
    @RunWith(AndroidJUnit4::class)
-   class UserFlowIntegrationTest {
+   class VisualTests {
        @Test
-       fun testSearchAndFilterFlow() {
-           // Test search and filter integration
+       fun testThemeConsistency() {
+           // Test theme consistency across screens
        }
        
        @Test
-       fun testExportImportFlow() {
-           // Test export/import integration
+       fun testComponentAlignment() {
+           // Test component alignment
+       }
+       
+       @Test
+       fun testTypographyHierarchy() {
+           // Test typography hierarchy
+       }
+       
+       @Test
+       fun testColorContrast() {
+           // Test color contrast ratios
        }
    }
    ```
 
-3. **Add UI tests for critical paths**
+3. **Performance regression testing**
    ```kotlin
-   // Create UI tests
+   // Create PerformanceTests.kt
    @RunWith(AndroidJUnit4::class)
-   class UiAutomationTest {
+   class PerformanceTests {
        @Test
-       fun testSearchFunctionality() {
-           // UI test for search
+       fun testAppStartupTime() {
+           // Test app startup time
        }
        
        @Test
-       fun testAccessibilityFeatures() {
-           // UI test for accessibility
+       fun testMemoryUsage() {
+           // Test memory usage
        }
-   }
-   ```
-
-4. **Implement performance tests**
-   ```kotlin
-   // Create performance tests
-   @RunWith(AndroidJUnit4::class)
-   class PerformanceTest {
+       
+       @Test
+       fun testRenderingPerformance() {
+           // Test rendering performance
+       }
+       
        @Test
        fun testSearchPerformance() {
-           // Performance test for search
-       }
-       
-       @Test
-       fun testExportPerformance() {
-           // Performance test for export
-       }
-   }
-   ```
-
-5. **Add security tests**
-   ```kotlin
-   // Create security tests
-   @RunWith(AndroidJUnit4::class)
-   class SecurityTest {
-       @Test
-       fun testDataValidation() {
-           // Security test for data validation
-       }
-       
-       @Test
-       fun testAccessControl() {
-           // Security test for access control
+           // Test search performance
        }
    }
    ```
 
 #### Files to Create
-- Comprehensive test suite for all new features
-- Performance test suite
-- Security test suite
-- Accessibility test suite
-- Integration test suite
+- `app/src/test/java/gr/eduinvoice/accessibility/AccessibilityTests.kt`
+- `app/src/test/java/gr/eduinvoice/visual/VisualTests.kt`
+- `app/src/test/java/gr/eduinvoice/performance/PerformanceTests.kt`
+- `app/src/test/java/gr/eduinvoice/security/SecurityTests.kt`
 
 #### Success Criteria
-- Test coverage > 90%
-- All new features tested
-- Performance benchmarks established
+- Accessibility score > 90%
+- Visual consistency verified
+- Performance benchmarks met
 - Security vulnerabilities identified and fixed
-- Accessibility compliance verified
+- Comprehensive test coverage achieved
 
 #### Testing Requirements
-- Unit tests for all new features
-- Integration tests for user flows
-- UI tests for critical paths
-- Performance tests for scalability
-- Security tests for vulnerabilities
-- Accessibility tests for compliance
+- Accessibility testing with screen readers
+- Visual consistency tests
+- Performance regression tests
+- Security vulnerability tests
+- End-to-end user flow tests
 
 ## Phase 2 Success Metrics
 
@@ -1143,6 +1284,13 @@ Implement full test coverage for all new features including unit tests, integrat
 - Export/import success rate > 95%
 - Analytics data quality score > 95%
 
+### Visual Design Metrics
+- Modern UI components implemented
+- PDF aesthetic improvements completed
+- Micro-interactions and animations added
+- Visual consistency across all screens
+- Accessibility compliance verified
+
 ## Risk Mitigation
 
 ### High-Risk Areas
@@ -1150,12 +1298,14 @@ Implement full test coverage for all new features including unit tests, integrat
 2. **Data Privacy**: Ensure analytics compliance with privacy regulations
 3. **Accessibility**: Regular accessibility audits
 4. **Feature Complexity**: Gradual rollout of complex features
+5. **Visual Consistency**: Regular design reviews
 
 ### Contingency Plans
 - Feature flags for gradual rollouts
 - Performance monitoring alerts
 - Rollback procedures for problematic features
 - Privacy compliance audits
+- Design system documentation
 
 ## Dependencies and Prerequisites
 
@@ -1164,20 +1314,24 @@ Implement full test coverage for all new features including unit tests, integrat
 - Firebase Performance
 - Firebase Crashlytics
 - WorkManager for background tasks
+- Google Fonts (Inter)
 
 ### Internal Dependencies
 - Phase 1 completion
 - Existing UI components
 - Current data layer
 - Testing infrastructure
+- PDF generation system
 
 ## Next Steps After Phase 2
 
 Upon successful completion of Phase 2, the project will have:
-- Enhanced user experience
-- Advanced search and filtering
-- Comprehensive analytics
+- Enhanced user experience with modern UI
+- Advanced search and filtering capabilities
+- Modern PDF generation system
+- Comprehensive analytics and monitoring
 - Robust testing coverage
 - Accessibility compliance
+- Visual design consistency
 
 This foundation will enable the successful implementation of Phase 3 advanced features and production readiness. 
