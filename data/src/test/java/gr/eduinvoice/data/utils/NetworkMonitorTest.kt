@@ -15,8 +15,10 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
+@Config(sdk = [34], manifest = Config.NONE)
 class NetworkMonitorTest {
 
     private lateinit var context: Context
@@ -27,11 +29,12 @@ class NetworkMonitorTest {
 
     @Before
     fun setUp() {
-        context = ApplicationProvider.getApplicationContext()
+        context = mockk()
         connectivityManager = mockk()
         network = mockk()
         networkCapabilities = mockk()
 
+        every { context.getSystemService(Context.CONNECTIVITY_SERVICE) } returns connectivityManager
         networkMonitor = NetworkMonitor(context)
     }
 

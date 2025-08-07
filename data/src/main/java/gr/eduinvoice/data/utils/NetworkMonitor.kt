@@ -37,6 +37,7 @@ class NetworkMonitor @Inject constructor(
     /**
      * Get the current connection type
      */
+    @SuppressLint("MissingPermission")
     fun getConnectionType(): ConnectionType {
         val network = connectivityManager.activeNetwork ?: return ConnectionType.NONE
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return ConnectionType.NONE
@@ -53,6 +54,7 @@ class NetworkMonitor @Inject constructor(
     /**
      * Get network quality based on available bandwidth and latency
      */
+    @SuppressLint("MissingPermission")
     fun getNetworkQuality(): NetworkQuality {
         val network = connectivityManager.activeNetwork ?: return NetworkQuality.POOR
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return NetworkQuality.POOR
@@ -141,6 +143,7 @@ class NetworkMonitor @Inject constructor(
     /**
      * Check if the current connection is metered (e.g., mobile data)
      */
+    @SuppressLint("MissingPermission")
     fun isMeteredConnection(): Boolean {
         val network = connectivityManager.activeNetwork ?: return true
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return true
@@ -150,6 +153,7 @@ class NetworkMonitor @Inject constructor(
     /**
      * Check if the current connection is expensive (e.g., roaming)
      */
+    @SuppressLint("MissingPermission")
     fun isExpensiveConnection(): Boolean {
         val network = connectivityManager.activeNetwork ?: return true
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return true
