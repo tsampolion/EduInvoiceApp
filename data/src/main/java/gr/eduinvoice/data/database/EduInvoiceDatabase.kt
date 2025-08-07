@@ -11,6 +11,8 @@ import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.dao.StudentDao
 import gr.eduinvoice.data.dao.UserDao
 import gr.eduinvoice.data.database.MIGRATION_12_13
+import gr.eduinvoice.data.database.MIGRATION_13_15
+import gr.eduinvoice.data.database.MIGRATION_14_15
 import gr.eduinvoice.data.model.GroupStudentCrossRef
 import gr.eduinvoice.data.model.Lesson
 import gr.eduinvoice.data.model.Student
@@ -63,7 +65,11 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
                 )
                     .openHelperFactory(factory)
                     .fallbackToDestructiveMigration(false)
-                    .addMigrations(MIGRATION_12_13)
+                    .addMigrations(
+                        MIGRATION_12_13,
+                        MIGRATION_13_15,
+                        MIGRATION_14_15
+                    )
                     .build()
                 INSTANCE = instance
                 instance

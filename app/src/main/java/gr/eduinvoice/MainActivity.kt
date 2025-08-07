@@ -1,6 +1,7 @@
 package gr.eduinvoice
 
 import android.os.Bundle
+import android.os.StrictMode
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -30,6 +31,16 @@ import gr.eduinvoice.utils.GlobalPdfGenerator
 import gr.eduinvoice.utils.GlobalBackgroundProcessor
 import gr.eduinvoice.utils.BackgroundProcessor
 import dagger.hilt.android.AndroidEntryPoint
+import android.util.Log
+import androidx.lifecycle.lifecycleScope
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+import android.content.Context
+import com.google.firebase.FirebaseApp
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.sessions.FirebaseSessions
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -51,6 +62,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        // Configure StrictMode to allow network operations on background threads
+        configureStrictMode()
+        
         // Initialize error handling components
         errorHandler = ErrorHandler(this)
         errorReporter = ErrorReporter(this)
@@ -62,7 +76,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Initialize global PDF generator
         GlobalPdfGenerator.initialize(this)
         
+        // Initialize Firebase Sessions on background thread to avoid StrictMode violations
+        initializeFirebaseSessions()
+        
         setContentView(R.layout.activity_main)
+        
         try {
             val toolbar = findViewById<Toolbar>(R.id.toolbar)
             setSupportActionBar(toolbar)
@@ -95,32 +113,95 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 }
                         }
                     }
+                    
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        // Wrap the main app with ErrorBoundary
                         ErrorBoundary(
                             onError = { error ->
-                                errorReporter.reportError(error, "MainActivity")
+                                Log.e("MainActivity", "Compose error", error)
+                                errorReporter.reportError(error)
                             }
                         ) {
-                            TutorBillingApp(controller, ::openDrawer)
+                            StudentNavGraph(
+                                navController = controller,
+                                onDrawerClick = { openDrawer() }
+                            )
                         }
                     }
                 }
             }
 
-            findViewById<NavigationView>(R.id.navigation_view)
-                .setNavigationItemSelectedListener(this)
+            findViewById<NavigationView>(R.id.nav_view).setNavigationItemSelectedListener(this)
+
         } catch (e: DatabaseInitException) {
-            handleDatabaseInitError(e)
+            Log.e("MainActivity", "Database initialization failed", e)
+            errorReporter.reportError(e)
+            showDatabaseErrorDialog(e)
         } catch (e: Exception) {
-            handleUnexpectedError(e)
+            Log.e("MainActivity", "Unexpected error during initialization", e)
+            errorReporter.reportError(e)
+            showFatalErrorDialog(e)
+        }
+    }
+    
+    private fun configureStrictMode() {
+        if (BuildConfig.DEBUG) {
+            // In debug mode, configure StrictMode to be more lenient for development
+            StrictMode.setThreadPolicy(
+                StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork() // Still detect network violations but allow them
+                    .penaltyLog() // Only log violations, don't crash
+                    .build()
+            )
+            
+            StrictMode.setVmPolicy(
+                StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .detectActivityLeaks()
+                    .penaltyLog() // Only log violations, don't crash
+                    .build()
+            )
+        } else {
+            // In release mode, use strict policies but allow network operations on background threads
+            StrictMode.setThreadPolicy(
+                StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork()
+                    .penaltyLog()
+                    .build()
+            )
+            
+            StrictMode.setVmPolicy(
+                StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .detectActivityLeaks()
+                    .penaltyLog()
+                    .build()
+            )
+        }
+    }
+    
+    private fun initializeFirebaseSessions() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                // Initialize Firebase Sessions on background thread
+                FirebaseSessions.getInstance()
+                Log.d("MainActivity", "Firebase Sessions initialized successfully")
+            } catch (e: Exception) {
+                Log.w("MainActivity", "Failed to initialize Firebase Sessions", e)
+                // Don't crash the app if Firebase Sessions fails
+            }
         }
     }
 
-    private fun handleDatabaseInitError(error: DatabaseInitException) {
+    private fun showDatabaseErrorDialog(error: DatabaseInitException) {
         // Report error to analytics
         errorReporter.reportError(error, "MainActivity_DatabaseInit")
         
@@ -136,7 +217,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .show()
     }
     
-    private fun handleUnexpectedError(error: Exception) {
+    private fun showFatalErrorDialog(error: Exception) {
         // Report error to analytics
         errorReporter.reportError(error, "MainActivity_Unexpected")
         

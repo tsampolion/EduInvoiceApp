@@ -28,10 +28,16 @@ android {
         applicationId "gr.eduinvoice"
         minSdk 26
         targetSdk 35
-        versionCode 37
-        versionName "0.24.9"
+        versionCode 39  // Increment version code
+        versionName "0.26.0"  // Increment version name
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "FIREBASE_API_KEY", "\"${firebaseKey}\""
+        
+        // Add Firebase configuration
+        manifestPlaceholders = [
+            firebaseCrashlyticsEnabled: "true",
+            firebaseAnalyticsEnabled: "false"
+        ]
     }
 
     signingConfigs {
@@ -114,6 +120,7 @@ android {
     implementation "androidx.compose.material:material-icons-core"
     implementation "androidx.compose.material:material-icons-extended"
     implementation "androidx.compose.foundation:foundation"
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.34.0"
     debugImplementation "androidx.compose.ui:ui-tooling"
     debugImplementation "androidx.compose.ui:ui-test-manifest"
 
@@ -169,6 +176,11 @@ android {
     implementation platform('com.google.firebase:firebase-bom:33.15.0')
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation 'com.google.firebase:firebase-crashlytics:19.4.4'
+    implementation 'com.google.firebase:firebase-sessions'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    
+    // Add SQLCipher for database encryption
+    implementation 'net.zetetic:android-database-sqlcipher:4.5.4'
 }
 
 // Room schema location for ksp

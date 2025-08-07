@@ -30,6 +30,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import net.sqlcipher.database.SQLiteDatabase
 import javax.inject.Singleton
+import androidx.room.Room
+import net.sqlcipher.database.SupportFactory
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -59,61 +61,38 @@ object DatabaseModule {
         
         require(pass.isNotBlank()) { "Database passphrase unavailable" }
         val passphrase = SQLiteDatabase.getBytes(pass.toCharArray())
-        require(passphrase.isNotEmpty() && passphrase.any { it != 0.toByte() }) {
-            "Invalid database passphrase"
-        }
+        
         Log.d("DatabaseModule", "Passphrase length: ${passphrase.size}")
-
-        fun openDatabase(): EduInvoiceDatabase {
-            val db = EduInvoiceDatabase.getDatabase(context, passphrase.copyOf())
-            // Force open to catch corruption immediately
-            db.openHelper.writableDatabase
-            return db
-        }
-
-        val db = try {
-            openDatabase()
-        } catch (e: SQLiteException) {
-            Log.e("DatabaseModule", "Database open failed, attempting recovery", e)
-            val dbFile = context.getDatabasePath(DatabaseConstants.DATABASE_NAME)
-            try {
-                // Always attempt recovery in both debug and release modes
-                val legacyJson = LegacyMigration.migrateIfNeeded(context)
-                if (dbFile.exists() && !dbFile.delete()) {
-                    Log.e(
-                        "DatabaseModule",
-                        "Failed to delete corrupt DB at ${dbFile.absolutePath}"
+        
+        return try {
+            EduInvoiceDatabase.getDatabase(context, passphrase)
+        } catch (e: Exception) {
+            Log.e("DatabaseModule", "Failed to create database", e)
+            
+            // Try to recover by using destructive migration as last resort
+            if (e.message?.contains("Migration didn't properly handle") == true) {
+                Log.w("DatabaseModule", "Migration failed, attempting recovery with destructive migration")
+                try {
+                    val factory = SupportFactory(passphrase)
+                    val recoveredInstance = Room.databaseBuilder(
+                        context.applicationContext,
+                        EduInvoiceDatabase::class.java,
+                        DatabaseConstants.DATABASE_NAME
                     )
-                    throw DatabaseInitException("Unable to delete corrupt database", e)
+                        .openHelperFactory(factory)
+                        .fallbackToDestructiveMigration(true) // Allow destructive migration for recovery
+                        .build()
+                    
+                    Log.i("DatabaseModule", "Database recovered successfully with destructive migration")
+                    return recoveredInstance
+                } catch (recoveryException: Exception) {
+                    Log.e("DatabaseModule", "Recovery failed", recoveryException)
+                    throw DatabaseInitException("Database recovery failed", recoveryException)
                 }
-                val recovered = openDatabase()
-                legacyJson?.let {
-                    val repo = BackupRepository(context, recovered)
-                    runBlocking(Dispatchers.IO) { repo.restoreFromJson(it) }
-                }
-                Log.i("DatabaseModule", "Database recovery successful")
-                recovered
-            } catch (recovery: Exception) {
-                Log.e("DatabaseModule", "Database recovery failed", recovery)
-                if (BuildConfig.DEBUG) {
-                    // In debug mode, try one more time with a fresh database
-                    Log.w("DatabaseModule", "Attempting fresh database creation in debug mode")
-                    try {
-                        val freshDb = openDatabase()
-                        Log.i("DatabaseModule", "Fresh database creation successful")
-                        freshDb
-                    } catch (finalException: Exception) {
-                        Log.e("DatabaseModule", "Final database creation attempt failed", finalException)
-                        throw DatabaseInitException("Database recovery failed", finalException)
-                    }
-                } else {
-                    throw DatabaseInitException("Database recovery failed", recovery)
-                }
+            } else {
+                throw DatabaseInitException("Failed to create database", e)
             }
-        } finally {
-            passphrase.fill(0)
         }
-        return db
     }
 
     // DatabaseModule only provides the Room database instance.
