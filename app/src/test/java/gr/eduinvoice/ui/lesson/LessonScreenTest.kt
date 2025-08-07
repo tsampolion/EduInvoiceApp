@@ -13,6 +13,7 @@ import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.data.model.GroupStudentCrossRef
 import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.lesson.*
+import gr.eduinvoice.domain.lesson.GetLessonsWithStudentsPaginated
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.student.GetActiveStudents
 import gr.eduinvoice.domain.student.GetArchivedStudents
@@ -23,6 +24,8 @@ import gr.eduinvoice.domain.student.SoftDeleteStudent
 import gr.eduinvoice.domain.student.RestoreStudent
 import gr.eduinvoice.domain.student.GetActiveStudentCount
 import gr.eduinvoice.domain.student.ClassNameExists
+import gr.eduinvoice.domain.student.GetStudentsPaginated
+import gr.eduinvoice.domain.student.SearchStudentsPaginated
 import gr.eduinvoice.data.repository.StudentRepository
 import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.FakeUserProvider
@@ -57,6 +60,8 @@ class LessonScreenTest : RobolectricComposeTestBase() {
         override fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?> = flowOf(null)
         override suspend fun getActiveStudentCount(userId: Long): Int = 0
         override suspend fun classNameExists(name: String, userId: Long): Int = 0
+        override suspend fun getStudentsPaginated(userId: Long, limit: Int, offset: Int): List<Student> = emptyList()
+        override suspend fun searchStudentsPaginated(userId: Long, searchQuery: String, limit: Int, offset: Int): List<Student> = emptyList()
     }
 
     private val lessonDao = object : LessonDao {
@@ -78,6 +83,7 @@ class LessonScreenTest : RobolectricComposeTestBase() {
         override fun getLessonsWithStudentsByStudent(studentId: Long, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
+        override suspend fun getLessonsWithStudentsPaginated(userId: Long, limit: Int, offset: Int): List<LessonWithStudent> = emptyList()
 
         override suspend fun insertGroupLessons(lessons: List<Lesson>): List<Long> {
             lessons.forEach { insert(it) }
@@ -109,7 +115,9 @@ class LessonScreenTest : RobolectricComposeTestBase() {
         softDeleteStudent = SoftDeleteStudent(studentRepository),
         restoreStudent = RestoreStudent(studentRepository),
         getActiveStudentCount = GetActiveStudentCount(studentRepository),
-        classNameExists = ClassNameExists(studentRepository)
+        classNameExists = ClassNameExists(studentRepository),
+        getStudentsPaginated = GetStudentsPaginated(studentRepository),
+        searchStudentsPaginated = SearchStudentsPaginated(studentRepository)
     )
 
     private val lessonUseCases = LessonUseCases(
@@ -124,7 +132,8 @@ class LessonScreenTest : RobolectricComposeTestBase() {
         deleteLesson = DeleteLesson(lessonDao),
         updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao),
         updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(lessonDao),
-        isLessonInvoiced = IsLessonInvoiced(lessonDao)
+        isLessonInvoiced = IsLessonInvoiced(lessonDao),
+        getLessonsWithStudentsPaginated = GetLessonsWithStudentsPaginated(lessonDao)
     )
 
     private val groupUseCases = GroupUseCases(

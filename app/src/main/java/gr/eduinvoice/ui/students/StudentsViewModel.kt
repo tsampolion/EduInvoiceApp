@@ -10,6 +10,7 @@ import gr.eduinvoice.data.model.StudentWithEarnings
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.utils.EarningsCalculator
+import gr.eduinvoice.utils.GlobalCache
 import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -44,37 +45,108 @@ class StudentsViewModel @Inject constructor(
         _sortAscending.value = !_sortAscending.value
     }
 
+    private val pageSize = 50
+    
     private fun loadStudentsWithEarnings() {
         viewModelScope.launch {
             currentUserProvider.loggedInUserId.filterNotNull().flatMapLatest { uid ->
                 combine(
-                    studentUseCases.getActiveStudents(uid),
-                    lessonUseCases.getAllLessons(uid),
                     searchQuery,
                     sortAscending
-                ) { students, lessons, query, ascending ->
-                    var filtered = if (query.isBlank()) students else students.filter {
-                        it.name.contains(query, true)
-                    }
-                    filtered = if (ascending) filtered.sortedBy { it.name }
-                    else filtered.sortedByDescending { it.name }
-
-                filtered.map { student ->
-                    val (weekEarnings, monthEarnings) = EarningsCalculator.calculate(student, lessons)
-                    StudentWithEarnings(
-                        student = student,
-                        weekEarnings = weekEarnings,
-                        monthEarnings = monthEarnings
-                    )
-                }
+                ) { query, ascending ->
+                    loadStudentsWithCaching(uid, query, ascending, 0)
                 }
             }.collect { studentsWithEarnings ->
                 _uiState.update {
                     it.copy(
                         students = studentsWithEarnings,
-                        searchQuery = _searchQuery.value
+                        searchQuery = _searchQuery.value,
+                        currentPage = 0,
+                        hasMoreData = studentsWithEarnings.size >= pageSize
                     )
                 }
+            }
+        }
+    }
+    
+    private suspend fun loadStudentsWithCaching(
+        uid: Long,
+        query: String,
+        ascending: Boolean,
+        page: Int
+    ): List<StudentWithEarnings> {
+        val cacheKey = "students_${uid}_${query}_${ascending}_$page"
+        
+        // Try to get from cache first
+        val cachedData = GlobalCache.getCachedDataTyped<List<StudentWithEarnings>>(cacheKey)
+        if (cachedData != null) {
+            return cachedData
+        }
+        
+        // Load from database with pagination
+        val students = if (query.isBlank()) {
+            studentUseCases.getStudentsPaginated(uid, pageSize, page * pageSize)
+        } else {
+            studentUseCases.searchStudentsPaginated(uid, query, pageSize, page * pageSize)
+        }
+        
+        // Get lessons for earnings calculation
+        val lessons = lessonUseCases.getAllLessons(uid).first()
+        
+        // Calculate earnings and create StudentWithEarnings
+        val studentsWithEarnings = students.map { student ->
+            val (weekEarnings, monthEarnings) = EarningsCalculator.calculate(student, lessons)
+            StudentWithEarnings(
+                student = student,
+                weekEarnings = weekEarnings,
+                monthEarnings = monthEarnings
+            )
+        }
+        
+        // Sort if needed
+        val sortedStudents = if (ascending) {
+            studentsWithEarnings.sortedBy { it.student.name }
+        } else {
+            studentsWithEarnings.sortedByDescending { it.student.name }
+        }
+        
+        // Cache the result
+        GlobalCache.cacheData(cacheKey, sortedStudents)
+        
+        return sortedStudents
+    }
+    
+    fun loadMoreStudents() {
+        if (_uiState.value.isLoadingMore || !_uiState.value.hasMoreData) return
+        
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoadingMore = true) }
+            
+            val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: return@launch
+            val nextPage = _uiState.value.currentPage + 1
+            
+            try {
+                val newStudents = loadStudentsWithCaching(
+                    uid,
+                    _uiState.value.searchQuery,
+                    _sortAscending.value,
+                    nextPage
+                )
+                
+                if (newStudents.isNotEmpty()) {
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            students = currentState.students + newStudents,
+                            currentPage = nextPage,
+                            hasMoreData = newStudents.size >= pageSize,
+                            isLoadingMore = false
+                        )
+                    }
+                } else {
+                    _uiState.update { it.copy(hasMoreData = false, isLoadingMore = false) }
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoadingMore = false) }
             }
         }
     }
@@ -89,5 +161,8 @@ class StudentsViewModel @Inject constructor(
 
 data class StudentsUiState(
     val students: List<StudentWithEarnings> = emptyList(),
-    val searchQuery: String = ""
+    val searchQuery: String = "",
+    val isLoadingMore: Boolean = false,
+    val hasMoreData: Boolean = true,
+    val currentPage: Int = 0
 )

@@ -11,5 +11,7 @@ data class StudentUseCases @Inject constructor(
     val softDeleteStudent: SoftDeleteStudent,
     val restoreStudent: RestoreStudent,
     val getActiveStudentCount: GetActiveStudentCount,
-    val classNameExists: ClassNameExists
+    val classNameExists: ClassNameExists,
+    val getStudentsPaginated: GetStudentsPaginated,
+    val searchStudentsPaginated: SearchStudentsPaginated
 )

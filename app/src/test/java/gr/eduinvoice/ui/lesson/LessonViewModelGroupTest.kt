@@ -283,6 +283,10 @@ class LessonViewModelGroupTest : ViewModelTestBase() {
         override fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?> = getStudentById(studentId, userId)
         override suspend fun getActiveStudentCount(userId: Long): Int = flow.value.size
         override suspend fun classNameExists(name: String, userId: Long): Int = flow.value.count { it.className.equals(name, true) }
+        override suspend fun getStudentsPaginated(userId: Long, limit: Int, offset: Int): List<Student> =
+            flow.value.drop(offset).take(limit)
+        override suspend fun searchStudentsPaginated(userId: Long, searchQuery: String, limit: Int, offset: Int): List<Student> =
+            flow.value.filter { it.name.contains(searchQuery, true) || it.surname.contains(searchQuery, true) || it.className.contains(searchQuery, true) }.drop(offset).take(limit)
     }
 
     class FakeLessonDao(private val flow: MutableStateFlow<List<Lesson>>) : LessonDao {
@@ -329,6 +333,11 @@ class LessonViewModelGroupTest : ViewModelTestBase() {
                 gr.eduinvoice.data.database.LessonWithStudent(lesson, dummyStudent)
             }
         }
+        override suspend fun getLessonsWithStudentsPaginated(userId: Long, limit: Int, offset: Int): List<gr.eduinvoice.data.database.LessonWithStudent> =
+            flow.value.filter { it.ownerId == userId }.drop(offset).take(limit).map { lesson ->
+                val dummyStudent = Student(id = lesson.studentId, ownerId = userId, name = "Student ${lesson.studentId}", surname = "", parentMobile = "", className = "", rate = 10.0)
+                gr.eduinvoice.data.database.LessonWithStudent(lesson, dummyStudent)
+            }
 
         override suspend fun insertGroupLessons(lessons: List<Lesson>): List<Long> {
             val ids = mutableListOf<Long>()

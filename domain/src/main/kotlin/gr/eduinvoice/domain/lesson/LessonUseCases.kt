@@ -14,5 +14,6 @@ data class LessonUseCases @Inject constructor(
     val deleteLesson: DeleteLesson,
     val updateLessonPaidStatus: UpdateLessonPaidStatus,
     val updateLessonInvoicedStatus: UpdateLessonInvoicedStatus,
-    val isLessonInvoiced: IsLessonInvoiced
+    val isLessonInvoiced: IsLessonInvoiced,
+    val getLessonsWithStudentsPaginated: GetLessonsWithStudentsPaginated
 )

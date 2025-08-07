@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.ui.components.StudentCard
+import gr.eduinvoice.ui.components.VirtualStudentList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,58 +55,53 @@ fun StudentsScreen(
             }
         }
     ) { paddingValues ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(vertical = 8.dp)
+                .padding(paddingValues)
         ) {
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(Dimensions.PaddingMedium),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedTextField(
-                        value = uiState.searchQuery,
-                        onValueChange = viewModel::updateSearchQuery,
-                        modifier = Modifier.weight(1f),
-                        label = { Text("Search") }
-                    )
-                    IconButton(onClick = { viewModel.toggleSortOrder() }) {
-                        Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
-                    }
+            // Search and sort controls
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Dimensions.PaddingMedium),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = uiState.searchQuery,
+                    onValueChange = viewModel::updateSearchQuery,
+                    modifier = Modifier.weight(1f),
+                    label = { Text("Search") }
+                )
+                IconButton(onClick = { viewModel.toggleSortOrder() }) {
+                    Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
                 }
             }
 
+            // Virtual scrolling list for students
             if (uiState.students.isEmpty()) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(R.string.no_students),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.no_students),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             } else {
-                items(
-                    items = uiState.students,
-                    key = { it.student.id }
-                ) { studentWithEarnings ->
-                    StudentCard(
-                        studentWithEarnings = studentWithEarnings,
-                        onStudentClick = { onNavigateToStudent(studentWithEarnings.student.id) },
-                        onDeleteClick = { viewModel.deleteStudent(studentWithEarnings.student.id) }
-                    )
-                    HorizontalDivider()
-                }
+                VirtualStudentList(
+                    students = uiState.students,
+                    onStudentClick = { studentId -> onNavigateToStudent(studentId) },
+                    onDeleteClick = { studentId -> viewModel.deleteStudent(studentId) },
+                    modifier = Modifier.weight(1f),
+                    onLoadMore = { viewModel.loadMoreStudents() },
+                    isLoadingMore = uiState.isLoadingMore
+                )
             }
         }
     }

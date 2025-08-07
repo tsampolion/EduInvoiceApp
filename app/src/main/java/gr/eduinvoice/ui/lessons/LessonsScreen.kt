@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.utils.getFullName
+import gr.eduinvoice.ui.components.VirtualLessonList
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -64,42 +65,19 @@ fun LessonsScreen(
                 Text(text = stringResource(R.string.no_lessons))
             }
         } else {
-            val grouped = uiState.lessons
-                .groupBy { it.student.id }
-                .toList()
-                .sortedBy { (_, lessons) -> lessons.first().student.getFullName() }
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                grouped.forEach { (studentId, lessons) ->
-                    val studentName = lessons.first().student.getFullName()
-                    item {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp)
-                                .testTag("header_${'$'}studentId")
-                        ) {
-                            Text(
-                                text = studentName,
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(Dimensions.PaddingMedium)
-                            )
-                        }
-                    }
-                    items(lessons, key = { it.lesson.id }) { item ->
-                        LessonItem(
-                            lessonWithStudent = item,
-                            onClick = { onLessonClick(item.student.id, item.lesson.id, item.lesson.groupId ?: 0L) },
-                            onPaidChange = { viewModel.updatePaid(item.lesson.id, it) }
-                        )
-                        HorizontalDivider()
-                    }
-                }
-            }
+            // Use virtual scrolling for better performance with large datasets
+            VirtualLessonList(
+                lessons = uiState.lessons,
+                onLessonClick = { studentId, lessonId, groupId -> 
+                    onLessonClick(studentId, lessonId, groupId) 
+                },
+                onPaidChange = { lessonId, isPaid -> 
+                    viewModel.updatePaid(lessonId, isPaid) 
+                },
+                modifier = Modifier.fillMaxSize(),
+                onLoadMore = { viewModel.loadMoreLessons() },
+                isLoadingMore = uiState.isLoadingMore
+            )
         }
     }
 
@@ -149,7 +127,7 @@ fun LessonsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LessonItem(
+fun LessonItem(
     lessonWithStudent: LessonWithStudent,
     onClick: () -> Unit,
     onPaidChange: (Boolean) -> Unit

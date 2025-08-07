@@ -114,6 +114,43 @@ interface LessonDao {
               students.isActive AS student_isActive,
               students.lastModified AS student_lastModified
         FROM lessons JOIN students ON lessons.studentId = students.id
+        WHERE lessons.ownerId = :userId AND students.ownerId = :userId
+        ORDER BY lessons.date DESC, lessons.startTime DESC
+        LIMIT :limit OFFSET :offset
+        """
+    )
+    suspend fun getLessonsWithStudentsPaginated(
+        userId: Long,
+        limit: Int,
+        offset: Int
+    ): List<LessonWithStudent>
+
+    @Transaction
+    @Query(
+        """
+       SELECT lessons.id AS lesson_id,
+              lessons.studentId AS lesson_studentId,
+              lessons.groupId AS lesson_groupId,
+              lessons.ownerId AS lesson_ownerId,
+              lessons.date AS lesson_date,
+               lessons.startTime AS lesson_startTime,
+               lessons.durationMinutes AS lesson_durationMinutes,
+               lessons.notes AS lesson_notes,
+               lessons.isPaid AS lesson_isPaid,
+               lessons.isInvoiced AS lesson_isInvoiced,
+               lessons.lastModified AS lesson_lastModified,
+               students.id AS student_id,
+               students.name AS student_name,
+               students.surname AS student_surname,
+               students.parentMobile AS student_parentMobile,
+               students.parentEmail AS student_parentEmail,
+              students.className AS student_className,
+              students.rate AS student_rate,
+              students.rateType AS student_rateType,
+              students.ownerId AS student_ownerId,
+              students.isActive AS student_isActive,
+              students.lastModified AS student_lastModified
+        FROM lessons JOIN students ON lessons.studentId = students.id
         WHERE lessons.studentId = :studentId AND lessons.ownerId = :userId AND students.ownerId = :userId
         ORDER BY lessons.date DESC, lessons.startTime DESC
         """

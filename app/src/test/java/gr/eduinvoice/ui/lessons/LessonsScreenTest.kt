@@ -48,7 +48,8 @@ class LessonsScreenTest : RobolectricComposeTestBase() {
         deleteLesson = DeleteLesson(lessonDao),
         updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao),
         updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(lessonDao),
-        isLessonInvoiced = IsLessonInvoiced(lessonDao)
+        isLessonInvoiced = IsLessonInvoiced(lessonDao),
+        getLessonsWithStudentsPaginated = GetLessonsWithStudentsPaginated(lessonDao)
     )
 
     @Test
@@ -156,6 +157,8 @@ class LessonsScreenTest : RobolectricComposeTestBase() {
         override fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?> = flowOf(null)
         override suspend fun getActiveStudentCount(userId: Long): Int = 0
         override suspend fun classNameExists(name: String, userId: Long): Int = 0
+        override suspend fun getStudentsPaginated(userId: Long, limit: Int, offset: Int): List<Student> = emptyList()
+        override suspend fun searchStudentsPaginated(userId: Long, searchQuery: String, limit: Int, offset: Int): List<Student> = emptyList()
     }
 
 class FakeLessonDao(private val flow: MutableStateFlow<List<LessonWithStudent>>) : LessonDao {
@@ -174,7 +177,7 @@ class FakeLessonDao(private val flow: MutableStateFlow<List<LessonWithStudent>>)
         override fun getUnpaidLessonsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override fun getUnpaidLessonsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<Lesson>> = flowOf(emptyList())
         override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean, userId: Long) {
-            flow.value = flow.value.map { if (it.lesson.id in ids) it.copy(lesson = it.lesson.copy(isPaid = paid)) else it }
+            flow.value = flow.value.map { if (it.lesson.id in ids && it.lesson.ownerId == userId) it.copy(lesson = it.lesson.copy(isPaid = paid)) else it }
         }
         override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean, userId: Long) {
             flow.value = flow.value.map { if (it.lesson.id in ids) it.copy(lesson = it.lesson.copy(isInvoiced = invoiced)) else it }
@@ -187,6 +190,8 @@ class FakeLessonDao(private val flow: MutableStateFlow<List<LessonWithStudent>>)
             flow.map { list -> list.filter { it.student.id == studentId && it.lesson.ownerId == userId } }
         override fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
+        override suspend fun getLessonsWithStudentsPaginated(userId: Long, limit: Int, offset: Int): List<LessonWithStudent> =
+            flow.value.filter { it.lesson.ownerId == userId }.drop(offset).take(limit)
 
         override suspend fun insertGroupLessons(lessons: List<Lesson>): List<Long> {
             lessons.forEach { insert(it) }

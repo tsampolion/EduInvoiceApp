@@ -58,7 +58,9 @@ class StudentViewModelTest {
         softDeleteStudent = SoftDeleteStudent(studentRepository),
         restoreStudent = RestoreStudent(studentRepository),
         getActiveStudentCount = GetActiveStudentCount(studentRepository),
-        classNameExists = ClassNameExists(studentRepository)
+        classNameExists = ClassNameExists(studentRepository),
+        getStudentsPaginated = GetStudentsPaginated(studentRepository),
+        searchStudentsPaginated = SearchStudentsPaginated(studentRepository)
     )
     private val lessonUseCases = LessonUseCases(
         getAllLessons = GetAllLessons(lessonDao),
@@ -72,7 +74,8 @@ class StudentViewModelTest {
         deleteLesson = DeleteLesson(lessonDao),
         updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao),
         updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(lessonDao),
-        isLessonInvoiced = IsLessonInvoiced(lessonDao)
+        isLessonInvoiced = IsLessonInvoiced(lessonDao),
+        getLessonsWithStudentsPaginated = GetLessonsWithStudentsPaginated(lessonDao)
     )
 
     @Before
@@ -169,6 +172,10 @@ class StudentViewModelTest {
         override fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?> = getStudentById(studentId, userId)
         override suspend fun getActiveStudentCount(userId: Long): Int = flow.value.count { it.ownerId == userId }
         override suspend fun classNameExists(name: String, userId: Long): Int = flow.value.count { it.className.equals(name, true) }
+        override suspend fun getStudentsPaginated(userId: Long, limit: Int, offset: Int): List<Student> =
+            flow.value.filter { it.ownerId == userId }.drop(offset).take(limit)
+        override suspend fun searchStudentsPaginated(userId: Long, searchQuery: String, limit: Int, offset: Int): List<Student> =
+            flow.value.filter { it.ownerId == userId && (it.name.contains(searchQuery, true) || it.surname.contains(searchQuery, true) || it.className.contains(searchQuery, true)) }.drop(offset).take(limit)
     }
 
     class FakeLessonDao(private val flow: MutableStateFlow<List<Lesson>>) : LessonDao {
@@ -199,6 +206,7 @@ class StudentViewModelTest {
         override fun getLessonsWithStudentsByStudent(studentId: Long, userId: Long) = flowOf(emptyList<gr.eduinvoice.data.database.LessonWithStudent>())
         override fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String, userId: Long) = flowOf(emptyList<gr.eduinvoice.data.database.LessonWithStudent>())
         override fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long) = flowOf(emptyList<gr.eduinvoice.data.database.LessonWithStudent>())
+        override suspend fun getLessonsWithStudentsPaginated(userId: Long, limit: Int, offset: Int): List<gr.eduinvoice.data.database.LessonWithStudent> = emptyList()
 
         override suspend fun insertGroupLessons(lessons: List<Lesson>): List<Long> {
             lessons.forEach { insert(it) }

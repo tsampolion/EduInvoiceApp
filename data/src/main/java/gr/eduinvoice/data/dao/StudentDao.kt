@@ -27,6 +27,33 @@ interface StudentDao {
     @Query("SELECT * FROM students WHERE isActive = 0 AND ownerId = :userId ORDER BY name ASC")
     fun getArchivedStudents(userId: Long): Flow<List<Student>>
 
+    @Query("""
+        SELECT * FROM students 
+        WHERE isActive = 1 AND ownerId = :userId 
+        ORDER BY name ASC 
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun getStudentsPaginated(
+        userId: Long, 
+        limit: Int, 
+        offset: Int
+    ): List<Student>
+
+    @Query("""
+        SELECT * FROM students 
+        WHERE isActive = 1 AND ownerId = :userId 
+        AND (LOWER(name) LIKE '%' || LOWER(:searchQuery) || '%' 
+             OR LOWER(className) LIKE '%' || LOWER(:searchQuery) || '%')
+        ORDER BY name ASC 
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun searchStudentsPaginated(
+        userId: Long,
+        searchQuery: String,
+        limit: Int,
+        offset: Int
+    ): List<Student>
+
     @Query("UPDATE students SET isActive = 1 WHERE id = :studentId AND ownerId = :userId")
     suspend fun restoreStudent(studentId: Long, userId: Long)
 

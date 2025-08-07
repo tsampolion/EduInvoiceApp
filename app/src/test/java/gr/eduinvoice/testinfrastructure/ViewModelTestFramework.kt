@@ -124,6 +124,25 @@ class EnhancedFakeStudentDao(
     
     override suspend fun classNameExists(name: String, userId: Long): Int = 
         studentFlow.value.count { it.className.equals(name, true) && it.ownerId == userId }
+    
+    override suspend fun getStudentsPaginated(userId: Long, limit: Int, offset: Int): List<Student> {
+        return studentFlow.value
+            .filter { it.ownerId == userId && it.isActive }
+            .sortedBy { it.name }
+            .drop(offset)
+            .take(limit)
+    }
+    
+    override suspend fun searchStudentsPaginated(userId: Long, searchQuery: String, limit: Int, offset: Int): List<Student> {
+        return studentFlow.value
+            .filter { 
+                it.ownerId == userId && it.isActive &&
+                (it.name.contains(searchQuery, true) || it.className.contains(searchQuery, true))
+            }
+            .sortedBy { it.name }
+            .drop(offset)
+            .take(limit)
+    }
 }
 
 /**
@@ -263,6 +282,15 @@ class EnhancedFakeLessonDao(
         }
         return ids
     }
+    
+    override suspend fun getLessonsWithStudentsPaginated(userId: Long, limit: Int, offset: Int): List<LessonWithStudent> {
+        return lessonWithStudentFlow.value
+            .filter { it.lesson.ownerId == userId }
+            .sortedWith(compareByDescending<LessonWithStudent> { it.lesson.date }
+                .thenByDescending { it.lesson.startTime })
+            .drop(offset)
+            .take(limit)
+    }
 }
 
 /**
@@ -383,7 +411,9 @@ object ViewModelTestUtils {
             softDeleteStudent = SoftDeleteStudent(studentRepository),
             restoreStudent = RestoreStudent(studentRepository),
             getActiveStudentCount = GetActiveStudentCount(studentRepository),
-            classNameExists = ClassNameExists(studentRepository)
+            classNameExists = ClassNameExists(studentRepository),
+            getStudentsPaginated = GetStudentsPaginated(studentRepository),
+            searchStudentsPaginated = SearchStudentsPaginated(studentRepository)
         )
         
         val lessonUseCases = LessonUseCases(
@@ -398,7 +428,8 @@ object ViewModelTestUtils {
             deleteLesson = DeleteLesson(lessonDao),
             updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao),
             updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(lessonDao),
-            isLessonInvoiced = IsLessonInvoiced(lessonDao)
+            isLessonInvoiced = IsLessonInvoiced(lessonDao),
+            getLessonsWithStudentsPaginated = GetLessonsWithStudentsPaginated(lessonDao)
         )
         
         val groupUseCases = GroupUseCases(

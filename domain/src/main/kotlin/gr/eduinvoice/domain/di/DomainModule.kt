@@ -30,7 +30,9 @@ object DomainModule {
             softDeleteStudent = SoftDeleteStudent(repository),
             restoreStudent = RestoreStudent(repository),
             getActiveStudentCount = GetActiveStudentCount(repository),
-            classNameExists = ClassNameExists(repository)
+            classNameExists = ClassNameExists(repository),
+            getStudentsPaginated = GetStudentsPaginated(repository),
+            searchStudentsPaginated = SearchStudentsPaginated(repository)
         )
 
     @Provides
@@ -76,6 +78,7 @@ object DomainModule {
             deleteLesson = DeleteLesson(dao),
             updateLessonPaidStatus = UpdateLessonPaidStatus(dao),
             updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(dao),
-            isLessonInvoiced = IsLessonInvoiced(dao)
+            isLessonInvoiced = IsLessonInvoiced(dao),
+            getLessonsWithStudentsPaginated = GetLessonsWithStudentsPaginated(dao)
         )
 }

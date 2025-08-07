@@ -22,6 +22,7 @@ import gr.eduinvoice.domain.lesson.UpdateLesson
 import gr.eduinvoice.domain.lesson.UpdateLessonPaidStatus
 import gr.eduinvoice.domain.lesson.UpdateLessonInvoicedStatus
 import gr.eduinvoice.domain.lesson.IsLessonInvoiced
+import gr.eduinvoice.domain.lesson.GetLessonsWithStudentsPaginated
 import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.student.GetActiveStudents
@@ -33,6 +34,8 @@ import gr.eduinvoice.domain.student.SoftDeleteStudent
 import gr.eduinvoice.domain.student.RestoreStudent
 import gr.eduinvoice.domain.student.GetActiveStudentCount
 import gr.eduinvoice.domain.student.ClassNameExists
+import gr.eduinvoice.domain.student.GetStudentsPaginated
+import gr.eduinvoice.domain.student.SearchStudentsPaginated
 import gr.eduinvoice.FakeUserProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,7 +77,9 @@ class RevenueViewModelTest {
         softDeleteStudent = SoftDeleteStudent(studentRepository),
         restoreStudent = RestoreStudent(studentRepository),
         getActiveStudentCount = GetActiveStudentCount(studentRepository),
-        classNameExists = ClassNameExists(studentRepository)
+        classNameExists = ClassNameExists(studentRepository),
+        getStudentsPaginated = GetStudentsPaginated(studentRepository),
+        searchStudentsPaginated = SearchStudentsPaginated(studentRepository)
     )
     private val lessonUseCases = LessonUseCases(
         getAllLessons = GetAllLessons(lessonDao),
@@ -88,7 +93,8 @@ class RevenueViewModelTest {
         deleteLesson = DeleteLesson(lessonDao),
         updateLessonPaidStatus = UpdateLessonPaidStatus(lessonDao),
         updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(lessonDao),
-        isLessonInvoiced = IsLessonInvoiced(lessonDao)
+        isLessonInvoiced = IsLessonInvoiced(lessonDao),
+        getLessonsWithStudentsPaginated = GetLessonsWithStudentsPaginated(lessonDao)
     )
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -135,6 +141,10 @@ class RevenueViewModelTest {
         override fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?> = flow.map { list -> list.find { it.id == studentId } }
         override suspend fun getActiveStudentCount(userId: Long): Int = flow.value.size
         override suspend fun classNameExists(name: String, userId: Long): Int = flow.value.count { it.className.equals(name, true) }
+        override suspend fun getStudentsPaginated(userId: Long, limit: Int, offset: Int): List<Student> =
+            flow.value.drop(offset).take(limit)
+        override suspend fun searchStudentsPaginated(userId: Long, searchQuery: String, limit: Int, offset: Int): List<Student> =
+            flow.value.filter { it.name.contains(searchQuery, true) || it.surname.contains(searchQuery, true) || it.className.contains(searchQuery, true) }.drop(offset).take(limit)
     }
 
     class FakeLessonDao(private val flow: MutableStateFlow<List<Lesson>>) : LessonDao {
@@ -165,6 +175,7 @@ class RevenueViewModelTest {
         override fun getLessonsWithStudentsByStudent(studentId: Long, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsInDateRange(startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
         override fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>> = flowOf(emptyList())
+        override suspend fun getLessonsWithStudentsPaginated(userId: Long, limit: Int, offset: Int): List<LessonWithStudent> = emptyList()
 
         override suspend fun insertGroupLessons(lessons: List<Lesson>): List<Long> {
             lessons.forEach { insert(it) }

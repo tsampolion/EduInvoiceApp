@@ -27,4 +27,10 @@ class StudentRepository @Inject constructor(
         studentDao.getActiveStudentCount(userId)
     suspend fun classNameExists(name: String, userId: Long): Boolean =
         studentDao.classNameExists(name, userId) > 0
+    
+    suspend fun getStudentsPaginated(userId: Long, limit: Int, offset: Int): List<Student> =
+        studentDao.getStudentsPaginated(userId, limit, offset)
+    
+    suspend fun searchStudentsPaginated(userId: Long, searchQuery: String, limit: Int, offset: Int): List<Student> =
+        studentDao.searchStudentsPaginated(userId, searchQuery, limit, offset)
 }

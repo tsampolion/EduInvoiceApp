@@ -26,6 +26,9 @@ import gr.eduinvoice.ui.theme.TutorBillingTheme
 import gr.eduinvoice.ui.components.ErrorBoundary
 import gr.eduinvoice.utils.ErrorHandler
 import gr.eduinvoice.analytics.ErrorReporter
+import gr.eduinvoice.utils.GlobalPdfGenerator
+import gr.eduinvoice.utils.GlobalBackgroundProcessor
+import gr.eduinvoice.utils.BackgroundProcessor
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -37,6 +40,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     // Error handling components
     private lateinit var errorHandler: ErrorHandler
     private lateinit var errorReporter: ErrorReporter
+    
+    // Background processing
+    private lateinit var backgroundProcessor: BackgroundProcessor
 
     fun openDrawer() {
         drawerLayout.openDrawer(GravityCompat.START)
@@ -48,6 +54,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Initialize error handling components
         errorHandler = ErrorHandler(this)
         errorReporter = ErrorReporter(this)
+        
+        // Initialize background processor
+        backgroundProcessor = BackgroundProcessor()
+        GlobalBackgroundProcessor.initialize(backgroundProcessor)
+        
+        // Initialize global PDF generator
+        GlobalPdfGenerator.initialize(this)
         
         setContentView(R.layout.activity_main)
         try {
