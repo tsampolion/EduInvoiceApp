@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.27.0] - 2025-08-08
+### Added
+- Modern Search & Filtering (Task 2.3)
+  - Updated ModernSearchBar to latest Material3 API with inputField
+  - Persistent search history via DataStore with suggestions surfaced in search
+  - Fuzzy search scoring for students and lessons (Levenshtein + substring priority)
+  - Status chips and date range filtering UI; applied to students and lessons
+  - Integrated search and filters in Students, Lessons, and Groups screens
+
+### Improved
+- Edge-to-edge scaffold now supports floatingActionButton; applied to Lessons/Groups/Home
+- Empty state components used for Lessons/Groups for consistent UX
+- Optimizations
+  - Limited scoring set pre-trim to reduce CPU work
+  - Guarded pagination during active search to avoid unnecessary loads
+  - Lifecycle-aware state collection to minimize recompositions
+
+### Technical
+- Added SearchHistoryRepository (DataStore)
+- Extended ModernFilterManager with lesson date range filtering
+- Utilities: AppUtils.toEpochMillis for ISO date handling
+
+### Notes
+- Deprecated API warnings remain for accompanist system UI; planned migration to AndroidX EdgeToEdge in a follow-up
+
 ## [0.26.0] - 2025-01-27
 ### Fixed
 - **Critical Database Migration Issue**: Fixed database migration failure that was causing app crashes

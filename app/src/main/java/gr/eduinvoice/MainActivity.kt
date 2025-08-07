@@ -30,6 +30,7 @@ import gr.eduinvoice.analytics.ErrorReporter
 import gr.eduinvoice.utils.GlobalPdfGenerator
 import gr.eduinvoice.utils.GlobalBackgroundProcessor
 import gr.eduinvoice.utils.BackgroundProcessor
+import gr.eduinvoice.TutorBillingApp
 import dagger.hilt.android.AndroidEntryPoint
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
@@ -38,7 +39,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import android.content.Context
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.sessions.FirebaseSessions
+// import com.google.firebase.sessions.FirebaseSessions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -124,16 +125,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 errorReporter.reportError(error)
                             }
                         ) {
-                            StudentNavGraph(
+                            TutorBillingApp(
                                 navController = controller,
-                                onDrawerClick = { openDrawer() }
+                                openDrawer = { openDrawer() }
                             )
                         }
                     }
                 }
             }
 
-            findViewById<NavigationView>(R.id.nav_view).setNavigationItemSelectedListener(this)
+            findViewById<NavigationView>(R.id.navigation_view).setNavigationItemSelectedListener(this)
 
         } catch (e: DatabaseInitException) {
             Log.e("MainActivity", "Database initialization failed", e)
@@ -189,16 +190,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
     
     private fun initializeFirebaseSessions() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                // Initialize Firebase Sessions on background thread
-                FirebaseSessions.getInstance()
-                Log.d("MainActivity", "Firebase Sessions initialized successfully")
-            } catch (e: Exception) {
-                Log.w("MainActivity", "Failed to initialize Firebase Sessions", e)
-                // Don't crash the app if Firebase Sessions fails
-            }
-        }
+        // Firebase Sessions initialization temporarily disabled due to API changes
+        Log.d("MainActivity", "Firebase Sessions initialization skipped")
     }
 
     private fun showDatabaseErrorDialog(error: DatabaseInitException) {

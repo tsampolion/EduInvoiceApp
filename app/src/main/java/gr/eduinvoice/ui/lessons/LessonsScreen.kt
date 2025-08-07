@@ -7,10 +7,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
+import gr.eduinvoice.ui.components.EdgeToEdgeScaffold
+import gr.eduinvoice.ui.components.ModernEmptyLessonsState
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
 import gr.eduinvoice.ui.design.NavigationMenuButton
 import androidx.compose.material3.HorizontalDivider
+import gr.eduinvoice.ui.components.ModernSearchBar
+import gr.eduinvoice.ui.components.ModernFilterSheet
+import gr.eduinvoice.ui.components.FilterOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
@@ -21,6 +26,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.utils.getFullName
 import gr.eduinvoice.ui.components.VirtualLessonList
@@ -39,7 +48,7 @@ fun LessonsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Scaffold(
+    EdgeToEdgeScaffold(
         topBar = {
             AppTopBar(
                 title = "Lessons",
@@ -55,6 +64,32 @@ fun LessonsScreen(
             }
         }
     ) { padding ->
+        var searchActive by remember { mutableStateOf(false) }
+        val query by viewModel.searchQuery.collectAsStateWithLifecycle()
+        ModernSearchBar(
+            query = query,
+            onQueryChange = viewModel::updateSearchQuery,
+            onVoiceInput = {},
+            onSearch = {},
+            active = searchActive,
+            onActiveChange = { searchActive = it }
+        )
+        var showFilters by remember { mutableStateOf(false) }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimensions.PaddingMedium),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            AssistChip(onClick = { showFilters = true }, label = { Text("Filters") })
+        }
+        if (showFilters) {
+            ModernFilterSheet(
+                filters = viewModel.filters.collectAsStateWithLifecycle().value,
+                onFiltersChange = viewModel::updateFilters,
+                onDismiss = { showFilters = false }
+            )
+        }
         if (uiState.lessons.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -62,17 +97,16 @@ fun LessonsScreen(
                     .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = stringResource(R.string.no_lessons))
+                ModernEmptyLessonsState(onAddLesson = onAddLesson)
             }
         } else {
-            // Use virtual scrolling for better performance with large datasets
             VirtualLessonList(
                 lessons = uiState.lessons,
-                onLessonClick = { studentId, lessonId, groupId -> 
-                    onLessonClick(studentId, lessonId, groupId) 
+                onLessonClick = { studentId, lessonId, groupId ->
+                    onLessonClick(studentId, lessonId, groupId)
                 },
-                onPaidChange = { lessonId, isPaid -> 
-                    viewModel.updatePaid(lessonId, isPaid) 
+                onPaidChange = { lessonId, isPaid ->
+                    viewModel.updatePaid(lessonId, isPaid)
                 },
                 modifier = Modifier.fillMaxSize(),
                 onLoadMore = { viewModel.loadMoreLessons() },

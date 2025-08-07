@@ -10,6 +10,7 @@ import gr.eduinvoice.utils.getFullName
 import gr.eduinvoice.utils.GlobalCache
 import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.flow.*
+import gr.eduinvoice.ui.components.FilterOptions
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,6 +24,12 @@ class LessonsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(LessonsUiState())
     val uiState: StateFlow<LessonsUiState> = _uiState.asStateFlow()
 
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    private val _filters = MutableStateFlow(FilterOptions())
+    val filters: StateFlow<FilterOptions> = _filters.asStateFlow()
+
     private val pageSize = 50
     
     init {
@@ -33,16 +40,37 @@ class LessonsViewModel @Inject constructor(
         viewModelScope.launch {
             currentUserProvider.loggedInUserId
                 .filterNotNull()
-                .flatMapLatest { uid -> 
-                    flow { emit(loadLessonsWithCaching(uid, 0)) }
+                .flatMapLatest { uid ->
+                    combine(
+                        searchQuery,
+                        filters
+                    ) { query, _ ->
+                        if (query.isBlank()) {
+                            loadLessonsWithCaching(uid, 0)
+                        } else {
+                            // When searching, return filtered full list
+                            var all = lessonUseCases.getAllLessons(uid).first()
+                            // Apply date range
+                            all = gr.eduinvoice.utils.ModernFilterManager().applyLessonDateRange(all, _filters.value.dateRange)
+                            all.filter { l ->
+                                val hay = "${l.notes ?: ""} ${l.date} ${l.startTime}".lowercase()
+                                hay.contains(query.lowercase())
+                            }.map { lesson ->
+                                // Map to LessonWithStudent requires join; fall back to current list map
+                                // Use existing cached view when possible
+                                _uiState.value.lessons.find { it.lesson.id == lesson.id }
+                            }.filterNotNull()
+                        }
+                    }
                 }
                 .collect { lessons ->
-                    _uiState.update { 
+                    _uiState.update {
                         it.copy(
                             lessons = lessons,
+                            searchQuery = _searchQuery.value,
                             currentPage = 0,
-                            hasMoreData = lessons.size >= pageSize
-                        ) 
+                            hasMoreData = _searchQuery.value.isBlank() && lessons.size >= pageSize
+                        )
                     }
                 }
         }
@@ -73,7 +101,7 @@ class LessonsViewModel @Inject constructor(
     }
     
     fun loadMoreLessons() {
-        if (_uiState.value.isLoadingMore || !_uiState.value.hasMoreData) return
+        if (_uiState.value.isLoadingMore || !_uiState.value.hasMoreData || _searchQuery.value.isNotBlank()) return
         
         viewModelScope.launch {
             _uiState.update { it.copy(isLoadingMore = true) }
@@ -100,6 +128,14 @@ class LessonsViewModel @Inject constructor(
                 _uiState.update { it.copy(isLoadingMore = false) }
             }
         }
+    }
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun updateFilters(newFilters: FilterOptions) {
+        _filters.value = newFilters
     }
 
     fun updatePaid(lessonId: Long, paid: Boolean) {
@@ -135,7 +171,8 @@ data class LessonsUiState(
     val dialog: LessonDialog? = null,
     val isLoadingMore: Boolean = false,
     val hasMoreData: Boolean = true,
-    val currentPage: Int = 0
+    val currentPage: Int = 0,
+    val searchQuery: String = ""
 )
 
 sealed interface LessonDialog {

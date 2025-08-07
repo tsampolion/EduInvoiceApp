@@ -14,6 +14,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 fun EdgeToEdgeScaffold(
     topBar: @Composable (() -> Unit)? = null,
     bottomBar: @Composable (() -> Unit)? = null,
+    floatingActionButton: @Composable (() -> Unit)? = null,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val systemUiController = rememberSystemUiController()
@@ -28,6 +29,7 @@ fun EdgeToEdgeScaffold(
     Scaffold(
         topBar = topBar ?: {},
         bottomBar = bottomBar ?: {},
+        floatingActionButton = floatingActionButton ?: {},
         content = content
     )
 }
@@ -36,11 +38,13 @@ fun EdgeToEdgeScaffold(
 fun ModernScaffold(
     topBar: @Composable (() -> Unit)? = null,
     bottomBar: @Composable (() -> Unit)? = null,
+    floatingActionButton: @Composable (() -> Unit)? = null,
     content: @Composable (PaddingValues) -> Unit
 ) {
     EdgeToEdgeScaffold(
         topBar = topBar,
         bottomBar = bottomBar,
+        floatingActionButton = floatingActionButton,
         content = content
     )
 }

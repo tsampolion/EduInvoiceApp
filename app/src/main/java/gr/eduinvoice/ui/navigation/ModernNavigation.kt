@@ -1,6 +1,5 @@
-package gr.eduinvoice.ui.navigation
-
 @file:OptIn(ExperimentalMaterial3Api::class)
+package gr.eduinvoice.ui.navigation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ExperimentalMaterial3Api

@@ -10,6 +10,10 @@ import gr.eduinvoice.data.model.StudentWithEarnings
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.utils.EarningsCalculator
+import gr.eduinvoice.utils.ModernSearchRepository
+import gr.eduinvoice.utils.ModernFilterManager
+import gr.eduinvoice.utils.SearchHistoryRepository
+import gr.eduinvoice.ui.components.FilterOptions
 import gr.eduinvoice.utils.GlobalCache
 import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.flow.*
@@ -21,7 +25,10 @@ import javax.inject.Inject
 class StudentsViewModel @Inject constructor(
     private val studentUseCases: StudentUseCases,
     private val lessonUseCases: LessonUseCases,
-    private val currentUserProvider: CurrentUserProvider
+    private val currentUserProvider: CurrentUserProvider,
+    private val modernSearchRepository: ModernSearchRepository,
+    private val modernFilterManager: ModernFilterManager,
+    private val searchHistoryRepository: SearchHistoryRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StudentsUiState())
@@ -33,6 +40,13 @@ class StudentsViewModel @Inject constructor(
     private val _sortAscending = MutableStateFlow(true)
     val sortAscending: StateFlow<Boolean> = _sortAscending.asStateFlow()
 
+    private val _filters = MutableStateFlow(FilterOptions())
+    val filters: StateFlow<FilterOptions> = _filters.asStateFlow()
+
+    fun updateFilters(newFilters: FilterOptions) {
+        _filters.value = newFilters
+    }
+
     init {
         loadStudentsWithEarnings()
     }
@@ -40,6 +54,8 @@ class StudentsViewModel @Inject constructor(
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
     }
+
+    fun getSearchHistorySnapshot(): List<String> = modernSearchRepository.getHistory()
 
     fun toggleSortOrder() {
         _sortAscending.value = !_sortAscending.value
@@ -52,9 +68,10 @@ class StudentsViewModel @Inject constructor(
             currentUserProvider.loggedInUserId.filterNotNull().flatMapLatest { uid ->
                 combine(
                     searchQuery,
-                    sortAscending
-                ) { query, ascending ->
-                    loadStudentsWithCaching(uid, query, ascending, 0)
+                    sortAscending,
+                    filters
+                ) { query, ascending, currentFilters ->
+                    loadStudentsWithCaching(uid, query, ascending, 0, currentFilters)
                 }
             }.collect { studentsWithEarnings ->
                 _uiState.update {
@@ -73,7 +90,8 @@ class StudentsViewModel @Inject constructor(
         uid: Long,
         query: String,
         ascending: Boolean,
-        page: Int
+        page: Int,
+        filters: FilterOptions
     ): List<StudentWithEarnings> {
         val cacheKey = "students_${uid}_${query}_${ascending}_$page"
         
@@ -83,15 +101,18 @@ class StudentsViewModel @Inject constructor(
             return cachedData
         }
         
-        // Load from database with pagination
-        val students = if (query.isBlank()) {
+        // Use modern search when query present
+        val baseStudents = if (query.isBlank()) {
             studentUseCases.getStudentsPaginated(uid, pageSize, page * pageSize)
         } else {
-            studentUseCases.searchStudentsPaginated(uid, query, pageSize, page * pageSize)
+            modernSearchRepository.searchAll(query, pageSize).students
         }
+        val students = modernFilterManager.applyStudentFilters(baseStudents, filters)
         
         // Get lessons for earnings calculation
-        val lessons = lessonUseCases.getAllLessons(uid).first()
+        var lessons = lessonUseCases.getAllLessons(uid).first()
+        // Apply date range to lessons before earnings calc
+        lessons = modernFilterManager.applyLessonDateRange(lessons, filters.dateRange)
         
         // Calculate earnings and create StudentWithEarnings
         val studentsWithEarnings = students.map { student ->
@@ -130,7 +151,8 @@ class StudentsViewModel @Inject constructor(
                     uid,
                     _uiState.value.searchQuery,
                     _sortAscending.value,
-                    nextPage
+                    nextPage,
+                    _filters.value
                 )
                 
                 if (newStudents.isNotEmpty()) {

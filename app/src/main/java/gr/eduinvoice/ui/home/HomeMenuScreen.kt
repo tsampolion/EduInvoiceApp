@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
+import gr.eduinvoice.ui.components.EdgeToEdgeScaffold
 import android.util.Log
 import gr.eduinvoice.BuildConfig
 import gr.eduinvoice.ui.design.AppColors
@@ -56,7 +57,7 @@ fun HomeMenuScreen(
     val studentButtonColors = ButtonDefaults.buttonColors(containerColor = studentButtonColor)
 
 
-    Scaffold(
+    EdgeToEdgeScaffold(
         topBar = {
             AppTopBar(
                 title = stringResource(R.string.app_name),
@@ -110,7 +111,7 @@ fun HomeMenuScreen(
                     containerColor = MaterialTheme.colorScheme.tertiary
                 ) { Icon(Icons.Default.Settings, contentDescription = "Settings") }
             }
-        },
+        }
     ) { padding ->
         Column(
             modifier = Modifier
