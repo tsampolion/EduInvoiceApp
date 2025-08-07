@@ -1,14 +1,14 @@
-# AGENTS.md – EduInvoice Guidance for Autonomous Coding Agents
+# AGENTS.md – EduInvoiceApp Guidance for Autonomous Coding Agents
 <!-- Keep this file <300 lines so agents can parse it on every run. -->
 
 ## 1. Project Overview
-EduInvoice is a Jetpack-Compose Android app that tracks tutoring sessions and issues invoices.  
-Tech stack: **Kotlin 2.1.10**, **Android Gradle Plugin 8.8.0**, **Room**, **Hilt**, **DataStore**, **Robolectric** for JVM tests.
-Agents must prioritise reproducible builds, test-first commits, and Jetpack security best practices.
+EduInvoiceApp is a production-ready Android application for tutoring business management with enterprise-grade features.
+**Current Version:** 0.24.9 | **Status:** Production Ready with Enterprise Features
+**Tech Stack:** Kotlin 2.1.10, Android Gradle Plugin 8.8.0, Jetpack Compose, Room with SQLCipher, Hilt, DataStore, Robolectric
 
 ## 2. Environment Setup
 ```bash
-# 1 · Install JDK 17 (or higher) on PATH.
+# 1 · Install JDK 17 (or higher) on PATH
 # 2 · Bootstrap Android SDK *once*:
 bash setup-android-sdk.sh
 source ~/.bashrc          # or the profile printed by the script
@@ -31,27 +31,31 @@ Run these *exact* commands before proposing code changes:
 ./gradlew lintDebug         # Android Lint (plain text output)
 ```
 
-*Instrumentation tests* are not wired yet; skip `connectedAndroidTest` unless an emulator is available.
+*Instrumentation tests* are available via `./gradlew connectedAndroidTest` when emulator is available.
 
 ## 4. Code Standards
 
-* **Language level**: Kotlin JVM 17 (`kotlin.jvm.target=17` in *gradle.properties*).
-* **Formatting**: Use `ktfmt` or IntelliJ default; no tabs; 120-char line cap.
-* **Compose**: Prefer `@Stable` data classes; pass `Modifier` as first optional param.
-* **Room**: DAO methods return `Flow<>`; migrations handled via `autoMigrations`.
-* **Dependency-Injection**: All ViewModels live under `gr.eduinvoice.ui.*` and are Hilt-annotated.
+* **Language level**: Kotlin JVM 17 (`kotlin.jvm.target=17` in *gradle.properties*)
+* **Formatting**: Use `ktfmt` or IntelliJ default; no tabs; 120-char line cap
+* **Compose**: Prefer `@Stable` data classes; pass `Modifier` as first optional param
+* **Room**: DAO methods return `Flow<>`; migrations handled via `autoMigrations`
+* **Dependency-Injection**: All ViewModels live under `gr.eduinvoice.ui.*` and are Hilt-annotated
+* **Error Handling**: Use ErrorBoundary, ErrorHandler, and RetryManager for robust error handling
+* **Concurrency**: Use ConcurrencyController for thread-safe database operations
+* **Performance**: Implement pagination and background processing for large datasets
 
 ## 5. Directory & Naming Conventions
 
 | ------------------------------ | ------------------------------------------------------ |
-| `/app`                         | Android application module |
-| `/domain`                      | Pure Kotlin business logic |
-| `/data`                        | Database and repository layer |
+| `/app`                         | Android application module (UI, ViewModels, Components) |
+| `/domain`                      | Pure Kotlin business logic (Use cases, entities) |
+| `/data`                        | Database and repository layer (Room, DAOs, Repositories) |
+| `/docs`                        | **NEW** - Comprehensive documentation |
 | `/app/src/main`                | Production code (namespace `gr.eduinvoice`) |
 | `/app/src/test`                | JVM unit tests (Robolectric) |
 | `/data/schemas`                | Room JSON schemas (auto-generated; keep under VC) |
-| `build/`, `.gradle/`, `.idea/` | **Ignored** – see `.gitignore`                         |
-| `local.properties`             | **Ignored** – SDK path, never commit                   |
+| `build/`, `.gradle/`, `.idea/` | **Ignored** – see `.gitignore` |
+| `local.properties`             | **Ignored** – SDK path, never commit |
 | `CHANGELOG.md`                 | Project changelog; start a new versioned section for each pull request |
 
 ## 6. Pull-Request Messaging Template
@@ -66,92 +70,110 @@ Run these *exact* commands before proposing code changes:
 
 Checklist:
 * [ ] Version bumped and `CHANGELOG.md` updated
-
 * [ ] Unit tests passing
 * [ ] Lint shows **0** new warnings
 * [ ] No TODOs or commented-out code left
 * [ ] `./gradlew assemble` succeeds on CI
+* [ ] Documentation updated if needed
 
-## 7. Common Pitfalls
+## 7. Enterprise Features & Procedures
 
-1. **ANDROID_HOME not set** – always source the profile written by `setup-android-sdk.sh`.
-2. **Out-of-date Gradle wrapper** – update with `./gradlew wrapper --gradle-version 8.10.2` when bumping AGP.
-3. **Room schema drift** – run `./gradlew test` after changing entities to auto-regenerate `/data/schemas`.
-4. **Accidentally committed build output** – confirm `.gitignore` still excludes `build/`, `.gradle/`, `.idea/`.
-5. **Robolectric memory leaks** – never keep global state in test classes; use `@Config` with `sdk = 34`.
+### Error Handling & Resilience
+* **ErrorBoundary**: Wrap UI components with ErrorBoundary for graceful error handling
+* **ErrorHandler**: Use centralized error classification and user-friendly messages
+* **RetryManager**: Implement automatic retry with exponential backoff
+* **ErrorReporter**: Report errors to Firebase Crashlytics and local logging
 
-## 8. Changelog
-From version `0.22.0` onward, changelog entries use the full
-`[MAJOR.MINOR.PATCH]` format. Gather changes under the next release
-heading and bump `versionName` in `app/build.gradle` only when cutting a
-release (patch/minor/major). The current version is `0.22.0`.
+### Concurrency Safety
+* **ConcurrencyController**: Use for all database operations to ensure thread safety
+* **TransactionManager**: Implement ACID-compliant transactions with rollback
+* **OperationQueueManager**: Queue operations with priorities (LOW, NORMAL, HIGH, CRITICAL)
+* **Resource Locking**: Prevent deadlocks with efficient resource management
 
-## 9. Guiding Principles for Task Stub Generation
+### Performance Optimization
+* **BackgroundProcessor**: Use for heavy operations (PDF generation, data sync)
+* **MemoryMonitor**: Monitor memory usage and trigger cleanup when needed
+* **PaginatedList**: Implement pagination for large datasets
+* **LazyLoadingList**: Use Compose components for efficient list rendering
 
-This document provides a set of guiding principles for all agents, including AI assistants like Codex, when creating new task stubs for this project. The goal is to ensure all tasks are thorough, actionable, and verifiable. All generated task stubs **must** adhere to the following principles.
+### Network Resilience
+* **OfflineDataManager**: Store data locally for offline functionality
+* **SyncManager**: Synchronize data when network is available
+* **NetworkMonitor**: Monitor connectivity and connection quality
+* **ConflictResolver**: Handle data conflicts intelligently
 
-### 1. The Principle of Decomposition
+### Security Features
+* **SQLCipher Encryption**: All database operations use encrypted storage
+* **BCrypt Password Hashing**: Secure password storage with automatic upgrades
+* **Multi-User Isolation**: Complete data separation between users
+* **Secure Backup**: Encrypted backup and restore functionality
 
-Large features must be broken down into smaller, logical, and atomic task stubs. Avoid creating single, monolithic tasks for complex features. A good task represents a single, verifiable unit of work that can be completed in one pull request.
+## 8. Common Pitfalls
 
-* **DO:** Create separate tasks for UI layout, business logic, data models, and resource creation.
-* **DON'T:** Create a single task called "Implement Login Screen."
+1. **ANDROID_HOME not set** – always source the profile written by `setup-android-sdk.sh`
+2. **Out-of-date Gradle wrapper** – update with `./gradlew wrapper --gradle-version 8.10.2` when bumping AGP
+3. **Room schema drift** – run `./gradlew test` after changing entities to auto-regenerate `/data/schemas`
+4. **Accidentally committed build output** – confirm `.gitignore` still excludes `build/`, `.gradle/`, `.idea/`
+5. **Robolectric memory leaks** – never keep global state in test classes; use `@Config` with `sdk = 34`
+6. **Missing error handling** – always wrap operations with appropriate error handling components
+7. **Concurrency issues** – use ConcurrencyController for all database operations
+8. **Performance problems** – implement pagination and background processing for large datasets
 
-### 2. The Principle of Specificity
+## 9. Changelog Management
 
-Tasks must be unambiguous and provide concrete details. The agent is expected to analyze the existing codebase to provide accurate file paths, class names, and method signatures.
+From version `0.24.9` onward, changelog entries use the full `[MAJOR.MINOR.PATCH]` format. Gather changes under the next release heading and bump `versionName` in `app/build.gradle` only when cutting a release (patch/minor/major). The current version is `0.24.9`.
 
-* **DO:** Include specific file paths (e.g., `app/src/main/res/layout/activity_main.xml`).
-* **DO:** Suggest specific component IDs, class names, or method names.
-* **DO:** Include short, illustrative code snippets in XML or Kotlin where appropriate.
-* **DON'T:** Use vague instructions like "update the layout" or "add the logic."
+**IMPORTANT**: When updating the changelog, also bump version numbers as explicitly described in the documentation.
 
-### 3. The Principle of Verifiability
+## 10. Documentation Standards
 
-Every task must include a clear set of acceptance criteria. This is a checklist that a developer or QA engineer can use to confirm that the task is 100% complete and correct.
+### New Documentation Structure
+* **docs/DOCUMENTATION_INDEX.md** - Main documentation index
+* **docs/PROJECT_OVERVIEW.md** - Comprehensive project overview
+* **docs/INSTALLATION.md** - Detailed installation guide
+* **docs/USER_MANUAL.md** - Complete user guide
+* **docs/DEVELOPMENT.md** - Development guidelines
+* **docs/TESTING_STRATEGY.md** - Testing approach and procedures
 
-* **DO:** List 2-5 specific, testable outcomes.
-* **DON'T:** Finish a task description without defining what "done" means.
+### Documentation Updates
+* Update documentation for any new features or API changes
+* Maintain consistency with current version (0.24.9)
+* Include code examples and usage patterns
+* Document all enterprise features and procedures
 
----
+## 11. Testing Procedures
 
-### The Golden Standard: Task Stub Template
+### Unit Testing
+* **Test Coverage**: Aim for 80%+ test coverage
+* **Test Infrastructure**: Use existing test infrastructure in `/app/src/test`
+* **MockK Integration**: Use MockK for mocking final classes like ConcurrencyController
+* **Robolectric**: Use for Android framework testing without emulator
 
-All generated stubs must follow this Markdown template:
+### Integration Testing
+* **Database Testing**: Test database operations with TestDatabaseContainer
+* **Error Handling**: Test error scenarios and recovery mechanisms
+* **Performance Testing**: Validate performance with large datasets
+* **Security Testing**: Test encryption and authentication features
 
-**Task Title:** [A concise, one-line summary of the work]
+### UI Testing
+* **Compose Testing**: Use ComposeTestEnvironment for UI component testing
+* **Navigation Testing**: Test navigation flows and deep linking
+* **Accessibility Testing**: Ensure accessibility compliance
+* **Theme Testing**: Test dark/light theme switching
 
-* **File(s) to Create/Modify:**
-    * `[path/to/file_one.kt]`
-    * `[path/to/file_two.xml]`
-* **Description of Work:**
-    * A detailed, step-by-step explanation of the required changes.
-    * Use bullet points for clarity.
-    * Reference specific IDs, methods, and components.
-    * *Example Snippet (if helpful):*
-        ```kotlin
-        // A short code example
-        ```
-* **Acceptance Criteria:**
-    * [ ] The first condition of "done."
-    * [ ] The second condition of "done."
-    * [ ] The third condition of "done."
+## 12. Production Readiness Checklist
 
-### Good Example
-
-**Task Title:** Update Primary Button Style
-
-* **File(s) to Create/Modify:**
-    * `app/src/main/res/values/styles.xml`
-    * `app/src/main/res/layout/fragment_login.xml`
-* **Description of Work:**
-    * In `styles.xml`, create a new style named `AppTheme.Button.Primary`.
-    * This style should set the `backgroundColor` to `@color/colorPrimary` and `textColor` to `@color/white`.
-    * In `fragment_login.xml`, apply this new style to the button with the ID `@+id/login_button`.
-* **Acceptance Criteria:**
-    * [ ] A new button style `AppTheme.Button.Primary` exists in `styles.xml`.
-    * [ ] The login button in the running app now has the new primary color background.
-    * [ ] The login button text is white.
+Before any production release:
+* [ ] All enterprise features implemented and tested
+* [ ] Error handling covers all failure scenarios
+* [ ] Performance optimized for large datasets
+* [ ] Security features properly configured
+* [ ] Offline functionality tested
+* [ ] Concurrency safety validated
+* [ ] Documentation updated and complete
+* [ ] All tests passing with good coverage
+* [ ] Lint shows no warnings
+* [ ] Release signing configured
 
 ---
 

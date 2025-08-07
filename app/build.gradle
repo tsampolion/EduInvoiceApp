@@ -142,16 +142,26 @@ android {
     testImplementation "junit:junit:4.13.2"
     testImplementation "androidx.room:room-testing:2.7.1"
     testImplementation "androidx.test:core:1.5.0"
+    testImplementation "androidx.test:runner:1.5.0"
+    testImplementation "androidx.test:rules:1.5.0"
     testImplementation "org.robolectric:robolectric:4.11.1"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0"
     testImplementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
     testImplementation "androidx.compose.ui:ui-test-junit4"
     testImplementation "org.bouncycastle:bcprov-jdk15on:1.70"
     testImplementation "io.mockk:mockk:1.13.8"
+    testImplementation "androidx.arch.core:core-testing:2.2.0"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
+    
+    // Android Testing
     androidTestImplementation "androidx.test.ext:junit:1.2.1"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.6.1"
+    androidTestImplementation "androidx.test:runner:1.5.0"
+    androidTestImplementation "androidx.test:rules:1.5.0"
     androidTestImplementation platform("androidx.compose:compose-bom:2025.06.00")
     androidTestImplementation "androidx.compose.ui:ui-test-junit4"
+    androidTestImplementation "androidx.compose.ui:ui-test-manifest"
+    androidTestImplementation "androidx.test.uiautomator:uiautomator:2.2.0"
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0"
