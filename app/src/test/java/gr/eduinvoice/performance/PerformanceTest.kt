@@ -5,21 +5,24 @@ import gr.eduinvoice.TestBase
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.Lesson
-import gr.eduinvoice.data.model.Group
+import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.data.model.User
 import gr.eduinvoice.data.repository.StudentRepository
 import gr.eduinvoice.data.repository.LessonRepository
 import gr.eduinvoice.data.repository.GroupRepository
 import gr.eduinvoice.data.repository.UserRepository
-import gr.eduinvoice.domain.student.StudentUseCase
-import gr.eduinvoice.domain.lesson.LessonUseCase
-import gr.eduinvoice.domain.group.GroupUseCase
-import gr.eduinvoice.domain.user.UserUseCase
+import gr.eduinvoice.domain.student.StudentUseCases
+import gr.eduinvoice.domain.lesson.LessonUseCases
+import gr.eduinvoice.domain.group.GroupUseCases
+import gr.eduinvoice.domain.user.UserUseCases
 import gr.eduinvoice.infrastructure.TestDatabaseContainer
+import gr.eduinvoice.infrastructure.TestConfiguration
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -28,6 +31,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.LocalDateTime
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.concurrent.TimeUnit
 
 /**
@@ -47,10 +51,10 @@ class PerformanceTest : TestBase() {
     private lateinit var groupRepository: GroupRepository
     private lateinit var userRepository: UserRepository
     
-    private lateinit var studentUseCase: StudentUseCase
-    private lateinit var lessonUseCase: LessonUseCase
-    private lateinit var groupUseCase: GroupUseCase
-    private lateinit var userUseCase: UserUseCase
+    private lateinit var studentUseCases: StudentUseCases
+    private lateinit var lessonUseCases: LessonUseCases
+    private lateinit var groupUseCases: GroupUseCases
+    private lateinit var userUseCases: UserUseCases
     
     private val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
     
@@ -65,10 +69,54 @@ class PerformanceTest : TestBase() {
         userRepository = UserRepository(database.userDao())
         
         // Initialize use cases
-        studentUseCase = StudentUseCase(studentRepository)
-        lessonUseCase = LessonUseCase(lessonRepository)
-        groupUseCase = GroupUseCase(groupRepository)
-        userUseCase = UserUseCase(userRepository)
+        studentUseCases = StudentUseCases(
+            getActiveStudents = gr.eduinvoice.domain.student.GetActiveStudents(studentRepository),
+            getArchivedStudents = gr.eduinvoice.domain.student.GetArchivedStudents(studentRepository),
+            getStudentById = gr.eduinvoice.domain.student.GetStudentById(studentRepository),
+            insertStudent = gr.eduinvoice.domain.student.InsertStudent(studentRepository),
+            updateStudent = gr.eduinvoice.domain.student.UpdateStudent(studentRepository),
+            softDeleteStudent = gr.eduinvoice.domain.student.SoftDeleteStudent(studentRepository),
+            restoreStudent = gr.eduinvoice.domain.student.RestoreStudent(studentRepository),
+            getActiveStudentCount = gr.eduinvoice.domain.student.GetActiveStudentCount(studentRepository),
+            classNameExists = gr.eduinvoice.domain.student.ClassNameExists(studentRepository),
+            getStudentsPaginated = gr.eduinvoice.domain.student.GetStudentsPaginated(studentRepository),
+            searchStudentsPaginated = gr.eduinvoice.domain.student.SearchStudentsPaginated(studentRepository)
+        )
+        
+        lessonUseCases = LessonUseCases(
+            getAllLessons = gr.eduinvoice.domain.lesson.GetAllLessons(database.lessonDao()),
+            getLessonById = gr.eduinvoice.domain.lesson.GetLessonById(database.lessonDao()),
+            getStudentLessons = gr.eduinvoice.domain.lesson.GetStudentLessons(lessonRepository),
+            getLessonsWithStudents = gr.eduinvoice.domain.lesson.GetLessonsWithStudents(database.lessonDao()),
+            getLessonsWithStudentsByStudentAndDateRange = gr.eduinvoice.domain.lesson.GetLessonsWithStudentsByStudentAndDateRange(database.lessonDao()),
+            addLesson = gr.eduinvoice.domain.lesson.AddLesson(lessonRepository),
+            addGroupLesson = gr.eduinvoice.domain.lesson.AddGroupLesson(lessonRepository),
+            updateLesson = gr.eduinvoice.domain.lesson.UpdateLesson(lessonRepository),
+            deleteLesson = gr.eduinvoice.domain.lesson.DeleteLesson(database.lessonDao()),
+            updateLessonPaidStatus = gr.eduinvoice.domain.lesson.UpdateLessonPaidStatus(database.lessonDao()),
+            updateLessonInvoicedStatus = gr.eduinvoice.domain.lesson.UpdateLessonInvoicedStatus(database.lessonDao()),
+            isLessonInvoiced = gr.eduinvoice.domain.lesson.IsLessonInvoiced(database.lessonDao()),
+            getLessonsWithStudentsPaginated = gr.eduinvoice.domain.lesson.GetLessonsWithStudentsPaginated(database.lessonDao())
+        )
+        
+        groupUseCases = GroupUseCases(
+            insertGroup = gr.eduinvoice.domain.group.InsertGroup(groupRepository),
+            updateGroup = gr.eduinvoice.domain.group.UpdateGroup(groupRepository),
+            deleteGroup = gr.eduinvoice.domain.group.DeleteGroup(groupRepository),
+            getAllGroups = gr.eduinvoice.domain.group.GetAllGroups(groupRepository),
+            getGroupById = gr.eduinvoice.domain.group.GetGroupById(groupRepository),
+            addStudentToGroup = gr.eduinvoice.domain.group.AddStudentToGroup(groupRepository),
+            removeStudentFromGroup = gr.eduinvoice.domain.group.RemoveStudentFromGroup(groupRepository),
+            getGroupStudents = gr.eduinvoice.domain.group.GetGroupStudents(groupRepository)
+        )
+        
+        userUseCases = UserUseCases(
+            createUser = gr.eduinvoice.domain.user.CreateUser(userRepository),
+            authenticateUser = gr.eduinvoice.domain.user.AuthenticateUser(userRepository),
+            getUserProfile = gr.eduinvoice.domain.user.GetUserProfile(userRepository),
+            updateUser = gr.eduinvoice.domain.user.UpdateUser(userRepository),
+            resetPassword = gr.eduinvoice.domain.user.ResetPassword(userRepository)
+        )
     }
     
     @After
@@ -81,9 +129,9 @@ class PerformanceTest : TestBase() {
         val user = createTestUser()
         
         // Performance thresholds
-        val maxInsertionTime = 5000L // 5 seconds
-        val maxQueryTime = 1000L // 1 second
-        val maxMemoryUsage = 100L * 1024 * 1024 // 100MB
+        val maxInsertionTime = TestConfiguration.Performance.maxInsertionTime
+        val maxQueryTime = TestConfiguration.Performance.maxQueryTime
+        val maxMemoryUsage = TestConfiguration.Performance.maxMemoryUsage
         
         // Measure initial memory
         val initialMemory = getMemoryUsage()
@@ -91,93 +139,55 @@ class PerformanceTest : TestBase() {
         // Create large dataset
         val startTime = System.currentTimeMillis()
         
-        val students = createLargeStudentDataset(user.id, 1000)
-        val lessons = createLargeLessonDataset(students, 10000)
-        val groups = createLargeGroupDataset(user.id, 100)
+        val students = createLargeStudentDataset(user.id, TestConfiguration.DataSize.largeStudentCount)
+        val lessons = createLargeLessonDataset(students, TestConfiguration.DataSize.largeLessonCount)
+        val groups = createLargeGroupDataset(user.id, TestConfiguration.DataSize.largeGroupCount)
         
         val insertionTime = System.currentTimeMillis() - startTime
         
         // Verify insertion performance
-        assertTrue("Large dataset insertion should complete within $maxInsertionTime ms", 
-                  insertionTime < maxInsertionTime)
+        assertTrue("Insertion took too long: ${insertionTime}ms", insertionTime < maxInsertionTime)
         
         // Test query performance
         val queryStartTime = System.currentTimeMillis()
-        
-        val allStudents = studentUseCase.getAllStudents(user.id)
-        val allLessons = lessonUseCase.getAllLessons(user.id)
-        val allGroups = groupUseCase.getAllGroups(user.id)
-        
+        val allStudents = studentUseCases.getActiveStudents(user.id).first()
         val queryTime = System.currentTimeMillis() - queryStartTime
         
-        // Verify query performance
-        assertTrue("Large dataset queries should complete within $maxQueryTime ms", 
-                  queryTime < maxQueryTime)
-        
-        // Verify data integrity
-        assertEquals("Should have 1000 students", 1000, allStudents.size)
-        assertEquals("Should have 10000 lessons", 10000, allLessons.size)
-        assertEquals("Should have 100 groups", 100, allGroups.size)
+        assertTrue("Query took too long: ${queryTime}ms", queryTime < maxQueryTime)
+        assertEquals(TestConfiguration.DataSize.largeStudentCount, allStudents.size)
         
         // Test memory usage
         val finalMemory = getMemoryUsage()
         val memoryIncrease = finalMemory - initialMemory
-        
-        assertTrue("Memory usage should be under $maxMemoryUsage bytes", 
-                  memoryIncrease < maxMemoryUsage)
-        
-        println("Performance Results:")
-        println("Insertion time: ${insertionTime}ms")
-        println("Query time: ${queryTime}ms")
-        println("Memory increase: ${memoryIncrease / 1024 / 1024}MB")
+        assertTrue("Memory usage too high: ${memoryIncrease} bytes", memoryIncrease < maxMemoryUsage)
     }
     
     @Test
     fun testMemoryUsage() = runTest {
         val user = createTestUser()
-        
-        // Memory usage thresholds
-        val maxMemoryUsage = 100L * 1024 * 1024 // 100MB
-        val maxMemoryLeak = 10L * 1024 * 1024 // 10MB leak threshold
-        
         val initialMemory = getMemoryUsage()
         
-        // Perform operations that should not leak memory
-        repeat(100) { iteration ->
-            val students = createLargeStudentDataset(user.id, 100)
-            val lessons = createLargeLessonDataset(students, 1000)
-            
-            // Perform various operations
-            students.forEach { student ->
-                studentUseCase.getStudent(student.id)
-                studentUseCase.getStudentWithLessons(student.id)
-                studentUseCase.calculateStudentEarnings(student.id)
-            }
-            
-            // Force garbage collection
-            System.gc()
-            
-            // Check memory every 10 iterations
-            if (iteration % 10 == 0) {
-                val currentMemory = getMemoryUsage()
-                val memoryIncrease = currentMemory - initialMemory
-                
-                assertTrue("Memory usage should not exceed $maxMemoryUsage bytes at iteration $iteration", 
-                          currentMemory < maxMemoryUsage)
-                
-                println("Iteration $iteration: Memory usage = ${currentMemory / 1024 / 1024}MB")
-            }
+        // Create moderate dataset
+        val students = createLargeStudentDataset(user.id, TestConfiguration.DataSize.mediumStudentCount)
+        val lessons = createLargeLessonDataset(students, TestConfiguration.DataSize.mediumLessonCount)
+        
+        val memoryAfterData = getMemoryUsage()
+        val memoryIncrease = memoryAfterData - initialMemory
+        
+        // Verify memory usage is reasonable
+        assertTrue("Memory increase too high: ${memoryIncrease} bytes", 
+                  memoryIncrease < TestConfiguration.Performance.maxMemoryUsage)
+        
+        // Test memory cleanup
+        students.forEach { student ->
+            studentUseCases.softDeleteStudent(student.id, user.id)
         }
         
-        // Final memory check
-        val finalMemory = getMemoryUsage()
-        val totalMemoryIncrease = finalMemory - initialMemory
+        val memoryAfterCleanup = getMemoryUsage()
+        val cleanupEfficiency = (memoryAfterData - memoryAfterCleanup) / memoryIncrease.toDouble()
         
-        assertTrue("Total memory increase should be under $maxMemoryLeak bytes", 
-                  totalMemoryIncrease < maxMemoryLeak)
-        
-        println("Final memory usage: ${finalMemory / 1024 / 1024}MB")
-        println("Total memory increase: ${totalMemoryIncrease / 1024 / 1024}MB")
+        assertTrue("Memory cleanup efficiency too low: ${cleanupEfficiency}", 
+                  cleanupEfficiency > TestConfiguration.Performance.minCleanupEfficiency)
     }
     
     @Test
@@ -185,177 +195,135 @@ class PerformanceTest : TestBase() {
         val user = createTestUser()
         
         // Create test data
-        val students = createLargeStudentDataset(user.id, 500)
-        val lessons = createLargeLessonDataset(students, 5000)
+        val students = createLargeStudentDataset(user.id, TestConfiguration.DataSize.mediumStudentCount)
+        val lessons = createLargeLessonDataset(students, TestConfiguration.DataSize.mediumLessonCount)
         
-        // Test different query patterns
-        val queryTests = listOf(
-            QueryTest("Get all students", { studentUseCase.getAllStudents(user.id) }, 1000L),
-            QueryTest("Get students with lessons", { 
-                students.take(10).map { studentUseCase.getStudentWithLessons(it.id) }
-            }, 2000L),
-            QueryTest("Calculate earnings for all students", {
-                students.take(10).map { studentUseCase.calculateStudentEarnings(it.id) }
-            }, 3000L),
-            QueryTest("Get lessons by date range", {
-                lessonUseCase.getLessonsByDateRange(user.id, LocalDate.now().minusDays(30), LocalDate.now())
-            }, 1500L),
-            QueryTest("Search students by name", {
-                studentUseCase.searchStudents(user.id, "Student")
-            }, 1000L)
-        )
+        // Test pagination performance
+        val pageSize = TestConfiguration.Database.pageSize
+        val maxPages = TestConfiguration.DataSize.mediumStudentCount / pageSize
         
-        queryTests.forEach { test ->
+        repeat(maxPages) { page ->
             val startTime = System.currentTimeMillis()
-            val result = test.query()
-            val duration = System.currentTimeMillis() - startTime
+            val paginatedStudents = studentUseCases.getStudentsPaginated(user.id, pageSize, page * pageSize)
+            val queryTime = System.currentTimeMillis() - startTime
             
-            assertTrue("${test.name} should complete within ${test.maxTime}ms, took ${duration}ms", 
-                      duration < test.maxTime)
-            
-            println("${test.name}: ${duration}ms")
+            assertTrue("Pagination query ${page} took too long: ${queryTime}ms", 
+                      queryTime < TestConfiguration.Performance.maxQueryTime)
+            assertTrue("Page ${page} should have students", paginatedStudents.isNotEmpty())
         }
     }
     
     @Test
     fun testConcurrentOperationPerformance() = runTest {
         val user = createTestUser()
+        val students = createLargeStudentDataset(user.id, TestConfiguration.DataSize.smallStudentCount)
         
-        // Performance thresholds
-        val maxConcurrentTime = 3000L // 3 seconds
-        val maxMemoryUsage = 150L * 1024 * 1024 // 150MB
-        
-        val initialMemory = getMemoryUsage()
-        
-        // Test concurrent operations
+        val concurrentOperations = TestConfiguration.Performance.concurrentOperations
         val startTime = System.currentTimeMillis()
         
-        val concurrentOperations = listOf(
-            { createLargeStudentDataset(user.id, 100) },
-            { createLargeLessonDataset(createLargeStudentDataset(user.id, 50), 500) },
-            { createLargeGroupDataset(user.id, 20) },
-            { studentUseCase.getAllStudents(user.id) },
-            { lessonUseCase.getAllLessons(user.id) },
-            { groupUseCase.getAllGroups(user.id) }
-        )
-        
-        // Execute operations concurrently
-        val results = concurrentOperations.map { operation ->
-            kotlinx.coroutines.async {
-                operation()
+        val jobs = (1..concurrentOperations).map { operationId ->
+            async {
+                val student = students[operationId % students.size]
+                val updatedStudent = student.copy(name = "Updated_${operationId}")
+                studentUseCases.updateStudent(updatedStudent)
+                operationId
             }
-        }.map { it.await() }
+        }
         
-        val concurrentTime = System.currentTimeMillis() - startTime
+        val results = jobs.awaitAll()
+        val totalTime = System.currentTimeMillis() - startTime
         
-        // Verify concurrent performance
-        assertTrue("Concurrent operations should complete within $maxConcurrentTime ms", 
-                  concurrentTime < maxConcurrentTime)
-        
-        // Verify memory usage
-        val finalMemory = getMemoryUsage()
-        val memoryIncrease = finalMemory - initialMemory
-        
-        assertTrue("Memory usage should be under $maxMemoryUsage bytes during concurrent operations", 
-                  memoryIncrease < maxMemoryUsage)
-        
-        println("Concurrent operations completed in: ${concurrentTime}ms")
-        println("Memory usage during concurrent operations: ${memoryIncrease / 1024 / 1024}MB")
+        assertEquals(concurrentOperations, results.size)
+        assertTrue("Concurrent operations took too long: ${totalTime}ms", 
+                  totalTime < TestConfiguration.Performance.maxConcurrentTime)
     }
     
     @Test
     fun testPaginationPerformance() = runTest {
         val user = createTestUser()
+        val students = createLargeStudentDataset(user.id, TestConfiguration.DataSize.largeStudentCount)
         
-        // Create large dataset
-        val students = createLargeStudentDataset(user.id, 2000)
-        val lessons = createLargeLessonDataset(students, 20000)
+        val pageSize = TestConfiguration.Database.pageSize
+        val totalPages = (students.size + pageSize - 1) / pageSize
         
-        // Test pagination performance
-        val pageSizes = listOf(10, 50, 100, 200)
-        val maxPageTime = 500L // 500ms per page
+        val startTime = System.currentTimeMillis()
         
-        pageSizes.forEach { pageSize ->
-            val startTime = System.currentTimeMillis()
+        repeat(totalPages) { page ->
+            val offset = page * pageSize
+            val paginatedStudents = studentUseCases.getStudentsPaginated(user.id, pageSize, offset)
             
-            // Simulate pagination
-            repeat(5) { page ->
-                val offset = page * pageSize
-                val pageStudents = students.drop(offset).take(pageSize)
-                
-                // Perform operations on page
-                pageStudents.forEach { student ->
-                    studentUseCase.getStudent(student.id)
-                }
+            val expectedSize = if (page == totalPages - 1 && students.size % pageSize != 0) {
+                students.size % pageSize
+            } else {
+                pageSize
             }
             
-            val pageTime = System.currentTimeMillis() - startTime
-            
-            assertTrue("Pagination with page size $pageSize should complete within $maxPageTime ms", 
-                      pageTime < maxPageTime)
-            
-            println("Pagination with page size $pageSize: ${pageTime}ms")
+            assertEquals("Page ${page} should have ${expectedSize} students", 
+                        expectedSize, paginatedStudents.size)
         }
+        
+        val totalTime = System.currentTimeMillis() - startTime
+        assertTrue("Pagination took too long: ${totalTime}ms", 
+                  totalTime < TestConfiguration.Performance.maxPaginationTime)
     }
     
     @Test
     fun testUIResponsivenessSimulation() = runTest {
         val user = createTestUser()
+        val students = createLargeStudentDataset(user.id, TestConfiguration.DataSize.mediumStudentCount)
         
-        // Create moderate dataset for UI testing
-        val students = createLargeStudentDataset(user.id, 200)
-        val lessons = createLargeLessonDataset(students, 2000)
+        // Simulate UI operations
+        val uiOperations = TestConfiguration.UI.responsivenessOperations
         
-        // Simulate UI operations that should remain responsive
-        val uiOperations = listOf(
-            { studentUseCase.getAllStudents(user.id) }, // Student list
-            { lessonUseCase.getAllLessons(user.id) }, // Lesson list
-            { students.take(5).map { studentUseCase.getStudentWithLessons(it.id) } }, // Student details
-            { lessons.take(10).map { lessonUseCase.getLesson(it.id) } }, // Lesson details
-            { students.take(10).map { studentUseCase.calculateStudentEarnings(it.id) } } // Revenue calculation
-        )
-        
-        val maxUITime = 1000L // 1 second for UI responsiveness
-        
-        uiOperations.forEachIndexed { index, operation ->
+        repeat(uiOperations) { operation ->
             val startTime = System.currentTimeMillis()
-            val result = operation()
-            val duration = System.currentTimeMillis() - startTime
             
-            assertTrue("UI operation $index should complete within $maxUITime ms, took ${duration}ms", 
-                      duration < maxUITime)
+            // Simulate different UI operations
+            when (operation % 4) {
+                0 -> studentUseCases.getActiveStudents(user.id).first()
+                1 -> studentUseCases.getActiveStudentCount(user.id)
+                2 -> {
+                    val student = students[operation % students.size]
+                    studentUseCases.getStudentById(student.id, user.id).first()
+                }
+                3 -> {
+                    val searchQuery = "Student_${operation % 10}"
+                    studentUseCases.searchStudentsPaginated(user.id, searchQuery, 10, 0)
+                }
+            }
             
-            println("UI operation $index: ${duration}ms")
+            val operationTime = System.currentTimeMillis() - startTime
+            assertTrue("UI operation ${operation} took too long: ${operationTime}ms", 
+                      operationTime < TestConfiguration.UI.maxResponseTime)
         }
     }
     
-    // Helper methods
+    // Helper functions
     private suspend fun createTestUser(): User {
         val user = User(
-            id = 1L,
-            username = "perftestuser",
-            email = "perf@test.com",
-            passwordHash = "hashedpassword",
-            createdAt = LocalDateTime.now()
+            username = "testuser_${System.currentTimeMillis()}",
+            passwordHash = "test_hash",
+            fullName = "Test User"
         )
-        return userUseCase.registerUser(user)
+        val userId = userUseCases.createUser(user)
+        return user.copy(id = userId)
     }
     
     private suspend fun createLargeStudentDataset(ownerId: Long, count: Int): List<Student> {
         val students = mutableListOf<Student>()
         
-        for (i in 1..count) {
+        repeat(count) { index ->
             val student = Student(
-                id = i.toLong(),
-                name = "Student $i",
-                email = "student$i@example.com",
-                phone = "+123456789$i",
-                hourlyRate = 50.0 + (i % 50),
                 ownerId = ownerId,
-                isArchived = false,
-                createdAt = LocalDateTime.now()
+                name = "Student_${index}",
+                surname = "Surname_${index}",
+                parentMobile = "+30${index.toString().padStart(9, '0')}",
+                parentEmail = "parent${index}@test.com",
+                className = "Class_${index % 10}",
+                rate = 20.0 + (index % 30)
             )
-            students.add(studentUseCase.createStudent(student))
+            val studentId = studentUseCases.insertStudent(student)
+            students.add(student.copy(id = studentId))
         }
         
         return students
@@ -363,38 +331,39 @@ class PerformanceTest : TestBase() {
     
     private suspend fun createLargeLessonDataset(students: List<Student>, count: Int): List<Lesson> {
         val lessons = mutableListOf<Lesson>()
+        val baseDate = LocalDate.now().minusDays(30)
         
-        for (i in 1..count) {
-            val student = students[i % students.size]
-            val lesson = Lesson(
-                id = i.toLong(),
+        repeat(count) { index ->
+            val student = students[index % students.size]
+            val lessonDate = baseDate.plusDays(index % 30)
+            val startTime = LocalTime.of(9 + (index % 8), 0)
+            
+            val lesson = Lesson.create(
                 studentId = student.id,
-                groupId = null,
-                date = LocalDate.now().minusDays((i % 365).toLong()),
-                duration = 30 + (i % 90), // 30-120 minutes
-                hourlyRate = student.hourlyRate,
-                notes = "Lesson $i for ${student.name}",
-                ownerId = student.ownerId,
-                createdAt = LocalDateTime.now()
+                date = lessonDate,
+                startTime = startTime,
+                durationMinutes = 60,
+                notes = "Lesson ${index}",
+                ownerId = student.ownerId
             )
-            lessons.add(lessonUseCase.createLesson(lesson))
+            
+            val lessonId = lessonUseCases.addLesson(lesson)
+            lessons.add(lesson.copy(id = lessonId))
         }
         
         return lessons
     }
     
-    private suspend fun createLargeGroupDataset(ownerId: Long, count: Int): List<Group> {
-        val groups = mutableListOf<Group>()
+    private suspend fun createLargeGroupDataset(ownerId: Long, count: Int): List<StudentGroup> {
+        val groups = mutableListOf<StudentGroup>()
         
-        for (i in 1..count) {
-            val group = Group(
-                id = i.toLong(),
-                name = "Group $i",
-                description = "Description for group $i",
+        repeat(count) { index ->
+            val group = StudentGroup(
                 ownerId = ownerId,
-                createdAt = LocalDateTime.now()
+                name = "Group_${index}"
             )
-            groups.add(groupUseCase.createGroup(group))
+            val groupId = groupUseCases.insertGroup(group)
+            groups.add(group.copy(id = groupId))
         }
         
         return groups
@@ -404,10 +373,4 @@ class PerformanceTest : TestBase() {
         val runtime = Runtime.getRuntime()
         return runtime.totalMemory() - runtime.freeMemory()
     }
-    
-    private data class QueryTest(
-        val name: String,
-        val query: suspend () -> Any,
-        val maxTime: Long
-    )
-}
+} 

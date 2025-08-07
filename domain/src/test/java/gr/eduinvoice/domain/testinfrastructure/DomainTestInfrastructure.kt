@@ -1,87 +1,87 @@
-package gr.eduinvoice.testinfrastructure
+package gr.eduinvoice.domain.testinfrastructure
 
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.model.*
 import gr.eduinvoice.data.repository.*
-import gr.eduinvoice.domain.student.StudentUseCases
-import gr.eduinvoice.domain.lesson.LessonUseCases
-import gr.eduinvoice.domain.group.GroupUseCases
-import gr.eduinvoice.domain.user.UserUseCases
+import gr.eduinvoice.domain.student.*
+import gr.eduinvoice.domain.lesson.*
+import gr.eduinvoice.domain.group.*
+import gr.eduinvoice.domain.user.*
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import java.time.LocalDate
 import java.time.LocalTime
 
 /**
- * Unified test infrastructure for all modules
+ * Unified test infrastructure for domain module tests
  * Provides centralized test utilities, data factories, and configuration
  */
-object TestInfrastructure {
-    
+object DomainTestInfrastructure {
+
     /**
      * Standard test dispatcher for coroutine testing
      */
     val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
-    
+
     /**
-     * Creates a complete test environment with all repositories and use cases
+     * Creates a complete test environment with all domain layer components
      */
-    fun createTestEnvironment(database: EduInvoiceDatabase): TestEnvironment {
+    fun createDomainTestEnvironment(database: EduInvoiceDatabase): DomainTestEnvironment {
         val studentRepository = StudentRepository(database.studentDao())
         val lessonRepository = LessonRepository(database.lessonDao())
         val groupRepository = GroupRepository(database.groupDao())
         val userRepository = UserRepository(database.userDao())
-        
+
         val studentUseCases = StudentUseCases(
-            getActiveStudents = gr.eduinvoice.domain.student.GetActiveStudents(studentRepository),
-            getArchivedStudents = gr.eduinvoice.domain.student.GetArchivedStudents(studentRepository),
-            getStudentById = gr.eduinvoice.domain.student.GetStudentById(studentRepository),
-            insertStudent = gr.eduinvoice.domain.student.InsertStudent(studentRepository),
-            updateStudent = gr.eduinvoice.domain.student.UpdateStudent(studentRepository),
-            softDeleteStudent = gr.eduinvoice.domain.student.SoftDeleteStudent(studentRepository),
-            restoreStudent = gr.eduinvoice.domain.student.RestoreStudent(studentRepository),
-            getActiveStudentCount = gr.eduinvoice.domain.student.GetActiveStudentCount(studentRepository),
-            classNameExists = gr.eduinvoice.domain.student.ClassNameExists(studentRepository),
-            getStudentsPaginated = gr.eduinvoice.domain.student.GetStudentsPaginated(studentRepository),
-            searchStudentsPaginated = gr.eduinvoice.domain.student.SearchStudentsPaginated(studentRepository)
+            getActiveStudents = GetActiveStudents(studentRepository),
+            getArchivedStudents = GetArchivedStudents(studentRepository),
+            getStudentById = GetStudentById(studentRepository),
+            insertStudent = InsertStudent(studentRepository),
+            updateStudent = UpdateStudent(studentRepository),
+            softDeleteStudent = SoftDeleteStudent(studentRepository),
+            restoreStudent = RestoreStudent(studentRepository),
+            getActiveStudentCount = GetActiveStudentCount(studentRepository),
+            classNameExists = ClassNameExists(studentRepository),
+            getStudentsPaginated = GetStudentsPaginated(studentRepository),
+            searchStudentsPaginated = SearchStudentsPaginated(studentRepository)
         )
-        
+
         val lessonUseCases = LessonUseCases(
-            getAllLessons = gr.eduinvoice.domain.lesson.GetAllLessons(database.lessonDao()),
-            getLessonById = gr.eduinvoice.domain.lesson.GetLessonById(database.lessonDao()),
-            getStudentLessons = gr.eduinvoice.domain.lesson.GetStudentLessons(lessonRepository),
-            getLessonsWithStudents = gr.eduinvoice.domain.lesson.GetLessonsWithStudents(database.lessonDao()),
-            getLessonsWithStudentsByStudentAndDateRange = gr.eduinvoice.domain.lesson.GetLessonsWithStudentsByStudentAndDateRange(database.lessonDao()),
-            addLesson = gr.eduinvoice.domain.lesson.AddLesson(lessonRepository),
-            addGroupLesson = gr.eduinvoice.domain.lesson.AddGroupLesson(lessonRepository),
-            updateLesson = gr.eduinvoice.domain.lesson.UpdateLesson(lessonRepository),
-            deleteLesson = gr.eduinvoice.domain.lesson.DeleteLesson(database.lessonDao()),
-            updateLessonPaidStatus = gr.eduinvoice.domain.lesson.UpdateLessonPaidStatus(database.lessonDao()),
-            updateLessonInvoicedStatus = gr.eduinvoice.domain.lesson.UpdateLessonInvoicedStatus(database.lessonDao()),
-            isLessonInvoiced = gr.eduinvoice.domain.lesson.IsLessonInvoiced(database.lessonDao()),
-            getLessonsWithStudentsPaginated = gr.eduinvoice.domain.lesson.GetLessonsWithStudentsPaginated(database.lessonDao())
+            getAllLessons = GetAllLessons(database.lessonDao()),
+            getLessonById = GetLessonById(database.lessonDao()),
+            getStudentLessons = GetStudentLessons(lessonRepository),
+            getLessonsWithStudents = GetLessonsWithStudents(database.lessonDao()),
+            getLessonsWithStudentsByStudentAndDateRange = GetLessonsWithStudentsByStudentAndDateRange(database.lessonDao()),
+            addLesson = AddLesson(lessonRepository),
+            addGroupLesson = AddGroupLesson(lessonRepository),
+            updateLesson = UpdateLesson(lessonRepository),
+            deleteLesson = DeleteLesson(database.lessonDao()),
+            updateLessonPaidStatus = UpdateLessonPaidStatus(database.lessonDao()),
+            updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(database.lessonDao()),
+            isLessonInvoiced = IsLessonInvoiced(database.lessonDao()),
+            getLessonsWithStudentsPaginated = GetLessonsWithStudentsPaginated(database.lessonDao())
         )
-        
+
         val groupUseCases = GroupUseCases(
-            insertGroup = gr.eduinvoice.domain.group.InsertGroup(groupRepository),
-            updateGroup = gr.eduinvoice.domain.group.UpdateGroup(groupRepository),
-            deleteGroup = gr.eduinvoice.domain.group.DeleteGroup(groupRepository),
-            getAllGroups = gr.eduinvoice.domain.group.GetAllGroups(groupRepository),
-            getGroupById = gr.eduinvoice.domain.group.GetGroupById(groupRepository),
-            addStudentToGroup = gr.eduinvoice.domain.group.AddStudentToGroup(groupRepository),
-            removeStudentFromGroup = gr.eduinvoice.domain.group.RemoveStudentFromGroup(groupRepository),
-            getGroupStudents = gr.eduinvoice.domain.group.GetGroupStudents(groupRepository)
+            insertGroup = InsertGroup(groupRepository),
+            updateGroup = UpdateGroup(groupRepository),
+            deleteGroup = DeleteGroup(groupRepository),
+            getAllGroups = GetAllGroups(groupRepository),
+            getGroupById = GetGroupById(groupRepository),
+            addStudentToGroup = AddStudentToGroup(groupRepository),
+            removeStudentFromGroup = RemoveStudentFromGroup(groupRepository),
+            getGroupStudents = GetGroupStudents(groupRepository)
         )
-        
+
         val userUseCases = UserUseCases(
-            createUser = gr.eduinvoice.domain.user.CreateUser(userRepository),
-            authenticateUser = gr.eduinvoice.domain.user.AuthenticateUser(userRepository),
-            getUserProfile = gr.eduinvoice.domain.user.GetUserProfile(userRepository),
-            updateUser = gr.eduinvoice.domain.user.UpdateUser(userRepository),
-            resetPassword = gr.eduinvoice.domain.user.ResetPassword(userRepository)
+            createUser = CreateUser(userRepository),
+            authenticateUser = AuthenticateUser(userRepository),
+            getUserProfile = GetUserProfile(userRepository),
+            updateUser = UpdateUser(userRepository),
+            resetPassword = ResetPassword(userRepository)
         )
-        
-        return TestEnvironment(
+
+        return DomainTestEnvironment(
             database = database,
             studentRepository = studentRepository,
             lessonRepository = lessonRepository,
@@ -93,11 +93,11 @@ object TestInfrastructure {
             userUseCases = userUseCases
         )
     }
-    
+
     /**
-     * Test environment containing all repositories and use cases
+     * Domain test environment containing all domain layer components
      */
-    data class TestEnvironment(
+    data class DomainTestEnvironment(
         val database: EduInvoiceDatabase,
         val studentRepository: StudentRepository,
         val lessonRepository: LessonRepository,
@@ -108,12 +108,12 @@ object TestInfrastructure {
         val groupUseCases: GroupUseCases,
         val userUseCases: UserUseCases
     )
-    
+
     /**
-     * Common test data creation utilities
+     * Common test data creation utilities for domain layer
      */
-    object TestDataFactory {
-        
+    object DomainTestDataFactory {
+
         fun createTestUser(
             id: Long = 1L,
             username: String = "testuser",
@@ -124,7 +124,7 @@ object TestInfrastructure {
             passwordHash = "test_hash",
             fullName = fullName
         )
-        
+
         fun createTestStudent(
             id: Long = 1L,
             ownerId: Long = 1L,
@@ -140,7 +140,7 @@ object TestInfrastructure {
             className = "Test Class",
             rate = rate
         )
-        
+
         fun createTestLesson(
             id: Long = 1L,
             studentId: Long = 1L,
@@ -155,7 +155,7 @@ object TestInfrastructure {
             notes = "Test lesson",
             ownerId = ownerId
         )
-        
+
         fun createTestGroup(
             id: Long = 1L,
             ownerId: Long = 1L,
@@ -165,7 +165,7 @@ object TestInfrastructure {
             ownerId = ownerId,
             name = name
         )
-        
+
         fun createLargeStudentDataset(ownerId: Long, count: Int): List<Student> {
             return (1..count).map { index ->
                 createTestStudent(
@@ -176,16 +176,16 @@ object TestInfrastructure {
                 )
             }
         }
-        
+
         fun createLargeLessonDataset(students: List<Student>, count: Int): List<Lesson> {
             val lessons = mutableListOf<Lesson>()
             val baseDate = LocalDate.now().minusDays(30)
-            
+
             repeat(count) { index ->
                 val student = students[index % students.size]
                 val lessonDate = baseDate.plusDays(index % 30)
                 val startTime = LocalTime.of(9 + (index % 8), 0)
-                
+
                 val lesson = Lesson.create(
                     studentId = student.id,
                     date = lessonDate,
@@ -196,10 +196,10 @@ object TestInfrastructure {
                 )
                 lessons.add(lesson)
             }
-            
+
             return lessons
         }
-        
+
         fun createLargeGroupDataset(ownerId: Long, count: Int): List<StudentGroup> {
             return (1..count).map { index ->
                 createTestGroup(
@@ -210,45 +210,65 @@ object TestInfrastructure {
             }
         }
     }
-    
+
     /**
-     * Test validation utilities
+     * Domain layer specific validation utilities
      */
-    object TestValidation {
-        
-        fun isValidEmail(email: String): Boolean {
-            return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    object DomainTestValidation {
+
+        fun isValidBusinessRule(rule: () -> Boolean): Boolean {
+            return try {
+                rule()
+            } catch (e: Exception) {
+                false
+            }
         }
-        
-        fun isValidPhoneNumber(phone: String): Boolean {
-            return phone.matches(Regex("^\\+?[1-9]\\d{1,14}$"))
+
+        fun isValidUseCaseExecution(execution: () -> Unit): Boolean {
+            return try {
+                execution()
+                true
+            } catch (e: Exception) {
+                false
+            }
         }
-        
-        fun isValidRate(rate: Double): Boolean {
-            return rate > 0 && rate <= 1000
+
+        fun isValidDomainOperation(operation: () -> Unit): Boolean {
+            return try {
+                operation()
+                true
+            } catch (e: Exception) {
+                false
+            }
         }
     }
-    
+
     /**
-     * Performance measurement utilities
+     * Domain layer performance measurement utilities
      */
-    object PerformanceUtils {
-        
-        fun measureTime(operation: () -> Unit): Long {
+    object DomainPerformanceUtils {
+
+        fun measureUseCaseExecutionTime(execution: () -> Unit): Long {
             val startTime = System.currentTimeMillis()
-            operation()
+            execution()
             return System.currentTimeMillis() - startTime
         }
-        
-        fun getMemoryUsage(): Long {
-            val runtime = Runtime.getRuntime()
-            return runtime.totalMemory() - runtime.freeMemory()
+
+        fun measureBusinessLogicPerformance(logic: () -> Unit): Long {
+            val startTime = System.currentTimeMillis()
+            logic()
+            return System.currentTimeMillis() - startTime
         }
-        
+
         fun measureMemoryUsage(operation: () -> Unit): Long {
             val initialMemory = getMemoryUsage()
             operation()
             return getMemoryUsage() - initialMemory
         }
+
+        fun getMemoryUsage(): Long {
+            val runtime = Runtime.getRuntime()
+            return runtime.totalMemory() - runtime.freeMemory()
+        }
     }
-} 
+}

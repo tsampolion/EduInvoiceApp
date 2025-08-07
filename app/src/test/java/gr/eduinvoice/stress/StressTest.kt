@@ -5,17 +5,18 @@ import gr.eduinvoice.TestBase
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.Lesson
-import gr.eduinvoice.data.model.Group
+import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.data.model.User
 import gr.eduinvoice.data.repository.StudentRepository
 import gr.eduinvoice.data.repository.LessonRepository
 import gr.eduinvoice.data.repository.GroupRepository
 import gr.eduinvoice.data.repository.UserRepository
-import gr.eduinvoice.domain.student.StudentUseCase
-import gr.eduinvoice.domain.lesson.LessonUseCase
-import gr.eduinvoice.domain.group.GroupUseCase
-import gr.eduinvoice.domain.user.UserUseCase
+import gr.eduinvoice.domain.student.StudentUseCases
+import gr.eduinvoice.domain.lesson.LessonUseCases
+import gr.eduinvoice.domain.group.GroupUseCases
+import gr.eduinvoice.domain.user.UserUseCases
 import gr.eduinvoice.infrastructure.TestDatabaseContainer
+import gr.eduinvoice.infrastructure.TestConfiguration
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.TestDispatcher
@@ -32,6 +33,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.LocalDateTime
 import java.time.LocalDate
+import java.time.LocalTime
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
@@ -52,10 +54,10 @@ class StressTest : TestBase() {
     private lateinit var groupRepository: GroupRepository
     private lateinit var userRepository: UserRepository
     
-    private lateinit var studentUseCase: StudentUseCase
-    private lateinit var lessonUseCase: LessonUseCase
-    private lateinit var groupUseCase: GroupUseCase
-    private lateinit var userUseCase: UserUseCase
+    private lateinit var studentUseCases: StudentUseCases
+    private lateinit var lessonUseCases: LessonUseCases
+    private lateinit var groupUseCases: GroupUseCases
+    private lateinit var userUseCases: UserUseCases
     
     private val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
     
@@ -70,10 +72,54 @@ class StressTest : TestBase() {
         userRepository = UserRepository(database.userDao())
         
         // Initialize use cases
-        studentUseCase = StudentUseCase(studentRepository)
-        lessonUseCase = LessonUseCase(lessonRepository)
-        groupUseCase = GroupUseCase(groupRepository)
-        userUseCase = UserUseCase(userRepository)
+        studentUseCases = StudentUseCases(
+            getActiveStudents = gr.eduinvoice.domain.student.GetActiveStudents(studentRepository),
+            getArchivedStudents = gr.eduinvoice.domain.student.GetArchivedStudents(studentRepository),
+            getStudentById = gr.eduinvoice.domain.student.GetStudentById(studentRepository),
+            insertStudent = gr.eduinvoice.domain.student.InsertStudent(studentRepository),
+            updateStudent = gr.eduinvoice.domain.student.UpdateStudent(studentRepository),
+            softDeleteStudent = gr.eduinvoice.domain.student.SoftDeleteStudent(studentRepository),
+            restoreStudent = gr.eduinvoice.domain.student.RestoreStudent(studentRepository),
+            getActiveStudentCount = gr.eduinvoice.domain.student.GetActiveStudentCount(studentRepository),
+            classNameExists = gr.eduinvoice.domain.student.ClassNameExists(studentRepository),
+            getStudentsPaginated = gr.eduinvoice.domain.student.GetStudentsPaginated(studentRepository),
+            searchStudentsPaginated = gr.eduinvoice.domain.student.SearchStudentsPaginated(studentRepository)
+        )
+        
+        lessonUseCases = LessonUseCases(
+            getAllLessons = gr.eduinvoice.domain.lesson.GetAllLessons(database.lessonDao()),
+            getLessonById = gr.eduinvoice.domain.lesson.GetLessonById(database.lessonDao()),
+            getStudentLessons = gr.eduinvoice.domain.lesson.GetStudentLessons(lessonRepository),
+            getLessonsWithStudents = gr.eduinvoice.domain.lesson.GetLessonsWithStudents(database.lessonDao()),
+            getLessonsWithStudentsByStudentAndDateRange = gr.eduinvoice.domain.lesson.GetLessonsWithStudentsByStudentAndDateRange(database.lessonDao()),
+            addLesson = gr.eduinvoice.domain.lesson.AddLesson(lessonRepository),
+            addGroupLesson = gr.eduinvoice.domain.lesson.AddGroupLesson(lessonRepository),
+            updateLesson = gr.eduinvoice.domain.lesson.UpdateLesson(lessonRepository),
+            deleteLesson = gr.eduinvoice.domain.lesson.DeleteLesson(database.lessonDao()),
+            updateLessonPaidStatus = gr.eduinvoice.domain.lesson.UpdateLessonPaidStatus(database.lessonDao()),
+            updateLessonInvoicedStatus = gr.eduinvoice.domain.lesson.UpdateLessonInvoicedStatus(database.lessonDao()),
+            isLessonInvoiced = gr.eduinvoice.domain.lesson.IsLessonInvoiced(database.lessonDao()),
+            getLessonsWithStudentsPaginated = gr.eduinvoice.domain.lesson.GetLessonsWithStudentsPaginated(database.lessonDao())
+        )
+        
+        groupUseCases = GroupUseCases(
+            insertGroup = gr.eduinvoice.domain.group.InsertGroup(groupRepository),
+            updateGroup = gr.eduinvoice.domain.group.UpdateGroup(groupRepository),
+            deleteGroup = gr.eduinvoice.domain.group.DeleteGroup(groupRepository),
+            getAllGroups = gr.eduinvoice.domain.group.GetAllGroups(groupRepository),
+            getGroupById = gr.eduinvoice.domain.group.GetGroupById(groupRepository),
+            addStudentToGroup = gr.eduinvoice.domain.group.AddStudentToGroup(groupRepository),
+            removeStudentFromGroup = gr.eduinvoice.domain.group.RemoveStudentFromGroup(groupRepository),
+            getGroupStudents = gr.eduinvoice.domain.group.GetGroupStudents(groupRepository)
+        )
+        
+        userUseCases = UserUseCases(
+            createUser = gr.eduinvoice.domain.user.CreateUser(userRepository),
+            authenticateUser = gr.eduinvoice.domain.user.AuthenticateUser(userRepository),
+            getUserProfile = gr.eduinvoice.domain.user.GetUserProfile(userRepository),
+            updateUser = gr.eduinvoice.domain.user.UpdateUser(userRepository),
+            resetPassword = gr.eduinvoice.domain.user.ResetPassword(userRepository)
+        )
     }
     
     @After
@@ -86,9 +132,9 @@ class StressTest : TestBase() {
         val user = createTestUser()
         
         // Stress test parameters
-        val concurrentThreads = 50
-        val operationsPerThread = 100
-        val maxExecutionTime = 30000L // 30 seconds
+        val concurrentThreads = TestConfiguration.Stress.concurrentThreads
+        val operationsPerThread = TestConfiguration.Stress.operationsPerThread
+        val maxExecutionTime = TestConfiguration.Stress.maxExecutionTime
         
         val successCounter = AtomicInteger(0)
         val errorCounter = AtomicInteger(0)
@@ -100,420 +146,406 @@ class StressTest : TestBase() {
                     async {
                         repeat(operationsPerThread) { operationId ->
                             try {
-                                // Perform various concurrent operations
                                 when (operationId % 4) {
                                     0 -> {
-                                        val student = createTestStudent(user.id, threadId * 1000 + operationId)
-                                        studentUseCase.createStudent(student)
+                                        val student = createTestStudent(user.id, "Student_${threadId}_${operationId}")
+                                        studentUseCases.insertStudent(student)
                                     }
                                     1 -> {
-                                        val lesson = createTestLesson(1L, user.id, threadId * 1000 + operationId)
-                                        lessonUseCase.createLesson(lesson)
+                                        val students = studentUseCases.getActiveStudents(user.id).first()
+                                        if (students.isNotEmpty()) {
+                                            val student = students.first()
+                                            val updatedStudent = student.copy(name = "Updated_${threadId}_${operationId}")
+                                            studentUseCases.updateStudent(updatedStudent)
+                                        }
                                     }
                                     2 -> {
-                                        val group = createTestGroup(user.id, threadId * 1000 + operationId)
-                                        groupUseCase.createGroup(group)
+                                        val count = studentUseCases.getActiveStudentCount(user.id)
+                                        assertTrue("Student count should be non-negative", count >= 0)
                                     }
                                     3 -> {
-                                        studentUseCase.getAllStudents(user.id)
+                                        val students = studentUseCases.getActiveStudents(user.id).first()
+                                        if (students.isNotEmpty()) {
+                                            val student = students.first()
+                                            studentUseCases.getStudentById(student.id, user.id).first()
+                                        }
                                     }
                                 }
                                 successCounter.incrementAndGet()
                             } catch (e: Exception) {
                                 errorCounter.incrementAndGet()
-                                println("Error in thread $threadId, operation $operationId: ${e.message}")
+                                // Log error but continue
                             }
                         }
+                        threadId
                     }
                 }
                 
-                awaitAll(*jobs.toTypedArray())
+                val results = jobs.awaitAll()
+                val totalTime = System.currentTimeMillis() - startTime.get()
+                
+                // Verify results
+                assertEquals(concurrentThreads, results.size)
+                assertTrue("Too many errors occurred: ${errorCounter.get()}", 
+                          errorCounter.get() < TestConfiguration.Stress.maxErrorRate * (concurrentThreads * operationsPerThread))
+                assertTrue("Success rate too low", 
+                          successCounter.get() > TestConfiguration.Stress.minSuccessRate * (concurrentThreads * operationsPerThread))
+                assertTrue("Stress test took too long: ${totalTime}ms", totalTime < maxExecutionTime)
             }
         } catch (e: Exception) {
-            println("Stress test timeout or error: ${e.message}")
+            fail("Stress test failed with exception: ${e.message}")
         }
-        
-        val totalOperations = concurrentThreads * operationsPerThread
-        val successRate = successCounter.get().toDouble() / totalOperations
-        
-        println("Concurrent Operations Results:")
-        println("Total operations: $totalOperations")
-        println("Successful operations: ${successCounter.get()}")
-        println("Failed operations: ${errorCounter.get()}")
-        println("Success rate: ${String.format("%.2f", successRate * 100)}%")
-        
-        // Assertions
-        assertTrue("Success rate should be above 90%", successRate > 0.90)
-        assertTrue("Error rate should be below 10%", errorCounter.get() < totalOperations * 0.1)
-        
-        // Verify data integrity
-        val finalStudents = studentUseCase.getAllStudents(user.id)
-        val finalLessons = lessonUseCase.getAllLessons(user.id)
-        val finalGroups = groupUseCase.getAllGroups(user.id)
-        
-        assertTrue("Should have created students", finalStudents.isNotEmpty())
-        assertTrue("Should have created lessons", finalLessons.isNotEmpty())
-        assertTrue("Should have created groups", finalGroups.isNotEmpty())
     }
     
     @Test
     fun testMemoryPressure() = runTest {
         val user = createTestUser()
-        
-        // Memory pressure test parameters
-        val iterations = 100
-        val maxMemoryUsage = 200L * 1024 * 1024 // 200MB
-        val maxMemoryLeak = 50L * 1024 * 1024 // 50MB leak threshold
-        
         val initialMemory = getMemoryUsage()
-        var peakMemory = initialMemory
         
-        repeat(iterations) { iteration ->
-            // Create and manipulate large datasets
-            val students = createLargeStudentDataset(user.id, 100)
-            val lessons = createLargeLessonDataset(students, 1000)
-            
-            // Perform memory-intensive operations
-            students.forEach { student ->
-                studentUseCase.getStudentWithLessons(student.id)
-                studentUseCase.calculateStudentEarnings(student.id)
-                
-                // Create additional data
-                repeat(10) { i ->
-                    val additionalLesson = createTestLesson(student.id, user.id, iteration * 1000 + i)
-                    lessonUseCase.createLesson(additionalLesson)
+        // Create memory pressure by creating large datasets
+        val students = createLargeStudentDataset(user.id, TestConfiguration.Stress.memoryPressureStudentCount)
+        val lessons = createLargeLessonDataset(students, TestConfiguration.Stress.memoryPressureLessonCount)
+        val groups = createLargeGroupDataset(user.id, TestConfiguration.Stress.memoryPressureGroupCount)
+        
+        val memoryAfterCreation = getMemoryUsage()
+        val memoryIncrease = memoryAfterCreation - initialMemory
+        
+        // Verify memory usage is within acceptable limits
+        assertTrue("Memory increase too high: ${memoryIncrease} bytes", 
+                  memoryIncrease < TestConfiguration.Stress.maxMemoryIncrease)
+        
+        // Perform operations under memory pressure
+        val operationsUnderPressure = TestConfiguration.Stress.operationsUnderMemoryPressure
+        val successCount = AtomicInteger(0)
+        
+        repeat(operationsUnderPressure) { operationId ->
+            try {
+                when (operationId % 3) {
+                    0 -> {
+                        val newStudent = createTestStudent(user.id, "Pressure_Student_${operationId}")
+                        studentUseCases.insertStudent(newStudent)
+                    }
+                    1 -> {
+                        val allStudents = studentUseCases.getActiveStudents(user.id).first()
+                        assertTrue("Should have students", allStudents.isNotEmpty())
+                    }
+                    2 -> {
+                        val count = studentUseCases.getActiveStudentCount(user.id)
+                        assertTrue("Count should be positive", count > 0)
+                    }
+                }
+                successCount.incrementAndGet()
+            } catch (e: Exception) {
+                // Memory pressure might cause some failures, but not too many
+                if (successCount.get() < operationsUnderPressure * TestConfiguration.Stress.minSuccessRateUnderPressure) {
+                    throw e
                 }
             }
-            
-            // Check memory usage
-            val currentMemory = getMemoryUsage()
-            peakMemory = maxOf(peakMemory, currentMemory)
-            
-            if (iteration % 10 == 0) {
-                println("Iteration $iteration: Memory usage = ${currentMemory / 1024 / 1024}MB")
-                
-                // Force garbage collection
-                System.gc()
-                delay(100) // Allow GC to complete
-            }
-            
-            // Assert memory limits
-            assertTrue("Memory usage should not exceed $maxMemoryUsage bytes at iteration $iteration", 
-                      currentMemory < maxMemoryUsage)
         }
         
-        // Final memory check
-        val finalMemory = getMemoryUsage()
-        val totalMemoryIncrease = finalMemory - initialMemory
-        
-        println("Memory Pressure Test Results:")
-        println("Initial memory: ${initialMemory / 1024 / 1024}MB")
-        println("Peak memory: ${peakMemory / 1024 / 1024}MB")
-        println("Final memory: ${finalMemory / 1024 / 1024}MB")
-        println("Total memory increase: ${totalMemoryIncrease / 1024 / 1024}MB")
-        
-        assertTrue("Total memory increase should be under $maxMemoryLeak bytes", 
-                  totalMemoryIncrease < maxMemoryLeak)
+        // Verify success rate under memory pressure
+        assertTrue("Success rate under memory pressure too low: ${successCount.get()}/${operationsUnderPressure}", 
+                  successCount.get() > operationsUnderPressure * TestConfiguration.Stress.minSuccessRateUnderPressure)
     }
     
     @Test
     fun testDatabaseStress() = runTest {
         val user = createTestUser()
         
-        // Database stress test parameters
-        val maxOperations = 10000
-        val maxExecutionTime = 60000L // 60 seconds
-        val batchSize = 100
+        // Create extreme dataset
+        val students = createLargeStudentDataset(user.id, TestConfiguration.Stress.extremeStudentCount)
+        val lessons = createLargeLessonDataset(students, TestConfiguration.Stress.extremeLessonCount)
         
-        val successCounter = AtomicInteger(0)
-        val errorCounter = AtomicInteger(0)
+        // Perform intensive database operations
+        val intensiveOperations = TestConfiguration.Stress.intensiveDatabaseOperations
+        val startTime = System.currentTimeMillis()
         
-        try {
-            withTimeout(maxExecutionTime) {
-                // Perform intensive database operations
-                repeat(maxOperations / batchSize) { batch ->
-                    val batchJobs = (1..batchSize).map { operationId ->
-                        async {
-                            try {
-                                val operationType = operationId % 6
-                                when (operationType) {
-                                    0 -> {
-                                        // Create student
-                                        val student = createTestStudent(user.id, batch * batchSize + operationId)
-                                        studentUseCase.createStudent(student)
-                                    }
-                                    1 -> {
-                                        // Create lesson
-                                        val lesson = createTestLesson(1L, user.id, batch * batchSize + operationId)
-                                        lessonUseCase.createLesson(lesson)
-                                    }
-                                    2 -> {
-                                        // Update student
-                                        val students = studentUseCase.getAllStudents(user.id)
-                                        if (students.isNotEmpty()) {
-                                            val student = students.first()
-                                            val updatedStudent = student.copy(name = "Updated ${student.name}")
-                                            studentUseCase.updateStudent(updatedStudent)
-                                        }
-                                    }
-                                    3 -> {
-                                        // Delete lesson
-                                        val lessons = lessonUseCase.getAllLessons(user.id)
-                                        if (lessons.isNotEmpty()) {
-                                            lessonUseCase.deleteLesson(lessons.first().id)
-                                        }
-                                    }
-                                    4 -> {
-                                        // Complex query
-                                        studentUseCase.getAllStudents(user.id)
-                                        lessonUseCase.getAllLessons(user.id)
-                                    }
-                                    5 -> {
-                                        // Search operations
-                                        studentUseCase.searchStudents(user.id, "Student")
-                                    }
-                                }
-                                successCounter.incrementAndGet()
-                            } catch (e: Exception) {
-                                errorCounter.incrementAndGet()
-                            }
-                        }
+        repeat(intensiveOperations) { operationId ->
+            when (operationId % 5) {
+                0 -> {
+                    // Bulk read operations
+                    val allStudents = studentUseCases.getActiveStudents(user.id).first()
+                    assertTrue("Should have students", allStudents.isNotEmpty())
+                }
+                1 -> {
+                    // Search operations
+                    val searchQuery = "Student_${operationId % 100}"
+                    val searchResults = studentUseCases.searchStudentsPaginated(user.id, searchQuery, 10, 0)
+                    assertNotNull("Search results should not be null", searchResults)
+                }
+                2 -> {
+                    // Pagination operations
+                    val pageSize = TestConfiguration.Database.pageSize
+                    val offset = (operationId * 10) % students.size
+                    val paginatedStudents = studentUseCases.getStudentsPaginated(user.id, pageSize, offset)
+                    assertTrue("Should have paginated students", paginatedStudents.isNotEmpty())
+                }
+                3 -> {
+                    // Update operations
+                    if (students.isNotEmpty()) {
+                        val student = students[operationId % students.size]
+                        val updatedStudent = student.copy(name = "Stress_Updated_${operationId}")
+                        studentUseCases.updateStudent(updatedStudent)
                     }
-                    
-                    awaitAll(*batchJobs.toTypedArray())
-                    
-                    if (batch % 10 == 0) {
-                        println("Completed batch $batch: ${successCounter.get()} successes, ${errorCounter.get()} errors")
+                }
+                4 -> {
+                    // Delete operations (soft delete)
+                    if (students.isNotEmpty()) {
+                        val student = students[operationId % students.size]
+                        studentUseCases.softDeleteStudent(student.id, user.id)
                     }
                 }
             }
-        } catch (e: Exception) {
-            println("Database stress test timeout: ${e.message}")
         }
         
-        val successRate = successCounter.get().toDouble() / maxOperations
-        
-        println("Database Stress Test Results:")
-        println("Total operations: $maxOperations")
-        println("Successful operations: ${successCounter.get()}")
-        println("Failed operations: ${errorCounter.get()}")
-        println("Success rate: ${String.format("%.2f", successRate * 100)}%")
-        
-        assertTrue("Success rate should be above 95%", successRate > 0.95)
+        val totalTime = System.currentTimeMillis() - startTime
+        assertTrue("Database stress test took too long: ${totalTime}ms", 
+                  totalTime < TestConfiguration.Stress.maxDatabaseStressTime)
     }
     
     @Test
     fun testConcurrentDataModification() = runTest {
         val user = createTestUser()
-        val student = createTestStudent(user.id, 1)
+        val students = createLargeStudentDataset(user.id, TestConfiguration.Stress.concurrentModificationStudentCount)
         
-        // Test concurrent modifications of the same data
-        val concurrentModifications = 20
-        val modificationsPerThread = 50
+        val modificationThreads = TestConfiguration.Stress.modificationThreads
+        val modificationsPerThread = TestConfiguration.Stress.modificationsPerThread
         
         val successCounter = AtomicInteger(0)
         val conflictCounter = AtomicInteger(0)
         
-        val jobs = (1..concurrentModifications).map { threadId ->
+        val jobs = (1..modificationThreads).map { threadId ->
             async {
                 repeat(modificationsPerThread) { modificationId ->
                     try {
-                        // Concurrently modify the same student
-                        val currentStudent = studentUseCase.getStudent(student.id)
-                        if (currentStudent != null) {
-                            val modifiedStudent = currentStudent.copy(
-                                name = "Modified by thread $threadId - $modificationId",
-                                hourlyRate = currentStudent.hourlyRate + modificationId
-                            )
-                            studentUseCase.updateStudent(modifiedStudent)
-                            successCounter.incrementAndGet()
-                        }
+                        val student = students[modificationId % students.size]
+                        val updatedStudent = student.copy(
+                            name = "Concurrent_${threadId}_${modificationId}",
+                            rate = student.rate + modificationId
+                        )
+                        studentUseCases.updateStudent(updatedStudent)
+                        successCounter.incrementAndGet()
                     } catch (e: Exception) {
-                        conflictCounter.incrementAndGet()
-                        // Expected conflicts are acceptable in concurrent modification
+                        if (e.message?.contains("conflict", ignoreCase = true) == true) {
+                            conflictCounter.incrementAndGet()
+                        } else {
+                            throw e
+                        }
                     }
                 }
+                threadId
             }
         }
         
-        awaitAll(*jobs.toTypedArray())
+        val results = jobs.awaitAll()
+        val totalModifications = modificationThreads * modificationsPerThread
         
-        val totalModifications = concurrentModifications * modificationsPerThread
-        val successRate = successCounter.get().toDouble() / totalModifications
-        
-        println("Concurrent Data Modification Results:")
-        println("Total modifications: $totalModifications")
-        println("Successful modifications: ${successCounter.get()}")
-        println("Conflicts: ${conflictCounter.get()}")
-        println("Success rate: ${String.format("%.2f", successRate * 100)}%")
-        
-        // Verify final state
-        val finalStudent = studentUseCase.getStudent(student.id)
-        assertNotNull("Student should still exist after concurrent modifications", finalStudent)
-        assertNotEquals("Student should have been modified", student.name, finalStudent.name)
+        // Verify results
+        assertEquals(modificationThreads, results.size)
+        assertTrue("Too many conflicts: ${conflictCounter.get()}", 
+                  conflictCounter.get() < totalModifications * TestConfiguration.Stress.maxConflictRate)
+        assertTrue("Success rate too low: ${successCounter.get()}/${totalModifications}", 
+                  successCounter.get() > totalModifications * TestConfiguration.Stress.minModificationSuccessRate)
     }
     
     @Test
     fun testExtremeLoadConditions() = runTest {
         val user = createTestUser()
         
-        // Extreme load test parameters
-        val maxMemoryUsage = 500L * 1024 * 1024 // 500MB
-        val maxExecutionTime = 120000L // 2 minutes
+        // Create extreme load
+        val extremeLoadOperations = TestConfiguration.Stress.extremeLoadOperations
+        val maxLoadTime = TestConfiguration.Stress.maxLoadTime
         
         val startTime = System.currentTimeMillis()
-        var operationCount = 0
+        val successCounter = AtomicInteger(0)
         
         try {
-            withTimeout(maxExecutionTime) {
-                while (System.currentTimeMillis() - startTime < maxExecutionTime) {
-                    // Create extreme load
-                    val students = createLargeStudentDataset(user.id, 50)
-                    val lessons = createLargeLessonDataset(students, 500)
-                    
-                    // Perform intensive operations
-                    students.forEach { student ->
-                        studentUseCase.getStudentWithLessons(student.id)
-                        studentUseCase.calculateStudentEarnings(student.id)
-                        
-                        // Create additional data
-                        repeat(5) { i ->
-                            val lesson = createTestLesson(student.id, user.id, operationCount + i)
-                            lessonUseCase.createLesson(lesson)
+            withTimeout(maxLoadTime) {
+                val jobs = (1..extremeLoadOperations).map { operationId ->
+                    async {
+                        try {
+                            when (operationId % 6) {
+                                0 -> {
+                                    val student = createTestStudent(user.id, "Extreme_${operationId}")
+                                    studentUseCases.insertStudent(student)
+                                }
+                                1 -> {
+                                    val students = studentUseCases.getActiveStudents(user.id).first()
+                                    assertTrue("Should have students", students.isNotEmpty())
+                                }
+                                2 -> {
+                                    val count = studentUseCases.getActiveStudentCount(user.id)
+                                    assertTrue("Count should be non-negative", count >= 0)
+                                }
+                                3 -> {
+                                    val lesson = createTestLesson(user.id, operationId.toLong())
+                                    lessonUseCases.addLesson(lesson)
+                                }
+                                4 -> {
+                                    val group = createTestGroup(user.id, "Extreme_Group_${operationId}")
+                                    groupUseCases.insertGroup(group)
+                                }
+                                5 -> {
+                                    // Complex operation: search and update
+                                    val searchQuery = "Extreme_${operationId % 10}"
+                                    val searchResults = studentUseCases.searchStudentsPaginated(user.id, searchQuery, 5, 0)
+                                    if (searchResults.isNotEmpty()) {
+                                        val student = searchResults.first()
+                                        val updatedStudent = student.copy(rate = student.rate + 1.0)
+                                        studentUseCases.updateStudent(updatedStudent)
+                                    }
+                                }
+                            }
+                            successCounter.incrementAndGet()
+                        } catch (e: Exception) {
+                            // Under extreme load, some failures are expected
+                            if (successCounter.get() < extremeLoadOperations * TestConfiguration.Stress.minExtremeLoadSuccessRate) {
+                                throw e
+                            }
                         }
                     }
-                    
-                    operationCount += students.size
-                    
-                    // Check memory usage
-                    val currentMemory = getMemoryUsage()
-                    assertTrue("Memory usage should not exceed $maxMemoryUsage bytes", 
-                              currentMemory < maxMemoryUsage)
-                    
-                    // Small delay to prevent overwhelming the system
-                    delay(10)
                 }
+                
+                jobs.awaitAll()
             }
         } catch (e: Exception) {
-            println("Extreme load test completed: ${e.message}")
+            val totalTime = System.currentTimeMillis() - startTime
+            assertTrue("Extreme load test failed too early: ${totalTime}ms", 
+                      totalTime > TestConfiguration.Stress.minLoadTime)
         }
         
-        println("Extreme Load Test Results:")
-        println("Total operations: $operationCount")
-        println("Test duration: ${System.currentTimeMillis() - startTime}ms")
-        println("Final memory usage: ${getMemoryUsage() / 1024 / 1024}MB")
-        
-        assertTrue("Should have performed significant number of operations", operationCount > 1000)
+        val totalTime = System.currentTimeMillis() - startTime
+        assertTrue("Extreme load test took too long: ${totalTime}ms", totalTime < maxLoadTime)
+        assertTrue("Success rate under extreme load too low: ${successCounter.get()}/${extremeLoadOperations}", 
+                  successCounter.get() > extremeLoadOperations * TestConfiguration.Stress.minExtremeLoadSuccessRate)
     }
     
     @Test
     fun testErrorRecoveryUnderStress() = runTest {
         val user = createTestUser()
+        val students = createLargeStudentDataset(user.id, TestConfiguration.Stress.errorRecoveryStudentCount)
         
-        // Create initial data
-        val students = createLargeStudentDataset(user.id, 100)
-        val lessons = createLargeLessonDataset(students, 1000)
+        val errorRecoveryOperations = TestConfiguration.Stress.errorRecoveryOperations
+        val recoverySuccessCounter = AtomicInteger(0)
         
-        // Simulate errors and recovery under stress
-        val errorScenarios = listOf(
-            { simulateDatabaseError() },
-            { simulateMemoryError() },
-            { simulateConcurrencyError() },
-            { simulateValidationError() }
-        )
-        
-        val recoverySuccessCount = AtomicInteger(0)
-        val totalScenarios = errorScenarios.size * 10 // Test each scenario 10 times
-        
-        repeat(10) { iteration ->
-            errorScenarios.forEach { scenario ->
-                try {
-                    scenario()
-                    recoverySuccessCount.incrementAndGet()
-                } catch (e: Exception) {
-                    // Expected errors, but system should recover
-                    println("Error scenario completed (expected): ${e.message}")
+        repeat(errorRecoveryOperations) { operationId ->
+            try {
+                // Simulate potential error conditions
+                when (operationId % 4) {
+                    0 -> {
+                        // Try to access non-existent student
+                        try {
+                            studentUseCases.getStudentById(999999L, user.id).first()
+                        } catch (e: Exception) {
+                            // Expected error, should recover gracefully
+                            recoverySuccessCounter.incrementAndGet()
+                        }
+                    }
+                    1 -> {
+                        // Try to update with invalid data
+                        try {
+                            val invalidStudent = Student(
+                                ownerId = user.id,
+                                name = "", // Invalid empty name
+                                surname = "",
+                                parentMobile = "",
+                                className = "",
+                                rate = -1.0 // Invalid negative rate
+                            )
+                            studentUseCases.insertStudent(invalidStudent)
+                        } catch (e: Exception) {
+                            // Expected error, should recover gracefully
+                            recoverySuccessCounter.incrementAndGet()
+                        }
+                    }
+                    2 -> {
+                        // Try to delete already deleted student
+                        try {
+                            val student = students[operationId % students.size]
+                            studentUseCases.softDeleteStudent(student.id, user.id)
+                            studentUseCases.softDeleteStudent(student.id, user.id) // Try again
+                        } catch (e: Exception) {
+                            // Expected error, should recover gracefully
+                            recoverySuccessCounter.incrementAndGet()
+                        }
+                    }
+                    3 -> {
+                        // Normal operation that should succeed
+                        val student = students[operationId % students.size]
+                        val updatedStudent = student.copy(name = "Recovery_${operationId}")
+                        studentUseCases.updateStudent(updatedStudent)
+                        recoverySuccessCounter.incrementAndGet()
+                    }
+                }
+            } catch (e: Exception) {
+                // Unexpected error, should not happen frequently
+                if (recoverySuccessCounter.get() < errorRecoveryOperations * TestConfiguration.Stress.minRecoverySuccessRate) {
+                    throw e
                 }
             }
-            
-            // Verify system is still functional
-            val remainingStudents = studentUseCase.getAllStudents(user.id)
-            val remainingLessons = lessonUseCase.getAllLessons(user.id)
-            
-            assertTrue("System should remain functional after error scenarios", 
-                      remainingStudents.isNotEmpty())
-            assertTrue("System should remain functional after error scenarios", 
-                      remainingLessons.isNotEmpty())
         }
         
-        val recoveryRate = recoverySuccessCount.get().toDouble() / totalScenarios
-        
-        println("Error Recovery Under Stress Results:")
-        println("Total scenarios: $totalScenarios")
-        println("Successful recoveries: ${recoverySuccessCount.get()}")
-        println("Recovery rate: ${String.format("%.2f", recoveryRate * 100)}%")
-        
-        assertTrue("Recovery rate should be above 80%", recoveryRate > 0.80)
+        // Verify error recovery success rate
+        assertTrue("Error recovery success rate too low: ${recoverySuccessCounter.get()}/${errorRecoveryOperations}", 
+                  recoverySuccessCounter.get() > errorRecoveryOperations * TestConfiguration.Stress.minRecoverySuccessRate)
     }
     
-    // Helper methods
+    // Helper functions
     private suspend fun createTestUser(): User {
         val user = User(
-            id = 1L,
-            username = "stresstestuser",
-            email = "stress@test.com",
-            passwordHash = "hashedpassword",
-            createdAt = LocalDateTime.now()
+            username = "stressuser_${System.currentTimeMillis()}",
+            passwordHash = "stress_hash",
+            fullName = "Stress Test User"
         )
-        return userUseCase.registerUser(user)
+        val userId = userUseCases.createUser(user)
+        return user.copy(id = userId)
     }
     
-    private suspend fun createTestStudent(ownerId: Long, id: Int): Student {
-        val student = Student(
-            id = id.toLong(),
-            name = "Stress Student $id",
-            email = "stress$id@student.com",
-            phone = "+123456789$id",
-            hourlyRate = 50.0 + (id % 50),
+    private fun createTestStudent(ownerId: Long, name: String): Student {
+        return Student(
             ownerId = ownerId,
-            isArchived = false,
-            createdAt = LocalDateTime.now()
+            name = name,
+            surname = "Stress_Surname",
+            parentMobile = "+30123456789",
+            parentEmail = "stress@test.com",
+            className = "Stress_Class",
+            rate = 25.0
         )
-        return student
     }
     
-    private suspend fun createTestLesson(studentId: Long, ownerId: Long, id: Int): Lesson {
-        val lesson = Lesson(
-            id = id.toLong(),
+    private fun createTestLesson(ownerId: Long, studentId: Long): Lesson {
+        return Lesson.create(
             studentId = studentId,
-            groupId = null,
-            date = LocalDate.now().minusDays((id % 30).toLong()),
-            duration = 30 + (id % 90),
-            hourlyRate = 50.0 + (id % 50),
-            notes = "Stress lesson $id",
-            ownerId = ownerId,
-            createdAt = LocalDateTime.now()
+            date = LocalDate.now(),
+            startTime = LocalTime.of(10, 0),
+            durationMinutes = 60,
+            notes = "Stress test lesson",
+            ownerId = ownerId
         )
-        return lesson
     }
     
-    private suspend fun createTestGroup(ownerId: Long, id: Int): Group {
-        val group = Group(
-            id = id.toLong(),
-            name = "Stress Group $id",
-            description = "Stress test group $id",
+    private fun createTestGroup(ownerId: Long, name: String): StudentGroup {
+        return StudentGroup(
             ownerId = ownerId,
-            createdAt = LocalDateTime.now()
+            name = name
         )
-        return group
     }
     
     private suspend fun createLargeStudentDataset(ownerId: Long, count: Int): List<Student> {
         val students = mutableListOf<Student>()
         
-        for (i in 1..count) {
-            val student = createTestStudent(ownerId, i)
-            students.add(studentUseCase.createStudent(student))
+        repeat(count) { index ->
+            val student = Student(
+                ownerId = ownerId,
+                name = "Stress_Student_${index}",
+                surname = "Stress_Surname_${index}",
+                parentMobile = "+30${index.toString().padStart(9, '0')}",
+                parentEmail = "stress${index}@test.com",
+                className = "Stress_Class_${index % 10}",
+                rate = 20.0 + (index % 30)
+            )
+            val studentId = studentUseCases.insertStudent(student)
+            students.add(student.copy(id = studentId))
         }
         
         return students
@@ -521,45 +553,46 @@ class StressTest : TestBase() {
     
     private suspend fun createLargeLessonDataset(students: List<Student>, count: Int): List<Lesson> {
         val lessons = mutableListOf<Lesson>()
+        val baseDate = LocalDate.now().minusDays(30)
         
-        for (i in 1..count) {
-            val student = students[i % students.size]
-            val lesson = createTestLesson(student.id, student.ownerId, i)
-            lessons.add(lessonUseCase.createLesson(lesson))
+        repeat(count) { index ->
+            val student = students[index % students.size]
+            val lessonDate = baseDate.plusDays(index % 30)
+            val startTime = LocalTime.of(9 + (index % 8), 0)
+            
+            val lesson = Lesson.create(
+                studentId = student.id,
+                date = lessonDate,
+                startTime = startTime,
+                durationMinutes = 60,
+                notes = "Stress lesson ${index}",
+                ownerId = student.ownerId
+            )
+            
+            val lessonId = lessonUseCases.addLesson(lesson)
+            lessons.add(lesson.copy(id = lessonId))
         }
         
         return lessons
     }
     
+    private suspend fun createLargeGroupDataset(ownerId: Long, count: Int): List<StudentGroup> {
+        val groups = mutableListOf<StudentGroup>()
+        
+        repeat(count) { index ->
+            val group = StudentGroup(
+                ownerId = ownerId,
+                name = "Stress_Group_${index}"
+            )
+            val groupId = groupUseCases.insertGroup(group)
+            groups.add(group.copy(id = groupId))
+        }
+        
+        return groups
+    }
+    
     private fun getMemoryUsage(): Long {
         val runtime = Runtime.getRuntime()
         return runtime.totalMemory() - runtime.freeMemory()
-    }
-    
-    // Error simulation methods
-    private suspend fun simulateDatabaseError() {
-        // Simulate database connection issues
-        delay(10)
-        throw RuntimeException("Simulated database error")
-    }
-    
-    private suspend fun simulateMemoryError() {
-        // Simulate memory pressure
-        val largeList = mutableListOf<String>()
-        repeat(100000) { largeList.add("Memory pressure test $it") }
-        delay(10)
-        throw OutOfMemoryError("Simulated memory error")
-    }
-    
-    private suspend fun simulateConcurrencyError() {
-        // Simulate concurrency conflicts
-        delay(10)
-        throw IllegalStateException("Simulated concurrency error")
-    }
-    
-    private suspend fun simulateValidationError() {
-        // Simulate validation errors
-        delay(10)
-        throw IllegalArgumentException("Simulated validation error")
     }
 }

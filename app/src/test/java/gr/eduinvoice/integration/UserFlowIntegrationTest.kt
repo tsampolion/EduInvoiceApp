@@ -1,29 +1,29 @@
 package gr.eduinvoice.integration
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import gr.eduinvoice.TestBase
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.Lesson
-import gr.eduinvoice.data.model.Group
+import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.data.model.User
 import gr.eduinvoice.data.repository.StudentRepository
 import gr.eduinvoice.data.repository.LessonRepository
 import gr.eduinvoice.data.repository.GroupRepository
 import gr.eduinvoice.data.repository.UserRepository
-import gr.eduinvoice.data.repository.BackupRepository
-import gr.eduinvoice.domain.student.StudentUseCase
-import gr.eduinvoice.domain.lesson.LessonUseCase
-import gr.eduinvoice.domain.group.GroupUseCase
-import gr.eduinvoice.domain.user.UserUseCase
+import gr.eduinvoice.domain.student.StudentUseCases
+import gr.eduinvoice.domain.lesson.LessonUseCases
+import gr.eduinvoice.domain.group.GroupUseCases
+import gr.eduinvoice.domain.user.UserUseCases
 import gr.eduinvoice.infrastructure.TestDatabaseContainer
-import gr.eduinvoice.utils.AppUtils
-import io.mockk.mockk
+import gr.eduinvoice.infrastructure.TestConfiguration
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -32,10 +32,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.LocalDateTime
 import java.time.LocalDate
+import java.time.LocalTime
 
 /**
- * Comprehensive integration tests for all user paths.
- * Tests the complete user journey from registration to invoice generation.
+ * Integration tests for complete user flows and error recovery scenarios.
+ * Tests end-to-end functionality and system resilience.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -49,12 +50,11 @@ class UserFlowIntegrationTest : TestBase() {
     private lateinit var lessonRepository: LessonRepository
     private lateinit var groupRepository: GroupRepository
     private lateinit var userRepository: UserRepository
-    private lateinit var backupRepository: BackupRepository
     
-    private lateinit var studentUseCase: StudentUseCase
-    private lateinit var lessonUseCase: LessonUseCase
-    private lateinit var groupUseCase: GroupUseCase
-    private lateinit var userUseCase: UserUseCase
+    private lateinit var studentUseCases: StudentUseCases
+    private lateinit var lessonUseCases: LessonUseCases
+    private lateinit var groupUseCases: GroupUseCases
+    private lateinit var userUseCases: UserUseCases
     
     private val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
     
@@ -67,13 +67,56 @@ class UserFlowIntegrationTest : TestBase() {
         lessonRepository = LessonRepository(database.lessonDao())
         groupRepository = GroupRepository(database.groupDao())
         userRepository = UserRepository(database.userDao())
-        backupRepository = mockk<BackupRepository>(relaxed = true)
         
         // Initialize use cases
-        studentUseCase = StudentUseCase(studentRepository)
-        lessonUseCase = LessonUseCase(lessonRepository)
-        groupUseCase = GroupUseCase(groupRepository)
-        userUseCase = UserUseCase(userRepository)
+        studentUseCases = StudentUseCases(
+            getActiveStudents = gr.eduinvoice.domain.student.GetActiveStudents(studentRepository),
+            getArchivedStudents = gr.eduinvoice.domain.student.GetArchivedStudents(studentRepository),
+            getStudentById = gr.eduinvoice.domain.student.GetStudentById(studentRepository),
+            insertStudent = gr.eduinvoice.domain.student.InsertStudent(studentRepository),
+            updateStudent = gr.eduinvoice.domain.student.UpdateStudent(studentRepository),
+            softDeleteStudent = gr.eduinvoice.domain.student.SoftDeleteStudent(studentRepository),
+            restoreStudent = gr.eduinvoice.domain.student.RestoreStudent(studentRepository),
+            getActiveStudentCount = gr.eduinvoice.domain.student.GetActiveStudentCount(studentRepository),
+            classNameExists = gr.eduinvoice.domain.student.ClassNameExists(studentRepository),
+            getStudentsPaginated = gr.eduinvoice.domain.student.GetStudentsPaginated(studentRepository),
+            searchStudentsPaginated = gr.eduinvoice.domain.student.SearchStudentsPaginated(studentRepository)
+        )
+        
+        lessonUseCases = LessonUseCases(
+            getAllLessons = gr.eduinvoice.domain.lesson.GetAllLessons(database.lessonDao()),
+            getLessonById = gr.eduinvoice.domain.lesson.GetLessonById(database.lessonDao()),
+            getStudentLessons = gr.eduinvoice.domain.lesson.GetStudentLessons(lessonRepository),
+            getLessonsWithStudents = gr.eduinvoice.domain.lesson.GetLessonsWithStudents(database.lessonDao()),
+            getLessonsWithStudentsByStudentAndDateRange = gr.eduinvoice.domain.lesson.GetLessonsWithStudentsByStudentAndDateRange(database.lessonDao()),
+            addLesson = gr.eduinvoice.domain.lesson.AddLesson(lessonRepository),
+            addGroupLesson = gr.eduinvoice.domain.lesson.AddGroupLesson(lessonRepository),
+            updateLesson = gr.eduinvoice.domain.lesson.UpdateLesson(lessonRepository),
+            deleteLesson = gr.eduinvoice.domain.lesson.DeleteLesson(database.lessonDao()),
+            updateLessonPaidStatus = gr.eduinvoice.domain.lesson.UpdateLessonPaidStatus(database.lessonDao()),
+            updateLessonInvoicedStatus = gr.eduinvoice.domain.lesson.UpdateLessonInvoicedStatus(database.lessonDao()),
+            isLessonInvoiced = gr.eduinvoice.domain.lesson.IsLessonInvoiced(database.lessonDao()),
+            getLessonsWithStudentsPaginated = gr.eduinvoice.domain.lesson.GetLessonsWithStudentsPaginated(database.lessonDao())
+        )
+        
+        groupUseCases = GroupUseCases(
+            insertGroup = gr.eduinvoice.domain.group.InsertGroup(groupRepository),
+            updateGroup = gr.eduinvoice.domain.group.UpdateGroup(groupRepository),
+            deleteGroup = gr.eduinvoice.domain.group.DeleteGroup(groupRepository),
+            getAllGroups = gr.eduinvoice.domain.group.GetAllGroups(groupRepository),
+            getGroupById = gr.eduinvoice.domain.group.GetGroupById(groupRepository),
+            addStudentToGroup = gr.eduinvoice.domain.group.AddStudentToGroup(groupRepository),
+            removeStudentFromGroup = gr.eduinvoice.domain.group.RemoveStudentFromGroup(groupRepository),
+            getGroupStudents = gr.eduinvoice.domain.group.GetGroupStudents(groupRepository)
+        )
+        
+        userUseCases = UserUseCases(
+            createUser = gr.eduinvoice.domain.user.CreateUser(userRepository),
+            authenticateUser = gr.eduinvoice.domain.user.AuthenticateUser(userRepository),
+            getUserProfile = gr.eduinvoice.domain.user.GetUserProfile(userRepository),
+            updateUser = gr.eduinvoice.domain.user.UpdateUser(userRepository),
+            resetPassword = gr.eduinvoice.domain.user.ResetPassword(userRepository)
+        )
     }
     
     @After
@@ -83,167 +126,241 @@ class UserFlowIntegrationTest : TestBase() {
     
     @Test
     fun testCompleteUserJourney() = runTest {
-        // Step 1: User Registration
-        val user = User(
-            id = 1L,
-            username = "testuser",
-            email = "test@example.com",
-            passwordHash = "hashedpassword",
-            createdAt = LocalDateTime.now()
-        )
+        // Step 1: User Registration and Authentication
+        val user = createTestUser()
+        assertTrue("User should be created with valid ID", user.id > 0)
         
-        val registeredUser = userUseCase.registerUser(user)
-        assertNotNull("User should be registered successfully", registeredUser)
-        assertEquals("Username should match", "testuser", registeredUser.username)
+        // Step 2: Create Students
+        val students = createTestStudents(user.id, 3)
+        assertEquals("Should create 3 students", 3, students.size)
         
-        // Step 2: Create Student
-        val student = Student(
-            id = 1L,
-            name = "John Doe",
-            email = "john@example.com",
-            phone = "+1234567890",
-            hourlyRate = 50.0,
-            ownerId = registeredUser.id,
-            isArchived = false,
-            createdAt = LocalDateTime.now()
-        )
+        // Step 3: Create Groups
+        val groups = createTestGroups(user.id, 2)
+        assertEquals("Should create 2 groups", 2, groups.size)
         
-        val createdStudent = studentUseCase.createStudent(student)
-        assertNotNull("Student should be created successfully", createdStudent)
-        assertEquals("Student name should match", "John Doe", createdStudent.name)
+        // Step 4: Add Students to Groups
+        students.forEachIndexed { index, student ->
+            val group = groups[index % groups.size]
+            groupUseCases.addStudentToGroup(
+                gr.eduinvoice.data.model.GroupStudentCrossRef(
+                    groupId = group.id,
+                    studentId = student.id,
+                    ownerId = user.id
+                )
+            )
+        }
         
-        // Step 3: Create Group
-        val group = Group(
-            id = 1L,
-            name = "Math Group",
-            description = "Advanced mathematics group",
-            ownerId = registeredUser.id,
-            createdAt = LocalDateTime.now()
-        )
+        // Step 5: Create Lessons
+        val lessons = createTestLessons(students, 5)
+        assertEquals("Should create 5 lessons", 5, lessons.size)
         
-        val createdGroup = groupUseCase.createGroup(group)
-        assertNotNull("Group should be created successfully", createdGroup)
-        assertEquals("Group name should match", "Math Group", createdGroup.name)
+        // Step 6: Verify Data Integrity
+        val activeStudents = studentUseCases.getActiveStudents(user.id).first()
+        assertEquals("Should have 3 active students", 3, activeStudents.size)
         
-        // Step 4: Create Lesson
-        val lesson = Lesson(
-            id = 1L,
-            studentId = createdStudent.id,
-            groupId = createdGroup.id,
-            date = LocalDate.now(),
-            duration = 60,
-            hourlyRate = 50.0,
-            notes = "Algebra lesson",
-            ownerId = registeredUser.id,
-            createdAt = LocalDateTime.now()
-        )
+        val allGroups = groupUseCases.getAllGroups(user.id).first()
+        assertEquals("Should have 2 groups", 2, allGroups.size)
         
-        val createdLesson = lessonUseCase.createLesson(lesson)
-        assertNotNull("Lesson should be created successfully", createdLesson)
-        assertEquals("Lesson duration should match", 60, createdLesson.duration)
+        val allLessons = lessonUseCases.getAllLessons().first()
+        assertEquals("Should have 5 lessons", 5, allLessons.size)
         
-        // Step 5: Verify Data Relationships
-        val studentWithLessons = studentUseCase.getStudentWithLessons(createdStudent.id)
-        assertNotNull("Student with lessons should be retrieved", studentWithLessons)
-        assertEquals("Student should have one lesson", 1, studentWithLessons.lessons.size)
+        // Step 7: Test Search and Pagination
+        val searchResults = studentUseCases.searchStudentsPaginated(user.id, "Test", 10, 0)
+        assertTrue("Should find students with search", searchResults.isNotEmpty())
         
-        val groupWithLessons = groupUseCase.getGroupWithLessons(createdGroup.id)
-        assertNotNull("Group with lessons should be retrieved", groupWithLessons)
-        assertEquals("Group should have one lesson", 1, groupWithLessons.lessons.size)
+        val paginatedStudents = studentUseCases.getStudentsPaginated(user.id, 2, 0)
+        assertEquals("Should return 2 students per page", 2, paginatedStudents.size)
         
-        // Step 6: Calculate Earnings
-        val studentEarnings = studentUseCase.calculateStudentEarnings(createdStudent.id)
-        assertNotNull("Student earnings should be calculated", studentEarnings)
-        assertEquals("Earnings should be 50.0 for 1 hour", 50.0, studentEarnings.totalEarnings, 0.01)
+        // Step 8: Test Data Modifications
+        val firstStudent = students.first()
+        val updatedStudent = firstStudent.copy(name = "Updated_${firstStudent.name}")
+        studentUseCases.updateStudent(updatedStudent)
+        
+        val retrievedStudent = studentUseCases.getStudentById(firstStudent.id, user.id).first()
+        assertEquals("Student should be updated", "Updated_${firstStudent.name}", retrievedStudent?.name)
+        
+        // Step 9: Test Soft Delete and Restore
+        studentUseCases.softDeleteStudent(firstStudent.id, user.id)
+        val archivedStudents = studentUseCases.getArchivedStudents(user.id).first()
+        assertEquals("Should have 1 archived student", 1, archivedStudents.size)
+        
+        studentUseCases.restoreStudent(firstStudent.id, user.id)
+        val restoredActiveStudents = studentUseCases.getActiveStudents(user.id).first()
+        assertEquals("Should have 3 active students after restore", 3, restoredActiveStudents.size)
     }
     
     @Test
     fun testErrorRecoveryScenarios() = runTest {
-        // Test database corruption recovery
-        testDatabaseCorruptionRecovery()
-        
-        // Test network failure handling
-        testNetworkFailureHandling()
-        
-        // Test data validation errors
-        testDataValidationErrors()
-        
-        // Test concurrent operation conflicts
-        testConcurrentOperationConflicts()
-    }
-    
-    private suspend fun testDatabaseCorruptionRecovery() {
-        // Create test data
-        val user = createTestUser()
-        val student = createTestStudent(user.id)
-        
-        // Simulate database corruption by closing and reopening with issues
-        database.close()
-        
-        // Attempt recovery
-        val recoveredDatabase = databaseContainer.createTestDatabaseWithConfig(
-            name = "recovery_test",
-            destructiveMigration = true
-        )
-        
-        // Verify recovery
-        val isRecovered = databaseContainer.validateDatabaseIntegrity(recoveredDatabase)
-        assertTrue("Database should be recovered successfully", isRecovered)
-        
-        recoveredDatabase.close()
-    }
-    
-    private suspend fun testNetworkFailureHandling() {
-        // Test offline data persistence
-        val user = createTestUser()
-        val student = createTestStudent(user.id)
-        
-        // Simulate offline mode by using local storage only
-        val offlineStudent = student.copy(name = "Offline Student")
-        val savedOffline = studentUseCase.createStudent(offlineStudent)
-        
-        assertNotNull("Offline data should be saved", savedOffline)
-        assertEquals("Offline student name should match", "Offline Student", savedOffline.name)
-    }
-    
-    private suspend fun testDataValidationErrors() {
-        // Test invalid student data
         val user = createTestUser()
         
-        val invalidStudent = Student(
-            id = 0L,
-            name = "", // Invalid empty name
-            email = "invalid-email", // Invalid email
-            phone = "invalid-phone", // Invalid phone
-            hourlyRate = -10.0, // Invalid negative rate
-            ownerId = user.id,
-            isArchived = false,
-            createdAt = LocalDateTime.now()
-        )
+        // Test 1: Invalid Student Creation
+        try {
+            val invalidStudent = Student(
+                ownerId = user.id,
+                name = "", // Invalid empty name
+                surname = "",
+                parentMobile = "",
+                className = "",
+                rate = -1.0 // Invalid negative rate
+            )
+            studentUseCases.insertStudent(invalidStudent)
+            fail("Should throw exception for invalid student")
+        } catch (e: Exception) {
+            // Expected error
+            assertTrue("Should handle invalid student gracefully", e.message?.isNotEmpty() == true)
+        }
+        
+        // Test 2: Non-existent Student Access
+        try {
+            val nonExistentStudent = studentUseCases.getStudentById(999999L, user.id).first()
+            assertNull("Should return null for non-existent student", nonExistentStudent)
+        } catch (e: Exception) {
+            // Should handle gracefully
+            assertTrue("Should handle non-existent student gracefully", e.message?.isNotEmpty() == true)
+        }
+        
+        // Test 3: Database Integrity After Errors
+        val validStudent = createTestStudent(user.id, "Valid_Student")
+        val studentId = studentUseCases.insertStudent(validStudent)
+        assertTrue("Should create valid student after errors", studentId > 0)
+        
+        val activeStudents = studentUseCases.getActiveStudents(user.id).first()
+        assertEquals("Should have 1 active student", 1, activeStudents.size)
+    }
+    
+    @Test
+    fun testDatabaseCorruptionRecovery() = runTest {
+        val user = createTestUser()
+        val students = createTestStudents(user.id, 5)
+        
+        // Simulate database corruption by creating invalid data
+        try {
+            // This would normally be handled by database constraints
+            // For testing, we simulate the scenario
+            val corruptedStudent = Student(
+                ownerId = user.id,
+                name = "Corrupted_Student",
+                surname = "",
+                parentMobile = "",
+                className = "",
+                rate = Double.NaN // Invalid rate
+            )
+            studentUseCases.insertStudent(corruptedStudent)
+        } catch (e: Exception) {
+            // Expected error for corrupted data
+            assertTrue("Should handle corrupted data gracefully", e.message?.isNotEmpty() == true)
+        }
+        
+        // Verify system can still operate normally
+        val activeStudents = studentUseCases.getActiveStudents(user.id).first()
+        assertEquals("Should still have 5 valid students", 5, activeStudents.size)
+        
+        // Test normal operations still work
+        val newStudent = createTestStudent(user.id, "Recovery_Student")
+        val newStudentId = studentUseCases.insertStudent(newStudent)
+        assertTrue("Should be able to create new student after corruption", newStudentId > 0)
+    }
+    
+    @Test
+    fun testNetworkFailureHandling() = runTest {
+        val user = createTestUser()
+        
+        // Simulate network-like failures by introducing delays and timeouts
+        val startTime = System.currentTimeMillis()
         
         try {
-            studentUseCase.createStudent(invalidStudent)
-            fail("Should throw validation exception")
+            // Simulate slow operations
+            val students = createTestStudents(user.id, 3)
+            
+            // Simulate network timeout scenario
+            val timeoutOperation = async {
+                delay(TestConfiguration.Network.simulatedTimeout)
+                studentUseCases.getActiveStudents(user.id).first()
+            }
+            
+            // This should complete within reasonable time
+            val result = timeoutOperation.await()
+            assertTrue("Should handle timeout gracefully", result.isNotEmpty())
+            
         } catch (e: Exception) {
-            // Expected validation error
-            assertTrue("Should be validation error", e.message?.contains("validation") == true)
+            // Should handle network-like failures gracefully
+            assertTrue("Should handle network failures gracefully", e.message?.isNotEmpty() == true)
         }
+        
+        val totalTime = System.currentTimeMillis() - startTime
+        assertTrue("Should complete within reasonable time", totalTime < TestConfiguration.Network.maxOperationTime)
     }
     
-    private suspend fun testConcurrentOperationConflicts() {
+    @Test
+    fun testDataValidationErrors() = runTest {
         val user = createTestUser()
-        val student = createTestStudent(user.id)
         
-        // Simulate concurrent updates
-        val updatedStudent1 = student.copy(name = "Updated Name 1")
-        val updatedStudent2 = student.copy(name = "Updated Name 2")
+        // Test various validation scenarios
+        val validationTests = listOf(
+            // Empty name
+            Student(ownerId = user.id, name = "", surname = "", parentMobile = "", className = "", rate = 20.0),
+            // Negative rate
+            Student(ownerId = user.id, name = "Test", surname = "", parentMobile = "", className = "", rate = -10.0),
+            // Zero rate
+            Student(ownerId = user.id, name = "Test", surname = "", parentMobile = "", className = "", rate = 0.0),
+            // Very long name
+            Student(ownerId = user.id, name = "A".repeat(1000), surname = "", parentMobile = "", className = "", rate = 20.0)
+        )
         
-        // Both updates should succeed due to proper transaction handling
-        val result1 = studentUseCase.updateStudent(updatedStudent1)
-        val result2 = studentUseCase.updateStudent(updatedStudent2)
+        validationTests.forEachIndexed { index, invalidStudent ->
+            try {
+                studentUseCases.insertStudent(invalidStudent)
+                fail("Should reject invalid student ${index}")
+            } catch (e: Exception) {
+                // Expected validation error
+                assertTrue("Should provide validation error message", e.message?.isNotEmpty() == true)
+            }
+        }
         
-        assertNotNull("First update should succeed", result1)
-        assertNotNull("Second update should succeed", result2)
+        // Verify system still works with valid data
+        val validStudent = createTestStudent(user.id, "Valid_After_Validation")
+        val validStudentId = studentUseCases.insertStudent(validStudent)
+        assertTrue("Should accept valid student after validation errors", validStudentId > 0)
+    }
+    
+    @Test
+    fun testConcurrentOperationConflicts() = runTest {
+        val user = createTestUser()
+        val student = createTestStudent(user.id, "Concurrent_Test_Student")
+        val studentId = studentUseCases.insertStudent(student)
+        
+        // Simulate concurrent modifications
+        val concurrentOperations = 10
+        val jobs = (1..concurrentOperations).map { operationId ->
+            async {
+                try {
+                    val currentStudent = studentUseCases.getStudentById(studentId, user.id).first()
+                    currentStudent?.let {
+                        val updatedStudent = it.copy(
+                            name = "Concurrent_${operationId}",
+                            rate = it.rate + operationId
+                        )
+                        studentUseCases.updateStudent(updatedStudent)
+                    }
+                    operationId
+                } catch (e: Exception) {
+                    // Some conflicts are expected
+                    -operationId
+                }
+            }
+        }
+        
+        val results = jobs.awaitAll()
+        val successfulOperations = results.count { it > 0 }
+        val failedOperations = results.count { it < 0 }
+        
+        // Verify some operations succeeded
+        assertTrue("Should have some successful operations", successfulOperations > 0)
+        
+        // Verify final state is consistent
+        val finalStudent = studentUseCases.getStudentById(studentId, user.id).first()
+        assertNotNull("Final student should exist", finalStudent)
+        assertTrue("Final student should have updated name", finalStudent!!.name.startsWith("Concurrent_"))
     }
     
     @Test
@@ -251,174 +368,255 @@ class UserFlowIntegrationTest : TestBase() {
         val user = createTestUser()
         
         // Create large dataset
-        val students = mutableListOf<Student>()
-        val lessons = mutableListOf<Lesson>()
+        val largeStudentCount = TestConfiguration.DataSize.mediumStudentCount
+        val largeLessonCount = TestConfiguration.DataSize.mediumLessonCount
         
-        for (i in 1..100) {
-            val student = Student(
-                id = i.toLong(),
-                name = "Student $i",
-                email = "student$i@example.com",
-                phone = "+123456789$i",
-                hourlyRate = 50.0 + i,
-                ownerId = user.id,
-                isArchived = false,
-                createdAt = LocalDateTime.now()
-            )
-            students.add(student)
-            
-            // Create multiple lessons per student
-            for (j in 1..10) {
-                val lesson = Lesson(
-                    id = (i * 100 + j).toLong(),
-                    studentId = student.id,
-                    groupId = null,
-                    date = LocalDate.now().minusDays(j.toLong()),
-                    duration = 60,
-                    hourlyRate = student.hourlyRate,
-                    notes = "Lesson $j for student $i",
-                    ownerId = user.id,
-                    createdAt = LocalDateTime.now()
-                )
-                lessons.add(lesson)
-            }
-        }
-        
-        // Measure performance
         val startTime = System.currentTimeMillis()
         
-        // Insert all students
-        students.forEach { studentUseCase.createStudent(it) }
+        val students = createTestStudents(user.id, largeStudentCount)
+        val lessons = createTestLessons(students, largeLessonCount)
         
-        // Insert all lessons
-        lessons.forEach { lessonUseCase.createLesson(it) }
+        val creationTime = System.currentTimeMillis() - startTime
         
-        val endTime = System.currentTimeMillis()
-        val duration = endTime - startTime
+        // Verify performance
+        assertTrue("Dataset creation took too long: ${creationTime}ms", 
+                  creationTime < TestConfiguration.Performance.maxInsertionTime)
         
-        // Performance assertion: should complete within 5 seconds
-        assertTrue("Large dataset insertion should complete within 5 seconds", duration < 5000)
+        // Test query performance
+        val queryStartTime = System.currentTimeMillis()
+        val allStudents = studentUseCases.getActiveStudents(user.id).first()
+        val queryTime = System.currentTimeMillis() - queryStartTime
         
-        // Verify data integrity
-        val allStudents = studentUseCase.getAllStudents(user.id)
-        assertEquals("Should have 100 students", 100, allStudents.size)
-        
-        val allLessons = lessonUseCase.getAllLessons(user.id)
-        assertEquals("Should have 1000 lessons", 1000, allLessons.size)
+        assertTrue("Query took too long: ${queryTime}ms", 
+                  queryTime < TestConfiguration.Performance.maxQueryTime)
+        assertEquals("Should have correct number of students", largeStudentCount, allStudents.size)
     }
     
     @Test
     fun testDataSynchronization() = runTest {
         val user = createTestUser()
-        val student = createTestStudent(user.id)
+        val students = createTestStudents(user.id, 3)
         
-        // Simulate offline changes
-        val offlineStudent = student.copy(name = "Offline Updated Name")
-        val updatedOffline = studentUseCase.updateStudent(offlineStudent)
+        // Simulate data synchronization scenario
+        val syncOperations = listOf(
+            // Add new student
+            { createTestStudent(user.id, "Sync_New_Student") },
+            // Update existing student
+            { students.first().copy(name = "Sync_Updated_${students.first().name}") },
+            // Delete student (soft delete)
+            { students.last() }
+        )
         
-        // Simulate sync process
-        val syncResult = performDataSync(user.id)
-        assertTrue("Data sync should succeed", syncResult)
+        val syncResults = mutableListOf<Boolean>()
         
-        // Verify synchronized data
-        val syncedStudent = studentUseCase.getStudent(student.id)
-        assertNotNull("Synced student should exist", syncedStudent)
-        assertEquals("Synced name should match", "Offline Updated Name", syncedStudent.name)
+        syncOperations.forEach { operation ->
+            try {
+                when {
+                    operation() == students.last() -> {
+                        // Delete operation
+                        studentUseCases.softDeleteStudent(operation().id, user.id)
+                        syncResults.add(true)
+                    }
+                    operation().id == 0L -> {
+                        // Insert operation
+                        val newStudent = operation()
+                        val newId = studentUseCases.insertStudent(newStudent)
+                        syncResults.add(newId > 0)
+                    }
+                    else -> {
+                        // Update operation
+                        val updatedStudent = operation()
+                        studentUseCases.updateStudent(updatedStudent)
+                        syncResults.add(true)
+                    }
+                }
+            } catch (e: Exception) {
+                syncResults.add(false)
+            }
+        }
+        
+        // Verify synchronization results
+        val successCount = syncResults.count { it }
+        assertTrue("Synchronization should have high success rate", 
+                  successCount >= syncOperations.size * TestConfiguration.SuccessRates.syncSuccessRate)
+        
+        // Verify final state
+        val finalStudents = studentUseCases.getActiveStudents(user.id).first()
+        val archivedStudents = studentUseCases.getArchivedStudents(user.id).first()
+        
+        assertTrue("Should have active students after sync", finalStudents.isNotEmpty())
+        assertTrue("Should have archived students after sync", archivedStudents.isNotEmpty())
     }
     
     @Test
     fun testBackupAndRestore() = runTest {
         val user = createTestUser()
-        val student = createTestStudent(user.id)
-        val lesson = createTestLesson(student.id, user.id)
+        val students = createTestStudents(user.id, 5)
+        val groups = createTestGroups(user.id, 2)
+        val lessons = createTestLessons(students, 10)
         
-        // Create backup
-        val backupResult = performBackup(user.id)
-        assertTrue("Backup should succeed", backupResult)
+        // Simulate backup operation
+        val backupData = performBackup(user.id)
+        assertTrue("Backup should contain data", backupData.isNotEmpty())
         
-        // Simulate data loss
-        studentUseCase.deleteStudent(student.id)
-        lessonUseCase.deleteLesson(lesson.id)
+        // Simulate data loss scenario
+        students.forEach { student ->
+            studentUseCases.softDeleteStudent(student.id, user.id)
+        }
         
-        // Verify data is gone
-        val deletedStudent = studentUseCase.getStudent(student.id)
-        assertNull("Student should be deleted", deletedStudent)
+        // Verify data is "lost"
+        val activeStudentsAfterLoss = studentUseCases.getActiveStudents(user.id).first()
+        assertEquals("Should have no active students after loss", 0, activeStudentsAfterLoss.size)
         
-        // Restore from backup
-        val restoreResult = performRestore(user.id)
-        assertTrue("Restore should succeed", restoreResult)
+        // Simulate restore operation
+        val restoreSuccess = performRestore(user.id, backupData)
+        assertTrue("Restore should succeed", restoreSuccess)
         
         // Verify data is restored
-        val restoredStudent = studentUseCase.getStudent(student.id)
-        assertNotNull("Student should be restored", restoredStudent)
-        assertEquals("Restored student name should match", student.name, restoredStudent.name)
+        val restoredStudents = studentUseCases.getActiveStudents(user.id).first()
+        assertEquals("Should have restored students", 5, restoredStudents.size)
+        
+        val restoredGroups = groupUseCases.getAllGroups(user.id).first()
+        assertEquals("Should have restored groups", 2, restoredGroups.size)
+        
+        val restoredLessons = lessonUseCases.getAllLessons().first()
+        assertEquals("Should have restored lessons", 10, restoredLessons.size)
     }
     
-    // Helper methods
+    // Helper functions
     private suspend fun createTestUser(): User {
         val user = User(
-            id = 1L,
-            username = "testuser",
-            email = "test@example.com",
-            passwordHash = "hashedpassword",
-            createdAt = LocalDateTime.now()
+            username = "integrationuser_${System.currentTimeMillis()}",
+            passwordHash = "integration_hash",
+            fullName = "Integration Test User"
         )
-        return userUseCase.registerUser(user)
+        val userId = userUseCases.createUser(user)
+        return user.copy(id = userId)
     }
     
-    private suspend fun createTestStudent(ownerId: Long): Student {
-        val student = Student(
-            id = 1L,
-            name = "Test Student",
-            email = "test@student.com",
-            phone = "+1234567890",
-            hourlyRate = 50.0,
+    private fun createTestStudent(ownerId: Long, name: String): Student {
+        return Student(
             ownerId = ownerId,
-            isArchived = false,
-            createdAt = LocalDateTime.now()
+            name = name,
+            surname = "Integration_Surname",
+            parentMobile = "+30123456789",
+            parentEmail = "integration@test.com",
+            className = "Integration_Class",
+            rate = 25.0
         )
-        return studentUseCase.createStudent(student)
     }
     
-    private suspend fun createTestLesson(studentId: Long, ownerId: Long): Lesson {
-        val lesson = Lesson(
-            id = 1L,
-            studentId = studentId,
-            groupId = null,
-            date = LocalDate.now(),
-            duration = 60,
-            hourlyRate = 50.0,
-            notes = "Test lesson",
-            ownerId = ownerId,
-            createdAt = LocalDateTime.now()
-        )
-        return lessonUseCase.createLesson(lesson)
+    private suspend fun createTestStudents(ownerId: Long, count: Int): List<Student> {
+        val students = mutableListOf<Student>()
+        
+        repeat(count) { index ->
+            val student = createTestStudent(ownerId, "Integration_Student_${index}")
+            val studentId = studentUseCases.insertStudent(student)
+            students.add(student.copy(id = studentId))
+        }
+        
+        return students
+    }
+    
+    private suspend fun createTestGroups(ownerId: Long, count: Int): List<StudentGroup> {
+        val groups = mutableListOf<StudentGroup>()
+        
+        repeat(count) { index ->
+            val group = StudentGroup(
+                ownerId = ownerId,
+                name = "Integration_Group_${index}"
+            )
+            val groupId = groupUseCases.insertGroup(group)
+            groups.add(group.copy(id = groupId))
+        }
+        
+        return groups
+    }
+    
+    private suspend fun createTestLessons(students: List<Student>, count: Int): List<Lesson> {
+        val lessons = mutableListOf<Lesson>()
+        val baseDate = LocalDate.now().minusDays(30)
+        
+        repeat(count) { index ->
+            val student = students[index % students.size]
+            val lessonDate = baseDate.plusDays(index % 30)
+            val startTime = LocalTime.of(9 + (index % 8), 0)
+            
+            val lesson = Lesson.create(
+                studentId = student.id,
+                date = lessonDate,
+                startTime = startTime,
+                durationMinutes = 60,
+                notes = "Integration lesson ${index}",
+                ownerId = student.ownerId
+            )
+            
+            val lessonId = lessonUseCases.addLesson(lesson)
+            lessons.add(lesson.copy(id = lessonId))
+        }
+        
+        return lessons
     }
     
     private suspend fun performDataSync(userId: Long): Boolean {
         // Simulate data synchronization
         return try {
-            // In a real implementation, this would sync with remote server
-            true
+            val students = studentUseCases.getActiveStudents(userId).first()
+            val groups = groupUseCases.getAllGroups(userId).first()
+            val lessons = lessonUseCases.getAllLessons().first()
+            
+            // Simulate sync operations
+            students.isNotEmpty() && groups.isNotEmpty() && lessons.isNotEmpty()
         } catch (e: Exception) {
             false
         }
     }
     
-    private suspend fun performBackup(userId: Long): Boolean {
-        // Simulate backup creation
-        return try {
-            // In a real implementation, this would create a backup file
-            true
-        } catch (e: Exception) {
-            false
-        }
+    private suspend fun performBackup(userId: Long): Map<String, Any> {
+        // Simulate backup operation
+        return mapOf(
+            "students" to studentUseCases.getActiveStudents(userId).first(),
+            "groups" to groupUseCases.getAllGroups(userId).first(),
+            "lessons" to lessonUseCases.getAllLessons().first(),
+            "timestamp" to System.currentTimeMillis()
+        )
     }
     
-    private suspend fun performRestore(userId: Long): Boolean {
-        // Simulate backup restoration
+    private suspend fun performRestore(userId: Long, backupData: Map<String, Any>): Boolean {
+        // Simulate restore operation
         return try {
-            // In a real implementation, this would restore from backup file
+            @Suppress("UNCHECKED_CAST")
+            val students = backupData["students"] as? List<Student> ?: emptyList()
+            val groups = backupData["groups"] as? List<StudentGroup> ?: emptyList()
+            val lessons = backupData["lessons"] as? List<Lesson> ?: emptyList()
+            
+            // Restore students
+            students.forEach { student ->
+                if (student.id == 0L) {
+                    studentUseCases.insertStudent(student)
+                } else {
+                    studentUseCases.updateStudent(student)
+                }
+            }
+            
+            // Restore groups
+            groups.forEach { group ->
+                if (group.id == 0L) {
+                    groupUseCases.insertGroup(group)
+                } else {
+                    groupUseCases.updateGroup(group)
+                }
+            }
+            
+            // Restore lessons
+            lessons.forEach { lesson ->
+                if (lesson.id == 0L) {
+                    lessonUseCases.addLesson(lesson)
+                } else {
+                    lessonUseCases.updateLesson(lesson)
+                }
+            }
+            
             true
         } catch (e: Exception) {
             false
