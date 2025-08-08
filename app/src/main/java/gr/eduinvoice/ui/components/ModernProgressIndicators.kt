@@ -56,7 +56,7 @@ fun ModernOperationProgressIndicator(
             Spacer(modifier = Modifier.height(12.dp))
             
             LinearProgressIndicator(
-                progress = progress,
+                progress = { progress },
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant
@@ -84,7 +84,7 @@ fun ModernCircularProgressIndicator(
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
-            progress = progress,
+            progress = { progress },
             modifier = Modifier.size(size.dp),
             color = MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -137,7 +137,7 @@ fun ModernUploadProgressIndicator(
                 Spacer(modifier = Modifier.height(4.dp))
                 
                 LinearProgressIndicator(
-                    progress = progress,
+                    progress = { progress },
                     modifier = Modifier.fillMaxWidth(),
                     color = MaterialTheme.colorScheme.primary,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant
@@ -203,7 +203,7 @@ fun ModernDownloadProgressIndicator(
                 Spacer(modifier = Modifier.height(4.dp))
                 
                 LinearProgressIndicator(
-                    progress = progress,
+                    progress = { progress },
                     modifier = Modifier.fillMaxWidth(),
                     color = MaterialTheme.colorScheme.primary,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant

@@ -14,6 +14,8 @@ import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,7 +56,12 @@ fun ModernSearchBar(
                     )
                 },
                 trailingIcon = {
-                    IconButton(onClick = onVoiceInput) {
+                    IconButton(
+                        onClick = onVoiceInput,
+                        modifier = Modifier.semantics {
+                            contentDescription = "Voice input for search"
+                        }
+                    ) {
                         Icon(
                             Icons.Filled.Mic,
                             contentDescription = "Voice Input",
