@@ -2,6 +2,7 @@ package gr.eduinvoice.data.testinfrastructure
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import androidx.datastore.preferences.core.emptyPreferences
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.model.*
 import gr.eduinvoice.data.repository.*
@@ -13,8 +14,7 @@ import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import androidx.datastore.preferences.core.emptyPreferences
-import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -22,12 +22,28 @@ import java.time.LocalTime
  * Unified test infrastructure for data module tests
  * Provides centralized test utilities, data factories, and configuration
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 object DataTestInfrastructure {
 
     /**
      * Standard test dispatcher for coroutine testing
      */
     val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
+
+    /**
+     * Creates a mock DataStore for testing purposes
+     */
+    private fun createMockDataStore(): androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> {
+        return object : androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> {
+            private val prefs = MutableStateFlow(emptyPreferences())
+            override val data: kotlinx.coroutines.flow.Flow<androidx.datastore.preferences.core.Preferences> = prefs.asStateFlow()
+            override suspend fun updateData(transform: suspend (androidx.datastore.preferences.core.Preferences) -> androidx.datastore.preferences.core.Preferences): androidx.datastore.preferences.core.Preferences {
+                val newPrefs = transform(prefs.value)
+                prefs.value = newPrefs
+                return newPrefs
+            }
+        }
+    }
 
     /**
      * Creates a complete test environment with all data layer components
@@ -47,20 +63,12 @@ object DataTestInfrastructure {
         val concurrencyController = ConcurrencyController(transactionManager, operationQueueManager)
 
         // Create mock DataStore for testing
-        val mockDataStore = object : androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> {
-            private val prefs = MutableStateFlow(emptyPreferences())
-            override val data: kotlinx.coroutines.flow.Flow<androidx.datastore.preferences.core.Preferences> = prefs.asStateFlow()
-            override suspend fun updateData(transform: suspend (androidx.datastore.preferences.core.Preferences) -> androidx.datastore.preferences.core.Preferences): androidx.datastore.preferences.core.Preferences {
-                val newPrefs = transform(prefs.value)
-                prefs.value = newPrefs
-                return newPrefs
-            }
-        }
+        val mockDataStore = createMockDataStore()
         
         // Create UserPreferencesRepository with mock DataStore for testing
         val context = ApplicationProvider.getApplicationContext<Context>()
         val userPreferencesRepository = UserPreferencesRepository(context, mockDataStore)
-        val networkMonitor = NetworkMonitor()
+        val networkMonitor = NetworkMonitor(context)
         val exponentialBackoff = ExponentialBackoff()
 
         return DataTestEnvironment(
@@ -110,28 +118,41 @@ object DataTestInfrastructure {
             id: Long = 1L,
             username: String = "testuser",
             fullName: String = "Test User"
-        ): User = User(
-            id = id,
-            username = username,
-            passwordHash = "test_hash",
-            fullName = fullName
-        )
+        ): User {
+            require(id > 0) { "User ID must be positive" }
+            require(username.isNotBlank()) { "Username cannot be blank" }
+            require(fullName.isNotBlank()) { "Full name cannot be blank" }
+            
+            return User(
+                id = id,
+                username = username,
+                passwordHash = "test_hash",
+                fullName = fullName
+            )
+        }
 
         fun createTestStudent(
             id: Long = 1L,
             ownerId: Long = 1L,
             name: String = "Test Student",
             rate: Double = 25.0
-        ): Student = Student(
-            id = id,
-            ownerId = ownerId,
-            name = name,
-            surname = "Test Surname",
-            parentMobile = "+30123456789",
-            parentEmail = "test@example.com",
-            className = "Test Class",
-            rate = rate
-        )
+        ): Student {
+            require(id > 0) { "Student ID must be positive" }
+            require(ownerId > 0) { "Owner ID must be positive" }
+            require(name.isNotBlank()) { "Student name cannot be blank" }
+            require(rate >= 0.0) { "Rate must be non-negative" }
+            
+            return Student(
+                id = id,
+                ownerId = ownerId,
+                name = name,
+                surname = "Test Surname",
+                parentMobile = "+30123456789",
+                parentEmail = "test@example.com",
+                className = "Test Class",
+                rate = rate
+            )
+        }
 
         fun createTestLesson(
             id: Long = 1L,
@@ -139,27 +160,43 @@ object DataTestInfrastructure {
             ownerId: Long = 1L,
             date: String = LocalDate.now().toString(),
             durationMinutes: Int = 60
-        ): Lesson = Lesson(
-            id = id,
-            studentId = studentId,
-            date = date,
-            startTime = "10:00",
-            durationMinutes = durationMinutes,
-            notes = "Test lesson",
-            ownerId = ownerId
-        )
+        ): Lesson {
+            require(id > 0) { "Lesson ID must be positive" }
+            require(studentId > 0) { "Student ID must be positive" }
+            require(ownerId > 0) { "Owner ID must be positive" }
+            require(durationMinutes > 0) { "Duration must be positive" }
+            
+            return Lesson(
+                id = id,
+                studentId = studentId,
+                date = date,
+                startTime = "10:00",
+                durationMinutes = durationMinutes,
+                notes = "Test lesson",
+                ownerId = ownerId
+            )
+        }
 
         fun createTestGroup(
             id: Long = 1L,
             ownerId: Long = 1L,
             name: String = "Test Group"
-        ): StudentGroup = StudentGroup(
-            id = id,
-            ownerId = ownerId,
-            name = name
-        )
+        ): StudentGroup {
+            require(id > 0) { "Group ID must be positive" }
+            require(ownerId > 0) { "Owner ID must be positive" }
+            require(name.isNotBlank()) { "Group name cannot be blank" }
+            
+            return StudentGroup(
+                id = id,
+                ownerId = ownerId,
+                name = name
+            )
+        }
 
         fun createLargeStudentDataset(ownerId: Long, count: Int): List<Student> {
+            require(ownerId > 0) { "Owner ID must be positive" }
+            require(count > 0) { "Count must be positive" }
+            
             return (1..count).map { index ->
                 createTestStudent(
                     id = index.toLong(),
@@ -170,14 +207,16 @@ object DataTestInfrastructure {
             }
         }
 
-        // Uncomment and fix the createLargeLessonDataset function
         fun createLargeLessonDataset(students: List<Student>, count: Int): List<Lesson> {
+            require(students.isNotEmpty()) { "Students list cannot be empty" }
+            require(count > 0) { "Count must be positive" }
+            
             val lessons = mutableListOf<Lesson>()
             val baseDate = LocalDate.now().minusDays(30)
 
             repeat(count) { index ->
                 val student = students[index % students.size]
-                val lessonDate = baseDate.plusDays(index % 30)
+                val lessonDate = baseDate.plusDays((index % 30).toLong())
                 val startTime = LocalTime.of(9 + (index % 8), 0)
 
                 val lesson = Lesson(
@@ -196,6 +235,9 @@ object DataTestInfrastructure {
         }
 
         fun createLargeGroupDataset(ownerId: Long, count: Int): List<StudentGroup> {
+            require(ownerId > 0) { "Owner ID must be positive" }
+            require(count > 0) { "Count must be positive" }
+            
             return (1..count).map { index ->
                 createTestGroup(
                     id = index.toLong(),
@@ -246,14 +288,26 @@ object DataTestInfrastructure {
 
         fun measureDatabaseOperationTime(operation: () -> Unit): Long {
             val startTime = System.currentTimeMillis()
-            operation()
-            return System.currentTimeMillis() - startTime
+            return try {
+                operation()
+                System.currentTimeMillis() - startTime
+            } catch (e: Exception) {
+                val endTime = System.currentTimeMillis() - startTime
+                // Rethrow the exception but still return the timing
+                throw RuntimeException("Operation failed after ${endTime}ms", e)
+            }
         }
 
         fun measureMemoryUsage(operation: () -> Unit): Long {
             val initialMemory = getMemoryUsage()
-            operation()
-            return getMemoryUsage() - initialMemory
+            return try {
+                operation()
+                getMemoryUsage() - initialMemory
+            } catch (e: Exception) {
+                val finalMemory = getMemoryUsage() - initialMemory
+                // Rethrow the exception but still return the memory usage
+                throw RuntimeException("Operation failed with memory delta ${finalMemory}bytes", e)
+            }
         }
 
         fun getMemoryUsage(): Long {
@@ -266,6 +320,9 @@ object DataTestInfrastructure {
             operationsPerThread: Int,
             operation: (Int) -> Unit
         ): Long {
+            require(threadCount > 0) { "Thread count must be positive" }
+            require(operationsPerThread > 0) { "Operations per thread must be positive" }
+            
             val startTime = System.currentTimeMillis()
             
             val threads = (0 until threadCount).map { threadIndex ->
