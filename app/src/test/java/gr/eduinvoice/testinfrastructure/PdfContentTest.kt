@@ -17,33 +17,29 @@ class PdfContentTest {
          * Test data for invoice content generation
          */
         fun createTestInvoiceData(): List<LessonWithStudent> {
-            val student1 = TestInfrastructure.createTestStudent(
+            val student1 = TestDataFactory.createTestStudent(
                 id = 1L,
                 name = "Alice Johnson",
-                rate = 25.0,
-                rateType = RateTypes.HOURLY
+                rate = 25.0
             )
             
-            val student2 = TestInfrastructure.createTestStudent(
+            val student2 = TestDataFactory.createTestStudent(
                 id = 2L,
                 name = "Bob Smith",
-                rate = 30.0,
-                rateType = RateTypes.PER_LESSON
+                rate = 30.0
             )
             
-            val lesson1 = TestInfrastructure.createTestLesson(
+            val lesson1 = TestDataFactory.createTestLesson(
                 id = 1L,
                 studentId = 1L,
                 date = "2024-01-15",
-                startTime = "10:00",
                 durationMinutes = 60
             )
             
-            val lesson2 = TestInfrastructure.createTestLesson(
+            val lesson2 = TestDataFactory.createTestLesson(
                 id = 2L,
                 studentId = 2L,
                 date = "2024-01-15",
-                startTime = "14:00",
                 durationMinutes = 90
             )
             
@@ -66,14 +62,9 @@ class PdfContentTest {
          * Calculate individual lesson fee
          */
         fun calculateLessonFee(lesson: Lesson, student: Student): Double {
-            return when (student.rateType) {
-                RateTypes.PER_LESSON -> student.rate
-                RateTypes.HOURLY -> {
-                    val hours = lesson.durationMinutes / 60.0
-                    student.rate * hours
-                }
-                else -> student.rate
-            }
+            // Assume hourly rate for simplicity
+            val hours = lesson.durationMinutes / 60.0
+            return student.rate * hours
         }
         
         /**

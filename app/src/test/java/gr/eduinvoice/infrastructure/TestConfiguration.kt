@@ -3,7 +3,7 @@ package gr.eduinvoice.infrastructure
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import gr.eduinvoice.data.database.EduInvoiceDatabase
-import gr.eduinvoice.data.settings.UserPreferencesRepository
+import gr.eduinvoice.data.user.UserPreferencesRepository
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -171,8 +171,8 @@ class LessonsViewModelTest {
     fun updatePaidAffectsOnlyCurrentUserLesson() = runTest {
         val today = LocalDate.now().toString()
         val mine = LessonWithStudent(
-            Lesson(id = 1, studentId = 1, ownerId = 1, date = today, startTime = "10:00", durationMinutes = 60, isPaid = false),
-            Student(id = 1, ownerId = 1, name = "Me", surname = "", parentMobile = "", className = "", rate = 10.0)
+                    Lesson(id = 1, studentId = 1L, ownerId = 1L, date = today, startTime = "10:00", durationMinutes = 60, isPaid = false),
+        Student(id = 1, ownerId = 1L, name = "Me", surname = "", parentMobile = "", className = "", rate = 10.0)
         )
         val theirs = LessonWithStudent(
             Lesson(id = 2, studentId = 2, ownerId = 2, date = today, startTime = "11:00", durationMinutes = 60, isPaid = false),

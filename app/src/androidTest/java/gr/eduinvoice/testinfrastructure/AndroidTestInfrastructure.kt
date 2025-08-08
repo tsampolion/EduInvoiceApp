@@ -8,6 +8,7 @@ import androidx.test.uiautomator.UiDevice
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.model.*
 import gr.eduinvoice.data.repository.*
+import gr.eduinvoice.data.concurrency.*
 import gr.eduinvoice.domain.student.*
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.group.*
@@ -38,9 +39,13 @@ object AndroidTestInfrastructure {
      */
     fun createAndroidTestEnvironment(database: EduInvoiceDatabase): AndroidTestEnvironment {
         val studentRepository = StudentRepository(database.studentDao())
-        val lessonRepository = LessonRepository(database.lessonDao())
         val groupRepository = GroupRepository(database.groupDao())
         val userRepository = UserRepository(database.userDao())
+        
+        val concurrencyController = ConcurrencyController(
+            TransactionManager(database),
+            OperationQueueManager()
+        )
 
         val studentUseCases = StudentUseCases(
             getActiveStudents = GetActiveStudents(studentRepository),
@@ -56,15 +61,22 @@ object AndroidTestInfrastructure {
             searchStudentsPaginated = SearchStudentsPaginated(studentRepository)
         )
 
+        val tutorBillingRepository = TutorBillingRepository(
+            database.studentDao(),
+            database.lessonDao(),
+            database.groupDao(),
+            concurrencyController
+        )
+        
         val lessonUseCases = LessonUseCases(
             getAllLessons = GetAllLessons(database.lessonDao()),
             getLessonById = GetLessonById(database.lessonDao()),
-            getStudentLessons = GetStudentLessons(lessonRepository),
+            getStudentLessons = GetStudentLessons(tutorBillingRepository),
             getLessonsWithStudents = GetLessonsWithStudents(database.lessonDao()),
             getLessonsWithStudentsByStudentAndDateRange = GetLessonsWithStudentsByStudentAndDateRange(database.lessonDao()),
-            addLesson = AddLesson(lessonRepository),
-            addGroupLesson = AddGroupLesson(lessonRepository),
-            updateLesson = UpdateLesson(lessonRepository),
+            addLesson = AddLesson(tutorBillingRepository),
+            addGroupLesson = AddGroupLesson(tutorBillingRepository),
+            updateLesson = UpdateLesson(tutorBillingRepository),
             deleteLesson = DeleteLesson(database.lessonDao()),
             updateLessonPaidStatus = UpdateLessonPaidStatus(database.lessonDao()),
             updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(database.lessonDao()),
@@ -94,9 +106,9 @@ object AndroidTestInfrastructure {
         return AndroidTestEnvironment(
             database = database,
             studentRepository = studentRepository,
-            lessonRepository = lessonRepository,
             groupRepository = groupRepository,
             userRepository = userRepository,
+            concurrencyController = concurrencyController,
             studentUseCases = studentUseCases,
             lessonUseCases = lessonUseCases,
             groupUseCases = groupUseCases,
@@ -111,9 +123,9 @@ object AndroidTestInfrastructure {
     data class AndroidTestEnvironment(
         val database: EduInvoiceDatabase,
         val studentRepository: StudentRepository,
-        val lessonRepository: LessonRepository,
         val groupRepository: GroupRepository,
         val userRepository: UserRepository,
+        val concurrencyController: ConcurrencyController,
         val studentUseCases: StudentUseCases,
         val lessonUseCases: LessonUseCases,
         val groupUseCases: GroupUseCases,

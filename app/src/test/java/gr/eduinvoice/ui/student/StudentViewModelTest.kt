@@ -114,9 +114,9 @@ class StudentViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun loadDataFiltersLessonsByUser() = runTest {
-        val student = Student(id = 1, ownerId = 1, name = "Alice", surname = "", parentMobile = "", className = "A", rate = 10.0)
-        val otherLesson = Lesson(id = 2, ownerId = 2, studentId = 1, date = "2024-01-01", startTime = "10:00", durationMinutes = 60)
-        val myLesson = Lesson(id = 1, ownerId = 1, studentId = 1, date = "2024-01-02", startTime = "10:00", durationMinutes = 60)
+        val student = Student(id = 1, ownerId = 1L, name = "Alice", surname = "", parentMobile = "", className = "A", rate = 10.0)
+        val otherLesson = Lesson(id = 2, ownerId = 2L, studentId = 1L, date = "2024-01-01", startTime = "10:00", durationMinutes = 60)
+        val myLesson = Lesson(id = 1, ownerId = 1L, studentId = 1L, date = "2024-01-02", startTime = "10:00", durationMinutes = 60)
         studentFlow.value = listOf(student)
         lessonFlow.value = listOf(myLesson, otherLesson)
 

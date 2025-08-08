@@ -2,7 +2,7 @@ package gr.eduinvoice.domain.testinfrastructure
 
 import gr.eduinvoice.domain.BouncyCastleTestRunner
 import gr.eduinvoice.data.database.EduInvoiceDatabase
-import gr.eduinvoice.infrastructure.TestDatabaseContainer
+import gr.eduinvoice.domain.testinfrastructure.TestDatabaseContainer
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.After

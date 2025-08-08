@@ -1,5 +1,7 @@
 package gr.eduinvoice.data.testinfrastructure
 
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.model.*
 import gr.eduinvoice.data.repository.*
@@ -9,6 +11,10 @@ import gr.eduinvoice.data.user.*
 import gr.eduinvoice.data.utils.*
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import androidx.datastore.preferences.core.emptyPreferences
+import io.mockk.mockk
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -33,15 +39,27 @@ object DataTestInfrastructure {
         val userDao = database.userDao()
 
         val studentRepository = StudentRepository(studentDao)
-        val lessonRepository = LessonRepository(lessonDao)
         val groupRepository = GroupRepository(groupDao)
         val userRepository = UserRepository(userDao)
 
-        val concurrencyController = ConcurrencyController()
         val transactionManager = TransactionManager(database)
         val operationQueueManager = OperationQueueManager()
+        val concurrencyController = ConcurrencyController(transactionManager, operationQueueManager)
 
-        val userPreferencesRepository = UserPreferencesRepository(database)
+        // Create mock DataStore for testing
+        val mockDataStore = object : androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences> {
+            private val prefs = MutableStateFlow(emptyPreferences())
+            override val data: kotlinx.coroutines.flow.Flow<androidx.datastore.preferences.core.Preferences> = prefs.asStateFlow()
+            override suspend fun updateData(transform: suspend (androidx.datastore.preferences.core.Preferences) -> androidx.datastore.preferences.core.Preferences): androidx.datastore.preferences.core.Preferences {
+                val newPrefs = transform(prefs.value)
+                prefs.value = newPrefs
+                return newPrefs
+            }
+        }
+        
+        // Create UserPreferencesRepository with mock DataStore for testing
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val userPreferencesRepository = UserPreferencesRepository(context, mockDataStore)
         val networkMonitor = NetworkMonitor()
         val exponentialBackoff = ExponentialBackoff()
 
@@ -52,7 +70,6 @@ object DataTestInfrastructure {
             groupDao = groupDao,
             userDao = userDao,
             studentRepository = studentRepository,
-            lessonRepository = lessonRepository,
             groupRepository = groupRepository,
             userRepository = userRepository,
             concurrencyController = concurrencyController,
@@ -74,7 +91,6 @@ object DataTestInfrastructure {
         val groupDao: GroupDao,
         val userDao: UserDao,
         val studentRepository: StudentRepository,
-        val lessonRepository: LessonRepository,
         val groupRepository: GroupRepository,
         val userRepository: UserRepository,
         val concurrencyController: ConcurrencyController,
@@ -123,10 +139,11 @@ object DataTestInfrastructure {
             ownerId: Long = 1L,
             date: String = LocalDate.now().toString(),
             durationMinutes: Int = 60
-        ): Lesson = Lesson.create(
+        ): Lesson = Lesson(
+            id = id,
             studentId = studentId,
-            date = LocalDate.parse(date),
-            startTime = LocalTime.of(10, 0),
+            date = date,
+            startTime = "10:00",
             durationMinutes = durationMinutes,
             notes = "Test lesson",
             ownerId = ownerId
@@ -153,6 +170,7 @@ object DataTestInfrastructure {
             }
         }
 
+        // Uncomment and fix the createLargeLessonDataset function
         fun createLargeLessonDataset(students: List<Student>, count: Int): List<Lesson> {
             val lessons = mutableListOf<Lesson>()
             val baseDate = LocalDate.now().minusDays(30)
@@ -162,10 +180,11 @@ object DataTestInfrastructure {
                 val lessonDate = baseDate.plusDays(index % 30)
                 val startTime = LocalTime.of(9 + (index % 8), 0)
 
-                val lesson = Lesson.create(
+                val lesson = Lesson(
+                    id = index.toLong(),
                     studentId = student.id,
-                    date = lessonDate,
-                    startTime = startTime,
+                    date = lessonDate.toString(),
+                    startTime = startTime.toString(),
                     durationMinutes = 60,
                     notes = "Test lesson ${index}",
                     ownerId = student.ownerId

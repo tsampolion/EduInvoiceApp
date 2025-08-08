@@ -317,10 +317,10 @@ object TestInfrastructure {
      * Test data manager for managing test state
      */
     object TestDataManager {
-        private val studentFlow: MutableStateFlow<List<Student>> = mutableStateFlow(emptyList())
-        private val lessonFlow: MutableStateFlow<List<Lesson>> = mutableStateFlow(emptyList())
-        private val lessonWithStudentFlow: MutableStateFlow<List<gr.eduinvoice.data.database.LessonWithStudent>> = mutableStateFlow(emptyList())
-        private val groupFlow: MutableStateFlow<List<StudentGroup>> = mutableStateFlow(emptyList())
+            private val studentFlow: MutableStateFlow<List<Student>> = MutableStateFlow(emptyList())
+    private val lessonFlow: MutableStateFlow<List<Lesson>> = MutableStateFlow(emptyList())
+    private val lessonWithStudentFlow: MutableStateFlow<List<gr.eduinvoice.data.database.LessonWithStudent>> = MutableStateFlow(emptyList())
+    private val groupFlow: MutableStateFlow<List<StudentGroup>> = MutableStateFlow(emptyList())
         
         fun getGroupStudentRelations(): List<GroupStudentCrossRef> {
             return emptyList() // Implement as needed

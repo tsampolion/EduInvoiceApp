@@ -7,7 +7,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import gr.eduinvoice.BouncyCastleTestRunner
 import gr.eduinvoice.data.database.EduInvoiceDatabase
-import gr.eduinvoice.infrastructure.TestDatabaseContainer
+import gr.eduinvoice.testinfrastructure.TestDatabaseContainer
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.After

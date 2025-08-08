@@ -1,9 +1,9 @@
 package gr.eduinvoice.data.testinfrastructure
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import gr.eduinvoice.BouncyCastleTestRunner
+import gr.eduinvoice.data.BouncyCastleTestRunner
 import gr.eduinvoice.data.database.EduInvoiceDatabase
-import gr.eduinvoice.infrastructure.TestDatabaseContainer
+import gr.eduinvoice.data.testinfrastructure.TestDatabaseContainer
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.After
