@@ -56,7 +56,7 @@ EduInvoiceApp follows Clean Architecture principles with a modular structure:
 
 ```bash
 # Clone repository
-git clone https://github.com/your-username/EduInvoiceApp.git
+git clone https://github.com/YOUR_USERNAME/EduInvoiceApp.git
 cd EduInvoiceApp
 
 # Setup Android SDK

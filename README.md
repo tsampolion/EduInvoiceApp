@@ -176,7 +176,7 @@ EduInvoiceApp/
 
 ## 📊 Current Status
 
-**Version:** 0.24.9  
+**Version:** 0.27.0  
 **Last Updated:** January 2025  
 **Status:** Production Ready with Enterprise Features
 
@@ -232,12 +232,13 @@ We welcome contributions! Please see our [Contributing Guide](docs/CONTRIBUTING.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](docs/LICENSE.md) file for details.
 
 ## 🆘 Support
 
 - **Documentation:** [docs/](docs/)
 - **Issues:** [GitHub Issues](https://github.com/your-username/EduInvoiceApp/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/your-username/EduInvoiceApp/discussions)
 - **Email:** support@eduinvoice.com
 
 ## 📋 Changelog

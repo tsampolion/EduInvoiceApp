@@ -39,7 +39,7 @@ Welcome to the comprehensive documentation for EduInvoiceApp, a professional And
 
 ## 📊 Current Status
 
-**Version:** 0.24.9  
+**Version:** 0.27.0  
 **Last Updated:** January 2025  
 **Status:** Production Ready with Enterprise Features
 
@@ -64,9 +64,10 @@ Welcome to the comprehensive documentation for EduInvoiceApp, a professional And
 
 ## 🎯 Quick Links
 
-- **[Download Latest Release](https://github.com/your-repo/releases)**
-- **[Report Issues](https://github.com/your-repo/issues)**
-- **[Feature Requests](https://github.com/your-repo/issues/new?template=feature_request.md)**
+- **[Download Latest Release](https://github.com/your-username/EduInvoiceApp/releases)**
+- **[Report Issues](https://github.com/your-username/EduInvoiceApp/issues)**
+- **[Feature Requests](https://github.com/your-username/EduInvoiceApp/issues/new?template=feature_request.md)**
+- **[Discussions](https://github.com/your-username/EduInvoiceApp/discussions)**
 - **[Security Issues](mailto:security@eduinvoice.com)**
 
 ## 📞 Support
@@ -75,6 +76,7 @@ For technical support or questions:
 - **Email:** support@eduinvoice.com
 - **Documentation Issues:** Create an issue in the repository
 - **Feature Requests:** Use the feature request template
+- **GitHub Discussions:** Community forum for questions and discussions
 
 ---
 

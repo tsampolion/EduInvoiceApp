@@ -14,7 +14,7 @@ Before you begin, ensure you have:
 ### Option 1: Download from Release (Recommended)
 
 1. **Download the APK:**
-   - Go to the [Releases page](https://github.com/your-username/EduInvoiceApp/releases)
+   - Go to the [Releases page](https://github.com/YOUR_USERNAME/EduInvoiceApp/releases)
    - Download the latest `EduInvoiceApp-v0.24.9.apk`
 
 2. **Install on Device:**
@@ -26,7 +26,7 @@ Before you begin, ensure you have:
 
 1. **Clone and Setup:**
    ```bash
-   git clone https://github.com/your-username/EduInvoiceApp.git
+   git clone https://github.com/YOUR_USERNAME/EduInvoiceApp.git
    cd EduInvoiceApp
    bash setup-android-sdk.sh
    ```

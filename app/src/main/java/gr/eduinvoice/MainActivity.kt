@@ -2,7 +2,7 @@ package gr.eduinvoice
 
 import android.os.Bundle
 import android.os.StrictMode
-import androidx.appcompat.app.ActionBarDrawerToggle
+// import androidx.appcompat.app.ActionBarDrawerToggle - Removed since we're not using XML toolbar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -83,20 +83,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
         
         try {
+            // Note: We're not using the XML toolbar anymore since we use modern Compose AppTopBar
+            // The toolbar is kept in the layout for potential future use but is hidden
             val toolbar = findViewById<Toolbar>(R.id.toolbar)
-            setSupportActionBar(toolbar)
+            // setSupportActionBar(toolbar) - Removed since we're not using XML toolbar
 
             drawerLayout = findViewById(R.id.drawer_layout)
 
-            val toggle = ActionBarDrawerToggle(
-                this,
-                drawerLayout,
-                toolbar,
-                R.string.navigation_drawer_open,
-                R.string.navigation_drawer_close
-            )
-            drawerLayout.addDrawerListener(toggle)
-            toggle.syncState()
+            // Note: We're not using ActionBarDrawerToggle anymore since we use Compose AppTopBar
+            // The drawer is opened manually via the NavigationMenuButton in Compose
+            // This provides a cleaner separation between XML and Compose UI
 
             findViewById<ComposeView>(R.id.compose_view).setContent {
                 val controller = rememberNavController()
@@ -106,12 +102,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 TutorBillingTheme(darkTheme = uiState.settings.darkTheme) {
                     LaunchedEffect(controller) {
                         controller.addOnDestinationChangedListener { _, destination, _ ->
-                            toolbar.visibility =
-                                if (destination.route == Screen.Welcome.route) {
-                                    View.GONE
-                                } else {
-                                    View.VISIBLE
-                                }
+                            // Hide the XML toolbar for all screens since we're using modern Compose AppTopBar
+                            toolbar.visibility = View.GONE
                         }
                     }
                     

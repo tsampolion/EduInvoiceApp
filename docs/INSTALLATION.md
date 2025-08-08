@@ -50,7 +50,7 @@ git --version
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/EduInvoiceApp.git
+git clone https://github.com/YOUR_USERNAME/EduInvoiceApp.git
 cd EduInvoiceApp
 ```
 

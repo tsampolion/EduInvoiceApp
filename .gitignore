@@ -27,4 +27,77 @@ out/ # Default output directory for IntelliJ
 *.dex
 captures/
 
+# Keystore files
 release.jks
+*.keystore
+*.jks
+
+# Additional Android build artifacts
+*.log
+*.hprof
+*.pid
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+
+# Generated files
+bin/
+gen/
+out/
+release/
+
+# Gradle wrapper jar file
+gradle/wrapper/gradle-wrapper.jar
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# Temporary files
+*.tmp
+*.temp
+
+# Test reports
+test-reports/
+reports/
+
+# Coverage reports
+coverage/
+*.coverage
+
+# Firebase
+google-services.json
+GoogleService-Info.plist
+
+# Crashlytics
+crashlytics.properties
+
+# Proguard
+proguard/
+
+# NDK
+obj/
+.externalNativeBuild
+.cxx/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Bundle artifacts
+*.bundle
+
+# Additional sensitive files
+secrets.properties
+keystore.properties
