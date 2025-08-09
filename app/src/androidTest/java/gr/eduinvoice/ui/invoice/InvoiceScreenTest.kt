@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.hilt.navigation.compose.hiltViewModel
 import gr.eduinvoice.data.dao.GroupDao
 import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.dao.StudentDao
@@ -109,7 +110,13 @@ class InvoiceScreenTest {
     @Test
     fun selectLessonEnablesCreateButton() {
         composeRule.setContent {
-            InvoiceScreen(onBack = {}, defaultStudentId = 1L, viewModel = viewModel)
+            InvoiceScreen(
+                onBack = {}, 
+                defaultStudentId = 1L, 
+                viewModel = viewModel,
+                settingsViewModel = hiltViewModel(),
+                profileViewModel = hiltViewModel()
+            )
         }
 
         composeRule.onAllNodes(isToggleable())[0].performClick()
