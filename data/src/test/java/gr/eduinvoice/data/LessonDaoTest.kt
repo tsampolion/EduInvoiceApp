@@ -6,8 +6,9 @@ import androidx.test.core.app.ApplicationProvider
 import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.dao.StudentDao
 import gr.eduinvoice.data.database.EduInvoiceDatabase
-import gr.eduinvoice.test.support.extensions.createTestStudent
-import gr.eduinvoice.test.support.extensions.createTestLesson
+// TODO: Move to module-local fixtures (Option A)
+// import gr.eduinvoice.test.support.extensions.createTestStudent
+// import gr.eduinvoice.test.support.extensions.createTestLesson
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After

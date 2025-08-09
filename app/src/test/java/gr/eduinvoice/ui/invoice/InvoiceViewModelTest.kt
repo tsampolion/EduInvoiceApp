@@ -14,9 +14,10 @@ import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
 import gr.eduinvoice.FakeUserProvider
-import gr.eduinvoice.test.support.fakes.NoopConcurrencyController
-import gr.eduinvoice.test.support.extensions.createTestStudent
-import gr.eduinvoice.test.support.extensions.createTestLesson
+// TODO: Move to module-local fixtures (Option A)
+// import gr.eduinvoice.test.support.fakes.NoopConcurrencyController
+// import gr.eduinvoice.test.support.extensions.createTestStudent
+// import gr.eduinvoice.test.support.extensions.createTestLesson
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

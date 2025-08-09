@@ -5,9 +5,10 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.repository.TutorBillingRepository
-import gr.eduinvoice.test.support.fakes.NoopConcurrencyController
-import gr.eduinvoice.test.support.extensions.createTestStudent
-import gr.eduinvoice.test.support.extensions.createTestLesson
+// TODO: Move to module-local fixtures (Option A)
+// import gr.eduinvoice.test.support.fakes.NoopConcurrencyController
+// import gr.eduinvoice.test.support.extensions.createTestStudent
+// import gr.eduinvoice.test.support.extensions.createTestLesson
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
