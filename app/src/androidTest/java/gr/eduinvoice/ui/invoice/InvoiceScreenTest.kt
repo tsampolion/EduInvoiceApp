@@ -1,6 +1,5 @@
 package gr.eduinvoice.ui.invoice
 
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -8,6 +7,8 @@ import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.hilt.navigation.compose.hiltViewModel
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import gr.eduinvoice.data.dao.GroupDao
 import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.dao.StudentDao
@@ -37,16 +38,25 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.LocalDate
 
+@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class InvoiceScreenTest {
 
     @get:Rule
-    val composeRule = createAndroidComposeRule<ComponentActivity>()
+    val hiltRule = HiltAndroidRule(this)
+
+    @get:Rule
+    val composeRule = createAndroidComposeRule<TestHiltActivity>()
 
     private lateinit var viewModel: InvoiceViewModel
     private lateinit var studentDao: StudentDao
     private lateinit var lessonDao: LessonDao
     private lateinit var groupDao: GroupDao
+
+    @Before
+    fun init() {
+        hiltRule.inject()
+    }
 
     @Before
     fun setup() {
@@ -109,7 +119,7 @@ class InvoiceScreenTest {
 
     @Test
     fun selectLessonEnablesCreateButton() {
-        composeRule.setContent {
+        composeRule.activity.setContent {
             InvoiceScreen(
                 onBack = {}, 
                 defaultStudentId = 1L, 

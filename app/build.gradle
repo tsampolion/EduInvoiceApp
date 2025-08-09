@@ -30,7 +30,7 @@ android {
         targetSdk 35
         versionCode 40  // Increment version code
         versionName "0.27.0"  // Increment version name
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.google.dagger.hilt.android.testing.HiltTestRunner"
         buildConfigField "String", "FIREBASE_API_KEY", "\"${firebaseKey}\""
         
         // Add Firebase configuration
@@ -176,6 +176,10 @@ android {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4"
     androidTestImplementation "androidx.test.uiautomator:uiautomator:2.3.0"
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0"
+    
+    // Hilt Testing
+    androidTestImplementation "com.google.dagger:hilt-android-testing:2.54"
+    kspAndroidTest "com.google.dagger:hilt-compiler:2.54"
     
     // Test fixtures for Android tests
     androidTestImplementation(testFixtures(project(":domain")))
