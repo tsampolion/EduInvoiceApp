@@ -1,10 +1,10 @@
 package gr.eduinvoice.infrastructure
 
 import android.content.Context
-import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.database.DatabaseInitException
+import gr.eduinvoice.data.testfixtures.TestDbFactory
 import gr.eduinvoice.data.user.UserPreferencesRepository
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.Lesson
@@ -51,10 +51,7 @@ class TestDatabaseContainer : TestWatcher() {
             .resolve("$testDbName.db")
         
         return try {
-            Room.inMemoryDatabaseBuilder(context, EduInvoiceDatabase::class.java)
-                .setDatabaseName(testDbName)
-                .fallbackToDestructiveMigration()
-                .build()
+            TestDbFactory.createInMemory(context, testDbName, true)
                 .also { database = it }
         } catch (e: Exception) {
             throw DatabaseInitException("Failed to create test database: ${e.message}", e)
@@ -72,14 +69,8 @@ class TestDatabaseContainer : TestWatcher() {
         val dbName = name ?: "test_database_${databaseCounter.getAndIncrement()}"
         
         return try {
-            val builder = Room.inMemoryDatabaseBuilder(context, EduInvoiceDatabase::class.java)
-                .setDatabaseName(dbName)
-            
-            if (destructiveMigration) {
-                builder.fallbackToDestructiveMigration()
-            }
-            
-            builder.build().also { database = it }
+            TestDbFactory.createInMemory(context, dbName, destructiveMigration)
+                .also { database = it }
         } catch (e: Exception) {
             throw DatabaseInitException("Failed to create test database with config: ${e.message}", e)
         }

@@ -12,9 +12,9 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.room.Room
 import gr.eduinvoice.data.dao.*
 import gr.eduinvoice.data.database.EduInvoiceDatabase
+import gr.eduinvoice.data.testfixtures.TestDbFactory
 import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.data.model.*
 import gr.eduinvoice.data.repository.*
@@ -30,6 +30,7 @@ import gr.eduinvoice.FakeUserProvider
 import gr.eduinvoice.ui.user.LoginScreen
 import gr.eduinvoice.ui.user.LoginViewModel
 import gr.eduinvoice.ui.welcome.WelcomeScreen
+import gr.eduinvoice.testinfrastructure.AndroidTestInfrastructure
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -56,25 +57,31 @@ class SettingsScreenFlowTest {
     private lateinit var backupRepo: BackupRepository
     private lateinit var userUseCases: UserUseCases
     private lateinit var loginViewModel: LoginViewModel
+    private lateinit var db: EduInvoiceDatabase
+    private lateinit var userDao: UserDao
+    private lateinit var studentDao: StudentDao
+    private lateinit var lessonDao: LessonDao
+    private lateinit var groupDao: GroupDao
 
     @Before
     fun setup() {
         val ctx = ApplicationProvider.getApplicationContext<android.content.Context>()
-        val dao = object : UserDao {
-            private val user = User(
-                id = 1,
+        db = TestDbFactory.createInMemory(ctx)
+        userDao = db.userDao()
+        studentDao = db.studentDao()
+        lessonDao = db.lessonDao()
+        groupDao = db.groupDao()
+        
+        // Insert test user
+        runBlocking {
+            val user = AndroidTestInfrastructure.AndroidTestDataFactory.createTestUser(
                 username = "bob",
-                passwordHash = PasswordHasher.hash("pass"),
                 fullName = "Bob"
-            )
-            override suspend fun insert(user: User): Long = 1L
-            override suspend fun update(user: User) {}
-            override suspend fun delete(user: User) {}
-            override fun getUserById(id: Long): Flow<User?> = flowOf(if (id == 1L) user else null)
-            override suspend fun getByUsername(username: String): User? =
-                if (username == user.username) user else null
+            ).copy(passwordHash = PasswordHasher.hash("pass"))
+            userDao.insert(user)
         }
-        val userRepo = UserRepository(dao)
+        
+        val userRepo = UserRepository(userDao)
         userUseCases = UserUseCases(
             createUser = CreateUser(userRepo),
             authenticateUser = AuthenticateUser(userRepo),
@@ -84,9 +91,6 @@ class SettingsScreenFlowTest {
         )
         prefs = UserPreferencesRepository(ctx, ctx.userPrefsDataStore)
         settingsRepo = SettingsRepository(ctx)
-        val db = Room.inMemoryDatabaseBuilder(ctx, EduInvoiceDatabase::class.java)
-            .allowMainThreadQueries()
-            .build()
         backupRepo = BackupRepository(ctx, db)
         loginViewModel = LoginViewModel(userUseCases, prefs, ctx)
         runBlocking { prefs.setLoggedInUser(null) }
@@ -127,87 +131,7 @@ class SettingsScreenFlowTest {
     fun settingsFromHomeShowsAccountButtons() {
         runBlocking { prefs.setLoggedInUser(1L) }
         val settingsVm = SettingsViewModel(settingsRepo, prefs, userUseCases, backupRepo)
-        val studentFlow = MutableStateFlow<List<Student>>(emptyList())
-        val lessonFlow = MutableStateFlow<List<Lesson>>(emptyList())
-        val studentDao = object : StudentDao {
-            override suspend fun insert(student: Student) = 1L
-            override suspend fun update(student: Student) {}
-            override suspend fun delete(student: Student) {}
-            override suspend fun softDeleteStudent(studentId: Long, userId: Long) {}
-            override fun getStudentById(studentId: Long, userId: Long): Flow<Student?> = flowOf(null)
-            override fun getAllActiveStudents(userId: Long): Flow<List<Student>> = studentFlow.asStateFlow()
-            override fun getArchivedStudents(userId: Long): Flow<List<Student>> = flowOf(emptyList())
-            override suspend fun getStudentsPaginated(userId: Long, limit: Int, offset: Int): List<Student> = emptyList()
-            override suspend fun searchStudentsPaginated(userId: Long, searchQuery: String, limit: Int, offset: Int): List<Student> = emptyList()
-            override suspend fun restoreStudent(studentId: Long, userId: Long) {}
-            override fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?> = flowOf(null)
-            override suspend fun getActiveStudentCount(userId: Long): Int = 0
-            override suspend fun classNameExists(name: String, userId: Long): Int = 0
-        }
-        val lessonDao = object : LessonDao {
-            override suspend fun insert(lesson: Lesson) = 1L
-            override suspend fun update(lesson: Lesson) {}
-            override suspend fun delete(lesson: Lesson) {}
-            override suspend fun deleteById(lessonId: Long, userId: Long) {}
-            override fun getLessonById(lessonId: Long, userId: Long): Flow<Lesson?> = flowOf(null)
-            override fun getLessonsByStudentId(studentId: Long, userId: Long): Flow<List<Lesson>> =
-                flowOf(emptyList())
-            override fun getAllLessons(userId: Long): Flow<List<Lesson>> = lessonFlow.asStateFlow()
-            override fun getLessonsInDateRange(
-                startDate: String,
-                endDate: String,
-                userId: Long
-            ): Flow<List<Lesson>> = flowOf(emptyList())
-            override fun getLessonsByStudentAndDateRange(
-                studentId: Long,
-                startDate: String,
-                endDate: String,
-                userId: Long
-            ): Flow<List<Lesson>> = flowOf(emptyList())
-            override fun getUnpaidLessonsByStudentAndDateRange(
-                studentId: Long,
-                startDate: String,
-                endDate: String,
-                userId: Long
-            ): Flow<List<Lesson>> = flowOf(emptyList())
-            override fun getUnpaidLessonsInDateRange(
-                startDate: String,
-                endDate: String,
-                userId: Long
-            ): Flow<List<Lesson>> = flowOf(emptyList())
-            override suspend fun updatePaidStatus(ids: List<Long>, paid: Boolean, userId: Long) {}
-            override suspend fun updateInvoicedStatus(ids: List<Long>, invoiced: Boolean, userId: Long) {}
-            override fun isLessonInvoiced(lessonId: Long, userId: Long): Flow<Boolean?> = flowOf(null)
-            override fun getLessonsWithStudents(userId: Long): Flow<List<LessonWithStudent>> =
-                flowOf(emptyList<LessonWithStudent>())
-            override fun getLessonsWithStudentsByStudent(
-                studentId: Long,
-                userId: Long
-            ): Flow<List<LessonWithStudent>> = flowOf(emptyList<LessonWithStudent>())
-            override fun getLessonsWithStudentsInDateRange(
-                startDate: String,
-                endDate: String,
-                userId: Long
-            ): Flow<List<LessonWithStudent>> = flowOf(emptyList<LessonWithStudent>())
-            override fun getLessonsWithStudentsByStudentAndDateRange(
-                studentId: Long,
-                startDate: String,
-                endDate: String,
-                userId: Long
-            ): Flow<List<LessonWithStudent>> = flowOf(emptyList<LessonWithStudent>())
-            override suspend fun getLessonsWithStudentsPaginated(userId: Long, limit: Int, offset: Int): List<LessonWithStudent> = emptyList()
-            override suspend fun insertGroupLessons(lessons: List<Lesson>): List<Long> = lessons.map { it.id }
-        }
-        val groupDao = object : GroupDao {
-            override suspend fun insertGroup(group: StudentGroup) = 1L
-            override suspend fun updateGroup(group: StudentGroup) {}
-            override suspend fun deleteGroup(group: StudentGroup) {}
-            override fun getAllGroups(userId: Long): Flow<List<StudentGroup>> = flowOf(emptyList())
-            override fun getGroupById(id: Long, userId: Long): Flow<StudentGroup?> = flowOf(null)
-            override suspend fun insertCrossRef(crossRef: GroupStudentCrossRef) {}
-            override suspend fun deleteCrossRef(groupId: Long, studentId: Long, userId: Long) {}
-            override fun getStudentsForGroup(groupId: Long, userId: Long): Flow<List<Student>> = flowOf(emptyList())
-        }
+        
         val studentRepo = StudentRepository(studentDao)
         val groupRepo = GroupRepository(groupDao)
         val billingRepo = TutorBillingRepository(studentDao, lessonDao, groupDao)

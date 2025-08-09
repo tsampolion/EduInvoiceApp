@@ -7,6 +7,7 @@ import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.model.Lesson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,23 +20,25 @@ class DomainLessonRepositoryAdapter @Inject constructor(
     override suspend fun addLesson(lesson: DomainLesson, userId: Long): Long =
         tutorBillingRepository.addLesson(lesson.toDataModel(), userId)
     
-    override suspend fun addGroupLesson(lesson: DomainLesson, userId: Long): Long =
-        tutorBillingRepository.addGroupLesson(lesson.toDataModel(), userId)
+    override suspend fun addGroupLesson(lesson: DomainLesson, userId: Long): Long {
+        val lessonIds = tutorBillingRepository.addGroupLesson(lesson.groupId ?: 0L, lesson.toDataModel(), userId)
+        return lessonIds.firstOrNull() ?: 0L
+    }
     
     override suspend fun updateLesson(lesson: DomainLesson, userId: Long) =
-        tutorBillingRepository.updateLesson(lesson.toDataModel(), userId)
+        tutorBillingRepository.updateLesson(lesson.toDataModel())
     
     override suspend fun deleteLesson(lessonId: Long, userId: Long) =
-        lessonDao.deleteLesson(lessonId, userId)
+        tutorBillingRepository.deleteLesson(lessonId, userId)
     
     override suspend fun updateLessonPaidStatus(lessonId: Long, isPaid: Boolean, userId: Long) =
-        lessonDao.updateLessonPaidStatus(lessonId, isPaid, userId)
+        lessonDao.updatePaidStatus(listOf(lessonId), isPaid, userId)
     
     override suspend fun updateLessonInvoicedStatus(lessonId: Long, isInvoiced: Boolean, userId: Long) =
-        lessonDao.updateLessonInvoicedStatus(lessonId, isInvoiced, userId)
+        lessonDao.updateInvoicedStatus(listOf(lessonId), isInvoiced, userId)
     
     override suspend fun isLessonInvoiced(lessonId: Long, userId: Long): Boolean =
-        lessonDao.isLessonInvoiced(lessonId, userId)
+        lessonDao.isLessonInvoiced(lessonId, userId).first() ?: false
     
     override fun getAllLessons(userId: Long): Flow<List<DomainLesson>> =
         lessonDao.getAllLessons(userId).map { lessons ->
@@ -46,7 +49,7 @@ class DomainLessonRepositoryAdapter @Inject constructor(
         lessonDao.getLessonById(lessonId, userId).map { it?.toDomainModel() }
     
     override fun getStudentLessons(studentId: Long, userId: Long): Flow<List<DomainLesson>> =
-        tutorBillingRepository.getStudentLessons(studentId, userId).map { lessons ->
+        tutorBillingRepository.getLessonsForStudent(studentId, userId).map { lessons ->
             lessons.map { it.toDomainModel() }
         }
     

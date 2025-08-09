@@ -12,6 +12,8 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.hasContentDescription
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import gr.eduinvoice.FakeUserProvider
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.model.Student
@@ -44,8 +46,12 @@ import java.time.LocalTime
  * Tests form validation, navigation, and user interactions.
  */
 @OptIn(ExperimentalCoroutinesApi::class)
+@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class UiAutomationTest {
+
+    @get:Rule
+    val hiltRule = HiltAndroidRule(this)
 
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
@@ -59,6 +65,11 @@ class UiAutomationTest {
     private lateinit var userUseCases: UserUseCases
     private val userProvider = FakeUserProvider(1L)
     private val databaseContainer = TestDatabaseContainer()
+
+    @Before
+    fun init() {
+        hiltRule.inject()
+    }
 
     @Before
     fun setUp() = runTest {

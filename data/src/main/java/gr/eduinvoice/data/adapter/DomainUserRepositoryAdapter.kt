@@ -18,10 +18,10 @@ class DomainUserRepositoryAdapter @Inject constructor(
         userRepository.createUser(user.toDataModel())
     
     override suspend fun authenticateUser(username: String, password: String): DomainUser? =
-        userRepository.authenticateUser(username, password)?.toDomainModel()
+        userRepository.authenticate(username, password)?.toDomainModel()
     
     override fun getUserProfile(userId: Long): Flow<DomainUser?> =
-        userRepository.getUserProfile(userId).map { it?.toDomainModel() }
+        userRepository.getUserById(userId).map { it?.toDomainModel() }
     
     override suspend fun updateUser(user: DomainUser) =
         userRepository.updateUser(user.toDataModel())
