@@ -10,9 +10,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.room.Room
 import gr.eduinvoice.data.dao.*
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.database.LessonWithStudent
@@ -59,7 +59,7 @@ class SettingsScreenFlowTest {
 
     @Before
     fun setup() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val ctx = ApplicationProvider.getApplicationContext<android.content.Context>()
         val dao = object : UserDao {
             private val user = User(
                 id = 1,
@@ -82,13 +82,13 @@ class SettingsScreenFlowTest {
             updateUser = UpdateUser(userRepo),
             resetPassword = ResetPassword(userRepo)
         )
-        prefs = UserPreferencesRepository(context, context.userPrefsDataStore)
-        settingsRepo = SettingsRepository(context)
-        val db = Room.inMemoryDatabaseBuilder(context, EduInvoiceDatabase::class.java)
+        prefs = UserPreferencesRepository(ctx, ctx.userPrefsDataStore)
+        settingsRepo = SettingsRepository(ctx)
+        val db = Room.inMemoryDatabaseBuilder(ctx, EduInvoiceDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        backupRepo = BackupRepository(db)
-        loginViewModel = LoginViewModel(userUseCases, prefs, context)
+        backupRepo = BackupRepository(ctx, db)
+        loginViewModel = LoginViewModel(userUseCases, prefs, ctx)
         runBlocking { prefs.setLoggedInUser(null) }
     }
 
@@ -137,6 +137,8 @@ class SettingsScreenFlowTest {
             override fun getStudentById(studentId: Long, userId: Long): Flow<Student?> = flowOf(null)
             override fun getAllActiveStudents(userId: Long): Flow<List<Student>> = studentFlow.asStateFlow()
             override fun getArchivedStudents(userId: Long): Flow<List<Student>> = flowOf(emptyList())
+            override suspend fun getStudentsPaginated(userId: Long, limit: Int, offset: Int): List<Student> = emptyList()
+            override suspend fun searchStudentsPaginated(userId: Long, searchQuery: String, limit: Int, offset: Int): List<Student> = emptyList()
             override suspend fun restoreStudent(studentId: Long, userId: Long) {}
             override fun getStudentByIdAny(studentId: Long, userId: Long): Flow<Student?> = flowOf(null)
             override suspend fun getActiveStudentCount(userId: Long): Int = 0
@@ -193,6 +195,7 @@ class SettingsScreenFlowTest {
                 endDate: String,
                 userId: Long
             ): Flow<List<LessonWithStudent>> = flowOf(emptyList<LessonWithStudent>())
+            override suspend fun getLessonsWithStudentsPaginated(userId: Long, limit: Int, offset: Int): List<LessonWithStudent> = emptyList()
             override suspend fun insertGroupLessons(lessons: List<Lesson>): List<Long> = lessons.map { it.id }
         }
         val groupDao = object : GroupDao {

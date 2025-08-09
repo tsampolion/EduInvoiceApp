@@ -1,12 +1,12 @@
 package gr.eduinvoice.domain.lesson
 
-import gr.eduinvoice.data.dao.LessonDao
-import gr.eduinvoice.data.model.Lesson
+import gr.eduinvoice.domain.repository.DomainLessonRepository
+import gr.eduinvoice.domain.model.DomainLesson
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetAllLessons @Inject constructor(
-    private val dao: LessonDao
+    private val repository: DomainLessonRepository
 ) {
-    operator fun invoke(userId: Long = 0): Flow<List<Lesson>> = dao.getAllLessons(userId)
+    operator fun invoke(userId: Long = 0): Flow<List<DomainLesson>> = repository.getAllLessons(userId)
 }

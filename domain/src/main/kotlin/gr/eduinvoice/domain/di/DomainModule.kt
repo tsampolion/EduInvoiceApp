@@ -4,11 +4,10 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import gr.eduinvoice.data.dao.LessonDao
-import gr.eduinvoice.data.repository.StudentRepository
-import gr.eduinvoice.data.repository.TutorBillingRepository
-import gr.eduinvoice.data.repository.GroupRepository
-import gr.eduinvoice.data.repository.UserRepository
+import gr.eduinvoice.domain.repository.DomainStudentRepository
+import gr.eduinvoice.domain.repository.DomainLessonRepository
+import gr.eduinvoice.domain.repository.DomainGroupRepository
+import gr.eduinvoice.domain.repository.DomainUserRepository
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
 import gr.eduinvoice.domain.group.*
@@ -20,7 +19,7 @@ import javax.inject.Singleton
 object DomainModule {
     @Provides
     @Singleton
-    fun provideStudentUseCases(repository: StudentRepository): StudentUseCases =
+    fun provideStudentUseCases(repository: DomainStudentRepository): StudentUseCases =
         StudentUseCases(
             getActiveStudents = GetActiveStudents(repository),
             getArchivedStudents = GetArchivedStudents(repository),
@@ -37,7 +36,7 @@ object DomainModule {
 
     @Provides
     @Singleton
-    fun provideGroupUseCases(repository: GroupRepository): GroupUseCases =
+    fun provideGroupUseCases(repository: DomainGroupRepository): GroupUseCases =
         GroupUseCases(
             insertGroup = InsertGroup(repository),
             updateGroup = UpdateGroup(repository),
@@ -51,7 +50,7 @@ object DomainModule {
 
     @Provides
     @Singleton
-    fun provideUserUseCases(repository: UserRepository): UserUseCases =
+    fun provideUserUseCases(repository: DomainUserRepository): UserUseCases =
         UserUseCases(
             createUser = CreateUser(repository),
             authenticateUser = AuthenticateUser(repository),
@@ -62,23 +61,20 @@ object DomainModule {
 
     @Provides
     @Singleton
-    fun provideLessonUseCases(
-        dao: LessonDao,
-        repository: TutorBillingRepository
-    ): LessonUseCases =
+    fun provideLessonUseCases(repository: DomainLessonRepository): LessonUseCases =
         LessonUseCases(
-            getAllLessons = GetAllLessons(dao),
-            getLessonById = GetLessonById(dao),
+            getAllLessons = GetAllLessons(repository),
+            getLessonById = GetLessonById(repository),
             getStudentLessons = GetStudentLessons(repository),
-            getLessonsWithStudents = GetLessonsWithStudents(dao),
-            getLessonsWithStudentsByStudentAndDateRange = GetLessonsWithStudentsByStudentAndDateRange(dao),
+            getLessonsWithStudents = GetLessonsWithStudents(repository),
+            getLessonsWithStudentsByStudentAndDateRange = GetLessonsWithStudentsByStudentAndDateRange(repository),
             addLesson = AddLesson(repository),
             addGroupLesson = AddGroupLesson(repository),
             updateLesson = UpdateLesson(repository),
-            deleteLesson = DeleteLesson(dao),
-            updateLessonPaidStatus = UpdateLessonPaidStatus(dao),
-            updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(dao),
-            isLessonInvoiced = IsLessonInvoiced(dao),
-            getLessonsWithStudentsPaginated = GetLessonsWithStudentsPaginated(dao)
+            deleteLesson = DeleteLesson(repository),
+            updateLessonPaidStatus = UpdateLessonPaidStatus(repository),
+            updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(repository),
+            isLessonInvoiced = IsLessonInvoiced(repository),
+            getLessonsWithStudentsPaginated = GetLessonsWithStudentsPaginated(repository)
         )
 }

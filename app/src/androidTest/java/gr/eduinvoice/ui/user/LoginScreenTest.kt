@@ -5,8 +5,8 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import gr.eduinvoice.data.dao.UserDao
 import gr.eduinvoice.data.model.User
 import gr.eduinvoice.data.repository.PasswordHasher
@@ -52,7 +52,7 @@ class LoginScreenTest {
             updateUser = UpdateUser(repo),
             resetPassword = ResetPassword(repo)
         )
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         val prefs = UserPreferencesRepository(context, context.userPrefsDataStore)
         viewModel = LoginViewModel(useCases, prefs, context)
     }

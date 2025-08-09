@@ -1,0 +1,29 @@
+package gr.eduinvoice.domain.repository
+
+import gr.eduinvoice.domain.model.DomainLesson
+import kotlinx.coroutines.flow.Flow
+
+interface DomainLessonRepository {
+    suspend fun addLesson(lesson: DomainLesson, userId: Long = 0): Long
+    suspend fun addGroupLesson(lesson: DomainLesson, userId: Long = 0): Long
+    suspend fun updateLesson(lesson: DomainLesson, userId: Long = 0)
+    suspend fun deleteLesson(lessonId: Long, userId: Long = 0)
+    suspend fun updateLessonPaidStatus(lessonId: Long, isPaid: Boolean, userId: Long = 0)
+    suspend fun updateLessonInvoicedStatus(lessonId: Long, isInvoiced: Boolean, userId: Long = 0)
+    suspend fun isLessonInvoiced(lessonId: Long, userId: Long = 0): Boolean
+    fun getAllLessons(userId: Long = 0): Flow<List<DomainLesson>>
+    fun getLessonById(lessonId: Long, userId: Long = 0): Flow<DomainLesson?>
+    fun getStudentLessons(studentId: Long, userId: Long = 0): Flow<List<DomainLesson>>
+    fun getLessonsWithStudents(userId: Long = 0): Flow<List<DomainLesson>>
+    fun getLessonsWithStudentsByStudentAndDateRange(
+        studentId: Long,
+        startDate: String,
+        endDate: String,
+        userId: Long = 0
+    ): Flow<List<DomainLesson>>
+    suspend fun getLessonsWithStudentsPaginated(
+        userId: Long = 0,
+        limit: Int,
+        offset: Int
+    ): List<DomainLesson>
+}

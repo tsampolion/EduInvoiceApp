@@ -1,8 +1,8 @@
 package gr.eduinvoice.utils
 
-import gr.eduinvoice.data.model.Lesson
-import gr.eduinvoice.data.model.Student
-import gr.eduinvoice.data.model.calculateFee
+import gr.eduinvoice.domain.model.DomainLesson
+import gr.eduinvoice.domain.model.DomainStudent
+import gr.eduinvoice.domain.utils.DomainFeeCalculator
 import java.time.LocalDate
 import java.time.temporal.WeekFields
 import java.util.Locale
@@ -17,7 +17,7 @@ object EarningsCalculator {
      *
      * @return a [Pair] where `first` is the current week's earnings and `second` is the current month's earnings
      */
-    fun calculate(student: Student, lessons: List<Lesson>): Pair<Double, Double> {
+    fun calculate(student: DomainStudent, lessons: List<DomainLesson>): Pair<Double, Double> {
         val today = LocalDate.now()
         val weekFields = WeekFields.of(Locale.getDefault())
         val currentWeek = today.get(weekFields.weekOfWeekBasedYear())
@@ -32,7 +32,7 @@ object EarningsCalculator {
                 lessonDate.year == currentYear &&
                         lessonDate.get(weekFields.weekOfWeekBasedYear()) == currentWeek
             }
-            .sumOf { it.calculateFee(student) }
+            .sumOf { DomainFeeCalculator.calculateFee(it, student) }
 
         val monthEarnings = studentLessons
             .filter { lesson ->
@@ -40,7 +40,7 @@ object EarningsCalculator {
                 lessonDate.year == currentYear &&
                         lessonDate.monthValue == currentMonth
             }
-            .sumOf { it.calculateFee(student) }
+            .sumOf { DomainFeeCalculator.calculateFee(it, student) }
 
         return weekEarnings to monthEarnings
     }

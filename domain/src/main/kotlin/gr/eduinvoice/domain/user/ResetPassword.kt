@@ -1,10 +1,10 @@
 package gr.eduinvoice.domain.user
 
-import gr.eduinvoice.data.repository.UserRepository
+import gr.eduinvoice.domain.repository.DomainUserRepository
 import javax.inject.Inject
 
 class ResetPassword @Inject constructor(
-    private val repository: UserRepository
+    private val repository: DomainUserRepository
 ) {
     suspend operator fun invoke(
         username: String,

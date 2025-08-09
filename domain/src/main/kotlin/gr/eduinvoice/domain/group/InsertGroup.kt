@@ -1,11 +1,11 @@
 package gr.eduinvoice.domain.group
 
-import gr.eduinvoice.data.repository.GroupRepository
-import gr.eduinvoice.data.model.StudentGroup
+import gr.eduinvoice.domain.repository.DomainGroupRepository
+import gr.eduinvoice.domain.model.DomainStudentGroup
 import javax.inject.Inject
 
 class InsertGroup @Inject constructor(
-    private val repository: GroupRepository
+    private val repository: DomainGroupRepository
 ) {
-    suspend operator fun invoke(group: StudentGroup): Long = repository.insertGroup(group)
+    suspend operator fun invoke(group: DomainStudentGroup): Long = repository.insertGroup(group)
 }

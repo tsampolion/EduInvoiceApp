@@ -1,12 +1,12 @@
 package gr.eduinvoice.domain.lesson
 
-import gr.eduinvoice.data.model.Lesson
-import gr.eduinvoice.data.repository.TutorBillingRepository
+import gr.eduinvoice.domain.model.DomainLesson
+import gr.eduinvoice.domain.repository.DomainLessonRepository
 import javax.inject.Inject
 
 class AddGroupLesson @Inject constructor(
-    private val repository: TutorBillingRepository
+    private val repository: DomainLessonRepository
 ) {
-    suspend operator fun invoke(groupId: Long, lesson: Lesson, userId: Long = 0): List<Long> =
-        repository.addGroupLesson(groupId, lesson, userId)
+    suspend operator fun invoke(groupId: Long, lesson: DomainLesson, userId: Long = 0): Long =
+        repository.addGroupLesson(lesson, userId)
 }

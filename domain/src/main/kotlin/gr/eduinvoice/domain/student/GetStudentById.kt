@@ -1,13 +1,13 @@
 package gr.eduinvoice.domain.student
 
-import gr.eduinvoice.data.repository.StudentRepository
-import gr.eduinvoice.data.model.Student
+import gr.eduinvoice.domain.repository.DomainStudentRepository
+import gr.eduinvoice.domain.model.DomainStudent
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetStudentById @Inject constructor(
-    private val repository: StudentRepository
+    private val repository: DomainStudentRepository
 ) {
-    operator fun invoke(id: Long, userId: Long = 0): Flow<Student?> =
+    operator fun invoke(id: Long, userId: Long = 0): Flow<DomainStudent?> =
         repository.getStudentById(id, userId)
 }

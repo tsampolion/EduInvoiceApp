@@ -1,11 +1,14 @@
 package gr.eduinvoice.domain.lesson
 
-import gr.eduinvoice.data.dao.LessonDao
+import gr.eduinvoice.domain.repository.DomainLessonRepository
 import javax.inject.Inject
 
 class UpdateLessonInvoicedStatus @Inject constructor(
-    private val dao: LessonDao
+    private val repository: DomainLessonRepository
 ) {
-    suspend operator fun invoke(ids: List<Long>, invoiced: Boolean, userId: Long) =
-        dao.updateInvoicedStatus(ids, invoiced, userId)
+    suspend operator fun invoke(ids: List<Long>, invoiced: Boolean, userId: Long) {
+        ids.forEach { id ->
+            repository.updateLessonInvoicedStatus(id, invoiced, userId)
+        }
+    }
 }

@@ -1,11 +1,11 @@
 package gr.eduinvoice.domain.user
 
-import gr.eduinvoice.data.model.User
-import gr.eduinvoice.data.repository.UserRepository
+import gr.eduinvoice.domain.model.DomainUser
+import gr.eduinvoice.domain.repository.DomainUserRepository
 import javax.inject.Inject
 
 class UpdateUser @Inject constructor(
-    private val repository: UserRepository
+    private val repository: DomainUserRepository
 ) {
-    suspend operator fun invoke(user: User) = repository.updateUser(user)
+    suspend operator fun invoke(user: DomainUser) = repository.updateUser(user)
 }

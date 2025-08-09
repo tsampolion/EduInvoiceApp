@@ -1,13 +1,2 @@
-package gr.eduinvoice.utils
-
-import gr.eduinvoice.data.model.Student
-
-/**
- * Returns the student's full name by combining the [name] and [surname] fields.
- *
- * The resulting string is trimmed so that missing surnames don't leave a trailing
- * space. Keeping this extension maintains compatibility with older code that
- * expected a `getFullName()` helper.
- */
-fun Student.getFullName(): String = "${name} ${surname}".trim()
+// This extension is no longer needed as DomainStudent already has a getFullName() method
 

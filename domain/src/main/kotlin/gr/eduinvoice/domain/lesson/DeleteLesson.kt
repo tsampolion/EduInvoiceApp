@@ -1,10 +1,10 @@
 package gr.eduinvoice.domain.lesson
 
-import gr.eduinvoice.data.dao.LessonDao
+import gr.eduinvoice.domain.repository.DomainLessonRepository
 import javax.inject.Inject
 
 class DeleteLesson @Inject constructor(
-    private val dao: LessonDao
+    private val repository: DomainLessonRepository
 ) {
-    suspend operator fun invoke(id: Long, userId: Long) = dao.deleteById(id, userId)
+    suspend operator fun invoke(id: Long, userId: Long) = repository.deleteLesson(id, userId)
 }

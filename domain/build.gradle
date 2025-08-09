@@ -27,10 +27,10 @@ android {
 }
 
 dependencies {
-    implementation project(':data')
     implementation 'javax.inject:javax.inject:1'
     implementation 'com.google.dagger:hilt-core:2.54'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0"
     
     // Test fixtures dependencies
     testFixturesImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
