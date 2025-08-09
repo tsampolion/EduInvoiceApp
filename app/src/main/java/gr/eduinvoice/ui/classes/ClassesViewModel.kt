@@ -40,6 +40,6 @@ class ClassesViewModel @Inject constructor(
 }
 
 data class ClassesUiState(
-    val studentsByClass: Map<String, List<gr.eduinvoice.data.model.Student>> = emptyMap(),
+    val studentsByClass: Map<String, List<gr.eduinvoice.domain.model.DomainStudent>> = emptyMap(),
     val hasUnassigned: Boolean = false
 )

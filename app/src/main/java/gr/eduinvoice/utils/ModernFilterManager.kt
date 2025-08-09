@@ -1,15 +1,17 @@
 package gr.eduinvoice.utils
 
 import gr.eduinvoice.ui.components.FilterOptions
+import gr.eduinvoice.domain.model.DomainStudent
+import gr.eduinvoice.domain.model.DomainLesson
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ModernFilterManager @Inject constructor() {
     fun applyStudentFilters(
-        students: List<gr.eduinvoice.data.model.Student>,
+        students: List<DomainStudent>,
         filters: FilterOptions
-    ): List<gr.eduinvoice.data.model.Student> {
+    ): List<DomainStudent> {
         var result = students
 
         filters.status.takeIf { it.isNotEmpty() }?.let { statuses ->
@@ -24,9 +26,9 @@ class ModernFilterManager @Inject constructor() {
     }
 
     fun applyLessonDateRange(
-        lessons: List<gr.eduinvoice.data.model.Lesson>,
+        lessons: List<DomainLesson>,
         dateRange: Pair<Long?, Long?>
-    ): List<gr.eduinvoice.data.model.Lesson> {
+    ): List<DomainLesson> {
         val (start, end) = dateRange
         if (start == null && end == null) return lessons
         return lessons.filter { lesson ->

@@ -10,7 +10,7 @@ import gr.eduinvoice.data.settings.SettingsRepository
 import gr.eduinvoice.data.repository.BackupRepository
 import gr.eduinvoice.data.user.CurrentUserProvider
 import gr.eduinvoice.domain.user.UserUseCases
-import gr.eduinvoice.data.model.User
+import gr.eduinvoice.domain.model.DomainUser
 import android.database.sqlite.SQLiteException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +36,7 @@ class SettingsViewModel @Inject constructor(
 
     data class SettingsUiState(
         val settings: AppSettings = AppSettings(),
-        val user: User? = null
+        val user: DomainUser? = null
     )
 
     private val _uiState = MutableStateFlow(SettingsUiState())

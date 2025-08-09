@@ -4,8 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.eduinvoice.data.database.LessonWithStudent
-import gr.eduinvoice.data.model.Student
+import gr.eduinvoice.domain.model.DomainStudent
+import gr.eduinvoice.ui.model.UiInvoiceLesson
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.data.user.CurrentUserProvider
@@ -36,15 +36,15 @@ class InvoiceViewModel @Inject constructor(
     val startDate: StateFlow<LocalDate> = _startDate.asStateFlow()
     val endDate: StateFlow<LocalDate> = _endDate.asStateFlow()
 
-    val students: StateFlow<List<Student>> =
+    val students: StateFlow<List<DomainStudent>> =
         studentUseCases.getActiveStudents()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _selectedStudentId = MutableStateFlow<Long?>(null)
     val selectedStudentId: StateFlow<Long?> = _selectedStudentId.asStateFlow()
 
-    private val _lessons = MutableStateFlow<List<LessonWithStudent>>(emptyList())
-    val lessons: StateFlow<List<LessonWithStudent>> = _lessons.asStateFlow()
+    private val _lessons = MutableStateFlow<List<UiInvoiceLesson>>(emptyList())
+    val lessons: StateFlow<List<UiInvoiceLesson>> = _lessons.asStateFlow()
 
     private val _selectedLessons = MutableStateFlow<Set<Long>>(emptySet())
     val selectedLessons: StateFlow<Set<Long>> = _selectedLessons.asStateFlow()
@@ -57,20 +57,25 @@ class InvoiceViewModel @Inject constructor(
     init {
         defaultStudentId?.let { _selectedStudentId.value = it }
         viewModelScope.launch {
-            combine(_startDate, _endDate, _selectedStudentId) { s, e, id -> Triple(s, e, id) }
-                .collect { (start, end, id) ->
-                    if (id == null) {
-                        _lessons.value = emptyList()
-                        _selectedLessons.value = emptySet()
-                    } else {
-                        lessonUseCases
-                            .getLessonsWithStudentsByStudentAndDateRange(id, start.toString(), end.toString())
-                            .collect { list ->
-                                _lessons.value = list
-                                _selectedLessons.value = emptySet()
+            combine(_startDate, _endDate, _selectedStudentId, students) { start, end, id, studentList ->
+                if (id == null) {
+                    _lessons.value = emptyList()
+                    _selectedLessons.value = emptySet()
+                } else {
+                    lessonUseCases
+                        .getLessonsWithStudentsByStudentAndDateRange(id, start.toString(), end.toString())
+                        .collect { lessonList ->
+                            val studentMap = studentList.associateBy { it.id }
+                            val uiLessons = lessonList.mapNotNull { lesson ->
+                                studentMap[lesson.studentId]?.let { student ->
+                                    UiInvoiceLesson(lesson, student)
+                                }
                             }
-                    }
+                            _lessons.value = uiLessons
+                            _selectedLessons.value = emptySet()
+                        }
                 }
+            }.collect { }
         }
     }
 
@@ -98,7 +103,7 @@ class InvoiceViewModel @Inject constructor(
     }
 
     fun selectAll() {
-        _selectedLessons.value = _lessons.value.map { it.lesson.id }.toSet()
+        _selectedLessons.value = _lessons.value.map { it.id }.toSet()
     }
 
     fun markAsPaid(ids: List<Long>) {

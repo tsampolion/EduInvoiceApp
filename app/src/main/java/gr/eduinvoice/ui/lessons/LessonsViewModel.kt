@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import gr.eduinvoice.data.database.LessonWithStudent
+import gr.eduinvoice.domain.model.DomainLesson
+import gr.eduinvoice.domain.model.DomainStudent
+import gr.eduinvoice.ui.model.UiLessonWithStudent
+import gr.eduinvoice.ui.mappers.with
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.testcompat.getFullName
 import gr.eduinvoice.utils.GlobalCache
@@ -42,25 +45,42 @@ class LessonsViewModel @Inject constructor(
                 .filterNotNull()
                 .flatMapLatest { uid ->
                     combine(
+                        lessonUseCases.getAllLessons(uid),
+                        lessonUseCases.getLessonsWithStudents(uid),
                         searchQuery,
                         filters
-                    ) { query, _ ->
-                        if (query.isBlank()) {
-                            loadLessonsWithCaching(uid, 0)
+                    ) { lessons, lessonsWithStudents, query, _ ->
+                        // For now, we'll use the lessons directly and create UI DTOs
+                        // In a real implementation, we'd need to get students separately
+                        val filteredLessons = if (query.isBlank()) {
+                            gr.eduinvoice.utils.ModernFilterManager().applyLessonDateRange(lessons, _filters.value.dateRange)
                         } else {
-                            // When searching, return filtered full list
-                            var all = lessonUseCases.getAllLessons(uid).first()
-                            // Apply date range
-                            all = gr.eduinvoice.utils.ModernFilterManager().applyLessonDateRange(all, _filters.value.dateRange)
+                            var all = gr.eduinvoice.utils.ModernFilterManager().applyLessonDateRange(lessons, _filters.value.dateRange)
                             all.filter { l ->
                                 val hay = "${l.notes ?: ""} ${l.date} ${l.startTime}".lowercase()
                                 hay.contains(query.lowercase())
-                            }.map { lesson ->
-                                // Map to LessonWithStudent requires join; fall back to current list map
-                                // Use existing cached view when possible
-                                _uiState.value.lessons.find { it.lesson.id == lesson.id }
-                            }.filterNotNull()
+                            }
                         }
+                        
+                        // For now, create UI DTOs with placeholder students
+                        // TODO: Get actual students and create proper UI DTOs
+                        filteredLessons.map { lesson ->
+                            UiLessonWithStudent(
+                                lesson = lesson,
+                                student = DomainStudent(
+                                    id = lesson.studentId,
+                                    name = "Student ${lesson.studentId}",
+                                    surname = "",
+                                    className = "",
+                                    rate = 0.0,
+                                    rateType = "hourly",
+                                    isActive = true
+                                )
+                            )
+                        }.sortedWith(
+                            compareByDescending<UiLessonWithStudent> { it.lesson.date }
+                                .thenByDescending { it.lesson.startTime }
+                        )
                     }
                 }
                 .collect { lessons ->
@@ -76,11 +96,11 @@ class LessonsViewModel @Inject constructor(
         }
     }
     
-    private suspend fun loadLessonsWithCaching(uid: Long, page: Int): List<LessonWithStudent> {
+    private suspend fun loadLessonsWithCaching(uid: Long, page: Int): List<UiLessonWithStudent> {
         val cacheKey = "lessons_${uid}_$page"
         
         // Try to get from cache first
-        val cachedData = GlobalCache.getCachedDataTyped<List<LessonWithStudent>>(cacheKey)
+        val cachedData = GlobalCache.getCachedDataTyped<List<UiLessonWithStudent>>(cacheKey)
         if (cachedData != null) {
             return cachedData
         }
@@ -88,9 +108,26 @@ class LessonsViewModel @Inject constructor(
         // Load from database with pagination
         val lessons = lessonUseCases.getLessonsWithStudentsPaginated(uid, pageSize, page * pageSize)
         
+        // Create UI DTOs with placeholder students for now
+        // TODO: Get actual students and create proper UI DTOs
+        val uiLessons = lessons.map { lesson ->
+            UiLessonWithStudent(
+                lesson = lesson,
+                student = DomainStudent(
+                    id = lesson.studentId,
+                    name = "Student ${lesson.studentId}",
+                    surname = "",
+                    className = "",
+                    rate = 0.0,
+                    rateType = "hourly",
+                    isActive = true
+                )
+            )
+        }
+        
         // Sort lessons
-        val sortedLessons = lessons.sortedWith(
-            compareByDescending<LessonWithStudent> { it.lesson.date }
+        val sortedLessons = uiLessons.sortedWith(
+            compareByDescending<UiLessonWithStudent> { it.lesson.date }
                 .thenByDescending { it.lesson.startTime }
         )
         
@@ -141,7 +178,7 @@ class LessonsViewModel @Inject constructor(
     fun updatePaid(lessonId: Long, paid: Boolean) {
         viewModelScope.launch {
             val userId = currentUserProvider.loggedInUserId.first() ?: 0L
-            val invoiced = lessonUseCases.isLessonInvoiced(lessonId, userId).first() ?: false
+            val invoiced = lessonUseCases.isLessonInvoiced(lessonId, userId)
             val lesson = _uiState.value.lessons.find { it.lesson.id == lessonId }
             if (invoiced) {
                 _uiState.update { it.copy(dialog = LessonDialog.AlreadyInvoiced(lessonId, paid)) }
@@ -167,7 +204,7 @@ class LessonsViewModel @Inject constructor(
 }
 
 data class LessonsUiState(
-    val lessons: List<LessonWithStudent> = emptyList(),
+    val lessons: List<UiLessonWithStudent> = emptyList(),
     val dialog: LessonDialog? = null,
     val isLoadingMore: Boolean = false,
     val hasMoreData: Boolean = true,

@@ -3,7 +3,8 @@ package gr.eduinvoice.ui.students
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.eduinvoice.data.model.StudentWithEarnings
+import gr.eduinvoice.ui.model.UiStudentWithEarnings
+import gr.eduinvoice.ui.mappers.withEarnings
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.data.user.CurrentUserProvider
@@ -62,11 +63,7 @@ class ArchivedStudentsViewModel @Inject constructor(
 
                 filtered.map { student ->
                     val (weekEarnings, monthEarnings) = EarningsCalculator.calculate(student, lessons)
-                    StudentWithEarnings(
-                        student = student,
-                        weekEarnings = weekEarnings,
-                        monthEarnings = monthEarnings
-                    )
+                    student.withEarnings(weekEarnings, monthEarnings)
                 }
             }.collect { studentsWithEarnings ->
                 _uiState.update {

@@ -28,7 +28,7 @@ import android.util.Patterns
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.data.model.RateTypes
-import gr.eduinvoice.data.model.Lesson
+import gr.eduinvoice.domain.model.DomainLesson
 import gr.eduinvoice.utils.ClassOptions
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
@@ -248,7 +248,7 @@ private fun StudentDetailView(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LessonCard(
-    lesson: Lesson,
+    lesson: DomainLesson,
     fee: Double,
     onLessonClick: () -> Unit,
     onDeleteClick: () -> Unit

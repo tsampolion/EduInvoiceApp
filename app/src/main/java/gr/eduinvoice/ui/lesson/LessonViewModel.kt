@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.eduinvoice.data.model.Lesson
-import gr.eduinvoice.data.model.Student
-import gr.eduinvoice.data.model.RateTypes
+import gr.eduinvoice.domain.model.DomainLesson
+import gr.eduinvoice.domain.model.DomainStudent
+import gr.eduinvoice.domain.model.DomainRateTypes
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.group.GroupUseCases
@@ -54,7 +54,7 @@ class LessonViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(initialState())
     val uiState: StateFlow<LessonUiState> = _uiState.asStateFlow()
 
-    private val groupMembers = mutableMapOf<Long, List<Student>>()
+    private val groupMembers = mutableMapOf<Long, List<DomainStudent>>()
 
     // Navigation callback
     private var onNavigateBack: (() -> Unit)? = null
@@ -197,7 +197,7 @@ class LessonViewModel @Inject constructor(
         val state = _uiState.value
         val hasStudent = if (state.isGroupLesson) state.selectedGroupId != null else state.selectedStudentId != null
         val validDateTime = isValidDate(state.date) && isValidTime(state.startTime)
-        return if (state.rateType == RateTypes.PER_LESSON) {
+        return if (state.rateType == DomainRateTypes.PER_LESSON) {
             hasStudent && validDateTime
         } else {
             val duration = state.durationMinutes.toIntOrNull() ?: 0
@@ -213,7 +213,7 @@ class LessonViewModel @Inject constructor(
         viewModelScope.launch {
             val state = _uiState.value
             var duration = state.durationMinutes.toIntOrNull() ?: 0
-            if (state.rateType == RateTypes.PER_LESSON) {
+            if (state.rateType == DomainRateTypes.PER_LESSON) {
                 duration = MIN_DURATION
             } else {
                 if (duration <= 0) duration = MIN_DURATION
@@ -226,7 +226,7 @@ class LessonViewModel @Inject constructor(
             try {
                 val sId = state.selectedStudentId
                 if (state.selectedGroupId != null) {
-                    val lesson = Lesson(
+                    val lesson = DomainLesson(
                         studentId = 0,
                         date = LocalDate.parse(state.date, dateFormatter).toString(),
                         startTime = state.startTime,
@@ -238,7 +238,7 @@ class LessonViewModel @Inject constructor(
                     lessonUseCases.addGroupLesson(state.selectedGroupId!!, lesson, userId)
                 } else if (sId != null) {
                     if (lessonId == null || lessonId == 0L) {
-                        val lesson = Lesson(
+                        val lesson = DomainLesson(
                             studentId = sId,
                             date = LocalDate.parse(state.date, dateFormatter).toString(),
                             startTime = state.startTime,
@@ -248,7 +248,7 @@ class LessonViewModel @Inject constructor(
                         )
                         lessonUseCases.addLesson(lesson)
                     } else {
-                        val lesson = Lesson(
+                        val lesson = DomainLesson(
                             id = lessonId,
                             studentId = sId,
                             date = LocalDate.parse(state.date, dateFormatter).toString(),
@@ -303,13 +303,13 @@ class LessonViewModel @Inject constructor(
         return if (state.selectedGroupId != null) {
             val students = groupMembers[state.selectedGroupId!!] ?: emptyList()
             students.sumOf { student ->
-                if (state.rateType == RateTypes.PER_LESSON) {
+                if (state.rateType == DomainRateTypes.PER_LESSON) {
                     student.rate
                 } else {
                     (duration.coerceAtLeast(MIN_DURATION) / 60.0) * student.rate
                 }
             }
-        } else if (state.rateType == RateTypes.PER_LESSON) {
+        } else if (state.rateType == DomainRateTypes.PER_LESSON) {
             state.studentRate
         } else {
             (duration.coerceAtLeast(MIN_DURATION) / 60.0) * state.studentRate
@@ -324,10 +324,10 @@ data class LessonUiState(
     val notes: String = "",
     val studentName: String = "",
     val studentRate: Double = 0.0,
-    val rateType: String = RateTypes.HOURLY,
-    val availableStudents: List<Student> = emptyList(),
+    val rateType: String = DomainRateTypes.HOURLY,
+    val availableStudents: List<DomainStudent> = emptyList(),
     val selectedStudentId: Long? = null,
-    val availableGroups: List<gr.eduinvoice.data.model.StudentGroup> = emptyList(),
+    val availableGroups: List<gr.eduinvoice.domain.model.DomainStudentGroup> = emptyList(),
     val selectedGroupId: Long? = null,
     val isGroupLesson: Boolean = false,
     val isEditMode: Boolean = true,

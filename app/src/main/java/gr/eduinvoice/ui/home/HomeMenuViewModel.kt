@@ -6,7 +6,7 @@ import android.util.Log
 import gr.eduinvoice.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import gr.eduinvoice.data.model.calculateFee
+import gr.eduinvoice.domain.billing.calculateFeeWith
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.data.user.CurrentUserProvider
@@ -66,7 +66,7 @@ class HomeMenuViewModel @Inject constructor(
                     !date.isBefore(weekStart) && !date.isAfter(weekEnd)
                 }.sumOf { lesson ->
                     val student = students.firstOrNull { it.id == lesson.studentId }
-                    student?.let { lesson.calculateFee(it) } ?: 0.0
+                    student?.let { lesson.calculateFeeWith(it) } ?: 0.0
                 }
 
                 val monthTotal = lessons.filter { lesson ->
@@ -74,7 +74,7 @@ class HomeMenuViewModel @Inject constructor(
                     !date.isBefore(monthStart) && !date.isAfter(monthEnd)
                 }.sumOf { lesson ->
                     val student = students.firstOrNull { it.id == lesson.studentId }
-                    student?.let { lesson.calculateFee(it) } ?: 0.0
+                    student?.let { lesson.calculateFeeWith(it) } ?: 0.0
                 }
                     HomeMenuUiState(
                         studentCount = students.size,

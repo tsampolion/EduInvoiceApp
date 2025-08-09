@@ -28,5 +28,5 @@ class GroupsViewModel @Inject constructor(
 }
 
 data class GroupsUiState(
-    val groups: List<gr.eduinvoice.data.model.StudentGroup> = emptyList()
+    val groups: List<gr.eduinvoice.domain.model.DomainStudentGroup> = emptyList()
 )

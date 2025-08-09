@@ -3,7 +3,7 @@ package gr.eduinvoice.ui.revenue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.eduinvoice.data.model.calculateFee
+import gr.eduinvoice.domain.billing.calculateFeeWith
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.data.user.CurrentUserProvider
@@ -47,7 +47,7 @@ class RevenueViewModel @Inject constructor(
                 val dayTotal = lessons.filter { it.date == today.toString() }
                     .sumOf { lesson ->
                         val student = studentMap[lesson.studentId] ?: return@sumOf 0.0
-                        lesson.calculateFee(student)
+                        lesson.calculateFeeWith(student)
                     }
 
                 val weekTotal = lessons.filter { lesson ->
@@ -55,7 +55,7 @@ class RevenueViewModel @Inject constructor(
                     !date.isBefore(weekStart) && !date.isAfter(weekEnd)
                 }.sumOf { lesson ->
                     val student = studentMap[lesson.studentId] ?: return@sumOf 0.0
-                    lesson.calculateFee(student)
+                    lesson.calculateFeeWith(student)
                 }
 
                 val monthTotal = lessons.filter { lesson ->
@@ -63,7 +63,7 @@ class RevenueViewModel @Inject constructor(
                     !date.isBefore(monthStart) && !date.isAfter(monthEnd)
                 }.sumOf { lesson ->
                     val student = studentMap[lesson.studentId] ?: return@sumOf 0.0
-                    lesson.calculateFee(student)
+                    lesson.calculateFeeWith(student)
                 }
 
                 val (paidTotal, unpaidTotal) = lessons.filter { lesson ->
@@ -72,11 +72,11 @@ class RevenueViewModel @Inject constructor(
                 }.partition { it.isPaid }.let { (paid, unpaid) ->
                     val paidSum = paid.sumOf { l ->
                         val s = studentMap[l.studentId] ?: return@sumOf 0.0
-                        l.calculateFee(s)
+                        l.calculateFeeWith(s)
                     }
                     val unpaidSum = unpaid.sumOf { l ->
                         val s = studentMap[l.studentId] ?: return@sumOf 0.0
-                        l.calculateFee(s)
+                        l.calculateFeeWith(s)
                     }
                     paidSum to unpaidSum
                 }
@@ -86,7 +86,7 @@ class RevenueViewModel @Inject constructor(
                     .groupBy { it.studentId }
                     .mapNotNull { (id, lns) ->
                         val student = studentMap[id] ?: return@mapNotNull null
-                        val total = lns.sumOf { it.calculateFee(student) }
+                        val total = lns.sumOf { it.calculateFeeWith(student) }
                         if (total > 0) StudentDebt(student, total) else null
                     }
                     .sortedBy { it.student.name }

@@ -5,8 +5,9 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import gr.eduinvoice.data.model.Student
-import gr.eduinvoice.data.model.StudentWithEarnings
+import gr.eduinvoice.domain.model.DomainStudent
+import gr.eduinvoice.ui.model.UiStudentWithEarnings
+import gr.eduinvoice.ui.mappers.withEarnings
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.utils.EarningsCalculator
@@ -92,11 +93,11 @@ class StudentsViewModel @Inject constructor(
         ascending: Boolean,
         page: Int,
         filters: FilterOptions
-    ): List<StudentWithEarnings> {
+    ): List<UiStudentWithEarnings> {
         val cacheKey = "students_${uid}_${query}_${ascending}_$page"
         
         // Try to get from cache first
-        val cachedData = GlobalCache.getCachedDataTyped<List<StudentWithEarnings>>(cacheKey)
+        val cachedData = GlobalCache.getCachedDataTyped<List<UiStudentWithEarnings>>(cacheKey)
         if (cachedData != null) {
             return cachedData
         }
@@ -114,14 +115,10 @@ class StudentsViewModel @Inject constructor(
         // Apply date range to lessons before earnings calc
         lessons = modernFilterManager.applyLessonDateRange(lessons, filters.dateRange)
         
-        // Calculate earnings and create StudentWithEarnings
+        // Calculate earnings and create UiStudentWithEarnings
         val studentsWithEarnings = students.map { student ->
             val (weekEarnings, monthEarnings) = EarningsCalculator.calculate(student, lessons)
-            StudentWithEarnings(
-                student = student,
-                weekEarnings = weekEarnings,
-                monthEarnings = monthEarnings
-            )
+            student.withEarnings(weekEarnings, monthEarnings)
         }
         
         // Sort if needed
@@ -182,7 +179,7 @@ class StudentsViewModel @Inject constructor(
 }
 
 data class StudentsUiState(
-    val students: List<StudentWithEarnings> = emptyList(),
+    val students: List<UiStudentWithEarnings> = emptyList(),
     val searchQuery: String = "",
     val isLoadingMore: Boolean = false,
     val hasMoreData: Boolean = true,

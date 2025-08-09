@@ -3,7 +3,7 @@ package gr.eduinvoice.ui.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.eduinvoice.data.model.User
+import gr.eduinvoice.domain.model.DomainUser
 import gr.eduinvoice.domain.user.UserUseCases
 import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -23,7 +23,7 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
 
     data class ProfileUiState(
-        val user: User? = null,
+        val user: DomainUser? = null,
         val fullName: String = "",
         val subjectSpecialty: String = "",
         val yearsExperience: Int = 0

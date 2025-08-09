@@ -1,8 +1,8 @@
 package gr.eduinvoice.utils
 
-import gr.eduinvoice.data.model.Lesson
-import gr.eduinvoice.data.model.Student
-import gr.eduinvoice.data.model.StudentGroup
+import gr.eduinvoice.domain.model.DomainLesson
+import gr.eduinvoice.domain.model.DomainStudent
+import gr.eduinvoice.domain.model.DomainStudentGroup
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.data.user.CurrentUserProvider
@@ -12,9 +12,9 @@ import javax.inject.Singleton
 import kotlin.math.min
 
 data class SearchResult(
-    val students: List<Student> = emptyList(),
-    val lessons: List<Lesson> = emptyList(),
-    val groups: List<StudentGroup> = emptyList()
+    val students: List<DomainStudent> = emptyList(),
+    val lessons: List<DomainLesson> = emptyList(),
+    val groups: List<DomainStudentGroup> = emptyList()
 )
 
 @Singleton

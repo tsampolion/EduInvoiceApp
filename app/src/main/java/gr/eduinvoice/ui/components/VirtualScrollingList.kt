@@ -93,7 +93,7 @@ fun <T> VirtualScrollingList(
  */
 @Composable
 fun VirtualStudentList(
-    students: List<gr.eduinvoice.data.model.StudentWithEarnings>,
+    students: List<gr.eduinvoice.ui.model.UiStudentWithEarnings>,
     onStudentClick: (Long) -> Unit,
     onDeleteClick: (Long) -> Unit,
     listState: LazyListState = rememberLazyListState(),
@@ -124,7 +124,7 @@ fun VirtualStudentList(
  */
 @Composable
 fun VirtualLessonList(
-    lessons: List<gr.eduinvoice.data.database.LessonWithStudent>,
+    lessons: List<gr.eduinvoice.ui.model.UiLessonWithStudent>,
     onLessonClick: (Long, Long, Long) -> Unit,
     onPaidChange: (Long, Boolean) -> Unit,
     listState: LazyListState = rememberLazyListState(),

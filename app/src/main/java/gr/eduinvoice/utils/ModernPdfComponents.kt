@@ -38,7 +38,7 @@ class ModernPdfComponents(private val theme: ModernPdfTheme) {
 
     fun drawLessonsTable(
         canvas: Canvas,
-        lessons: List<gr.eduinvoice.data.database.LessonWithStudent>,
+        lessons: List<gr.eduinvoice.ui.model.UiInvoiceLesson>,
         startY: Float,
         width: Float
     ): Float {
@@ -51,8 +51,8 @@ class ModernPdfComponents(private val theme: ModernPdfTheme) {
                 paint.color = alt
                 canvas.drawRect(0f, y - rowHeight + 4f, width, y + 4f, paint)
             }
-            drawText(canvas, l.student.getFullName(), 24f, y, theme.typography.bodyLarge, theme.colorScheme.onSurface)
-            drawText(canvas, l.lesson.date, width - 200f, y, theme.typography.bodyLarge, theme.colorScheme.onSurface)
+            drawText(canvas, "${l.student.name} ${l.student.surname}", 24f, y, theme.typography.bodyLarge, theme.colorScheme.onSurface)
+            drawText(canvas, l.date, width - 200f, y, theme.typography.bodyLarge, theme.colorScheme.onSurface)
             drawText(canvas, "€%.2f".format(l.calculateFee()), width - 80f, y, theme.typography.bodyLarge, theme.colorScheme.onSurface)
             y += rowHeight
         }

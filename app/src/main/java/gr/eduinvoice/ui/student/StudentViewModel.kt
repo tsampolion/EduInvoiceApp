@@ -8,12 +8,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import android.content.Context
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import gr.eduinvoice.data.model.Student
-import gr.eduinvoice.data.model.RateTypes
-import gr.eduinvoice.data.model.calculateFee
+import gr.eduinvoice.domain.model.DomainStudent
+import gr.eduinvoice.domain.model.DomainRateTypes
+import gr.eduinvoice.domain.billing.calculateFeeWith
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.lesson.LessonUseCases
-import gr.eduinvoice.data.model.Lesson
+import gr.eduinvoice.domain.model.DomainLesson
 import gr.eduinvoice.data.user.CurrentUserProvider
 import gr.eduinvoice.utils.EarningsCalculator
 import gr.eduinvoice.utils.ClassOptions
@@ -84,16 +84,16 @@ class StudentViewModel @Inject constructor(
         }
     }
 
-    private fun studentAndLessonsFlow(userId: Long): Flow<Pair<Student?, List<Lesson>>> {
+    private fun studentAndLessonsFlow(userId: Long): Flow<Pair<DomainStudent?, List<DomainLesson>>> {
         return combine(
             studentUseCases.getStudentById(studentId, userId),
             lessonUseCases.getStudentLessons(studentId, userId)
         ) { student, lessons -> student to lessons }
     }
 
-    private fun mapToUiState(student: Student?, lessons: List<Lesson>) {
+    private fun mapToUiState(student: DomainStudent?, lessons: List<DomainLesson>) {
         val (week, month) = student?.let { EarningsCalculator.calculate(it, lessons) } ?: (0.0 to 0.0)
-        val total = student?.let { lessons.sumOf { l -> l.calculateFee(it) } } ?: 0.0
+        val total = student?.let { lessons.sumOf { l -> l.calculateFeeWith(it) } } ?: 0.0
         _uiState.update { currentState ->
             val existingClass = student?.className ?: ""
             val (selectedClass, customClass) = if (
@@ -115,7 +115,7 @@ class StudentViewModel @Inject constructor(
                 rateType = if (currentState.isEditMode) {
                     currentState.rateType
                 } else {
-                    student?.rateType ?: RateTypes.HOURLY
+                    student?.rateType ?: DomainRateTypes.HOURLY
                 },
                 isActive = if (currentState.isEditMode) currentState.isActive else student?.isActive ?: true,
                 lessons = lessons,
@@ -205,10 +205,10 @@ class StudentViewModel @Inject constructor(
         return rate to className
     }
 
-    private fun buildStudent(rate: Double, className: String, userId: Long, state: StudentUiState): Student {
+    private fun buildStudent(rate: Double, className: String, userId: Long, state: StudentUiState): DomainStudent {
         val mobile = state.parentMobile.ifBlank { "" }
         return if (studentId > 0) {
-            Student(
+            DomainStudent(
                 id = studentId,
                 name = state.name,
                 surname = state.surname,
@@ -220,7 +220,7 @@ class StudentViewModel @Inject constructor(
                 isActive = state.isActive
             )
         } else {
-            Student(
+            DomainStudent(
                 ownerId = userId,
                 name = state.name,
                 surname = state.surname,
@@ -291,7 +291,7 @@ class StudentViewModel @Inject constructor(
         }
     }
 
-    private suspend fun saveToRepository(student: Student) {
+    private suspend fun saveToRepository(student: DomainStudent) {
         if (studentId > 0) {
             studentUseCases.updateStudent(student)
         } else {
@@ -365,7 +365,7 @@ class StudentViewModel @Inject constructor(
 }
 
 data class StudentUiState(
-    val student: Student? = null,
+    val student: DomainStudent? = null,
     val name: String = "",
     val surname: String = "",
     val parentMobile: String = "",
@@ -373,13 +373,13 @@ data class StudentUiState(
     val selectedClass: String = "",
     val customClass: String = "",
     val rate: String = "",
-    val rateType: String = RateTypes.HOURLY,
+    val rateType: String = DomainRateTypes.HOURLY,
     val isActive: Boolean = true,
     val isEditMode: Boolean = false,
     val isLoading: Boolean = false,
     val hasChanges: Boolean = false,
     val errorMessage: String? = null,
-    val lessons: List<Lesson> = emptyList(),
+    val lessons: List<DomainLesson> = emptyList(),
     val weekEarnings: Double = 0.0,
     val monthEarnings: Double = 0.0,
     val totalEarnings: Double = 0.0

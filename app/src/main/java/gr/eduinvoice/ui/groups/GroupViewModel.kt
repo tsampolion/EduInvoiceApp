@@ -4,10 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.eduinvoice.data.model.StudentGroup
+import gr.eduinvoice.domain.model.DomainStudentGroup
 import gr.eduinvoice.domain.group.GroupUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
-import gr.eduinvoice.data.model.Student
+import gr.eduinvoice.domain.model.DomainStudent
 import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -57,7 +57,7 @@ class GroupViewModel @Inject constructor(
         viewModelScope.launch {
             val userId = currentUserProvider.loggedInUserId.first() ?: 0L
             val state = _uiState.value
-            val group = StudentGroup(id = groupId, ownerId = userId, name = state.name)
+            val group = DomainStudentGroup(id = groupId, ownerId = userId, name = state.name)
             val id =
                 if (groupId == 0L) {
                     groupUseCases.insertGroup(group)

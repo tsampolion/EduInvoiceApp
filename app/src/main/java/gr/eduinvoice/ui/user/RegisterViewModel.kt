@@ -3,7 +3,7 @@ package gr.eduinvoice.ui.user
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.eduinvoice.data.model.User
+import gr.eduinvoice.domain.model.DomainUser
 import android.database.sqlite.SQLiteConstraintException
 import gr.eduinvoice.domain.user.UserUseCases
 import gr.eduinvoice.data.user.UserPreferencesRepository
@@ -32,7 +32,7 @@ class RegisterViewModel @Inject constructor(
 
     fun register(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            val user = User(
+            val user = DomainUser(
                 username = _uiState.value.username,
                 passwordHash = _uiState.value.password,
                 fullName = _uiState.value.fullName,

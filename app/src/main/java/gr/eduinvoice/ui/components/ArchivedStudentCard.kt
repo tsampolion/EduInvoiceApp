@@ -15,13 +15,13 @@ import gr.eduinvoice.ui.design.Dimensions
 import gr.eduinvoice.ui.design.AppColors
 import gr.eduinvoice.ui.design.MetricCard
 import gr.eduinvoice.R
-import gr.eduinvoice.data.model.StudentWithEarnings
+import gr.eduinvoice.ui.model.UiStudentWithEarnings
 import gr.eduinvoice.testcompat.getFullName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArchivedStudentCard(
-    studentWithEarnings: StudentWithEarnings,
+    studentWithEarnings: UiStudentWithEarnings,
     onStudentClick: () -> Unit,
     onRestoreClick: () -> Unit
 ) {
@@ -46,7 +46,7 @@ fun ArchivedStudentCard(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = studentWithEarnings.student.getFullName(),
+                    text = "${studentWithEarnings.student.name} ${studentWithEarnings.student.surname}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )

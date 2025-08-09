@@ -32,7 +32,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.core.content.FileProvider
 import androidx.core.net.toFile
 import gr.eduinvoice.R
-import gr.eduinvoice.data.database.LessonWithStudent
+import gr.eduinvoice.domain.model.DomainStudent
+import gr.eduinvoice.ui.model.UiInvoiceLesson
 import gr.eduinvoice.ui.components.ClickableReadOnlyField
 import gr.eduinvoice.testcompat.getFullName
 import gr.eduinvoice.ui.settings.SettingsViewModel
@@ -149,14 +150,15 @@ fun InvoiceScreen(
                         val selected = lessons.filter { selectedLessons.contains(it.lesson.id) }
                         val rawNumber = System.currentTimeMillis().toString()
                         val invoiceNumber = rawNumber.replace(Regex("[^A-Za-z0-9_-]"), "_")
-                        val invoiceData = gr.eduinvoice.utils.InvoiceData(
-                            student = students.firstOrNull { it.id == selectedStudentId } ?: return@TextButton,
+                        val selectedStudent = students.firstOrNull { it.id == selectedStudentId } ?: return@TextButton
+                        val invoiceData = gr.eduinvoice.utils.DomainInvoiceData(
+                            student = selectedStudent,
                             lessons = selected
                         )
                         val outDir = File(context.filesDir, "invoices").apply { mkdirs() }
                         val outFile = File(outDir, "${invoiceNumber}.pdf")
                         val theme = gr.eduinvoice.utils.PdfThemes.Default
-                        val result = gr.eduinvoice.utils.ModernPdfGenerator(context, theme).generateInvoice(invoiceData, outFile)
+                        val result = gr.eduinvoice.utils.DomainPdfGenerator(context, theme).generateInvoice(invoiceData, outFile)
                         result.fold(
                             onSuccess = { jUri ->
                                 viewModel.markAsPaid(selected.map { it.lesson.id })
@@ -217,7 +219,7 @@ fun InvoiceScreen(
 }
 
 @Composable
-private fun LessonRow(item: LessonWithStudent, checked: Boolean, onToggle: () -> Unit) {
+private fun LessonRow(item: UiInvoiceLesson, checked: Boolean, onToggle: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -226,8 +228,8 @@ private fun LessonRow(item: LessonWithStudent, checked: Boolean, onToggle: () ->
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
-            Text(item.student.getFullName(), style = MaterialTheme.typography.bodyMedium)
-            Text(LocalDate.parse(item.lesson.date).format(DateTimeFormatter.ofPattern("dd MMM")))
+            Text("${item.student.name} ${item.student.surname}", style = MaterialTheme.typography.bodyMedium)
+            Text(LocalDate.parse(item.date).format(DateTimeFormatter.ofPattern("dd MMM")))
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("€%.2f".format(item.calculateFee()))
@@ -272,11 +274,11 @@ private fun DateField(label: String, date: LocalDate, onDate: (LocalDate) -> Uni
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun StudentDropdown(students: List<gr.eduinvoice.data.model.Student>, selectedId: Long?, onSelect: (Long) -> Unit) {
+private fun StudentDropdown(students: List<DomainStudent>, selectedId: Long?, onSelect: (Long) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
         OutlinedTextField(
-            value = students.firstOrNull { it.id == selectedId }?.getFullName() ?: "",
+            value = students.firstOrNull { it.id == selectedId }?.let { "${it.name} ${it.surname}" } ?: "",
             onValueChange = {},
             readOnly = true,
             label = { Text("Student") },
@@ -285,7 +287,7 @@ private fun StudentDropdown(students: List<gr.eduinvoice.data.model.Student>, se
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             students.forEach { student ->
-                DropdownMenuItem(text = { Text(student.getFullName()) }, onClick = {
+                DropdownMenuItem(text = { Text("${student.name} ${student.surname}") }, onClick = {
                     onSelect(student.id)
                     expanded = false
                 })

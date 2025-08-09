@@ -2,12 +2,10 @@ package gr.eduinvoice.utils
 
 import android.content.Context
 import android.graphics.pdf.PdfDocument
-import gr.eduinvoice.ui.model.UiInvoiceLesson
-import gr.eduinvoice.utils.DomainInvoiceData
 import java.io.File
 import java.io.FileOutputStream
 
-class ModernPdfGenerator(
+class DomainPdfGenerator(
     private val context: Context,
     private val theme: ModernPdfTheme
 ) {
@@ -50,5 +48,3 @@ class ModernPdfGenerator(
         }
     }
 }
-
-

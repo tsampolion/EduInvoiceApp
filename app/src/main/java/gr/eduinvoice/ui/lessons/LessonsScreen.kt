@@ -30,7 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import gr.eduinvoice.data.database.LessonWithStudent
+import gr.eduinvoice.ui.model.UiLessonWithStudent
 import gr.eduinvoice.testcompat.getFullName
 import gr.eduinvoice.ui.components.VirtualLessonList
 import java.time.LocalDate
@@ -176,7 +176,7 @@ fun LessonsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LessonItem(
-    lessonWithStudent: LessonWithStudent,
+    lessonWithStudent: UiLessonWithStudent,
     onClick: () -> Unit,
     onPaidChange: (Boolean) -> Unit
 ) {
@@ -199,7 +199,7 @@ fun LessonItem(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = student.getFullName(),
+                    text = "${student.name} ${student.surname}",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
