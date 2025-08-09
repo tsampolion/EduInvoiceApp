@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
+import gr.eduinvoice.MainDispatcherRule
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -43,6 +44,9 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class SettingsScreenFlowTest {
+
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
 
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()

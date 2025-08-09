@@ -24,6 +24,7 @@ import gr.eduinvoice.domain.group.InsertGroup
 import gr.eduinvoice.domain.group.UpdateGroup
 import gr.eduinvoice.domain.group.GetGroupById
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.flow.first
 import org.junit.Test
 import org.junit.Assert.*
 import java.security.MessageDigest

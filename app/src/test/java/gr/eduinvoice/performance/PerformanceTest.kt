@@ -1,7 +1,7 @@
 package gr.eduinvoice.performance
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import gr.eduinvoice.TestBase
+import gr.eduinvoice.testinfrastructure.BaseTest
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.repository.StudentRepository
 import gr.eduinvoice.data.repository.LessonRepository
@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
-class PerformanceTest : TestBase() {
+class PerformanceTest : BaseTest() {
     
     @get:Rule
     val databaseContainer = TestDatabaseContainer()

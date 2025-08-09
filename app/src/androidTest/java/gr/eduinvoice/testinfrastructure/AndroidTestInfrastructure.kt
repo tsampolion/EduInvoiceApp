@@ -2,6 +2,7 @@ package gr.eduinvoice.testinfrastructure
 
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -15,6 +16,7 @@ import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.domain.user.*
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import java.io.File
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -251,7 +253,7 @@ object AndroidTestInfrastructure {
         }
 
         fun takeScreenshot(name: String) {
-            uiDevice.takeScreenshot().saveToFile(name)
+            uiDevice.takeScreenshot(File(name))
         }
 
         fun scrollToElement(composeTestRule: ComposeContentTestRule, element: String) {

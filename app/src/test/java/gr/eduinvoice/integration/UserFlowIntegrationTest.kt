@@ -1,7 +1,7 @@
 package gr.eduinvoice.integration
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import gr.eduinvoice.TestBase
+import gr.eduinvoice.testinfrastructure.BaseTest
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.Lesson
@@ -24,6 +24,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -40,7 +41,7 @@ import java.time.LocalTime
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
-class UserFlowIntegrationTest : TestBase() {
+class UserFlowIntegrationTest : BaseTest() {
     
     @get:Rule
     val databaseContainer = TestDatabaseContainer()
