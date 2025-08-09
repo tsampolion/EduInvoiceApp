@@ -16,7 +16,7 @@ import gr.eduinvoice.ui.design.AppColors
 import gr.eduinvoice.ui.design.MetricCard
 import gr.eduinvoice.R
 import gr.eduinvoice.data.model.StudentWithEarnings
-import gr.eduinvoice.utils.getFullName
+import gr.eduinvoice.testcompat.getFullName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

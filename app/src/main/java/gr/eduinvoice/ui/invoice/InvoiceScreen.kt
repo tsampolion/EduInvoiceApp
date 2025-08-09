@@ -34,7 +34,7 @@ import androidx.core.net.toFile
 import gr.eduinvoice.R
 import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.ui.components.ClickableReadOnlyField
-import gr.eduinvoice.utils.getFullName
+import gr.eduinvoice.testcompat.getFullName
 import gr.eduinvoice.ui.settings.SettingsViewModel
 import gr.eduinvoice.ui.profile.ProfileViewModel
 import kotlinx.coroutines.launch

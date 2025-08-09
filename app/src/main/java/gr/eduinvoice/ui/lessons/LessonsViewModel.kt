@@ -6,7 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import gr.eduinvoice.data.database.LessonWithStudent
 import gr.eduinvoice.domain.lesson.LessonUseCases
-import gr.eduinvoice.utils.getFullName
+import gr.eduinvoice.testcompat.getFullName
 import gr.eduinvoice.utils.GlobalCache
 import gr.eduinvoice.data.user.CurrentUserProvider
 import kotlinx.coroutines.flow.*

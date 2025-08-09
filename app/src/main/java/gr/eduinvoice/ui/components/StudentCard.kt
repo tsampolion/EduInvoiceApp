@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import gr.eduinvoice.R
 import gr.eduinvoice.data.model.StudentWithEarnings
 import gr.eduinvoice.data.model.RateTypes
-import gr.eduinvoice.utils.getFullName
+import gr.eduinvoice.testcompat.getFullName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,6 +1,7 @@
 package gr.eduinvoice.utils
 
 import android.content.Context
+import gr.eduinvoice.testcompat.getFullName
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas

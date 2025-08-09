@@ -31,7 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import gr.eduinvoice.data.database.LessonWithStudent
-import gr.eduinvoice.utils.getFullName
+import gr.eduinvoice.testcompat.getFullName
 import gr.eduinvoice.ui.components.VirtualLessonList
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

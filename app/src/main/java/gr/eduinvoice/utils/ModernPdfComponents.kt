@@ -1,6 +1,7 @@
 package gr.eduinvoice.utils
 
 import android.graphics.*
+import gr.eduinvoice.testcompat.getFullName
 
 class ModernPdfComponents(private val theme: ModernPdfTheme) {
     fun drawHeader(

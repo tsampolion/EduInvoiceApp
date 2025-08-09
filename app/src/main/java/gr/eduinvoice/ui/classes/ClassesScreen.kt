@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import gr.eduinvoice.utils.getFullName
+import gr.eduinvoice.testcompat.getFullName
 import gr.eduinvoice.ui.design.NavigationMenuButton
 
 @OptIn(ExperimentalMaterial3Api::class)

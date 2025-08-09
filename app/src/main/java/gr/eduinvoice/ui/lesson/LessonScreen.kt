@@ -22,7 +22,7 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.material3.TimePicker
 import androidx.compose.foundation.clickable
 import gr.eduinvoice.ui.components.ClickableReadOnlyField
-import gr.eduinvoice.utils.getFullName
+import gr.eduinvoice.testcompat.getFullName
 import androidx.compose.runtime.*
 import gr.eduinvoice.data.model.RateTypes
 import androidx.compose.ui.Alignment

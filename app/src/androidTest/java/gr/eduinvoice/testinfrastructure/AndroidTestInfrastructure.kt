@@ -253,7 +253,9 @@ object AndroidTestInfrastructure {
         }
 
         fun takeScreenshot(name: String) {
-            uiDevice.takeScreenshot(File(name))
+            val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            val out = File(InstrumentationRegistry.getInstrumentation().targetContext.externalCacheDir, "shot-${System.currentTimeMillis()}.png")
+            device.takeScreenshot(out)
         }
 
         fun scrollToElement(composeTestRule: ComposeContentTestRule, element: String) {
