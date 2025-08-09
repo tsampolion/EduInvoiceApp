@@ -13,3 +13,4 @@ class TestHiltActivity : AppCompatActivity() {
         setContent { }
     }
 }
+
