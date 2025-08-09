@@ -6,9 +6,9 @@ import androidx.test.core.app.ApplicationProvider
 import gr.eduinvoice.data.dao.GroupDao
 import gr.eduinvoice.data.dao.StudentDao
 import gr.eduinvoice.data.database.EduInvoiceDatabase
-import gr.eduinvoice.data.model.GroupStudentCrossRef
-import gr.eduinvoice.data.model.Student
-import gr.eduinvoice.data.model.StudentGroup
+import gr.eduinvoice.test.support.extensions.createTestStudent
+import gr.eduinvoice.test.support.extensions.createTestGroup
+import gr.eduinvoice.test.support.extensions.createTestCrossRef
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -42,9 +42,9 @@ class GroupDaoTest {
 
     @Test
     fun insertGroupAndStudents() = runBlocking {
-        val groupId = groupDao.insertGroup(StudentGroup(name = "Group A", ownerId = 7))
-        val studentId = studentDao.insert(Student(name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0, ownerId = 7))
-        groupDao.insertCrossRef(GroupStudentCrossRef(groupId = groupId, studentId = studentId, ownerId = 7))
+        val groupId = groupDao.insertGroup(createTestGroup(name = "Group A", ownerId = 7))
+        val studentId = studentDao.insert(createTestStudent(name = "Alice", rate = 10.0, ownerId = 7))
+        groupDao.insertCrossRef(createTestCrossRef(groupId = groupId, studentId = studentId, ownerId = 7))
 
         db.openHelper.readableDatabase.query(
             "SELECT ownerId FROM group_student_cross_ref WHERE groupId = ? AND studentId = ?",

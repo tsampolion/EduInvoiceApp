@@ -161,6 +161,11 @@ android {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
     testImplementation "androidx.test.ext:junit:1.1.5"
     
+    // Test fixtures
+    testImplementation(testFixtures(project(":domain")))
+    testImplementation(testFixtures(project(":data")))
+    testImplementation(testFixtures(project(":test-support")))
+    
     // Android Testing
     androidTestImplementation "androidx.test.ext:junit:1.2.1"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.6.1"
@@ -170,6 +175,11 @@ android {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4"
     androidTestImplementation "androidx.compose.ui:ui-test-manifest"
     androidTestImplementation "androidx.test.uiautomator:uiautomator:2.2.0"
+    
+    // Test fixtures for Android tests
+    androidTestImplementation(testFixtures(project(":domain")))
+    androidTestImplementation(testFixtures(project(":data")))
+    androidTestImplementation(testFixtures(project(":test-support")))
     
     // Unit Test Dependencies
     testImplementation "androidx.test.uiautomator:uiautomator:2.2.0"

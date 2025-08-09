@@ -14,6 +14,9 @@ import gr.eduinvoice.data.repository.TutorBillingRepository
 import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
 import gr.eduinvoice.FakeUserProvider
+import gr.eduinvoice.test.support.fakes.NoopConcurrencyController
+import gr.eduinvoice.test.support.extensions.createTestStudent
+import gr.eduinvoice.test.support.extensions.createTestLesson
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,7 +29,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import gr.eduinvoice.BouncyCastleTestRunner
-import gr.eduinvoice.testinfrastructure.createMockConcurrencyController
 
 @RunWith(BouncyCastleTestRunner::class)
 class InvoiceViewModelTest {
@@ -104,8 +106,8 @@ class InvoiceViewModelTest {
     }
 
     private val studentRepository = StudentRepository(studentDao)
-    private val mockConcurrencyController = createMockConcurrencyController()
-    private val tutorBillingRepository = TutorBillingRepository(studentDao, lessonDao, groupDao, mockConcurrencyController)
+    private val concurrencyController = NoopConcurrencyController()
+    private val tutorBillingRepository = TutorBillingRepository(studentDao, lessonDao, groupDao, concurrencyController)
 
     private val studentUseCases = StudentUseCases(
         getActiveStudents = GetActiveStudents(studentRepository),
@@ -140,9 +142,9 @@ class InvoiceViewModelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun markAsPaidMarksInvoiced() = runTest {
-        val student = Student(id = 1, name = "Alice", surname = "", parentMobile = "", className = "A", rate = 10.0)
+        val student = createTestStudent(id = 1, name = "Alice", className = "A", rate = 10.0)
         studentFlow.value = listOf(student)
-        val lesson = Lesson(id = 1, studentId = 1, date = "2024-01-01", startTime = "10:00", durationMinutes = 60)
+        val lesson = createTestLesson(id = 1, studentId = 1, date = "2024-01-01", durationMinutes = 60)
         lessonFlow.value = listOf(lesson)
 
         val vm = InvoiceViewModel(SavedStateHandle(), lessonUseCases, studentUseCases, FakeUserProvider(1L))

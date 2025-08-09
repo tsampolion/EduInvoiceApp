@@ -20,13 +20,20 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+
+    testFixtures {
+        enable = true
+    }
 }
 
 dependencies {
-    implementation project(':data')
     implementation 'javax.inject:javax.inject:1'
     implementation 'com.google.dagger:hilt-core:2.54'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
+    
+    // Test fixtures dependencies
+    testFixturesImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
+    
     testImplementation "junit:junit:4.13.2"
     testImplementation "androidx.test:core:1.5.0"
     testImplementation "androidx.test.ext:junit:1.1.5"
@@ -37,5 +44,8 @@ dependencies {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0"
     testImplementation "org.bouncycastle:bcprov-jdk15on:1.70"
     testImplementation "io.mockk:mockk:1.13.8"
+    
+    // Test fixtures
+    testImplementation(testFixtures(project(":test-support")))
 }
 

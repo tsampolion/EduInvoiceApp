@@ -6,8 +6,8 @@ import androidx.test.core.app.ApplicationProvider
 import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.dao.StudentDao
 import gr.eduinvoice.data.database.EduInvoiceDatabase
-import gr.eduinvoice.data.model.Lesson
-import gr.eduinvoice.data.model.Student
+import gr.eduinvoice.test.support.extensions.createTestStudent
+import gr.eduinvoice.test.support.extensions.createTestLesson
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -41,8 +41,8 @@ class LessonDaoTest {
 
     @Test
     fun insertAndQueryLessonsByStudent() = runBlocking {
-        val studentId = studentDao.insert(Student(name = "Alice", surname = "", parentMobile = "", className = "A", rate = 10.0))
-        lessonDao.insert(Lesson(studentId = studentId, date = "2024-01-01", startTime = "10:00", durationMinutes = 60))
+        val studentId = studentDao.insert(createTestStudent(name = "Alice", className = "A", rate = 10.0))
+        lessonDao.insert(createTestLesson(studentId = studentId, date = "2024-01-01", durationMinutes = 60))
         val lessons = lessonDao.getLessonsByStudentId(studentId, 0).first()
         assertEquals(1, lessons.size)
         assertEquals(studentId, lessons.first().studentId)
@@ -50,8 +50,8 @@ class LessonDaoTest {
 
     @Test
     fun updateLessonPaidStatus() = runBlocking {
-        val studentId = studentDao.insert(Student(name = "Bob", surname = "", parentMobile = "", className = "B", rate = 15.0))
-        val id = lessonDao.insert(Lesson(studentId = studentId, date = "2024-01-02", startTime = "11:00", durationMinutes = 90))
+        val studentId = studentDao.insert(createTestStudent(name = "Bob", className = "B", rate = 15.0))
+        val id = lessonDao.insert(createTestLesson(studentId = studentId, date = "2024-01-02", durationMinutes = 90))
         lessonDao.updatePaidStatus(listOf(id), true, 0)
         val lesson = lessonDao.getLessonById(id, 0).first()
         assertEquals(true, lesson?.isPaid)
@@ -59,8 +59,8 @@ class LessonDaoTest {
 
     @Test
     fun updateLessonInvoicedStatus() = runBlocking {
-        val studentId = studentDao.insert(Student(name = "Cara", surname = "", parentMobile = "", className = "C", rate = 12.0))
-        val id = lessonDao.insert(Lesson(studentId = studentId, date = "2024-01-03", startTime = "12:00", durationMinutes = 60))
+        val studentId = studentDao.insert(createTestStudent(name = "Cara", className = "C", rate = 12.0))
+        val id = lessonDao.insert(createTestLesson(studentId = studentId, date = "2024-01-03", durationMinutes = 60))
         lessonDao.updateInvoicedStatus(listOf(id), true, 0)
         val invoiced = lessonDao.isLessonInvoiced(id, 0).first()
         assertEquals(true, invoiced)
@@ -68,8 +68,8 @@ class LessonDaoTest {
 
     @Test
     fun updatePaidStatusRejectsDifferentUser() = runBlocking {
-        val studentId = studentDao.insert(Student(name = "Dan", surname = "", parentMobile = "", className = "D", rate = 14.0))
-        val id = lessonDao.insert(Lesson(studentId = studentId, date = "2024-01-04", startTime = "13:00", durationMinutes = 60))
+        val studentId = studentDao.insert(createTestStudent(name = "Dan", className = "D", rate = 14.0))
+        val id = lessonDao.insert(createTestLesson(studentId = studentId, date = "2024-01-04", durationMinutes = 60))
         lessonDao.updatePaidStatus(listOf(id), true, 1)
         val lesson = lessonDao.getLessonById(id, 0).first()
         assertEquals(false, lesson?.isPaid)
@@ -77,8 +77,8 @@ class LessonDaoTest {
 
     @Test
     fun updateInvoicedStatusRejectsDifferentUser() = runBlocking {
-        val studentId = studentDao.insert(Student(name = "Eve", surname = "", parentMobile = "", className = "E", rate = 11.0))
-        val id = lessonDao.insert(Lesson(studentId = studentId, date = "2024-01-05", startTime = "14:00", durationMinutes = 60))
+        val studentId = studentDao.insert(createTestStudent(name = "Eve", className = "E", rate = 11.0))
+        val id = lessonDao.insert(createTestLesson(studentId = studentId, date = "2024-01-05", durationMinutes = 60))
         lessonDao.updateInvoicedStatus(listOf(id), true, 1)
         val invoiced = lessonDao.isLessonInvoiced(id, 0).first()
         assertEquals(false, invoiced)

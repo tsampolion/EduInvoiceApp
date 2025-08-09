@@ -3,14 +3,13 @@ package gr.eduinvoice.domain.lesson
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import gr.eduinvoice.data.concurrency.ConcurrencyController
 import gr.eduinvoice.data.database.EduInvoiceDatabase
-import gr.eduinvoice.data.model.GroupStudentCrossRef
-import gr.eduinvoice.data.model.Lesson
-import gr.eduinvoice.data.model.Student
-import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.data.repository.TutorBillingRepository
-import gr.eduinvoice.domain.testinfrastructure.createMockConcurrencyController
+import gr.eduinvoice.test.support.fakes.NoopConcurrencyController
+import gr.eduinvoice.test.support.extensions.createTestStudent
+import gr.eduinvoice.test.support.extensions.createTestLesson
+import gr.eduinvoice.test.support.extensions.createTestGroup
+import gr.eduinvoice.test.support.extensions.createTestCrossRef
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -20,7 +19,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-/** Using shared mock from test infrastructure */
+/** Using new test support infrastructure */
 
 @RunWith(RobolectricTestRunner::class)
 class AddGroupLessonIntegrationTest {
@@ -34,8 +33,8 @@ class AddGroupLessonIntegrationTest {
         db = Room.inMemoryDatabaseBuilder(context, EduInvoiceDatabase::class.java)
             .allowMainThreadQueries()
             .build()
-        val mockConcurrencyController = createMockConcurrencyController()
-        repository = TutorBillingRepository(db.studentDao(), db.lessonDao(), db.groupDao(), mockConcurrencyController)
+        val concurrencyController = NoopConcurrencyController()
+        repository = TutorBillingRepository(db.studentDao(), db.lessonDao(), db.groupDao(), concurrencyController)
     }
 
     @After
@@ -47,16 +46,16 @@ class AddGroupLessonIntegrationTest {
     fun addsLessonForEachStudentInGroup() = runBlocking {
         val userId = 1L
         val s1 = db.studentDao().insert(
-            Student(ownerId = userId, name = "Alice", surname = "", parentMobile = "", className = "", rate = 10.0)
+            createTestStudent(ownerId = userId, name = "Alice", rate = 10.0)
         )
         val s2 = db.studentDao().insert(
-            Student(ownerId = userId, name = "Bob", surname = "", parentMobile = "", className = "", rate = 15.0)
+            createTestStudent(ownerId = userId, name = "Bob", rate = 15.0)
         )
-        val gId = db.groupDao().insertGroup(StudentGroup(ownerId = userId, name = "Group A"))
-        db.groupDao().insertCrossRef(GroupStudentCrossRef(groupId = gId, studentId = s1, ownerId = userId))
-        db.groupDao().insertCrossRef(GroupStudentCrossRef(groupId = gId, studentId = s2, ownerId = userId))
+        val gId = db.groupDao().insertGroup(createTestGroup(ownerId = userId, name = "Group A"))
+        db.groupDao().insertCrossRef(createTestCrossRef(groupId = gId, studentId = s1, ownerId = userId))
+        db.groupDao().insertCrossRef(createTestCrossRef(groupId = gId, studentId = s2, ownerId = userId))
 
-        val lesson = Lesson(ownerId = userId, studentId = 0, date = "2024-01-05", startTime = "10:00", durationMinutes = 60)
+        val lesson = createTestLesson(studentId = 0, ownerId = userId, date = "2024-01-05", durationMinutes = 60)
         val useCase = AddGroupLesson(repository)
         useCase(gId, lesson, userId)
 
@@ -71,15 +70,15 @@ class AddGroupLessonIntegrationTest {
     @Test
     fun returnsIdsForInsertedLessons() = runBlocking {
         val userId = 1L
-        val s1 = db.studentDao().insert(Student(ownerId = userId, name = "Ann", surname = "", parentMobile = "", className = "", rate = 12.0))
-        val s2 = db.studentDao().insert(Student(ownerId = userId, name = "Ben", surname = "", parentMobile = "", className = "", rate = 18.0))
-        val s3 = db.studentDao().insert(Student(ownerId = userId, name = "Cat", surname = "", parentMobile = "", className = "", rate = 20.0))
-        val gId = db.groupDao().insertGroup(StudentGroup(ownerId = userId, name = "Group B"))
-        db.groupDao().insertCrossRef(GroupStudentCrossRef(groupId = gId, studentId = s1, ownerId = userId))
-        db.groupDao().insertCrossRef(GroupStudentCrossRef(groupId = gId, studentId = s2, ownerId = userId))
-        db.groupDao().insertCrossRef(GroupStudentCrossRef(groupId = gId, studentId = s3, ownerId = userId))
+        val s1 = db.studentDao().insert(createTestStudent(ownerId = userId, name = "Ann", rate = 12.0))
+        val s2 = db.studentDao().insert(createTestStudent(ownerId = userId, name = "Ben", rate = 18.0))
+        val s3 = db.studentDao().insert(createTestStudent(ownerId = userId, name = "Cat", rate = 20.0))
+        val gId = db.groupDao().insertGroup(createTestGroup(ownerId = userId, name = "Group B"))
+        db.groupDao().insertCrossRef(createTestCrossRef(groupId = gId, studentId = s1, ownerId = userId))
+        db.groupDao().insertCrossRef(createTestCrossRef(groupId = gId, studentId = s2, ownerId = userId))
+        db.groupDao().insertCrossRef(createTestCrossRef(groupId = gId, studentId = s3, ownerId = userId))
 
-        val lesson = Lesson(ownerId = userId, studentId = 0, date = "2024-02-01", startTime = "09:00", durationMinutes = 90)
+        val lesson = createTestLesson(studentId = 0, ownerId = userId, date = "2024-02-01", durationMinutes = 90)
         val useCase = AddGroupLesson(repository)
         val ids = useCase(gId, lesson, userId)
 
@@ -91,13 +90,13 @@ class AddGroupLessonIntegrationTest {
     @Test
     fun partialFailureRollsBack() = runBlocking {
         val userId = 1L
-        val s1 = db.studentDao().insert(Student(ownerId = userId, name = "Dan", surname = "", parentMobile = "", className = "", rate = 10.0))
-        val s2 = db.studentDao().insert(Student(ownerId = userId, name = "Eve", surname = "", parentMobile = "", className = "", rate = 12.0))
-        val gId = db.groupDao().insertGroup(StudentGroup(ownerId = userId, name = "Group C"))
-        db.groupDao().insertCrossRef(GroupStudentCrossRef(groupId = gId, studentId = s1, ownerId = userId))
-        db.groupDao().insertCrossRef(GroupStudentCrossRef(groupId = gId, studentId = s2, ownerId = userId))
+        val s1 = db.studentDao().insert(createTestStudent(ownerId = userId, name = "Dan", rate = 10.0))
+        val s2 = db.studentDao().insert(createTestStudent(ownerId = userId, name = "Eve", rate = 12.0))
+        val gId = db.groupDao().insertGroup(createTestGroup(ownerId = userId, name = "Group C"))
+        db.groupDao().insertCrossRef(createTestCrossRef(groupId = gId, studentId = s1, ownerId = userId))
+        db.groupDao().insertCrossRef(createTestCrossRef(groupId = gId, studentId = s2, ownerId = userId))
 
-        val lesson = Lesson(id = 1, ownerId = userId, studentId = 0, date = "2024-03-01", startTime = "08:00", durationMinutes = 60)
+        val lesson = createTestLesson(id = 1, studentId = 0, ownerId = userId, date = "2024-03-01", durationMinutes = 60)
         val useCase = AddGroupLesson(repository)
 
         try {
