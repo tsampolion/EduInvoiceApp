@@ -14,6 +14,7 @@ data class DomainLesson(
     val startTime: String, // Store as time string (HH:mm)
     val durationMinutes: Int,
     val notes: String? = null,
+    val defaultRate: Double? = null, // Default hourly rate for this lesson type
     val isPaid: Boolean = false,
     val isInvoiced: Boolean = false,
     val lastModified: Long = System.currentTimeMillis()
@@ -30,6 +31,7 @@ data class DomainLesson(
             startTime: LocalTime,
             durationMinutes: Int,
             notes: String? = null,
+            defaultRate: Double? = null,
             isPaid: Boolean = false,
             isInvoiced: Boolean = false,
             ownerId: Long = 0
@@ -42,6 +44,7 @@ data class DomainLesson(
                 startTime = startTime.toString(),
                 durationMinutes = durationMinutes,
                 notes = notes,
+                defaultRate = defaultRate,
                 isPaid = isPaid,
                 isInvoiced = isInvoiced
             )
