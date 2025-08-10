@@ -8,6 +8,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.compose'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
+    id 'io.gitlab.arturbosch.detekt'
 }
 
 def firebaseKey = ""
@@ -160,6 +161,7 @@ android {
     testImplementation "androidx.arch.core:core-testing:2.2.0"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
     testImplementation "androidx.test.ext:junit:1.1.5"
+    testImplementation "com.lemonappdev.konsist:konsist:0.16.0"
     
     // Test fixtures
     testImplementation(testFixtures(project(":domain")))
@@ -206,5 +208,11 @@ android {
 // Room schema location for ksp
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
+}
+
+// Detekt configuration
+detekt {
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
 }
 

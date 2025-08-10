@@ -1,0 +1,14 @@
+rules:
+  comments:
+    active: true
+  style:
+    ForbiddenImport:
+      active: true
+      imports:
+        - 'gr.eduinvoice.data.model.*'
+        - 'gr.eduinvoice.data.database.*'
+        - 'gr.eduinvoice.data.adapter.*'
+        - 'gr.eduinvoice.data.concurrency.*'
+        - 'gr.eduinvoice.data.repository.*'
+        - 'gr.eduinvoice.data.dao.*'
+        - 'gr.eduinvoice.data.mapper.*'

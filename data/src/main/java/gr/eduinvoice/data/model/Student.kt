@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 
 @Serializable
+internal
 @Entity(tableName = "students")
 data class Student(
     @PrimaryKey(autoGenerate = true)

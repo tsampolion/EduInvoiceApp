@@ -5,7 +5,7 @@ import gr.eduinvoice.data.model.Lesson
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.RateTypes
 
-data class LessonWithStudent(
+internal data class LessonWithStudent(
     @Embedded(prefix = "lesson_") val lesson: Lesson,
     @Embedded(prefix = "student_") val student: Student
 ) {

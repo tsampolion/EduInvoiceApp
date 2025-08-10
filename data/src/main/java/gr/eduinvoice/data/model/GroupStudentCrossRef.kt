@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 import gr.eduinvoice.data.database.DatabaseConstants
 
 @Serializable
+internal
 @Entity(
     tableName = DatabaseConstants.GROUP_STUDENT_CROSS_REF_TABLE,
     primaryKeys = ["groupId", "studentId"],

@@ -151,14 +151,14 @@ fun InvoiceScreen(
                         val rawNumber = System.currentTimeMillis().toString()
                         val invoiceNumber = rawNumber.replace(Regex("[^A-Za-z0-9_-]"), "_")
                         val selectedStudent = students.firstOrNull { it.id == selectedStudentId } ?: return@TextButton
-                        val invoiceData = gr.eduinvoice.utils.DomainInvoiceData(
+                        val invoiceData = gr.eduinvoice.domain.billing.DomainInvoiceData(
                             student = selectedStudent,
-                            lessons = selected
+                            lessons = selected.map { it.lesson }
                         )
                         val outDir = File(context.filesDir, "invoices").apply { mkdirs() }
                         val outFile = File(outDir, "${invoiceNumber}.pdf")
-                        val theme = gr.eduinvoice.utils.PdfThemes.Default
-                        val result = gr.eduinvoice.utils.DomainPdfGenerator(context, theme).generateInvoice(invoiceData, outFile)
+                        val theme = gr.eduinvoice.domain.billing.DomainPdfThemes.Default
+                        val result = gr.eduinvoice.utils.AndroidPdfGenerator(context, theme).generateInvoice(invoiceData, outFile)
                         result.fold(
                             onSuccess = { jUri ->
                                 viewModel.markAsPaid(selected.map { it.lesson.id })
