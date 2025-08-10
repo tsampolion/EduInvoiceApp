@@ -11,7 +11,6 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 @Serializable
-internal
 @Entity(
     tableName = "lessons",
     foreignKeys = [

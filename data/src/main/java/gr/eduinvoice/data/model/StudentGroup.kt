@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 import gr.eduinvoice.data.database.DatabaseConstants
 
 @Serializable
-internal
 @Entity(tableName = DatabaseConstants.GROUPS_TABLE)
 data class StudentGroup(
     @PrimaryKey(autoGenerate = true)

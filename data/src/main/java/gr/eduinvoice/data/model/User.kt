@@ -8,7 +8,6 @@ import kotlinx.serialization.Serializable
 import gr.eduinvoice.data.database.DatabaseConstants
 
 @Serializable
-internal
 @Entity(
     tableName = DatabaseConstants.USERS_TABLE,
     indices = [Index(value = ["username"], unique = true)]

@@ -45,6 +45,7 @@ dependencies {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0"
     testImplementation "org.bouncycastle:bcprov-jdk15on:1.70"
     testImplementation "io.mockk:mockk:1.13.8"
+    testImplementation "com.lemonappdev:konsist:0.16.0"
     
     // Test fixtures
     // TODO: Move to module-local fixtures (Option A)

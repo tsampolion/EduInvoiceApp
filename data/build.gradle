@@ -68,6 +68,7 @@ dependencies {
     testImplementation "io.mockk:mockk:1.13.8"
     testImplementation "androidx.test:runner:1.5.0"
     testImplementation "androidx.test:rules:1.5.0"
+    testImplementation "com.lemonappdev:konsist:0.16.0"
     
     // Test fixtures - temporarily commented out to break circular dependency
     // testImplementation(testFixtures(project(":test-support")))
