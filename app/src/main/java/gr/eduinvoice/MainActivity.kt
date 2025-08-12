@@ -21,7 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.material.navigation.NavigationView
 import android.view.MenuItem
 import android.view.View
-import gr.eduinvoice.data.database.DatabaseInitException
+import gr.eduinvoice.domain.model.DomainException
 import gr.eduinvoice.ui.settings.SettingsViewModel
 import gr.eduinvoice.ui.theme.TutorBillingTheme
 import gr.eduinvoice.ui.components.ErrorBoundary
@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 navController = controller
                 val viewModel: SettingsViewModel = hiltViewModel()
                 val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
-                TutorBillingTheme(darkTheme = uiState.settings.darkTheme) {
+                TutorBillingTheme(darkTheme = uiState.settings?.darkTheme ?: false) {
                     LaunchedEffect(controller) {
                         controller.addOnDestinationChangedListener { _, destination, _ ->
                             // Hide the XML toolbar for all screens since we're using modern Compose AppTopBar
@@ -128,10 +128,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             findViewById<NavigationView>(R.id.navigation_view).setNavigationItemSelectedListener(this)
 
-        } catch (e: DatabaseInitException) {
+        } catch (e: Exception) {
             Log.e("MainActivity", "Database initialization failed", e)
             errorReporter.reportError(e)
-            showDatabaseErrorDialog(e)
+            // Convert to domain exception
+            val domainException = DomainException.ApplicationError("Database initialization failed: ${e.message}", e)
+            showDatabaseErrorDialog(domainException)
         } catch (e: Exception) {
             Log.e("MainActivity", "Unexpected error during initialization", e)
             errorReporter.reportError(e)
@@ -186,7 +188,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Log.d("MainActivity", "Firebase Sessions initialization skipped")
     }
 
-    private fun showDatabaseErrorDialog(error: DatabaseInitException) {
+    private fun showDatabaseErrorDialog(error: DomainException) {
         // Report error to analytics
         errorReporter.reportError(error, "MainActivity_DatabaseInit")
         

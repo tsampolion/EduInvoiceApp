@@ -14,7 +14,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.FileProvider
-import gr.eduinvoice.data.database.LessonWithStudent
+import gr.eduinvoice.ui.model.UiLessonWithStudent
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -41,7 +41,7 @@ object PdfGenerator {
     fun createInvoicePdf(
         context: Context,
         directory: File,
-        lessons: List<LessonWithStudent>,
+        lessons: List<UiLessonWithStudent>,
         invoiceNumber: String,
         colorScheme: ColorScheme,
         typography: Typography,
@@ -148,7 +148,7 @@ object PdfGenerator {
 
     private fun drawInvoiceRows(
         canvas: Canvas,
-        lessons: List<LessonWithStudent>,
+        lessons: List<UiLessonWithStudent>,
         startY: Int,
         width: Int,
         infoPaint: Paint,

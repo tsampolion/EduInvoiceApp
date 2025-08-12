@@ -11,7 +11,7 @@ import gr.eduinvoice.ui.mappers.with
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.testcompat.getFullName
 import gr.eduinvoice.utils.GlobalCache
-import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.domain.user.CurrentUserProvider
 import kotlinx.coroutines.flow.*
 import gr.eduinvoice.ui.components.FilterOptions
 import kotlinx.coroutines.launch

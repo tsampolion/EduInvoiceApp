@@ -7,9 +7,18 @@ import org.junit.Test
 class AppLayerDependenciesTest {
     @Test
     fun `app must not import data layer types`() {
-        // Note: This test is currently disabled as the app module legitimately needs
-        // to import data layer types for UI operations. The detekt rules will catch
-        // any inappropriate imports.
-        assertTrue("Architecture test placeholder", true)
+        val prohibited = listOf(
+            "gr.eduinvoice.data.model",
+            "gr.eduinvoice.data.database"
+        )
+        val files = Konsist.scopeFromProject()
+            .files
+            .filter { it.path.replace('\\','/').contains("/app/") }
+
+        files.forEach { file ->
+            val bad = file.imports.map { it.name }
+                .filter { name -> prohibited.any { name.startsWith(it) } }
+            assertTrue("Forbidden imports in ${file.path}: $bad", bad.isEmpty())
+        }
     }
 }

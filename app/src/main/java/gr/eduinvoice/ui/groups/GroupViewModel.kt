@@ -8,7 +8,7 @@ import gr.eduinvoice.domain.model.DomainStudentGroup
 import gr.eduinvoice.domain.group.GroupUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.model.DomainStudent
-import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.domain.user.CurrentUserProvider
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject

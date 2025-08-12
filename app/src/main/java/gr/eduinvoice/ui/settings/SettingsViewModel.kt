@@ -5,10 +5,10 @@ import androidx.lifecycle.viewModelScope
 import android.util.Log
 import gr.eduinvoice.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.eduinvoice.data.settings.AppSettings
-import gr.eduinvoice.data.settings.SettingsRepository
-import gr.eduinvoice.data.repository.BackupRepository
-import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.domain.settings.AppSettings
+import gr.eduinvoice.domain.settings.SettingsRepository
+import gr.eduinvoice.domain.repository.BackupRepository
+import gr.eduinvoice.domain.user.CurrentUserProvider
 import gr.eduinvoice.domain.user.UserUseCases
 import gr.eduinvoice.domain.model.DomainUser
 import android.database.sqlite.SQLiteException
@@ -35,7 +35,7 @@ class SettingsViewModel @Inject constructor(
 ) : ViewModel() {
 
     data class SettingsUiState(
-        val settings: AppSettings = AppSettings(),
+        val settings: AppSettings? = null,
         val user: DomainUser? = null
     )
 

@@ -68,8 +68,8 @@ fun <T> VirtualScrollingList(
             key = { index, item -> 
                 // Use item hash or id if available, otherwise use index
                 when (item) {
-                    is gr.eduinvoice.data.model.Student -> item.id
-                    is gr.eduinvoice.data.database.LessonWithStudent -> item.lesson.id
+                    is gr.eduinvoice.domain.model.DomainStudent -> item.id
+                    is gr.eduinvoice.ui.model.UiLessonWithStudent -> item.lesson.id
                     else -> index
                 }
             }

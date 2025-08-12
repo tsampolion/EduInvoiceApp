@@ -14,7 +14,7 @@ import gr.eduinvoice.domain.billing.calculateFeeWith
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.model.DomainLesson
-import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.domain.user.CurrentUserProvider
 import gr.eduinvoice.utils.EarningsCalculator
 import gr.eduinvoice.utils.ClassOptions
 import kotlinx.coroutines.Dispatchers

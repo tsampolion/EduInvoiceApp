@@ -6,7 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.eduinvoice.domain.billing.calculateFeeWith
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
-import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.domain.user.CurrentUserProvider
 import kotlinx.coroutines.flow.first
 import gr.eduinvoice.ui.revenue.StudentDebt
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import android.util.Patterns
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import gr.eduinvoice.data.model.RateTypes
+import gr.eduinvoice.domain.model.DomainRateTypes
 import gr.eduinvoice.domain.model.DomainLesson
 import gr.eduinvoice.utils.ClassOptions
 import gr.eduinvoice.ui.design.AppTopBar
@@ -450,7 +450,7 @@ private fun StudentEditForm(
             onExpandedChange = { typeExpanded = !typeExpanded }
         ) {
             OutlinedTextField(
-                value = if (uiState.rateType == RateTypes.HOURLY) "Hourly" else "Per Lesson",
+                value = if (uiState.rateType == DomainRateTypes.HOURLY) "Hourly" else "Per Lesson",
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Billing Method") },
@@ -466,14 +466,14 @@ private fun StudentEditForm(
                 DropdownMenuItem(
                     text = { Text("Hourly") },
                     onClick = {
-                        viewModel.updateRateType(RateTypes.HOURLY)
+                        viewModel.updateRateType(DomainRateTypes.HOURLY)
                         typeExpanded = false
                     }
                 )
                 DropdownMenuItem(
                     text = { Text("Per Lesson") },
                     onClick = {
-                        viewModel.updateRateType(RateTypes.PER_LESSON)
+                        viewModel.updateRateType(DomainRateTypes.PER_LESSON)
                         typeExpanded = false
                     }
                 )
@@ -483,7 +483,7 @@ private fun StudentEditForm(
         OutlinedTextField(
             value = uiState.rate,
             onValueChange = viewModel::updateRate,
-            label = { Text(if (uiState.rateType == RateTypes.HOURLY) "Hourly Rate (€)*" else "Lesson Fee (€)*") },
+            label = { Text(if (uiState.rateType == DomainRateTypes.HOURLY) "Hourly Rate (€)*" else "Lesson Fee (€)*") },
             isError = rateError,
             supportingText = { if (rateError) Text("Required") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),

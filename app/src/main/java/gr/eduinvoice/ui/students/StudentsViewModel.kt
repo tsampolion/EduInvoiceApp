@@ -16,7 +16,7 @@ import gr.eduinvoice.utils.ModernFilterManager
 import gr.eduinvoice.utils.SearchHistoryRepository
 import gr.eduinvoice.ui.components.FilterOptions
 import gr.eduinvoice.utils.GlobalCache
-import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.domain.user.CurrentUserProvider
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject

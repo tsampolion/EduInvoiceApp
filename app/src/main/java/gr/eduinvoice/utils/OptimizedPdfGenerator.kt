@@ -4,8 +4,8 @@ import android.content.Context
 import android.graphics.pdf.PdfDocument
 import android.print.PrintAttributes
 import android.print.pdf.PrintedPdfDocument
-import gr.eduinvoice.data.database.LessonWithStudent
-import gr.eduinvoice.data.model.Student
+import gr.eduinvoice.ui.model.UiLessonWithStudent
+import gr.eduinvoice.domain.model.DomainStudent
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -114,8 +114,8 @@ class OptimizedPdfGenerator(private val context: Context) {
      */
     private suspend fun processLessonsChunk(
         pdfDocument: PdfDocument,
-        lessons: List<LessonWithStudent>,
-        student: Student
+        lessons: List<UiLessonWithStudent>,
+        student: DomainStudent
     ) {
         withContext(Dispatchers.Default) {
             // Process lessons in parallel for better performance
@@ -132,8 +132,8 @@ class OptimizedPdfGenerator(private val context: Context) {
      */
     private fun createLessonPage(
         pdfDocument: PdfDocument,
-        lesson: LessonWithStudent,
-        student: Student
+        lesson: UiLessonWithStudent,
+        student: DomainStudent
     ): PdfDocument.Page {
         val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
         val page = pdfDocument.startPage(pageInfo)
@@ -196,8 +196,8 @@ class OptimizedPdfGenerator(private val context: Context) {
      * Generate summary PDF for multiple lessons
      */
     fun generateSummaryPdfAsync(
-        lessons: List<LessonWithStudent>,
-        student: Student,
+        lessons: List<UiLessonWithStudent>,
+        student: DomainStudent,
         outputFile: File
     ): Job? {
         return generatePdfAsync(
@@ -225,8 +225,8 @@ class OptimizedPdfGenerator(private val context: Context) {
  * Data class for invoice information
  */
 data class InvoiceData(
-    val student: Student,
-    val lessons: List<LessonWithStudent>,
+    val student: DomainStudent,
+    val lessons: List<UiLessonWithStudent>,
     val invoiceDate: LocalDate = LocalDate.now(),
     val invoiceNumber: String = generateInvoiceNumber()
 ) {
@@ -259,8 +259,8 @@ object GlobalPdfGenerator {
     }
     
     fun generateSummaryPdfAsync(
-        lessons: List<LessonWithStudent>,
-        student: Student,
+        lessons: List<UiLessonWithStudent>,
+        student: DomainStudent,
         outputFile: File
     ): Job? {
         return generator?.generateSummaryPdfAsync(lessons, student, outputFile)

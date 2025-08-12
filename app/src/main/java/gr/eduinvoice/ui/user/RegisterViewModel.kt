@@ -6,7 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.eduinvoice.domain.model.DomainUser
 import android.database.sqlite.SQLiteConstraintException
 import gr.eduinvoice.domain.user.UserUseCases
-import gr.eduinvoice.data.user.UserPreferencesRepository
+import gr.eduinvoice.domain.user.UserPreferencesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -51,6 +51,7 @@ fun RevenueScreen(
                 .padding(Dimensions.PaddingMedium),
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
+            settings?.let { safeSettings ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -58,8 +59,8 @@ fun RevenueScreen(
                 MetricCard(
                     label = "Daily",
                     value = uiState.dailyRevenue.formatAsCurrency(
-                        settings.currencySymbol,
-                        settings.roundingDecimals
+                        safeSettings.currencySymbol,
+                        safeSettings.roundingDecimals
                     ),
                     modifier = Modifier.weight(1f),
                     containerColor = AppColors.primaryContainer
@@ -67,8 +68,8 @@ fun RevenueScreen(
                 MetricCard(
                     label = "Weekly",
                     value = uiState.weeklyRevenue.formatAsCurrency(
-                        settings.currencySymbol,
-                        settings.roundingDecimals
+                        safeSettings.currencySymbol,
+                        safeSettings.roundingDecimals
                     ),
                     modifier = Modifier.weight(1f),
                     containerColor = AppColors.successContainer
@@ -76,8 +77,8 @@ fun RevenueScreen(
                 MetricCard(
                     label = "Monthly",
                     value = uiState.monthlyRevenue.formatAsCurrency(
-                        settings.currencySymbol,
-                        settings.roundingDecimals
+                        safeSettings.currencySymbol,
+                        safeSettings.roundingDecimals
                     ),
                     modifier = Modifier.weight(1f),
                     containerColor = AppColors.tertiaryContainer
@@ -91,8 +92,8 @@ fun RevenueScreen(
                 MetricCard(
                     label = "Unpaid",
                     value = uiState.monthlyUnpaid.formatAsCurrency(
-                        settings.currencySymbol,
-                        settings.roundingDecimals
+                        safeSettings.currencySymbol,
+                        safeSettings.roundingDecimals
                     ),
                     modifier = Modifier.weight(1f),
                     containerColor = AppColors.errorContainer
@@ -100,12 +101,13 @@ fun RevenueScreen(
                 MetricCard(
                     label = "Paid",
                     value = uiState.monthlyPaid.formatAsCurrency(
-                        settings.currencySymbol,
-                        settings.roundingDecimals
+                        safeSettings.currencySymbol,
+                        safeSettings.roundingDecimals
                     ),
                     modifier = Modifier.weight(1f),
                     containerColor = AppColors.successContainer
                 )
+            }
             }
 
             Row(

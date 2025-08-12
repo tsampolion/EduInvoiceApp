@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import gr.eduinvoice.R
 import gr.eduinvoice.domain.user.UserUseCases
-import gr.eduinvoice.data.user.UserPreferencesRepository
+import gr.eduinvoice.domain.user.UserPreferencesRepository
 import gr.eduinvoice.utils.ErrorHandler
 import gr.eduinvoice.utils.RetryManager
 import gr.eduinvoice.analytics.ErrorReporter

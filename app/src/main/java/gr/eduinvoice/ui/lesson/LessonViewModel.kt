@@ -11,7 +11,7 @@ import gr.eduinvoice.domain.model.DomainRateTypes
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.group.GroupUseCases
-import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.domain.user.CurrentUserProvider
 import android.database.sqlite.SQLiteException
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

@@ -5,7 +5,7 @@ import gr.eduinvoice.domain.model.DomainStudent
 import gr.eduinvoice.domain.model.DomainStudentGroup
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
-import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.domain.user.CurrentUserProvider
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton

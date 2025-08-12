@@ -3,7 +3,7 @@ package gr.eduinvoice.ui.user
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.eduinvoice.data.user.UserPreferencesRepository
+import gr.eduinvoice.domain.user.UserPreferencesRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map

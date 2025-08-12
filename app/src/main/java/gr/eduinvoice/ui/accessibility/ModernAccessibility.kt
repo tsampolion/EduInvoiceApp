@@ -15,11 +15,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
-import gr.eduinvoice.data.model.Student
+import gr.eduinvoice.domain.model.DomainStudent
 
 @Composable
 fun AccessibleModernCard(
-    student: Student,
+    student: DomainStudent,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {

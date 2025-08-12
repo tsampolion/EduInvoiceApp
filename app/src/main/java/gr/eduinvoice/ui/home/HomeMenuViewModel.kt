@@ -9,7 +9,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import gr.eduinvoice.domain.billing.calculateFeeWith
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
-import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.domain.user.CurrentUserProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
