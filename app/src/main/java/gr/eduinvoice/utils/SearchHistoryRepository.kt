@@ -27,7 +27,7 @@ class SearchHistoryRepository @Inject constructor(
             val current = prefs[KEY_HISTORY]?.split('|')?.toMutableList() ?: mutableListOf()
             current.remove(q)
             current.add(0, q)
-            while (current.size > maxHistory) current.removeLast()
+            while (current.size > maxHistory) current.removeAt(current.size - 1)
             prefs[KEY_HISTORY] = current.joinToString("|")
         }
     }

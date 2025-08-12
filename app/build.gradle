@@ -216,6 +216,7 @@ ksp {
 detekt {
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
     buildUponDefaultConfig = true
+    baseline = file("$rootDir/config/detekt/detekt-baseline.xml")
 }
 
 // Spotless configuration
