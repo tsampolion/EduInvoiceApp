@@ -9,7 +9,7 @@ import javax.inject.Singleton
 
 /**
  * Simplified background processor for heavy operations
- * 
+ *
  * This implementation avoids complex type inference issues by using simple function types
  * and provides a clean API for executing background tasks with progress tracking.
  */
@@ -21,7 +21,7 @@ class BackgroundProcessor @Inject constructor() {
 
     /**
      * Execute a background task with progress tracking
-     * 
+     *
      * @param task The suspend function to execute in the background
      * @param onComplete Optional callback when task completes successfully
      * @param onError Optional callback when task fails
@@ -33,7 +33,7 @@ class BackgroundProcessor @Inject constructor() {
         onError: (Throwable) -> Unit = {}
     ): Job {
         _isProcessing.value = true
-        
+
         return coroutineScope.launch {
             try {
                 task()
@@ -48,7 +48,7 @@ class BackgroundProcessor @Inject constructor() {
 
     /**
      * Execute a background task that returns a result
-     * 
+     *
      * @param task The suspend function to execute in the background
      * @param onComplete Callback with the result when task completes successfully
      * @param onError Optional callback when task fails
@@ -60,7 +60,7 @@ class BackgroundProcessor @Inject constructor() {
         onError: (Throwable) -> Unit = {}
     ): Job {
         _isProcessing.value = true
-        
+
         return coroutineScope.launch {
             try {
                 val result = task()
@@ -75,7 +75,7 @@ class BackgroundProcessor @Inject constructor() {
 
     /**
      * Execute a task with progress updates
-     * 
+     *
      * @param task The suspend function that accepts a progress callback
      * @param onProgress Callback for progress updates (0.0 to 1.0)
      * @param onComplete Optional callback when task completes successfully
@@ -89,7 +89,7 @@ class BackgroundProcessor @Inject constructor() {
         onError: (Throwable) -> Unit = {}
     ): Job {
         _isProcessing.value = true
-        
+
         return coroutineScope.launch {
             try {
                 task { progress ->
@@ -127,25 +127,25 @@ class BackgroundProcessor @Inject constructor() {
 
 /**
  * Global background processor instance for easy access
- * 
+ *
  * This provides a convenient way to access background processing capabilities
  * throughout the application without dependency injection.
  */
 object GlobalBackgroundProcessor {
     private var processor: BackgroundProcessor? = null
-    
+
     /**
      * Initialize the global background processor
-     * 
+     *
      * @param backgroundProcessor The BackgroundProcessor instance to use
      */
     fun initialize(backgroundProcessor: BackgroundProcessor) {
         processor = backgroundProcessor
     }
-    
+
     /**
      * Execute a background task
-     * 
+     *
      * @param task The suspend function to execute in the background
      * @param onComplete Optional callback when task completes successfully
      * @param onError Optional callback when task fails
@@ -158,10 +158,10 @@ object GlobalBackgroundProcessor {
     ): Job? {
         return processor?.executeTask(task, onComplete, onError)
     }
-    
+
     /**
      * Execute a background task that returns a result
-     * 
+     *
      * @param task The suspend function to execute in the background
      * @param onComplete Callback with the result when task completes successfully
      * @param onError Optional callback when task fails
@@ -174,10 +174,10 @@ object GlobalBackgroundProcessor {
     ): Job? {
         return processor?.executeTaskWithResult(task, onComplete, onError)
     }
-    
+
     /**
      * Execute a task with progress updates
-     * 
+     *
      * @param task The suspend function that accepts a progress callback
      * @param onProgress Callback for progress updates (0.0 to 1.0)
      * @param onComplete Optional callback when task completes successfully
@@ -192,28 +192,28 @@ object GlobalBackgroundProcessor {
     ): Job? {
         return processor?.executeTaskWithProgress(task, onProgress, onComplete, onError)
     }
-    
+
     /**
      * Check if any background task is currently processing
-     * 
+     *
      * @return true if processing, false otherwise
      */
     fun isProcessing(): Boolean = processor?.isCurrentlyProcessing() ?: false
-    
+
     /**
      * Get the processing state flow
-     * 
+     *
      * @return StateFlow<Boolean> indicating processing state, or null if not initialized
      */
     fun getProcessingState(): StateFlow<Boolean>? = processor?.isProcessing
-    
+
     /**
      * Cancel all background tasks
      */
     fun cancelAll() {
         processor?.cancelAll()
     }
-    
+
     /**
      * Clean up resources
      */
@@ -221,4 +221,4 @@ object GlobalBackgroundProcessor {
         processor?.cleanup()
         processor = null
     }
-} 
+}

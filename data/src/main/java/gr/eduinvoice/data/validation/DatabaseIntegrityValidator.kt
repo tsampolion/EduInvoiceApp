@@ -15,11 +15,11 @@ import javax.inject.Singleton
 class DatabaseIntegrityValidator @Inject constructor(
     private val database: EduInvoiceDatabase
 ) {
-    
+
     companion object {
         private const val TAG = "DatabaseIntegrityValidator"
     }
-    
+
     /**
      * Validation result with detailed information
      */
@@ -29,7 +29,7 @@ class DatabaseIntegrityValidator @Inject constructor(
         val warnings: List<ValidationWarning>,
         val repairActions: List<RepairAction>
     )
-    
+
     /**
      * Repair result with operation details
      */
@@ -39,7 +39,7 @@ class DatabaseIntegrityValidator @Inject constructor(
         val failedRepairs: List<String>,
         val dataLoss: Boolean
     )
-    
+
     /**
      * Types of validation errors
      */
@@ -51,7 +51,7 @@ class DatabaseIntegrityValidator @Inject constructor(
         object ConstraintViolation : ValidationError()
         data class CustomError(val message: String) : ValidationError()
     }
-    
+
     /**
      * Types of validation warnings
      */
@@ -61,7 +61,7 @@ class DatabaseIntegrityValidator @Inject constructor(
         object UnusedData : ValidationWarning()
         data class CustomWarning(val message: String) : ValidationWarning()
     }
-    
+
     /**
      * Types of repair actions
      */
@@ -72,7 +72,7 @@ class DatabaseIntegrityValidator @Inject constructor(
         object UpdateConstraints : RepairAction()
         data class CustomRepair(val description: String) : RepairAction()
     }
-    
+
     /**
      * Validate all tables and data integrity
      */
@@ -80,27 +80,27 @@ class DatabaseIntegrityValidator @Inject constructor(
         val errors = mutableListOf<ValidationError>()
         val warnings = mutableListOf<ValidationWarning>()
         val repairActions = mutableListOf<RepairAction>()
-        
+
         try {
             val db = database.openHelper.writableDatabase
-            
+
             // Validate table structure
             validateTableStructure(db, errors, warnings, repairActions)
-            
+
             // Validate data integrity
             validateDataIntegrity(db, errors, warnings, repairActions)
-            
+
             // Validate constraints
             validateConstraints(db, errors, warnings, repairActions)
-            
+
             // Validate relationships
             validateRelationships(db, errors, warnings, repairActions)
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Validation failed", e)
             errors.add(ValidationError.CustomError("Database access failed: ${e.message}"))
         }
-        
+
         return ValidationResult(
             isValid = errors.isEmpty(),
             errors = errors,
@@ -108,7 +108,7 @@ class DatabaseIntegrityValidator @Inject constructor(
             repairActions = repairActions
         )
     }
-    
+
     /**
      * Repair corrupted data based on validation results
      */
@@ -116,13 +116,13 @@ class DatabaseIntegrityValidator @Inject constructor(
         val repairedIssues = mutableListOf<String>()
         val failedRepairs = mutableListOf<String>()
         var dataLoss = false
-        
+
         try {
             val db = database.openHelper.writableDatabase
-            
+
             // Start transaction for atomic repairs
             db.beginTransaction()
-            
+
             try {
                 // Repair orphaned records
                 val orphanedRepairResult = repairOrphanedRecords(db)
@@ -131,7 +131,7 @@ class DatabaseIntegrityValidator @Inject constructor(
                 } else {
                     failedRepairs.add("Failed to repair orphaned records")
                 }
-                
+
                 // Repair invalid data
                 val invalidDataRepairResult = repairInvalidData(db)
                 if (invalidDataRepairResult.success) {
@@ -139,7 +139,7 @@ class DatabaseIntegrityValidator @Inject constructor(
                 } else {
                     failedRepairs.add("Failed to repair invalid data")
                 }
-                
+
                 // Repair constraint violations
                 val constraintRepairResult = repairConstraintViolations(db)
                 if (constraintRepairResult.success) {
@@ -147,10 +147,10 @@ class DatabaseIntegrityValidator @Inject constructor(
                 } else {
                     failedRepairs.add("Failed to repair constraint violations")
                 }
-                
+
                 // Commit transaction
                 db.setTransactionSuccessful()
-                
+
             } catch (e: Exception) {
                 Log.e(TAG, "Repair operation failed", e)
                 failedRepairs.add("Repair operation failed: ${e.message}")
@@ -158,12 +158,12 @@ class DatabaseIntegrityValidator @Inject constructor(
             } finally {
                 db.endTransaction()
             }
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Database repair failed", e)
             failedRepairs.add("Database access failed: ${e.message}")
         }
-        
+
         return RepairResult(
             success = failedRepairs.isEmpty(),
             repairedIssues = repairedIssues,
@@ -171,7 +171,7 @@ class DatabaseIntegrityValidator @Inject constructor(
             dataLoss = dataLoss
         )
     }
-    
+
                 /**
              * Validate table structure
              */
@@ -188,7 +188,7 @@ class DatabaseIntegrityValidator @Inject constructor(
                     DatabaseConstants.GROUP_STUDENT_CROSS_REF_TABLE,
                     DatabaseConstants.USERS_TABLE
                 )
-                
+
                 for (table in requiredTables) {
                     try {
                         val cursor = db.query("SELECT name FROM sqlite_master WHERE type='table' AND name=?", arrayOf(table))
@@ -206,7 +206,7 @@ class DatabaseIntegrityValidator @Inject constructor(
                     }
                 }
             }
-    
+
                 /**
              * Validate data integrity
              */
@@ -222,7 +222,7 @@ class DatabaseIntegrityValidator @Inject constructor(
                         SELECT COUNT(*) FROM ${DatabaseConstants.LESSONS_TABLE}
                         WHERE date IS NULL OR date = '' OR date = '0000-00-00'
                     """.trimIndent())
-                    
+
                     invalidDates.use { cursor ->
                         if (cursor.moveToFirst() && cursor.getInt(0) > 0) {
                             errors.add(ValidationError.InvalidData)
@@ -233,14 +233,14 @@ class DatabaseIntegrityValidator @Inject constructor(
                 } catch (e: Exception) {
                     Log.e(TAG, "Date validation failed", e)
                 }
-                
+
                 // Check for students with invalid rates
                 try {
                     val invalidRates = db.query("""
                         SELECT COUNT(*) FROM ${DatabaseConstants.STUDENTS_TABLE}
                         WHERE rate IS NULL OR rate = '' OR CAST(rate AS REAL) <= 0
                     """.trimIndent())
-                    
+
                     invalidRates.use { cursor ->
                         if (cursor.moveToFirst() && cursor.getInt(0) > 0) {
                             warnings.add(ValidationWarning.DataInconsistency)
@@ -252,7 +252,7 @@ class DatabaseIntegrityValidator @Inject constructor(
                     Log.e(TAG, "Rate validation failed", e)
                 }
             }
-    
+
                 /**
              * Validate constraints
              */
@@ -265,12 +265,12 @@ class DatabaseIntegrityValidator @Inject constructor(
                 // Check for duplicate primary keys
                 try {
                     val duplicateStudents = db.query("""
-                        SELECT id, COUNT(*) as count 
-                        FROM ${DatabaseConstants.STUDENTS_TABLE} 
-                        GROUP BY id 
+                        SELECT id, COUNT(*) as count
+                        FROM ${DatabaseConstants.STUDENTS_TABLE}
+                        GROUP BY id
                         HAVING count > 1
                     """.trimIndent())
-                    
+
                     duplicateStudents.use { cursor ->
                         if (cursor.count > 0) {
                             errors.add(ValidationError.ConstraintViolation)
@@ -282,7 +282,7 @@ class DatabaseIntegrityValidator @Inject constructor(
                     Log.e(TAG, "Constraint validation failed", e)
                 }
             }
-    
+
                 /**
              * Validate relationships
              */
@@ -300,7 +300,7 @@ class DatabaseIntegrityValidator @Inject constructor(
                         LEFT JOIN ${DatabaseConstants.STUDENTS_TABLE} s ON gscr.studentId = s.id
                         WHERE g.id IS NULL OR s.id IS NULL
                     """.trimIndent())
-                    
+
                     orphanedRefs.use { cursor ->
                         if (cursor.moveToFirst() && cursor.getInt(0) > 0) {
                             errors.add(ValidationError.OrphanedRecords)
@@ -311,17 +311,17 @@ class DatabaseIntegrityValidator @Inject constructor(
                 } catch (e: Exception) {
                     Log.e(TAG, "Relationship validation failed", e)
                 }
-                
+
                 // Check for orphaned lessons
                 try {
                     val orphanedLessons = db.query("""
                         SELECT COUNT(*) FROM ${DatabaseConstants.LESSONS_TABLE} l
                         LEFT JOIN ${DatabaseConstants.STUDENTS_TABLE} s ON l.studentId = s.id
                         LEFT JOIN ${DatabaseConstants.GROUPS_TABLE} g ON l.groupId = g.id
-                        WHERE (l.studentId IS NOT NULL AND s.id IS NULL) 
+                        WHERE (l.studentId IS NOT NULL AND s.id IS NULL)
                            OR (l.groupId IS NOT NULL AND g.id IS NULL)
                     """.trimIndent())
-                    
+
                     orphanedLessons.use { cursor ->
                         if (cursor.moveToFirst() && cursor.getInt(0) > 0) {
                             errors.add(ValidationError.OrphanedRecords)
@@ -333,14 +333,14 @@ class DatabaseIntegrityValidator @Inject constructor(
                     Log.e(TAG, "Lesson relationship validation failed", e)
                 }
             }
-    
+
                 /**
              * Repair orphaned records
              */
             private fun repairOrphanedRecords(db: androidx.sqlite.db.SupportSQLiteDatabase): RepairResult {
         val repairedIssues = mutableListOf<String>()
         val failedRepairs = mutableListOf<String>()
-        
+
         try {
             // Delete orphaned group-student references
             val orphanedRefsDeleted = db.delete(
@@ -351,12 +351,12 @@ class DatabaseIntegrityValidator @Inject constructor(
                 """.trimIndent(),
                 null
             )
-            
+
             if (orphanedRefsDeleted > 0) {
                 repairedIssues.add("Deleted $orphanedRefsDeleted orphaned group-student references")
                 Log.i(TAG, "Deleted $orphanedRefsDeleted orphaned group-student references")
             }
-            
+
             // Delete orphaned lessons
             val orphanedLessonsDeleted = db.delete(
                 DatabaseConstants.LESSONS_TABLE,
@@ -366,17 +366,17 @@ class DatabaseIntegrityValidator @Inject constructor(
                 """.trimIndent(),
                 null
             )
-            
+
             if (orphanedLessonsDeleted > 0) {
                 repairedIssues.add("Deleted $orphanedLessonsDeleted orphaned lessons")
                 Log.i(TAG, "Deleted $orphanedLessonsDeleted orphaned lessons")
             }
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Failed to repair orphaned records", e)
             failedRepairs.add("Orphaned records repair failed: ${e.message}")
         }
-        
+
         return RepairResult(
             success = failedRepairs.isEmpty(),
             repairedIssues = repairedIssues,
@@ -384,49 +384,49 @@ class DatabaseIntegrityValidator @Inject constructor(
             dataLoss = false
         )
     }
-    
+
                 /**
              * Repair invalid data
              */
             private fun repairInvalidData(db: androidx.sqlite.db.SupportSQLiteDatabase): RepairResult {
         val repairedIssues = mutableListOf<String>()
         val failedRepairs = mutableListOf<String>()
-        
+
         try {
             // For now, we'll just log the issues instead of attempting repairs
             // In a production environment, you would implement proper repair logic
-            
+
             // Check for lessons with invalid dates
             val invalidDates = db.query("""
                 SELECT COUNT(*) FROM ${DatabaseConstants.LESSONS_TABLE}
                 WHERE date IS NULL OR date = '' OR date = '0000-00-00'
             """.trimIndent())
-            
+
             invalidDates.use { cursor ->
                 if (cursor.moveToFirst() && cursor.getInt(0) > 0) {
                     repairedIssues.add("Found ${cursor.getInt(0)} lessons with invalid dates (repair not implemented)")
                     Log.i(TAG, "Found ${cursor.getInt(0)} lessons with invalid dates")
                 }
             }
-            
+
             // Check for students with invalid rates
             val invalidRates = db.query("""
                 SELECT COUNT(*) FROM ${DatabaseConstants.STUDENTS_TABLE}
                 WHERE rate IS NULL OR rate = '' OR CAST(rate AS REAL) <= 0
             """.trimIndent())
-            
+
             invalidRates.use { cursor ->
                 if (cursor.moveToFirst() && cursor.getInt(0) > 0) {
                     repairedIssues.add("Found ${cursor.getInt(0)} students with invalid rates (repair not implemented)")
                     Log.i(TAG, "Found ${cursor.getInt(0)} students with invalid rates")
                 }
             }
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Failed to check invalid data", e)
             failedRepairs.add("Invalid data check failed: ${e.message}")
         }
-        
+
         return RepairResult(
             success = failedRepairs.isEmpty(),
             repairedIssues = repairedIssues,
@@ -434,39 +434,39 @@ class DatabaseIntegrityValidator @Inject constructor(
             dataLoss = false
         )
     }
-    
+
                 /**
              * Repair constraint violations
              */
             private fun repairConstraintViolations(db: androidx.sqlite.db.SupportSQLiteDatabase): RepairResult {
         val repairedIssues = mutableListOf<String>()
         val failedRepairs = mutableListOf<String>()
-        
+
         try {
             // Handle duplicate primary keys by keeping the first occurrence
             // This is a simplified approach - in production, you might want more sophisticated logic
-            
+
             // For constraint violations, we'll use a different approach
             // Since we can't use DELETE in a query, we'll just log the issue
             val duplicateStudents = db.query("""
-                SELECT id, COUNT(*) as count 
-                FROM ${DatabaseConstants.STUDENTS_TABLE} 
-                GROUP BY id 
+                SELECT id, COUNT(*) as count
+                FROM ${DatabaseConstants.STUDENTS_TABLE}
+                GROUP BY id
                 HAVING count > 1
             """.trimIndent())
-            
+
             duplicateStudents.use { cursor ->
                 if (cursor.count > 0) {
                     repairedIssues.add("Removed duplicate student records")
                     Log.i(TAG, "Removed duplicate student records")
                 }
             }
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Failed to repair constraint violations", e)
             failedRepairs.add("Constraint violation repair failed: ${e.message}")
         }
-        
+
         return RepairResult(
             success = failedRepairs.isEmpty(),
             repairedIssues = repairedIssues,
@@ -474,20 +474,20 @@ class DatabaseIntegrityValidator @Inject constructor(
             dataLoss = false
         )
     }
-    
+
                 /**
              * Get database statistics
              */
             fun getDatabaseStatistics(): DatabaseStatistics {
                 return try {
                     val db = database.openHelper.readableDatabase
-                    
+
                     val studentCount = getTableCount(db, DatabaseConstants.STUDENTS_TABLE)
                     val lessonCount = getTableCount(db, DatabaseConstants.LESSONS_TABLE)
                     val groupCount = getTableCount(db, DatabaseConstants.GROUPS_TABLE)
                     val userCount = getTableCount(db, DatabaseConstants.USERS_TABLE)
                     val refCount = getTableCount(db, DatabaseConstants.GROUP_STUDENT_CROSS_REF_TABLE)
-                    
+
                     DatabaseStatistics(
                         studentCount = studentCount,
                         lessonCount = lessonCount,
@@ -501,7 +501,7 @@ class DatabaseIntegrityValidator @Inject constructor(
                     DatabaseStatistics(0, 0, 0, 0, 0, 0)
                 }
             }
-            
+
             /**
              * Get count for a specific table
              */
@@ -520,7 +520,7 @@ class DatabaseIntegrityValidator @Inject constructor(
                     0
                 }
             }
-    
+
     /**
      * Database statistics
      */
@@ -532,4 +532,4 @@ class DatabaseIntegrityValidator @Inject constructor(
         val crossReferenceCount: Int,
         val totalRecords: Int
     )
-} 
+}

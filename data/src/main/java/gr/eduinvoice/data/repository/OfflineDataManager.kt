@@ -27,10 +27,10 @@ class OfflineDataManager @Inject constructor(
     private val prefs: SharedPreferences = context.getSharedPreferences(
         "offline_data", Context.MODE_PRIVATE
     )
-    
+
     private val offlineDir = File(context.filesDir, "offline")
     private val pendingOperations = ConcurrentHashMap<String, PendingOperation>()
-    
+
     init {
         offlineDir.mkdirs()
     }
@@ -43,12 +43,12 @@ class OfflineDataManager @Inject constructor(
             val json = gson.toJson(data)
             val file = File(offlineDir, "${type}_${id}.json")
             file.writeText(json)
-            
+
             // Update metadata
             val metadata = getOfflineMetadata()
             metadata[type] = metadata[type]?.toMutableSet()?.apply { add(id) } ?: mutableSetOf(id)
             saveOfflineMetadata(metadata)
-            
+
             true
         } catch (e: Exception) {
             false
@@ -62,7 +62,7 @@ class OfflineDataManager @Inject constructor(
         try {
             val file = File(offlineDir, "${type}_${id}.json")
             if (!file.exists()) return@withContext null
-            
+
             val json = file.readText()
             when (type) {
                 "student" -> gson.fromJson(json, Student::class.java)
@@ -82,7 +82,7 @@ class OfflineDataManager @Inject constructor(
         try {
             val metadata = getOfflineMetadata()
             val ids = metadata[type] ?: return@withContext emptyList()
-            
+
             ids.mapNotNull { id ->
                 getOfflineData(type, id)
             }
@@ -104,12 +104,12 @@ class OfflineDataManager @Inject constructor(
                 // Clear specific type
                 val metadata = getOfflineMetadata()
                 val ids = metadata[type] ?: return@withContext true
-                
+
                 ids.forEach { id ->
                     val file = File(offlineDir, "${type}_${id}.json")
                     file.delete()
                 }
-                
+
                 metadata.remove(type)
                 saveOfflineMetadata(metadata)
             }
@@ -126,12 +126,12 @@ class OfflineDataManager @Inject constructor(
         try {
             val key = "${operation.type}_${operation.id}_${operation.operationType}"
             pendingOperations[key] = operation
-            
+
             // Save to persistent storage
             val operations = getPendingOperations().toMutableList()
             operations.add(operation)
             savePendingOperations(operations)
-            
+
             true
         } catch (e: Exception) {
             false
@@ -158,11 +158,11 @@ class OfflineDataManager @Inject constructor(
         try {
             val key = "${operation.type}_${operation.id}_${operation.operationType}"
             pendingOperations.remove(key)
-            
+
             val operations = getPendingOperations().toMutableList()
             operations.removeAll { it == operation }
             savePendingOperations(operations)
-            
+
             true
         } catch (e: Exception) {
             false
@@ -267,4 +267,4 @@ data class PendingOperation(
         UPDATE,
         DELETE
     }
-} 
+}

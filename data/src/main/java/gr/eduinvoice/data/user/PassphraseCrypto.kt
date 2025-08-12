@@ -30,7 +30,7 @@ private fun getSecretKey(): SecretKey {
     return try {
         val existing = keyStore.getKey(KEY_ALIAS, null) as? SecretKey
         if (existing != null) return existing
-        
+
         // Try to create a new key with more robust error handling
         try {
             // First try with AndroidKeyStore if available

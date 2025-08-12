@@ -13,26 +13,26 @@ import javax.inject.Singleton
 class DomainUserRepositoryAdapter @Inject constructor(
     private val userRepository: UserRepository
 ) : DomainUserRepository {
-    
+
     override suspend fun createUser(user: DomainUser): Long =
         userRepository.createUser(user.toDataModel())
-    
+
     override suspend fun authenticateUser(username: String, password: String): DomainUser? =
         userRepository.authenticate(username, password)?.toDomainModel()
-    
+
     override fun getUserProfile(userId: Long): Flow<DomainUser?> =
         userRepository.getUserById(userId).map { it?.toDomainModel() }
-    
+
     override suspend fun updateUser(user: DomainUser) =
         userRepository.updateUser(user.toDataModel())
-    
+
     override suspend fun resetPassword(
         username: String,
         fullName: String,
         code: String,
         newPassword: String
     ): Boolean = userRepository.resetPassword(username, fullName, code, newPassword)
-    
+
     private fun DomainUser.toDataModel(): User = User(
         id = id,
         username = username,
@@ -41,7 +41,7 @@ class DomainUserRepositoryAdapter @Inject constructor(
         subjectSpecialty = subjectSpecialty,
         yearsExperience = yearsExperience
     )
-    
+
     private fun User.toDomainModel(): DomainUser = DomainUser(
         id = id,
         username = username,

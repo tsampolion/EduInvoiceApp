@@ -11,7 +11,7 @@ import javax.inject.Inject
 class DataAppSettings @Inject constructor(
     private val dataAppSettings: DataAppSettings
 ) : AppSettings {
-    
+
     override val darkTheme: Boolean = dataAppSettings.darkTheme
     override val currencySymbol: String = dataAppSettings.currencySymbol
     override val roundingDecimals: Int = dataAppSettings.roundingDecimals

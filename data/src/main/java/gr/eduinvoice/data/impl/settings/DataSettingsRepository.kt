@@ -18,7 +18,7 @@ import javax.inject.Singleton
 class DataSettingsRepository @Inject constructor(
     private val dataSettingsRepository: DataSettingsRepository
 ) : SettingsRepository {
-    
+
     override val settings: Flow<AppSettings> = dataSettingsRepository.settings.map { dataSettings ->
         DomainDataAppSettings(dataSettings)
     }

@@ -48,11 +48,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private lateinit var drawerLayout: DrawerLayout
     private var navController: NavHostController? = null
-    
+
     // Error handling components
     private lateinit var errorHandler: ErrorHandler
     private lateinit var errorReporter: ErrorReporter
-    
+
     // Background processing
     private lateinit var backgroundProcessor: BackgroundProcessor
 
@@ -62,26 +62,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         // Configure StrictMode to allow network operations on background threads
         configureStrictMode()
-        
+
         // Initialize error handling components
         errorHandler = ErrorHandler(this)
         errorReporter = ErrorReporter(this)
-        
+
         // Initialize background processor
         backgroundProcessor = BackgroundProcessor()
         GlobalBackgroundProcessor.initialize(backgroundProcessor)
-        
+
         // Initialize global PDF generator
         GlobalPdfGenerator.initialize(this)
-        
+
         // Initialize Firebase Sessions on background thread to avoid StrictMode violations
         initializeFirebaseSessions()
-        
+
         setContentView(R.layout.activity_main)
-        
+
         try {
             // Note: We're not using the XML toolbar anymore since we use modern Compose AppTopBar
             // The toolbar is kept in the layout for potential future use but is hidden
@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             toolbar.visibility = View.GONE
                         }
                     }
-                    
+
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
@@ -140,7 +140,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             showFatalErrorDialog(e)
         }
     }
-    
+
     private fun configureStrictMode() {
         if (BuildConfig.DEBUG) {
             // In debug mode, configure StrictMode to be more lenient for development
@@ -152,7 +152,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     .penaltyLog() // Only log violations, don't crash
                     .build()
             )
-            
+
             StrictMode.setVmPolicy(
                 StrictMode.VmPolicy.Builder()
                     .detectLeakedSqlLiteObjects()
@@ -171,7 +171,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     .penaltyLog()
                     .build()
             )
-            
+
             StrictMode.setVmPolicy(
                 StrictMode.VmPolicy.Builder()
                     .detectLeakedSqlLiteObjects()
@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             )
         }
     }
-    
+
     private fun initializeFirebaseSessions() {
         // Firebase Sessions initialization temporarily disabled due to API changes
         Log.d("MainActivity", "Firebase Sessions initialization skipped")
@@ -191,10 +191,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun showDatabaseErrorDialog(error: DomainException) {
         // Report error to analytics
         errorReporter.reportError(error, "MainActivity_DatabaseInit")
-        
+
         // Handle with error handler for user-friendly message
         val errorResult = errorHandler.handleError(error, "Database Initialization")
-        
+
         // Show enhanced error dialog
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.error_occurred))
@@ -203,14 +203,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             .setOnDismissListener { finish() }
             .show()
     }
-    
+
     private fun showFatalErrorDialog(error: Exception) {
         // Report error to analytics
         errorReporter.reportError(error, "MainActivity_Unexpected")
-        
+
         // Handle with error handler for user-friendly message
         val errorResult = errorHandler.handleError(error, "App Initialization")
-        
+
         // Show enhanced error dialog
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.error_occurred))
@@ -227,7 +227,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             drawerLayout.closeDrawer(GravityCompat.START)
             return true
         }
-        
+
         when (item.itemId) {
             R.id.nav_home -> controller.navigate(Screen.Home.route)
             R.id.nav_students -> controller.navigate(Screen.Students.route)

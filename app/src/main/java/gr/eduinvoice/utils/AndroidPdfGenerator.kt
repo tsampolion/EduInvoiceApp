@@ -16,7 +16,7 @@ class AndroidPdfGenerator(
     private val context: Context,
     private val theme: DomainPdfTheme
 ) : DomainPdfGenerator {
-    
+
     override fun generateInvoice(
         invoiceData: DomainInvoiceData,
         outputFile: File
@@ -28,7 +28,7 @@ class AndroidPdfGenerator(
             val canvas = page.canvas
 
             val components = AndroidPdfComponents(theme)
-            
+
             // Header
             components.drawHeader(
                 canvas,
@@ -51,7 +51,7 @@ class AndroidPdfGenerator(
             pdf.finishPage(page)
             FileOutputStream(outputFile).use { out -> pdf.writeTo(out) }
             pdf.close()
-            
+
             Result.success(outputFile.absolutePath)
         } catch (e: Exception) {
             Result.failure(e)

@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 /**
  * Manages database transactions with proper concurrency control and rollback mechanisms
- * 
+ *
  * Features:
  * - Transaction isolation levels
  * - Automatic rollback on failure
@@ -28,16 +28,16 @@ class TransactionManager @Inject constructor(
     private val database: EduInvoiceDatabase
 ) {
     private val TAG = "TransactionManager"
-    
+
     // Transaction tracking
     private val activeTransactions = mutableMapOf<String, TransactionInfo>()
     private val transactionCounter = AtomicLong(0)
     private val transactionMutex = Mutex()
-    
+
     // Statistics
     private val _transactionStats = MutableStateFlow(TransactionStats())
     val transactionStats: StateFlow<TransactionStats> = _transactionStats.asStateFlow()
-    
+
     /**
      * Executes a database operation within a transaction
      */
@@ -49,7 +49,7 @@ class TransactionManager @Inject constructor(
     ): Result<T> = withContext(Dispatchers.IO) {
         val transactionId = generateTransactionId()
         val startTime = System.currentTimeMillis()
-        
+
         try {
             // Acquire transaction lock
             transactionMutex.withLock {
@@ -57,7 +57,7 @@ class TransactionManager @Inject constructor(
                 if (activeTransactions.isNotEmpty()) {
                     checkForDeadlocks(transactionId)
                 }
-                
+
                 // Register transaction
                 val transactionInfo = TransactionInfo(
                     id = transactionId,
@@ -67,37 +67,37 @@ class TransactionManager @Inject constructor(
                     status = TransactionStatus.ACTIVE
                 )
                 activeTransactions[transactionId] = transactionInfo
-                
+
                 Log.d(TAG, "Starting transaction: $transactionId ($transactionName)")
             }
-            
+
             // Execute with retry logic
             var lastError: Throwable? = null
             repeat(maxRetries + 1) { attempt ->
                 try {
                     // Begin transaction
                     val result = operation()
-                    
+
                     Log.d(TAG, "Transaction $transactionId committed successfully")
                     return@withContext Result.success(result as T)
                 } catch (error: Throwable) {
                     lastError = error
-                    
+
                     Log.e(TAG, "Transaction $transactionId failed (attempt ${attempt + 1}): ${error.message}")
-                    
+
                     if (attempt == maxRetries) {
                         // Final failure - perform rollback
                         performRollback(transactionId, error)
                         return@withContext Result.failure(error)
                     }
-                    
+
                     // Wait before retry
                     delay(calculateRetryDelay(attempt))
                 }
             }
-            
+
             Result.failure(lastError ?: Exception("Transaction failed after $maxRetries retries"))
-            
+
         } catch (error: Throwable) {
             Log.e(TAG, "Transaction $transactionId failed with error: ${error.message}")
             updateTransactionStatus(transactionId, TransactionStatus.FAILED)
@@ -107,7 +107,7 @@ class TransactionManager @Inject constructor(
             cleanupTransaction(transactionId, startTime)
         }
     }
-    
+
     /**
      * Executes multiple operations in a single transaction
      */
@@ -124,7 +124,7 @@ class TransactionManager @Inject constructor(
         transactionName = transactionName,
         isolationLevel = isolationLevel
     )
-    
+
     /**
      * Executes operations with read-only transaction
      */
@@ -134,7 +134,7 @@ class TransactionManager @Inject constructor(
     ): Result<T> = withContext(Dispatchers.IO) {
         val transactionId = generateTransactionId()
         val startTime = System.currentTimeMillis()
-        
+
         try {
             transactionMutex.withLock {
                 val transactionInfo = TransactionInfo(
@@ -146,10 +146,10 @@ class TransactionManager @Inject constructor(
                 )
                 activeTransactions[transactionId] = transactionInfo
             }
-            
+
             val result = operation()
             updateTransactionStatus(transactionId, TransactionStatus.COMMITTED)
-            
+
             Result.success(result)
         } catch (error: Throwable) {
             updateTransactionStatus(transactionId, TransactionStatus.FAILED)
@@ -158,22 +158,22 @@ class TransactionManager @Inject constructor(
             cleanupTransaction(transactionId, startTime)
         }
     }
-    
+
     /**
      * Checks for potential deadlocks and resolves them
      */
     private suspend fun checkForDeadlocks(newTransactionId: String) {
         val currentTime = System.currentTimeMillis()
         val timeoutThreshold = 30000L // 30 seconds
-        
+
         // Check for long-running transactions
         val longRunningTransactions = activeTransactions.values.filter { transaction ->
             currentTime - transaction.startTime > timeoutThreshold
         }
-        
+
         if (longRunningTransactions.isNotEmpty()) {
             Log.w(TAG, "Potential deadlock detected. Long-running transactions: ${longRunningTransactions.size}")
-            
+
             // Force cleanup of long-running transactions
             longRunningTransactions.forEach { transaction ->
                 Log.w(TAG, "Forcing cleanup of long-running transaction: ${transaction.id}")
@@ -181,7 +181,7 @@ class TransactionManager @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Performs rollback for failed transaction
      */
@@ -189,15 +189,15 @@ class TransactionManager @Inject constructor(
         try {
             // Log rollback
             Log.w(TAG, "Performing rollback for transaction: $transactionId")
-            
+
             // Update statistics
             updateTransactionStats(TransactionStatus.FAILED, error)
-            
+
         } catch (rollbackError: Throwable) {
             Log.e(TAG, "Rollback failed for transaction $transactionId: ${rollbackError.message}")
         }
     }
-    
+
     /**
      * Updates transaction status
      */
@@ -208,7 +208,7 @@ class TransactionManager @Inject constructor(
             }
         }
     }
-    
+
     /**
      * Cleans up transaction resources
      */
@@ -216,12 +216,12 @@ class TransactionManager @Inject constructor(
         transactionMutex.withLock {
             activeTransactions.remove(transactionId)
         }
-        
+
         // Update statistics
         val duration = System.currentTimeMillis() - startTime
         updateTransactionStats(duration = duration)
     }
-    
+
     /**
      * Updates transaction statistics
      */
@@ -242,7 +242,7 @@ class TransactionManager @Inject constructor(
             lastError = error?.message
         )
     }
-    
+
     /**
      * Calculates average transaction duration
      */
@@ -253,28 +253,28 @@ class TransactionManager @Inject constructor(
             totalDuration / (current.totalTransactions + 1)
         } else 0
     }
-    
+
     /**
      * Calculates retry delay with exponential backoff
      */
     private fun calculateRetryDelay(attempt: Int): Long {
         return (1000L * (1L shl attempt)).coerceAtMost(10000L)
     }
-    
+
     /**
      * Generates unique transaction ID
      */
     private fun generateTransactionId(): String {
         return "tx_${transactionCounter.incrementAndGet()}_${System.currentTimeMillis()}"
     }
-    
+
     /**
      * Gets current active transactions
      */
     fun getActiveTransactions(): Map<String, TransactionInfo> {
         return activeTransactions.toMap()
     }
-    
+
     /**
      * Cancels all active transactions (emergency cleanup)
      */
@@ -327,4 +327,4 @@ data class TransactionStats(
     val failedTransactions: Long = 0,
     val averageDuration: Long = 0,
     val lastError: String? = null
-) 
+)

@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 /**
  * Manages operation queuing to prevent race conditions and ensure proper execution order
- * 
+ *
  * Features:
  * - Operation prioritization
  * - Conflict detection and resolution
@@ -26,19 +26,19 @@ import javax.inject.Singleton
 @Singleton
 class OperationQueueManager @Inject constructor() {
     private val TAG = "OperationQueueManager"
-    
+
     // Queue management
     private val operationQueues = ConcurrentHashMap<String, Channel<QueuedOperation>>()
     private val activeOperations = ConcurrentHashMap<String, OperationInfo>()
     private val operationMutex = Mutex()
-    
+
     // Statistics
     private val _queueStats = MutableStateFlow(QueueStats())
     val queueStats: StateFlow<QueueStats> = _queueStats.asStateFlow()
-    
+
     // Operation counter
     private val operationCounter = AtomicLong(0)
-    
+
     /**
      * Queues an operation for execution
      */
@@ -51,7 +51,7 @@ class OperationQueueManager @Inject constructor() {
     ): Result<T> = withContext(Dispatchers.IO) {
         val operationId = generateOperationId()
         val startTime = System.currentTimeMillis()
-        
+
         try {
             // Create queued operation
             val queuedOperation = QueuedOperation(
@@ -63,32 +63,32 @@ class OperationQueueManager @Inject constructor() {
                 startTime = startTime,
                 timeout = timeout
             )
-            
+
             // Register operation
             registerOperation(operationId, queuedOperation)
-            
+
             // Get or create queue for this resource
             val queueKey = resourceId ?: "global"
             val queue = getOrCreateQueue(queueKey)
-            
+
             // Send operation to queue
             if (!queue.trySend(queuedOperation).isSuccess) {
                 Log.w(TAG, "Queue full for resource: $queueKey")
                 return@withContext Result.failure(Exception("Operation queue is full"))
             }
-            
+
             // Wait for operation completion
             val result = withTimeoutOrNull(timeout) {
                 queuedOperation.resultChannel.receive()
             }
-            
+
             if (result == null) {
                 Log.e(TAG, "Operation $operationId timed out")
                 return@withContext Result.failure(Exception("Operation timed out"))
             }
-            
+
             result as Result<T>
-            
+
         } catch (error: Throwable) {
             Log.e(TAG, "Operation $operationId failed: ${error.message}")
             Result.failure(error)
@@ -97,7 +97,7 @@ class OperationQueueManager @Inject constructor() {
             cleanupOperation(operationId, startTime)
         }
     }
-    
+
     /**
      * Executes operations in batch
      */
@@ -109,12 +109,12 @@ class OperationQueueManager @Inject constructor() {
     ): Result<List<T>> = withContext(Dispatchers.IO) {
         val batchId = generateOperationId()
         val startTime = System.currentTimeMillis()
-        
+
         try {
             Log.d(TAG, "Starting batch operation: $batchId with ${operations.size} operations")
-            
+
             val results = mutableListOf<Result<T>>()
-            
+
             operations.forEachIndexed { index, operation ->
                 val result = queueOperation(
                     operation = operation,
@@ -123,7 +123,7 @@ class OperationQueueManager @Inject constructor() {
                     priority = priority
                 )
                 results.add(result)
-                
+
                 // Check for failures
                 if (result.isFailure) {
                     Log.w(TAG, "Batch operation $batchId failed at index $index")
@@ -132,12 +132,12 @@ class OperationQueueManager @Inject constructor() {
                     )
                 }
             }
-            
+
             val successfulResults = results.mapNotNull { it.getOrNull() }
             Log.d(TAG, "Batch operation $batchId completed successfully")
-            
+
             Result.success(successfulResults)
-            
+
         } catch (error: Throwable) {
             Log.e(TAG, "Batch operation $batchId failed: ${error.message}")
             Result.failure(error)
@@ -145,17 +145,17 @@ class OperationQueueManager @Inject constructor() {
             cleanupOperation(batchId, startTime)
         }
     }
-    
+
     /**
      * Processes operations from a queue
      */
     private suspend fun processQueue(queueKey: String) {
         val queue = operationQueues[queueKey] ?: return
-        
+
         while (true) {
             try {
                 val queuedOperation = queue.receive()
-                
+
                 // Execute operation
                 val result = try {
                     val operationResult = queuedOperation.operation()
@@ -164,13 +164,13 @@ class OperationQueueManager @Inject constructor() {
                     Log.e(TAG, "Operation ${queuedOperation.id} execution failed: ${error.message}")
                     Result.failure(error)
                 }
-                
+
                 // Send result back
                 queuedOperation.resultChannel.send(result)
-                
+
                 // Update statistics
                 updateQueueStats(queuedOperation, result.isSuccess)
-                
+
             } catch (error: Throwable) {
                 if (error is CancellationException) {
                     break
@@ -179,23 +179,23 @@ class OperationQueueManager @Inject constructor() {
             }
         }
     }
-    
+
     /**
      * Gets or creates a queue for a resource
      */
     private suspend fun getOrCreateQueue(queueKey: String): Channel<QueuedOperation> {
         return operationQueues.getOrPut(queueKey) {
             val queue = Channel<QueuedOperation>(Channel.UNLIMITED)
-            
+
             // Start processing coroutine for this queue
             CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
                 processQueue(queueKey)
             }
-            
+
             queue
         }
     }
-    
+
     /**
      * Registers an operation
      */
@@ -210,10 +210,10 @@ class OperationQueueManager @Inject constructor() {
                 status = OperationStatus.QUEUED
             )
         }
-        
+
         Log.d(TAG, "Registered operation: $operationId (${queuedOperation.type})")
     }
-    
+
     /**
      * Cleans up operation resources
      */
@@ -221,12 +221,12 @@ class OperationQueueManager @Inject constructor() {
         operationMutex.withLock {
             activeOperations.remove(operationId)
         }
-        
+
         // Update statistics
         val duration = System.currentTimeMillis() - startTime
         updateQueueStats(duration = duration)
     }
-    
+
     /**
      * Updates queue statistics
      */
@@ -248,7 +248,7 @@ class OperationQueueManager @Inject constructor() {
             activeOperations = activeOperations.size
         )
     }
-    
+
     /**
      * Calculates average processing time
      */
@@ -259,28 +259,28 @@ class OperationQueueManager @Inject constructor() {
             totalTime / (current.totalOperations + 1)
         } else 0
     }
-    
+
     /**
      * Generates unique operation ID
      */
     private fun generateOperationId(): String {
         return "op_${operationCounter.incrementAndGet()}_${System.currentTimeMillis()}"
     }
-    
+
     /**
      * Gets current active operations
      */
     fun getActiveOperations(): Map<String, OperationInfo> {
         return activeOperations.toMap()
     }
-    
+
     /**
      * Gets queue statistics
      */
     fun getQueueStatistics(): QueueStats {
         return _queueStats.value
     }
-    
+
     /**
      * Cancels all operations (emergency cleanup)
      */
@@ -289,28 +289,28 @@ class OperationQueueManager @Inject constructor() {
             Log.w(TAG, "Cancelling all active operations: ${activeOperations.size}")
             activeOperations.clear()
         }
-        
+
         // Close all queues
         operationQueues.values.forEach { queue ->
             queue.close()
         }
         operationQueues.clear()
     }
-    
+
     /**
      * Checks for deadlocks and resolves them
      */
     suspend fun checkForDeadlocks() {
         val currentTime = System.currentTimeMillis()
         val timeoutThreshold = 60000L // 1 minute
-        
+
         val longRunningOperations = activeOperations.values.filter { operation ->
             currentTime - operation.startTime > timeoutThreshold
         }
-        
+
         if (longRunningOperations.isNotEmpty()) {
             Log.w(TAG, "Potential deadlock detected. Long-running operations: ${longRunningOperations.size}")
-            
+
             // Force cleanup of long-running operations
             longRunningOperations.forEach { operation ->
                 Log.w(TAG, "Forcing cleanup of long-running operation: ${operation.id}")
@@ -389,4 +389,4 @@ data class QueueStats(
     val averageProcessingTime: Long = 0,
     val activeQueues: Int = 0,
     val activeOperations: Int = 0
-) 
+)

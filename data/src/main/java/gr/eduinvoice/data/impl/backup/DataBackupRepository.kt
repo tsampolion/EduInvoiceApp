@@ -15,7 +15,7 @@ import javax.inject.Singleton
 class DataBackupRepository @Inject constructor(
     private val dataBackupRepository: DataBackupRepository
 ) : BackupRepository {
-    
+
     override suspend fun exportJson(): String {
         return dataBackupRepository.exportJson()
     }

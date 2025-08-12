@@ -37,9 +37,9 @@ fun ErrorDialog(
     val context = LocalContext.current
     val errorHandler = remember { ErrorHandler(context) }
     val errorResult = remember(error) { errorHandler.handleError(error) }
-    
+
     var expanded by remember { mutableStateOf(false) }
-    
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
@@ -65,9 +65,9 @@ fun ErrorDialog(
                     modifier = Modifier.size(48.dp),
                     tint = getErrorColor(errorResult.errorType)
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Error title
                 Text(
                     text = getErrorTitle(errorResult.errorType),
@@ -75,9 +75,9 @@ fun ErrorDialog(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 // Error message
                 Text(
                     text = errorResult.userMessage,
@@ -85,9 +85,9 @@ fun ErrorDialog(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Recovery suggestion
                 if (errorResult.recoveryAction != RecoveryAction.RETRY) {
                     Text(
@@ -98,7 +98,7 @@ fun ErrorDialog(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
-                
+
                 // Show details toggle
                 if (showDetails) {
                     TextButton(
@@ -108,7 +108,7 @@ fun ErrorDialog(
                             text = if (expanded) stringResource(R.string.hide_details) else stringResource(R.string.show_details)
                         )
                     }
-                    
+
                     if (expanded) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
@@ -118,9 +118,9 @@ fun ErrorDialog(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 // Action buttons
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -133,7 +133,7 @@ fun ErrorDialog(
                     ) {
                         Text(stringResource(R.string.dismiss))
                     }
-                    
+
                     // Report button (optional)
                     if (onReport != null) {
                         OutlinedButton(
@@ -143,7 +143,7 @@ fun ErrorDialog(
                             Text(stringResource(R.string.report))
                         }
                     }
-                    
+
                     // Retry button
                     Button(
                         onClick = onRetry,
@@ -268,9 +268,9 @@ fun NetworkErrorDialog(
     onDismiss: () -> Unit,
     onCheckSettings: () -> Unit
 ) {
-    val isConnectionError = error is UnknownHostException || 
+    val isConnectionError = error is UnknownHostException ||
                            (error is IOException && error.message?.contains("connection") == true)
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = {
@@ -309,4 +309,4 @@ fun NetworkErrorDialog(
             }
         }
     )
-} 
+}

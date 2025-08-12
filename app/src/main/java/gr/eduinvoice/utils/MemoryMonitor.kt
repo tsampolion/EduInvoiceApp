@@ -19,7 +19,7 @@ import javax.inject.Singleton
 class MemoryMonitor @Inject constructor(
     private val context: Context
 ) {
-    
+
     companion object {
         private const val TAG = "MemoryMonitor"
         private const val MEMORY_CHECK_INTERVAL_MS = 30000L // 30 seconds
@@ -27,7 +27,7 @@ class MemoryMonitor @Inject constructor(
         private const val CRITICAL_MEMORY_THRESHOLD_PERCENT = 85.0
         private const val MAX_MEMORY_USAGE_MB = 100L
     }
-    
+
     /**
      * Memory status information
      */
@@ -40,7 +40,7 @@ class MemoryMonitor @Inject constructor(
         val memoryUsagePercent: Double,
         val recommendations: List<String>
     )
-    
+
     /**
      * Memory usage statistics
      */
@@ -51,7 +51,7 @@ class MemoryMonitor @Inject constructor(
         val memoryUsagePercent: Double,
         val timestamp: Long = System.currentTimeMillis()
     )
-    
+
     /**
      * Cleanup operation results
      */
@@ -61,7 +61,7 @@ class MemoryMonitor @Inject constructor(
         val operations: List<CleanupOperation>,
         val errors: List<String>
     )
-    
+
     /**
      * Types of cleanup operations
      */
@@ -72,7 +72,7 @@ class MemoryMonitor @Inject constructor(
         object ClearDatabaseCache : CleanupOperation()
         data class CustomOperation(val name: String) : CleanupOperation()
     }
-    
+
     /**
      * Check current memory pressure
      */
@@ -81,17 +81,17 @@ class MemoryMonitor @Inject constructor(
         val usedMemory = runtime.totalMemory() - runtime.freeMemory()
         val maxMemory = runtime.maxMemory()
         val availableMemory = maxMemory - usedMemory
-        
+
         val usedMemoryMB = usedMemory / (1024 * 1024)
         val totalMemoryMB = maxMemory / (1024 * 1024)
         val availableMemoryMB = availableMemory / (1024 * 1024)
         val memoryUsagePercent = (usedMemory.toDouble() / maxMemory.toDouble()) * 100.0
-        
+
         val isLowMemory = memoryUsagePercent >= LOW_MEMORY_THRESHOLD_PERCENT
         val isCriticalMemory = memoryUsagePercent >= CRITICAL_MEMORY_THRESHOLD_PERCENT
-        
+
         val recommendations = mutableListOf<String>()
-        
+
         if (isCriticalMemory) {
             recommendations.add("Critical memory pressure detected. Perform immediate cleanup.")
             recommendations.add("Consider reducing image quality or clearing caches.")
@@ -100,13 +100,13 @@ class MemoryMonitor @Inject constructor(
             recommendations.add("Low memory pressure detected. Consider cleanup.")
             recommendations.add("Monitor memory usage trends.")
         }
-        
+
         if (usedMemoryMB > MAX_MEMORY_USAGE_MB) {
             recommendations.add("Memory usage exceeds recommended limit (${MAX_MEMORY_USAGE_MB}MB).")
         }
-        
+
         Log.d(TAG, "Memory status: ${usedMemoryMB}MB used, ${memoryUsagePercent}% usage")
-        
+
         return MemoryStatus(
             isLowMemory = isLowMemory,
             isCriticalMemory = isCriticalMemory,
@@ -117,7 +117,7 @@ class MemoryMonitor @Inject constructor(
             recommendations = recommendations
         )
     }
-    
+
     /**
      * Perform memory cleanup operations
      */
@@ -125,7 +125,7 @@ class MemoryMonitor @Inject constructor(
         val operations = mutableListOf<CleanupOperation>()
         val errors = mutableListOf<String>()
         val initialMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
-        
+
         try {
             // Force garbage collection
             try {
@@ -136,7 +136,7 @@ class MemoryMonitor @Inject constructor(
                 errors.add("Garbage collection failed: ${e.message}")
                 Log.e(TAG, "Garbage collection failed", e)
             }
-            
+
             // Clear image caches if available
             try {
                 clearImageCaches()
@@ -146,7 +146,7 @@ class MemoryMonitor @Inject constructor(
                 errors.add("Image cache cleanup failed: ${e.message}")
                 Log.e(TAG, "Image cache cleanup failed", e)
             }
-            
+
             // Clear ViewModel caches
             try {
                 clearViewModelCaches()
@@ -156,7 +156,7 @@ class MemoryMonitor @Inject constructor(
                 errors.add("ViewModel cache cleanup failed: ${e.message}")
                 Log.e(TAG, "ViewModel cache cleanup failed", e)
             }
-            
+
             // Clear database caches
             try {
                 clearDatabaseCaches()
@@ -166,18 +166,18 @@ class MemoryMonitor @Inject constructor(
                 errors.add("Database cache cleanup failed: ${e.message}")
                 Log.e(TAG, "Database cache cleanup failed", e)
             }
-            
+
         } catch (e: Exception) {
             errors.add("General cleanup failed: ${e.message}")
             Log.e(TAG, "General cleanup failed", e)
         }
-        
+
         val finalMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
         val freedMemory = initialMemory - finalMemory
         val freedMemoryMB = freedMemory / (1024 * 1024)
-        
+
         Log.i(TAG, "Cleanup completed: freed ${freedMemoryMB}MB, operations: ${operations.size}, errors: ${errors.size}")
-        
+
         return CleanupResult(
             success = errors.isEmpty(),
             freedMemoryMB = freedMemoryMB,
@@ -185,7 +185,7 @@ class MemoryMonitor @Inject constructor(
             errors = errors
         )
     }
-    
+
     /**
      * Monitor memory usage continuously
      */
@@ -195,25 +195,25 @@ class MemoryMonitor @Inject constructor(
             val usedMemory = runtime.totalMemory() - runtime.freeMemory()
             val maxMemory = runtime.maxMemory()
             val availableMemory = maxMemory - usedMemory
-            
+
             val memoryUsage = MemoryUsage(
                 usedMemoryMB = usedMemory / (1024 * 1024),
                 totalMemoryMB = maxMemory / (1024 * 1024),
                 availableMemoryMB = availableMemory / (1024 * 1024),
                 memoryUsagePercent = (usedMemory.toDouble() / maxMemory.toDouble()) * 100.0
             )
-            
+
             emit(memoryUsage)
             delay(MEMORY_CHECK_INTERVAL_MS)
         }
     }
-    
+
     /**
      * Get detailed memory information
      */
     fun getDetailedMemoryInfo(): Map<String, Any> {
         val runtime = Runtime.getRuntime()
-        
+
         return mapOf(
             "maxMemory" to runtime.maxMemory(),
             "totalMemory" to runtime.totalMemory(),
@@ -222,7 +222,7 @@ class MemoryMonitor @Inject constructor(
             "availableProcessors" to runtime.availableProcessors()
         )
     }
-    
+
     /**
      * Check if device has low memory
      */
@@ -237,7 +237,7 @@ class MemoryMonitor @Inject constructor(
             false
         }
     }
-    
+
     /**
      * Get memory class of the device
      */
@@ -250,7 +250,7 @@ class MemoryMonitor @Inject constructor(
             16 // Default fallback
         }
     }
-    
+
     /**
      * Clear image caches
      */
@@ -259,7 +259,7 @@ class MemoryMonitor @Inject constructor(
         // For now, we'll just log the operation
         Log.d(TAG, "Image cache cleanup requested")
     }
-    
+
     /**
      * Clear ViewModel caches
      */
@@ -268,7 +268,7 @@ class MemoryMonitor @Inject constructor(
         // For now, we'll just log the operation
         Log.d(TAG, "ViewModel cache cleanup requested")
     }
-    
+
     /**
      * Clear database caches
      */
@@ -277,4 +277,4 @@ class MemoryMonitor @Inject constructor(
         // For now, we'll just log the operation
         Log.d(TAG, "Database cache cleanup requested")
     }
-} 
+}

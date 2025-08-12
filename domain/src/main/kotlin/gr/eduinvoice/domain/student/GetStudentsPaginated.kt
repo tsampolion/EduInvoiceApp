@@ -10,4 +10,4 @@ class GetStudentsPaginated @Inject constructor(
     suspend operator fun invoke(userId: Long, limit: Int, offset: Int): List<DomainStudent> {
         return repository.getStudentsPaginated(userId, limit, offset)
     }
-} 
+}

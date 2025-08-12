@@ -39,5 +39,3 @@ class ModernFilterManager @Inject constructor() {
         }
     }
 }
-
-

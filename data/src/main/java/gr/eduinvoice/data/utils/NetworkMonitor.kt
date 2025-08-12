@@ -183,4 +183,4 @@ enum class NetworkQuality {
     GOOD,
     FAIR,
     POOR
-} 
+}

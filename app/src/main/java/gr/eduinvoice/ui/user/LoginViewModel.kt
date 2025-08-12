@@ -25,7 +25,7 @@ class LoginViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
-    
+
     // Error handling components
     private val errorHandler = ErrorHandler(context)
     private val retryManager = RetryManager()
@@ -51,7 +51,7 @@ class LoginViewModel @Inject constructor(
                         errorReporter.reportError(error, "LoginViewModel_Retry_$attempt")
                     }
                 )
-                
+
                 if (result.isSuccess) {
                     val user = result.getOrNull()
                     if (user != null) {
@@ -60,7 +60,7 @@ class LoginViewModel @Inject constructor(
                     } else {
                         // Authentication failed - invalid credentials
                         val errorResult = errorHandler.handleError(
-                            Exception("Invalid username or password"), 
+                            Exception("Invalid username or password"),
                             "Authentication"
                         )
                         _uiState.value = _uiState.value.copy(
@@ -72,9 +72,9 @@ class LoginViewModel @Inject constructor(
                     // Handle authentication error
                     val error = result.exceptionOrNull() ?: Exception("Unknown authentication error")
                     val errorResult = errorHandler.handleError(error, "Authentication")
-                    
+
                     errorReporter.reportError(error, "LoginViewModel")
-                    
+
                     _uiState.value = _uiState.value.copy(
                         error = errorResult.userMessage,
                         isLoading = false
@@ -84,7 +84,7 @@ class LoginViewModel @Inject constructor(
                 // Handle unexpected errors
                 val errorResult = errorHandler.handleError(e, "LoginViewModel")
                 errorReporter.reportError(e, "LoginViewModel_Unexpected")
-                
+
                 _uiState.value = _uiState.value.copy(
                     error = errorResult.userMessage,
                     isLoading = false

@@ -21,10 +21,10 @@ import javax.inject.Singleton
 class ErrorHandler @Inject constructor(
     private val context: Context
 ) {
-    
+
     private val _errorHistory = MutableStateFlow<List<ErrorEntry>>(emptyList())
     val errorHistory: Flow<List<ErrorEntry>> = _errorHistory.asStateFlow()
-    
+
     /**
      * Handles an error and returns appropriate error result with recovery options
      */
@@ -33,10 +33,10 @@ class ErrorHandler @Inject constructor(
         val shouldRetry = shouldRetry(error)
         val retryDelay = getRetryDelay(error)
         val userMessage = getUserFriendlyMessage(error)
-        
+
         // Record error in history
         recordError(error, errorType, context)
-        
+
         return ErrorResult(
             error = error,
             errorType = errorType,
@@ -46,7 +46,7 @@ class ErrorHandler @Inject constructor(
             recoveryAction = getRecoveryAction(errorType)
         )
     }
-    
+
     /**
      * Determines if an error should be retried
      */
@@ -58,7 +58,7 @@ class ErrorHandler @Inject constructor(
             else -> false
         }
     }
-    
+
     /**
      * Calculates retry delay based on error type and retry count
      */
@@ -69,12 +69,12 @@ class ErrorHandler @Inject constructor(
             is IOException -> 1500L
             else -> 3000L
         }
-        
+
         // Exponential backoff with jitter
         return (baseDelay * (1 shl retryCount) + (Math.random() * 1000).toLong())
             .coerceAtMost(30000L) // Max 30 seconds
     }
-    
+
     /**
      * Classifies errors into different categories
      */
@@ -93,18 +93,18 @@ class ErrorHandler @Inject constructor(
             else -> ErrorType.UNKNOWN_ERROR
         }
     }
-    
+
     /**
      * Checks if an IOException is network-related
      */
     private fun isNetworkError(error: IOException): Boolean {
         val message = error.message?.lowercase() ?: ""
-        return message.contains("network") || 
-               message.contains("connection") || 
+        return message.contains("network") ||
+               message.contains("connection") ||
                message.contains("timeout") ||
                message.contains("unreachable")
     }
-    
+
     /**
      * Gets user-friendly error message
      */
@@ -126,7 +126,7 @@ class ErrorHandler @Inject constructor(
             else -> "An unexpected error occurred. Please try again."
         }
     }
-    
+
     /**
      * Gets appropriate recovery action for error type
      */
@@ -143,7 +143,7 @@ class ErrorHandler @Inject constructor(
             ErrorType.UNKNOWN_ERROR -> RecoveryAction.RETRY
         }
     }
-    
+
     /**
      * Records error in history for analytics and debugging
      */
@@ -155,18 +155,18 @@ class ErrorHandler @Inject constructor(
             context = context,
             stackTrace = error.stackTraceToString()
         )
-        
+
         val currentHistory = _errorHistory.value.toMutableList()
         currentHistory.add(entry)
-        
+
         // Keep only last 100 errors
         if (currentHistory.size > 100) {
             currentHistory.removeAt(0)
         }
-        
+
         _errorHistory.value = currentHistory
     }
-    
+
     /**
      * Checks if device has network connectivity
      */
@@ -174,18 +174,18 @@ class ErrorHandler @Inject constructor(
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return false
         val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
-        
+
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
-    
+
     /**
      * Gets error statistics for analytics
      */
     fun getErrorStatistics(): ErrorStatistics {
         val errors = _errorHistory.value
         val errorCounts = errors.groupBy { it.errorType }.mapValues { it.value.size }
-        
+
         return ErrorStatistics(
             totalErrors = errors.size,
             errorCounts = errorCounts,
@@ -193,7 +193,7 @@ class ErrorHandler @Inject constructor(
             mostCommonError = errorCounts.maxByOrNull { it.value }?.key
         )
     }
-    
+
     /**
      * Clears error history
      */
@@ -261,4 +261,4 @@ data class ErrorStatistics(
     val errorCounts: Map<ErrorType, Int>,
     val lastErrorTime: Long?,
     val mostCommonError: ErrorType?
-) 
+)

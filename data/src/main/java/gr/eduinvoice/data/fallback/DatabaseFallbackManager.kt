@@ -29,24 +29,24 @@ class DatabaseFallbackManager @Inject constructor(
     private val healthMonitor: DatabaseHealthMonitor,
     private val integrityValidator: DatabaseIntegrityValidator
 ) {
-    
+
     companion object {
         private const val TAG = "DatabaseFallbackManager"
         private const val RECOVERY_CHECK_INTERVAL_MS = 30000L // 30 seconds
         private const val MAX_RECOVERY_ATTEMPTS = 3
     }
-    
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    
+
                 private val _fallbackState = MutableStateFlow<FallbackState>(FallbackState.Normal)
     val fallbackState: StateFlow<FallbackState> = _fallbackState.asStateFlow()
-    
+
     private val _recoveryProgress = MutableStateFlow(RecoveryProgress())
     val recoveryProgress: StateFlow<RecoveryProgress> = _recoveryProgress.asStateFlow()
-    
+
     private var recoveryAttempts = 0
     private var isRecoveryScheduled = false
-    
+
     /**
      * Database fallback states
      */
@@ -58,7 +58,7 @@ class DatabaseFallbackManager @Inject constructor(
         object Maintenance : FallbackState()
         data class Error(val message: String) : FallbackState()
     }
-    
+
     /**
      * Recovery progress information
      */
@@ -69,7 +69,7 @@ class DatabaseFallbackManager @Inject constructor(
         val estimatedTimeRemaining: Long = 0L,
         val errors: List<String> = emptyList()
     )
-    
+
     /**
      * Recovery operation results
      */
@@ -79,7 +79,7 @@ class DatabaseFallbackManager @Inject constructor(
         val message: String,
         val dataLoss: Boolean = false
     )
-    
+
     /**
      * Switch to read-only mode
      */
@@ -87,7 +87,7 @@ class DatabaseFallbackManager @Inject constructor(
         return try {
             Log.w(TAG, "Switching to read-only mode")
             _fallbackState.value = FallbackState.ReadOnly
-            
+
             // Perform health check in read-only mode
             val healthStatus = healthMonitor.checkDatabaseHealth()
             if (healthStatus.isHealthy) {
@@ -112,7 +112,7 @@ class DatabaseFallbackManager @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Enable offline mode
      */
@@ -120,7 +120,7 @@ class DatabaseFallbackManager @Inject constructor(
         return try {
             Log.w(TAG, "Enabling offline mode")
             _fallbackState.value = FallbackState.Offline
-            
+
             // In offline mode, we rely on cached data and local storage
             // This is a simplified implementation - in production, you'd have more sophisticated caching
             RecoveryResult(
@@ -137,7 +137,7 @@ class DatabaseFallbackManager @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Schedule database recovery
      */
@@ -146,14 +146,14 @@ class DatabaseFallbackManager @Inject constructor(
             Log.w(TAG, "Recovery already scheduled")
             return
         }
-        
+
         isRecoveryScheduled = true
         scope.launch {
             delay(RECOVERY_CHECK_INTERVAL_MS)
             performRecovery()
         }
     }
-    
+
     /**
      * Perform database recovery
      */
@@ -163,22 +163,22 @@ class DatabaseFallbackManager @Inject constructor(
             _fallbackState.value = FallbackState.Error("Maximum recovery attempts reached")
             return
         }
-        
+
         recoveryAttempts++
         Log.i(TAG, "Starting database recovery attempt $recoveryAttempts")
-        
+
         _fallbackState.value = FallbackState.Recovery
         _recoveryProgress.value = RecoveryProgress(
             isInProgress = true,
             currentStep = "Initializing recovery...",
             progress = 0f
         )
-        
+
         try {
             // Step 1: Health check
             updateRecoveryProgress("Performing health check...", 0.2f)
             val healthStatus = healthMonitor.checkDatabaseHealth()
-            
+
             if (healthStatus.isHealthy) {
                 Log.i(TAG, "Database is healthy, switching to normal mode")
                 _fallbackState.value = FallbackState.Normal
@@ -189,11 +189,11 @@ class DatabaseFallbackManager @Inject constructor(
                 )
                 return
             }
-            
+
             // Step 2: Integrity validation
             updateRecoveryProgress("Validating data integrity...", 0.4f)
             val validationResult = integrityValidator.validateAllTables()
-            
+
             if (validationResult.isValid) {
                 Log.i(TAG, "Data integrity validation passed")
                 _fallbackState.value = FallbackState.Normal
@@ -204,15 +204,15 @@ class DatabaseFallbackManager @Inject constructor(
                 )
                 return
             }
-            
+
             // Step 3: Attempt repairs
             updateRecoveryProgress("Attempting data repairs...", 0.6f)
             val repairResult = integrityValidator.repairCorruptedData()
-            
+
             if (repairResult.success) {
                 Log.i(TAG, "Data repairs completed successfully")
                 updateRecoveryProgress("Verifying repairs...", 0.8f)
-                
+
                 // Step 4: Verify repairs
                 val finalHealthCheck = healthMonitor.checkDatabaseHealth()
                 if (finalHealthCheck.isHealthy) {
@@ -226,14 +226,14 @@ class DatabaseFallbackManager @Inject constructor(
                     return
                 }
             }
-            
+
             // Step 5: Maintenance mode
             updateRecoveryProgress("Switching to maintenance mode...", 0.9f)
             _fallbackState.value = FallbackState.Maintenance
-            
+
             // Schedule another recovery attempt
             scheduleRecovery()
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Recovery failed", e)
             _fallbackState.value = FallbackState.Error("Recovery failed: ${e.message}")
@@ -243,12 +243,12 @@ class DatabaseFallbackManager @Inject constructor(
                 progress = 0f,
                 errors = listOf(e.message ?: "Unknown error")
             )
-            
+
             // Schedule another recovery attempt
             scheduleRecovery()
         }
     }
-    
+
     /**
      * Update recovery progress
      */
@@ -259,7 +259,7 @@ class DatabaseFallbackManager @Inject constructor(
             progress = progress
         )
     }
-    
+
     /**
      * Force database reset (nuclear option)
      */
@@ -267,7 +267,7 @@ class DatabaseFallbackManager @Inject constructor(
         return try {
             Log.w(TAG, "Force database reset initiated")
             _fallbackState.value = FallbackState.Maintenance
-            
+
             // Delete database file
             val dbFile = context.getDatabasePath(DatabaseConstants.DATABASE_NAME)
             if (dbFile.exists()) {
@@ -277,21 +277,21 @@ class DatabaseFallbackManager @Inject constructor(
                 }
                 Log.i(TAG, "Database file deleted successfully")
             }
-            
+
             // Clear any backup files that might be corrupted
             clearCorruptedBackups()
-            
+
             // Reset recovery state
             recoveryAttempts = 0
             isRecoveryScheduled = false
-            
+
             RecoveryResult(
                 success = true,
                 state = FallbackState.Normal,
                 message = "Database reset completed successfully",
                 dataLoss = true
             )
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Force database reset failed", e)
             RecoveryResult(
@@ -302,7 +302,7 @@ class DatabaseFallbackManager @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Clear corrupted backup files
      */
@@ -322,7 +322,7 @@ class DatabaseFallbackManager @Inject constructor(
             Log.e(TAG, "Failed to clear corrupted backups", e)
         }
     }
-    
+
     /**
      * Get current database status
      */
@@ -331,7 +331,7 @@ class DatabaseFallbackManager @Inject constructor(
             val healthStatus = healthMonitor.checkDatabaseHealth()
             val fileInfo = healthMonitor.getDatabaseFileInfo()
             val statistics = integrityValidator.getDatabaseStatistics()
-            
+
             DatabaseStatus(
                 state = _fallbackState.value,
                 isHealthy = healthStatus.isHealthy,
@@ -352,7 +352,7 @@ class DatabaseFallbackManager @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Check if database is accessible
      */
@@ -365,13 +365,13 @@ class DatabaseFallbackManager @Inject constructor(
             false
         }
     }
-    
+
     /**
      * Get recovery recommendations
      */
     fun getRecoveryRecommendations(): List<String> {
         val recommendations = mutableListOf<String>()
-        
+
         when (_fallbackState.value) {
             is FallbackState.ReadOnly -> {
                 recommendations.add("Database is in read-only mode. Check disk space and permissions.")
@@ -402,10 +402,10 @@ class DatabaseFallbackManager @Inject constructor(
                 recommendations.add("Database appears to be functioning normally.")
             }
         }
-        
+
         return recommendations
     }
-    
+
     /**
      * Database status information
      */
@@ -417,4 +417,4 @@ class DatabaseFallbackManager @Inject constructor(
         val recordCount: Int,
         val issues: List<String>
     )
-} 
+}

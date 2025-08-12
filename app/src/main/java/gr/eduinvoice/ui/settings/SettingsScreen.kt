@@ -267,4 +267,3 @@ private val currencies = listOf(
     "₺" to "Lira",
     "₱" to "Pesos"
 )
-

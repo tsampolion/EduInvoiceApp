@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Domain interface for user preferences repository.
  * This allows the app module to depend on domain abstractions rather than data layer implementations.
- * 
+ *
  * Added during app→domain migration. Backed by data implementation.
  */
 interface UserPreferencesRepository {

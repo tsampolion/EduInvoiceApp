@@ -17,19 +17,19 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DomainAdapterModule {
-    
+
     @Provides
     @Singleton
     fun provideDomainStudentRepository(adapter: DomainStudentRepositoryAdapter): DomainStudentRepository = adapter
-    
+
     @Provides
     @Singleton
     fun provideDomainLessonRepository(adapter: DomainLessonRepositoryAdapter): DomainLessonRepository = adapter
-    
+
     @Provides
     @Singleton
     fun provideDomainUserRepository(adapter: DomainUserRepositoryAdapter): DomainUserRepository = adapter
-    
+
     @Provides
     @Singleton
     fun provideDomainGroupRepository(adapter: DomainGroupRepositoryAdapter): DomainGroupRepository = adapter

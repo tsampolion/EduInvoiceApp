@@ -72,5 +72,3 @@ object PdfThemes {
         shapes = PdfShapes()
     )
 }
-
-

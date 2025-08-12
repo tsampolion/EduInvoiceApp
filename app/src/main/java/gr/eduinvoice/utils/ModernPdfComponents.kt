@@ -75,5 +75,3 @@ class ModernPdfComponents(private val theme: ModernPdfTheme) {
         canvas.drawText(text, x, y, p)
     }
 }
-
-

@@ -5,7 +5,7 @@ package gr.eduinvoice.domain.model
  * This allows the app module to handle errors while maintaining clean architecture boundaries.
  */
 sealed class DomainException(message: String, cause: Throwable? = null) : Exception(message, cause) {
-    
+
     /**
      * Database-related errors that have been translated to domain level
      */
@@ -13,7 +13,7 @@ sealed class DomainException(message: String, cause: Throwable? = null) : Except
         override val message: String,
         override val cause: Throwable? = null
     ) : DomainException(message, cause)
-    
+
     /**
      * Network-related errors
      */
@@ -21,7 +21,7 @@ sealed class DomainException(message: String, cause: Throwable? = null) : Except
         override val message: String,
         override val cause: Throwable? = null
     ) : DomainException(message, cause)
-    
+
     /**
      * Validation errors
      */
@@ -29,7 +29,7 @@ sealed class DomainException(message: String, cause: Throwable? = null) : Except
         override val message: String,
         override val cause: Throwable? = null
     ) : DomainException(message, cause)
-    
+
     /**
      * Generic application errors
      */

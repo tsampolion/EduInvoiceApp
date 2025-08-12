@@ -18,7 +18,7 @@ data class DomainStudent(
     val lastModified: Long = System.currentTimeMillis()
 ) {
     fun getFullName(): String = "${name} ${surname}".trim()
-    
+
     // Helper to get the effective hourly rate
     fun getEffectiveHourlyRate(): Double = hourlyRate ?: rate
 }

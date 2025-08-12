@@ -14,7 +14,7 @@ import javax.inject.Singleton
 class DataUserPreferencesRepository @Inject constructor(
     private val dataUserPreferencesRepository: DataUserPreferencesRepository
 ) : UserPreferencesRepository {
-    
+
     override val loggedInUserId: Flow<Long?> = dataUserPreferencesRepository.loggedInUserId
 
     override suspend fun setLoggedInUser(id: Long?) {

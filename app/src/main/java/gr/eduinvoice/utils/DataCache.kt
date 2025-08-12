@@ -13,7 +13,7 @@ import kotlin.time.Duration.Companion.minutes
 class DataCache {
     private val cache = ConcurrentHashMap<String, CacheEntry>()
     private val mutex = Mutex()
-    
+
     /**
      * Cache entry with expiration time
      */
@@ -26,7 +26,7 @@ class DataCache {
             return System.currentTimeMillis() - timestamp > ttl.inWholeMilliseconds
         }
     }
-    
+
     /**
      * Cache data with a specific key and TTL
      * @param key The cache key
@@ -38,7 +38,7 @@ class DataCache {
             cache[key] = CacheEntry(data, System.currentTimeMillis(), ttl)
         }
     }
-    
+
     /**
      * Get cached data by key
      * @param key The cache key
@@ -55,7 +55,7 @@ class DataCache {
             }
         }
     }
-    
+
     /**
      * Get cached data with type safety
      * @param key The cache key
@@ -65,7 +65,7 @@ class DataCache {
     suspend fun <T> getCachedDataTyped(key: String): T? {
         return getCachedData(key) as? T
     }
-    
+
     /**
      * Check if data exists in cache and is not expired
      * @param key The cache key
@@ -82,7 +82,7 @@ class DataCache {
             }
         }
     }
-    
+
     /**
      * Remove specific data from cache
      * @param key The cache key to remove
@@ -92,7 +92,7 @@ class DataCache {
             cache.remove(key)
         }
     }
-    
+
     /**
      * Clear all cached data
      */
@@ -101,7 +101,7 @@ class DataCache {
             cache.clear()
         }
     }
-    
+
     /**
      * Clear expired entries from cache
      */
@@ -110,7 +110,7 @@ class DataCache {
             cache.entries.removeIf { it.value.isExpired() }
         }
     }
-    
+
     /**
      * Get cache statistics
      * @return Cache statistics including size and expired entries count
@@ -122,7 +122,7 @@ class DataCache {
             CacheStats(totalEntries, expiredEntries)
         }
     }
-    
+
     /**
      * Cache statistics
      */
@@ -139,32 +139,32 @@ class DataCache {
  */
 object GlobalCache {
     private val cache = DataCache()
-    
+
     suspend fun cacheData(key: String, data: Any, ttl: kotlin.time.Duration = 5.minutes) {
         cache.cacheData(key, data, ttl)
     }
-    
+
     suspend fun getCachedData(key: String): Any? {
         return cache.getCachedData(key)
     }
-    
+
     suspend fun <T> getCachedDataTyped(key: String): T? {
         return cache.getCachedDataTyped(key)
     }
-    
+
     suspend fun hasCachedData(key: String): Boolean {
         return cache.hasCachedData(key)
     }
-    
+
     suspend fun removeCachedData(key: String) {
         cache.removeCachedData(key)
     }
-    
+
     suspend fun clearCache() {
         cache.clearCache()
     }
-    
+
     suspend fun getCacheStats(): DataCache.CacheStats {
         return cache.getCacheStats()
     }
-} 
+}

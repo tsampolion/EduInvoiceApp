@@ -48,28 +48,28 @@ fun ModernEmptyState(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Text(
             text = title,
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface
         )
-        
+
         Spacer(modifier = Modifier.height(12.dp))
-        
+
         Text(
             text = message,
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         if (actionText != null && onAction != null) {
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             Button(
                 onClick = onAction,
                 shape = RoundedCornerShape(12.dp),

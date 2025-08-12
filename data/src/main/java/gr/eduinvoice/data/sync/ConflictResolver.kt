@@ -24,7 +24,7 @@ class ConflictResolver @Inject constructor() {
             // Parse both data sets
             val localJson = gson.fromJson(localData, JsonObject::class.java)
             val remoteJson = gson.fromJson(remoteData, JsonObject::class.java)
-            
+
             // Determine the best resolution strategy
             when {
                 isLocalMoreRecent(localJson, remoteJson) -> {
@@ -88,12 +88,12 @@ class ConflictResolver @Inject constructor() {
         // Check if both objects have the same structure
         val localKeys = localJson.keySet()
         val remoteKeys = remoteJson.keySet()
-        
+
         // If they have completely different keys, merging might be risky
         if (localKeys != remoteKeys) {
             return false
         }
-        
+
         // Check for critical fields that shouldn't be merged
         val criticalFields = setOf("id", "ownerId", "createdAt")
         for (field in criticalFields) {
@@ -105,7 +105,7 @@ class ConflictResolver @Inject constructor() {
                 }
             }
         }
-        
+
         return true
     }
 
@@ -114,12 +114,12 @@ class ConflictResolver @Inject constructor() {
      */
     private fun mergeJsonObjects(localJson: JsonObject, remoteJson: JsonObject): JsonObject {
         val merged = JsonObject()
-        
+
         // Add all fields from local JSON
         for ((key, value) in localJson.entrySet()) {
             merged.add(key, value)
         }
-        
+
         // Merge fields from remote JSON
         for ((key, remoteValue) in remoteJson.entrySet()) {
             if (merged.has(key)) {
@@ -130,10 +130,10 @@ class ConflictResolver @Inject constructor() {
                 merged.add(key, remoteValue)
             }
         }
-        
+
         // Update timestamp to current time
         merged.addProperty("lastModified", System.currentTimeMillis())
-        
+
         return merged
     }
 
@@ -180,7 +180,7 @@ class ConflictResolver @Inject constructor() {
         return try {
             val localList = gson.fromJson(localArray, List::class.java)
             val remoteList = gson.fromJson(remoteArray, List::class.java)
-            
+
             val mergedList = (localList + remoteList).distinct()
             val mergedJson = gson.toJsonTree(mergedList)
             mergedJson
@@ -274,4 +274,4 @@ sealed class ConflictResolution {
     object UseLocal : ConflictResolution()
     data class UseRemote(val data: String) : ConflictResolution()
     data class Merge(val mergedData: String) : ConflictResolution()
-} 
+}

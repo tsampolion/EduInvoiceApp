@@ -16,7 +16,7 @@ data class PaginatedList<T>(
     val totalCount: Int,
     val totalPages: Int
 ) {
-    
+
     companion object {
         /**
          * Create an empty paginated list
@@ -32,7 +32,7 @@ data class PaginatedList<T>(
                 totalPages = 0
             )
         }
-        
+
         /**
          * Create a paginated list from a full list
          */
@@ -45,13 +45,13 @@ data class PaginatedList<T>(
             val totalPages = (totalCount + pageSize - 1) / pageSize
             val startIndex = page * pageSize
             val endIndex = minOf(startIndex + pageSize, totalCount)
-            
+
             val items = if (startIndex < totalCount) {
                 fullList.subList(startIndex, endIndex)
             } else {
                 emptyList()
             }
-            
+
             return PaginatedList(
                 items = items,
                 hasNextPage = page < totalPages - 1,
@@ -63,45 +63,45 @@ data class PaginatedList<T>(
             )
         }
     }
-    
+
     /**
      * Check if the list is empty
      */
     val isEmpty: Boolean
         get() = items.isEmpty()
-    
+
     /**
      * Check if the list is not empty
      */
     val isNotEmpty: Boolean
         get() = items.isNotEmpty()
-    
+
     /**
      * Get the number of items in the current page
      */
     val size: Int
         get() = items.size
-    
+
     /**
      * Get the first item in the current page
      */
     fun firstOrNull(): T? = items.firstOrNull()
-    
+
     /**
      * Get the last item in the current page
      */
     fun lastOrNull(): T? = items.lastOrNull()
-    
+
     /**
      * Get an item at the specified index
      */
     fun get(index: Int): T = items[index]
-    
+
     /**
      * Get an item at the specified index or null if out of bounds
      */
     fun getOrNull(index: Int): T? = items.getOrNull(index)
-    
+
     /**
      * Map the items to a new type
      */
@@ -116,7 +116,7 @@ data class PaginatedList<T>(
             totalPages = totalPages
         )
     }
-    
+
     /**
      * Filter the items
      */
@@ -159,15 +159,15 @@ data class PaginationState<T>(
 class PaginationManager<T>(
     private val config: PaginationConfig = PaginationConfig()
 ) {
-    
+
     private val cachedPages = mutableMapOf<Int, PaginatedList<T>>()
     private var currentState = PaginationState<T>()
-    
+
     /**
      * Get the current pagination state
      */
     fun getCurrentState(): PaginationState<T> = currentState
-    
+
     /**
      * Load a specific page
      */
@@ -176,28 +176,28 @@ class PaginationManager<T>(
         loader: suspend (Int, Int) -> PaginatedList<T>
     ): PaginationState<T> {
         currentState = currentState.copy(isLoading = true, error = null)
-        
+
         return try {
             // Check cache first
             val cachedPage = if (config.enableCaching) {
                 cachedPages[page]
             } else null
-            
+
             val pageData = cachedPage ?: loader(page, config.pageSize)
-            
+
             // Cache the page if caching is enabled
             if (config.enableCaching) {
                 cachePage(page, pageData)
             }
-            
+
             currentState = currentState.copy(
                 currentPage = pageData,
                 isLoading = false,
                 hasReachedEnd = !pageData.hasNextPage
             )
-            
+
             currentState
-            
+
         } catch (e: Exception) {
             currentState = currentState.copy(
                 isLoading = false,
@@ -206,7 +206,7 @@ class PaginationManager<T>(
             currentState
         }
     }
-    
+
     /**
      * Load the next page
      */
@@ -217,10 +217,10 @@ class PaginationManager<T>(
         if (currentPage == null || !currentPage.hasNextPage || currentState.hasReachedEnd) {
             return currentState
         }
-        
+
         return loadPage(currentPage.currentPage + 1, loader)
     }
-    
+
     /**
      * Load the previous page
      */
@@ -231,10 +231,10 @@ class PaginationManager<T>(
         if (currentPage == null || !currentPage.hasPreviousPage) {
             return currentState
         }
-        
+
         return loadPage(currentPage.currentPage - 1, loader)
     }
-    
+
     /**
      * Refresh the current page
      */
@@ -245,28 +245,28 @@ class PaginationManager<T>(
         if (currentPage == null) {
             return currentState
         }
-        
+
         // Clear cache for current page
         if (config.enableCaching) {
             cachedPages.remove(currentPage.currentPage)
         }
-        
+
         return loadPage(currentPage.currentPage, loader)
     }
-    
+
     /**
      * Clear all cached pages
      */
     fun clearCache() {
         cachedPages.clear()
     }
-    
+
     /**
      * Get cached page
      */
     private fun cachePage(page: Int, pageData: PaginatedList<T>) {
         cachedPages[page] = pageData
-        
+
         // Remove oldest pages if we exceed the limit
         if (cachedPages.size > config.maxPagesInMemory) {
             val oldestPage = cachedPages.keys.minOrNull()
@@ -275,7 +275,7 @@ class PaginationManager<T>(
             }
         }
     }
-    
+
     /**
      * Reset the pagination state
      */
@@ -293,14 +293,14 @@ fun <T> paginatedFlow(
     loader: suspend (Int, Int) -> PaginatedList<T>
 ): Flow<PaginationState<T>> = flow {
     val manager = PaginationManager<T>(config)
-    
+
     // Load first page
     var state = manager.loadPage(0, loader)
     emit(state)
-    
+
     // Continue loading pages as needed
     while (state.currentPage?.hasNextPage == true && !state.hasReachedEnd) {
         state = manager.loadNextPage(loader)
         emit(state)
     }
-} 
+}

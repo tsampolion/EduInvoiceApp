@@ -44,7 +44,7 @@ object DatabaseModule {
         prefs: UserPreferencesRepository
     ): EduInvoiceDatabase {
         SQLiteDatabase.loadLibs(context)
-        
+
         // Get passphrase with better error handling
         val pass = try {
             runBlocking(Dispatchers.IO) { prefs.getDbPassphrase() }
@@ -58,17 +58,17 @@ object DatabaseModule {
                 throw DatabaseInitException("Failed to get database passphrase", e)
             }
         }
-        
+
         require(pass.isNotBlank()) { "Database passphrase unavailable" }
         val passphrase = SQLiteDatabase.getBytes(pass.toCharArray())
-        
+
         Log.d("DatabaseModule", "Passphrase length: ${passphrase.size}")
-        
+
         return try {
             EduInvoiceDatabase.getDatabase(context, passphrase)
         } catch (e: Exception) {
             Log.e("DatabaseModule", "Failed to create database", e)
-            
+
             // Try to recover by using destructive migration as last resort
             if (e.message?.contains("Migration didn't properly handle") == true) {
                 Log.w("DatabaseModule", "Migration failed, attempting recovery with destructive migration")
@@ -82,7 +82,7 @@ object DatabaseModule {
                         .openHelperFactory(factory)
                         .fallbackToDestructiveMigration(true) // Allow destructive migration for recovery
                         .build()
-                    
+
                     Log.i("DatabaseModule", "Database recovered successfully with destructive migration")
                     return recoveredInstance
                 } catch (recoveryException: Exception) {
@@ -96,7 +96,7 @@ object DatabaseModule {
     }
 
     // DatabaseModule only provides the Room database instance.
-    
+
     @Provides
     @Singleton
     fun provideDatabaseHealthMonitor(
@@ -105,7 +105,7 @@ object DatabaseModule {
     ): DatabaseHealthMonitor {
         return DatabaseHealthMonitor(context, database)
     }
-    
+
     @Provides
     @Singleton
     fun provideDatabaseIntegrityValidator(
@@ -113,7 +113,7 @@ object DatabaseModule {
     ): DatabaseIntegrityValidator {
         return DatabaseIntegrityValidator(database)
     }
-    
+
     @Provides
     @Singleton
     fun provideDatabaseFallbackManager(
@@ -124,7 +124,7 @@ object DatabaseModule {
     ): DatabaseFallbackManager {
         return DatabaseFallbackManager(context, database, healthMonitor, integrityValidator)
     }
-    
+
     @Provides
     @Singleton
     fun provideBackupRepository(
@@ -133,7 +133,7 @@ object DatabaseModule {
     ): BackupRepository {
         return BackupRepository(context, database)
     }
-    
+
     @Provides
     @Singleton
     fun provideNetworkMonitor(
@@ -141,7 +141,7 @@ object DatabaseModule {
     ): NetworkMonitor {
         return NetworkMonitor(context)
     }
-    
+
     @Provides
     @Singleton
     fun provideOfflineDataManager(
@@ -149,13 +149,13 @@ object DatabaseModule {
     ): OfflineDataManager {
         return OfflineDataManager(context)
     }
-    
+
     @Provides
     @Singleton
     fun provideConflictResolver(): ConflictResolver {
         return ConflictResolver()
     }
-    
+
     @Provides
     @Singleton
     fun provideSyncManager(
@@ -166,7 +166,7 @@ object DatabaseModule {
     ): SyncManager {
         return SyncManager(context, offlineDataManager, networkMonitor, conflictResolver)
     }
-    
+
     @Provides
     @Singleton
     fun provideSyncRepository(
@@ -180,9 +180,9 @@ object DatabaseModule {
     ): SyncRepository {
         return SyncRepository(context, studentDao, lessonDao, groupDao, offlineDataManager, syncManager, networkMonitor)
     }
-    
+
     // ===== Concurrency Components =====
-    
+
     @Provides
     @Singleton
     fun provideTransactionManager(
@@ -190,13 +190,13 @@ object DatabaseModule {
     ): TransactionManager {
         return TransactionManager(database)
     }
-    
+
     @Provides
     @Singleton
     fun provideOperationQueueManager(): OperationQueueManager {
         return OperationQueueManager()
     }
-    
+
     @Provides
     @Singleton
     fun provideConcurrencyController(

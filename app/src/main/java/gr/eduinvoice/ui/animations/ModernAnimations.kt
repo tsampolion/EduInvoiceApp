@@ -40,11 +40,11 @@ fun AnimatedCounter(
         animationSpec = tween(500, easing = FastOutSlowInEasing),
         label = "counter"
     )
-    
+
     LaunchedEffect(count) {
         oldCount = count
     }
-    
+
     Text(
         text = animatedCount.toInt().toString(),
         modifier = modifier,
@@ -67,7 +67,7 @@ fun PulseAnimation(
         ),
         label = "scale"
     )
-    
+
     if (isVisible) {
         Box(
             modifier = Modifier.scale(scale),
@@ -88,7 +88,7 @@ fun FadeInAnimation(
         animationSpec = tween(300, easing = FastOutSlowInEasing),
         label = "alpha"
     )
-    
+
     Box(
         modifier = Modifier.alpha(alpha)
     ) {
@@ -106,7 +106,7 @@ fun SlideInAnimation(
         animationSpec = tween(400, easing = FastOutSlowInEasing),
         label = "offset"
     )
-    
+
     Box(
         modifier = Modifier.graphicsLayer {
             translationY = offsetY
@@ -123,7 +123,7 @@ fun LoadingAnimation(
 ) {
     Box {
         content()
-        
+
         AnimatedVisibility(
             visible = isLoading,
             enter = fadeIn() + scaleIn(),
@@ -158,7 +158,7 @@ fun ShimmerAnimation(
         ),
         label = "shimmer"
     )
-    
+
     if (isVisible) {
         Box(
             modifier = Modifier.graphicsLayer {
@@ -183,7 +183,7 @@ fun BounceAnimation(
         ),
         label = "bounce"
     )
-    
+
     Box(
         modifier = Modifier.scale(scale),
         contentAlignment = Alignment.Center

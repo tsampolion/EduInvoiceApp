@@ -9,6 +9,7 @@ plugins {
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
     id 'io.gitlab.arturbosch.detekt'
+    id 'com.diffplug.spotless'
 }
 
 def firebaseKey = ""
@@ -215,5 +216,25 @@ ksp {
 detekt {
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
     buildUponDefaultConfig = true
+}
+
+// Spotless configuration
+spotless {
+    ratchetFrom 'origin/main'
+    kotlin {
+        target '**/*.kt'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    kotlinGradle {
+        target '**/*.kts'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    format 'misc', {
+        target '**/*.md', '**/.gitignore'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 

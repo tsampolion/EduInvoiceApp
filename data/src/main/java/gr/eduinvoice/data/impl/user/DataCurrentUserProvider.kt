@@ -14,6 +14,6 @@ import javax.inject.Singleton
 class DataCurrentUserProvider @Inject constructor(
     private val dataCurrentUserProvider: DataCurrentUserProvider
 ) : CurrentUserProvider {
-    
+
     override val loggedInUserId: Flow<Long?> = dataCurrentUserProvider.loggedInUserId
 }

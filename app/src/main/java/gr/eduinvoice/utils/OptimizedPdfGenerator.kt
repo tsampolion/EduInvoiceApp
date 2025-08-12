@@ -30,9 +30,9 @@ sealed class PdfResult {
 class OptimizedPdfGenerator(private val context: Context) {
     private val _generationStatus = MutableStateFlow<PdfResult>(PdfResult.Success)
     val generationStatus: StateFlow<PdfResult> = _generationStatus.asStateFlow()
-    
+
     private var currentJob: Job? = null
-    
+
     /**
      * Generate PDF asynchronously for large invoices using BackgroundProcessor
      * @param invoiceData The invoice data to generate PDF for
@@ -45,31 +45,31 @@ class OptimizedPdfGenerator(private val context: Context) {
     ): Job? {
         // Cancel any existing generation
         cancelGeneration()
-        
+
         return GlobalBackgroundProcessor.executeTaskWithProgress(
             task = { progressCallback ->
                 _generationStatus.value = PdfResult.Progress(0, 100)
-                
+
                 // Generate PDF in chunks to avoid memory issues
                 val pdfDocument = createPdfDocument()
-                
+
                 // Process invoice data in chunks
                 val totalLessons = invoiceData.lessons.size
                 val chunkSize = 50 // Process 50 lessons at a time
-                
+
                 for (i in 0 until totalLessons step chunkSize) {
                     val endIndex = minOf(i + chunkSize, totalLessons)
                     val chunk = invoiceData.lessons.subList(i, endIndex)
-                    
+
                     // Process chunk
                     processLessonsChunk(pdfDocument, chunk, invoiceData.student)
-                    
+
                     // Update progress
                     val progress = ((i + chunkSize) * 100f / totalLessons).coerceAtMost(90f)
                     _generationStatus.value = PdfResult.Progress(progress.toInt(), 100)
                     progressCallback(progress / 100f)
                 }
-                
+
                 // Finalize PDF
                 finalizePdf(pdfDocument, outputFile)
             },
@@ -86,7 +86,7 @@ class OptimizedPdfGenerator(private val context: Context) {
             currentJob = job
         }
     }
-    
+
     /**
      * Cancel current PDF generation
      */
@@ -95,7 +95,7 @@ class OptimizedPdfGenerator(private val context: Context) {
         currentJob = null
         _generationStatus.value = PdfResult.Success
     }
-    
+
     /**
      * Create PDF document with optimized settings
      */
@@ -105,10 +105,10 @@ class OptimizedPdfGenerator(private val context: Context) {
             .setResolution(PrintAttributes.Resolution("pdf", "pdf", 600, 600))
             .setMinMargins(PrintAttributes.Margins.NO_MARGINS)
             .build()
-        
+
         return PrintedPdfDocument(context, printAttributes)
     }
-    
+
     /**
      * Process a chunk of lessons for PDF generation
      */
@@ -126,7 +126,7 @@ class OptimizedPdfGenerator(private val context: Context) {
             }.awaitAll()
         }
     }
-    
+
     /**
      * Create a page for a single lesson
      */
@@ -137,7 +137,7 @@ class OptimizedPdfGenerator(private val context: Context) {
     ): PdfDocument.Page {
         val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
         val page = pdfDocument.startPage(pageInfo)
-        
+
         // Create optimized page content
         val canvas = page.canvas
         val paint = android.graphics.Paint().apply {
@@ -145,13 +145,13 @@ class OptimizedPdfGenerator(private val context: Context) {
             textSize = 12f
             isAntiAlias = true
         }
-        
+
         var yPosition = 50f
-        
+
         // Draw student information
         canvas.drawText("Student: ${student.name} ${student.surname}", 50f, yPosition, paint)
         yPosition += 20f
-        
+
         // Draw lesson information
         canvas.drawText("Date: ${lesson.lesson.date}", 50f, yPosition, paint)
         yPosition += 20f
@@ -159,7 +159,7 @@ class OptimizedPdfGenerator(private val context: Context) {
         yPosition += 20f
         canvas.drawText("Duration: ${lesson.lesson.durationMinutes} minutes", 50f, yPosition, paint)
         yPosition += 20f
-        
+
         // Draw notes if available
         lesson.lesson.notes?.let { notes ->
             if (notes.isNotBlank()) {
@@ -167,15 +167,15 @@ class OptimizedPdfGenerator(private val context: Context) {
                 yPosition += 20f
             }
         }
-        
+
         // Draw payment status
         val paymentStatus = if (lesson.lesson.isPaid) "Paid" else "Unpaid"
         canvas.drawText("Status: $paymentStatus", 50f, yPosition, paint)
-        
+
         pdfDocument.finishPage(page)
         return page
     }
-    
+
     /**
      * Finalize and save the PDF document
      */
@@ -191,7 +191,7 @@ class OptimizedPdfGenerator(private val context: Context) {
             }
         }
     }
-    
+
     /**
      * Generate summary PDF for multiple lessons
      */
@@ -205,14 +205,14 @@ class OptimizedPdfGenerator(private val context: Context) {
             outputFile
         )
     }
-    
+
     /**
      * Check if PDF generation is in progress
      */
     fun isGenerating(): Boolean {
         return currentJob?.isActive == true
     }
-    
+
     /**
      * Clean up resources
      */
@@ -232,7 +232,7 @@ data class InvoiceData(
 ) {
     companion object {
         private var invoiceCounter = 0
-        
+
         private fun generateInvoiceNumber(): String {
             invoiceCounter++
             val date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
@@ -246,18 +246,18 @@ data class InvoiceData(
  */
 object GlobalPdfGenerator {
     private var generator: OptimizedPdfGenerator? = null
-    
+
     fun initialize(context: Context) {
         generator = OptimizedPdfGenerator(context)
     }
-    
+
     fun generatePdfAsync(
         invoiceData: InvoiceData,
         outputFile: File
     ): Job? {
         return generator?.generatePdfAsync(invoiceData, outputFile)
     }
-    
+
     fun generateSummaryPdfAsync(
         lessons: List<UiLessonWithStudent>,
         student: DomainStudent,
@@ -265,21 +265,21 @@ object GlobalPdfGenerator {
     ): Job? {
         return generator?.generateSummaryPdfAsync(lessons, student, outputFile)
     }
-    
+
     fun cancelGeneration() {
         generator?.cancelGeneration()
     }
-    
+
     fun isGenerating(): Boolean {
         return generator?.isGenerating() ?: false
     }
-    
+
     fun getGenerationStatus(): StateFlow<PdfResult>? {
         return generator?.generationStatus
     }
-    
+
     fun cleanup() {
         generator?.cleanup()
         generator = null
     }
-} 
+}

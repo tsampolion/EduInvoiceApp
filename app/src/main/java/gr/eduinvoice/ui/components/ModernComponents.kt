@@ -52,5 +52,3 @@ fun ModernChip(
         shape = RoundedCornerShape(20.dp)
     )
 }
-
-

@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'com.diffplug.spotless'
 }
 
 android {
@@ -51,5 +52,25 @@ dependencies {
     // Test fixtures
     // TODO: Move to module-local fixtures (Option A)
     // testImplementation(testFixtures(project(":test-support")))
+}
+
+// Spotless configuration
+spotless {
+    ratchetFrom 'origin/main'
+    kotlin {
+        target '**/*.kt'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    kotlinGradle {
+        target '**/*.kts'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    format 'misc', {
+        target '**/*.md', '**/.gitignore'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 

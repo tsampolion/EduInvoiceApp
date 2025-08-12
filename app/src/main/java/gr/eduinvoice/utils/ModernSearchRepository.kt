@@ -90,5 +90,3 @@ class ModernSearchRepository @Inject constructor(
         return costs[b.length]
     }
 }
-
-

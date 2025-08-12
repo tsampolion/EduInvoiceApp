@@ -42,7 +42,7 @@ fun <T> VirtualScrollingList(
             val visibleItems = layoutInfo.visibleItemsInfo
             val totalItems = layoutInfo.totalItemsCount
             val lastVisibleItem = visibleItems.lastOrNull()
-            
+
             Triple(visibleItems, totalItems, lastVisibleItem)
         }
     }
@@ -65,7 +65,7 @@ fun <T> VirtualScrollingList(
     ) {
         itemsIndexed(
             items = items,
-            key = { index, item -> 
+            key = { index, item ->
                 // Use item hash or id if available, otherwise use index
                 when (item) {
                     is gr.eduinvoice.domain.model.DomainStudent -> item.id
@@ -76,7 +76,7 @@ fun <T> VirtualScrollingList(
         ) { index, item ->
             itemContent(item, index)
         }
-        
+
         // Show loading indicator if loading more items
         if (isLoadingMore) {
             item {
@@ -138,12 +138,12 @@ fun VirtualLessonList(
         itemContent = { lesson, _ ->
             gr.eduinvoice.ui.lessons.LessonItem(
                 lessonWithStudent = lesson,
-                onClick = { 
+                onClick = {
                     onLessonClick(
-                        lesson.student.id, 
-                        lesson.lesson.id, 
+                        lesson.student.id,
+                        lesson.lesson.id,
                         lesson.lesson.groupId ?: 0L
-                    ) 
+                    )
                 },
                 onPaidChange = { onPaidChange(lesson.lesson.id, it) }
             )
@@ -154,4 +154,4 @@ fun VirtualLessonList(
         onLoadMore = onLoadMore,
         isLoadingMore = isLoadingMore
     )
-} 
+}
