@@ -162,6 +162,7 @@ android {
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
     testImplementation "androidx.test.ext:junit:1.1.5"
     testImplementation "com.lemonappdev:konsist:0.16.0"
+    testImplementation "app.cash.turbine:turbine:1.1.0"
     
     // Test fixtures
     testImplementation(testFixtures(project(":domain")))
