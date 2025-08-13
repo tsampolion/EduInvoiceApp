@@ -15,7 +15,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Enhanced EduInvoiceRepository with concurrency safety
+ * Enhanced TutorBillingRepository with concurrency safety
  *
  * This repository now uses the ConcurrencyController to ensure:
  * - Thread-safe database operations
@@ -99,29 +99,41 @@ class EduInvoiceRepository @Inject constructor(
      * Adds a new lesson with concurrency safety and validation
      */
     suspend fun addLesson(lesson: Lesson, userId: Long): Long {
-        require(lesson.studentId > 0) { "Student ID must be valid" }
-        require(lesson.ownerId == userId) { "Lesson owner must match current user" }
+        require(lesson.durationMinutes > 0) { "Lesson duration must be positive" }
 
         return concurrencyController.executeSafeOperation(
-            operation = { lessonDao.insert(lesson) },
+            operation = {
+                // Validate student exists and is active within transaction
+                val student = studentDao.getStudentById(lesson.studentId, userId).first()
+                checkNotNull(student) { "Cannot add lesson for a non-existent student" }
+                check(student.isActive) { "Cannot add lesson for an inactive student" }
+
+                lessonDao.insert(lesson)
+            },
             operationType = OperationType.WRITE,
-            resourceId = "lesson_${lesson.studentId}",
+            resourceId = "lesson_student_${lesson.studentId}",
             priority = OperationPriority.NORMAL,
-            useTransaction = true
+            useTransaction = true,
+            isolationLevel = TransactionIsolationLevel.SERIALIZABLE
         ).getOrThrow()
     }
 
     /**
-     * Adds a group lesson with concurrency safety
+     * Adds group lessons with concurrency safety
      */
     suspend fun addGroupLesson(groupId: Long, lesson: Lesson, userId: Long): List<Long> {
-        require(groupId > 0) { "Group ID must be valid" }
-        require(lesson.ownerId == userId) { "Lesson owner must match current user" }
+        require(lesson.durationMinutes > 0) { "Lesson duration must be positive" }
 
         return concurrencyController.executeSafeOperation(
-            operation = { lessonDao.insertGroupLesson(groupId, lesson) },
-            operationType = OperationType.WRITE,
-            resourceId = "group_lesson_$groupId",
+            operation = {
+                val students = groupDao.getStudentsForGroup(groupId, userId).first()
+                val lessons = students.map { student ->
+                    lesson.copy(studentId = student.id, groupId = groupId)
+                }
+                lessonDao.insertGroupLessons(lessons)
+            },
+            operationType = OperationType.BATCH,
+            resourceId = "group_$groupId",
             priority = OperationPriority.NORMAL,
             useTransaction = true
         ).getOrThrow()
@@ -141,11 +153,11 @@ class EduInvoiceRepository @Inject constructor(
     }
 
     /**
-     * Soft deletes a lesson with concurrency safety
+     * Deletes a lesson with concurrency safety
      */
     suspend fun deleteLesson(lessonId: Long, userId: Long) {
         concurrencyController.executeSafeOperation(
-            operation = { lessonDao.softDeleteLesson(lessonId, userId) },
+            operation = { lessonDao.deleteById(lessonId, userId) },
             operationType = OperationType.DELETE,
             resourceId = "lesson_$lessonId",
             priority = OperationPriority.HIGH,
@@ -154,133 +166,72 @@ class EduInvoiceRepository @Inject constructor(
     }
 
     /**
-     * Gets lessons for a specific student with read-only safety
+     * Gets lessons for a student with read-only safety
      */
-    fun getLessonsForStudent(studentId: Long, userId: Long): Flow<List<LessonWithStudent>> {
-        return lessonDao.getLessonsForStudent(studentId, userId)
+    fun getLessonsForStudent(studentId: Long, userId: Long): Flow<List<Lesson>> {
+        return lessonDao.getLessonsByStudentId(studentId, userId)
     }
 
     /**
-     * Gets all active lessons as a Flow (read-only)
+     * Gets lessons with student data with read-only safety
      */
-    fun getAllActiveLessons(userId: Long): Flow<List<LessonWithStudent>> {
-        return lessonDao.getAllActiveLessons(userId)
+    fun getLessonsWithStudentData(studentId: Long, userId: Long): Flow<List<LessonWithStudent>> {
+        return lessonDao.getLessonsWithStudentsByStudent(studentId, userId)
     }
 
-    /**
-     * Gets a single lesson by ID with read-only safety
-     */
-    suspend fun getLesson(lessonId: Long, userId: Long): Lesson? {
-        return concurrencyController.executeReadOnlyOperation(
-            operation = { lessonDao.getLessonById(lessonId, userId).first() },
-            resourceId = "lesson_$lessonId"
-        ).getOrNull()
-    }
-
-    // ===== Group Operations =====
+    // ===== Batch Operations =====
 
     /**
-     * Adds a new group with concurrency safety
+     * Performs batch student operations with concurrency safety
      */
-    suspend fun addGroup(group: gr.eduinvoice.data.model.Group): Long {
-        require(group.name.isNotBlank()) { "Group name cannot be empty" }
-        require(group.ownerId > 0) { "Group owner must be valid" }
+    suspend fun batchUpdateStudents(students: List<Student>): List<Result<Unit>> {
+        val operations = students.map { student ->
+            suspend { studentDao.update(student) }
+        }
 
-        return concurrencyController.executeSafeOperation(
-            operation = { groupDao.insert(group) },
-            operationType = OperationType.WRITE,
-            resourceId = "group_${group.ownerId}",
+        return concurrencyController.executeBatchSafeOperations(
+            operations = operations,
+            operationType = OperationType.BATCH,
+            resourceId = "batch_students",
             priority = OperationPriority.NORMAL,
             useTransaction = true
-        ).getOrThrow()
+        ).map { results ->
+            results.map { Result.success(Unit) }
+        }.getOrElse {
+            students.map { Result.failure(Exception("Batch operation failed")) }
+        }
     }
 
     /**
-     * Updates an existing group with concurrency safety
+     * Performs batch lesson operations with concurrency safety
      */
-    suspend fun updateGroup(group: gr.eduinvoice.data.model.Group) {
-        concurrencyController.executeSafeOperation(
-            operation = { groupDao.update(group) },
-            operationType = OperationType.UPDATE,
-            resourceId = "group_${group.id}",
+    suspend fun batchUpdateLessons(lessons: List<Lesson>): List<Result<Unit>> {
+        val operations = lessons.map { lesson ->
+            suspend { lessonDao.update(lesson) }
+        }
+
+        return concurrencyController.executeBatchSafeOperations(
+            operations = operations,
+            operationType = OperationType.BATCH,
+            resourceId = "batch_lessons",
             priority = OperationPriority.NORMAL,
             useTransaction = true
-        ).getOrThrow()
+        ).map { results ->
+            results.map { Result.success(Unit) }
+        }.getOrElse {
+            lessons.map { Result.failure(Exception("Batch operation failed")) }
+        }
     }
+
+    // ===== Health Check =====
 
     /**
-     * Soft deletes a group with concurrency safety
+     * Performs health check on concurrency components
      */
-    suspend fun deleteGroup(groupId: Long, userId: Long) {
-        concurrencyController.executeSafeOperation(
-            operation = { groupDao.softDeleteGroup(groupId, userId) },
-            operationType = OperationType.DELETE,
-            resourceId = "group_$groupId",
-            priority = OperationPriority.HIGH,
-            useTransaction = true
-        ).getOrThrow()
-    }
+    suspend fun performHealthCheck() = concurrencyController.performHealthCheck()
 
     /**
-     * Gets all active groups as a Flow (read-only)
+     * Gets concurrency statistics
      */
-    fun getAllActiveGroups(userId: Long): Flow<List<gr.eduinvoice.data.model.Group>> {
-        return groupDao.getAllActiveGroups(userId)
-    }
-
-    /**
-     * Gets a single group by ID with read-only safety
-     */
-    suspend fun getGroup(groupId: Long, userId: Long): gr.eduinvoice.data.model.Group? {
-        return concurrencyController.executeReadOnlyOperation(
-            operation = { groupDao.getGroupById(groupId, userId).first() },
-            resourceId = "group_$groupId"
-        ).getOrNull()
-    }
-
-    /**
-     * Adds a student to a group with concurrency safety
-     */
-    suspend fun addStudentToGroup(studentId: Long, groupId: Long, userId: Long) {
-        require(studentId > 0) { "Student ID must be valid" }
-        require(groupId > 0) { "Group ID must be valid" }
-
-        concurrencyController.executeSafeOperation(
-            operation = { groupDao.addStudentToGroup(studentId, groupId, userId) },
-            operationType = OperationType.WRITE,
-            resourceId = "group_student_${groupId}_${studentId}",
-            priority = OperationPriority.NORMAL,
-            useTransaction = true
-        ).getOrThrow()
-    }
-
-    /**
-     * Removes a student from a group with concurrency safety
-     */
-    suspend fun removeStudentFromGroup(studentId: Long, groupId: Long, userId: Long) {
-        require(studentId > 0) { "Student ID must be valid" }
-        require(groupId > 0) { "Group ID must be valid" }
-
-        concurrencyController.executeSafeOperation(
-            operation = { groupDao.removeStudentFromGroup(studentId, groupId, userId) },
-            operationType = OperationType.DELETE,
-            resourceId = "group_student_${groupId}_${studentId}",
-            priority = OperationPriority.NORMAL,
-            useTransaction = true
-        ).getOrThrow()
-    }
-
-    /**
-     * Gets all students in a group with read-only safety
-     */
-    fun getStudentsInGroup(groupId: Long, userId: Long): Flow<List<Student>> {
-        return groupDao.getStudentsInGroup(groupId, userId)
-    }
-
-    /**
-     * Gets all groups for a student with read-only safety
-     */
-    fun getGroupsForStudent(studentId: Long, userId: Long): Flow<List<gr.eduinvoice.data.model.Group>> {
-        return groupDao.getGroupsForStudent(studentId, userId)
-    }
+    fun getConcurrencyStatistics() = concurrencyController.getConcurrencyStatistics()
 }
