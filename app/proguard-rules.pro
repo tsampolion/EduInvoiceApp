@@ -1,4 +1,4 @@
-# ProGuard rules for TutorBillingApp
+# ProGuard rules for EduInvoiceApp
 
 # Keep classes annotated with Hilt entry points so Dagger can generate and locate them
 -keep @dagger.hilt.android.HiltAndroidApp class *
