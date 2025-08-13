@@ -166,6 +166,12 @@ EduInvoiceApp/
 - **Testing:** Comprehensive test coverage with JUnit and Robolectric
 - **Static Analysis:** Detekt for Kotlin code analysis
 
+#### Ratchet Policy
+
+- Spotless is configured to ratchet from `origin/main`; avoid reformatting unrelated files.
+- Detekt baseline only covers legacy code. When you touch a file, fix its Detekt issues or add a scoped suppression with clear rationale; do not add new entries to the baseline.
+- CI may optionally run Detekt on changed files only as an early failure gate.
+
 ### Testing
 
 ```bash
