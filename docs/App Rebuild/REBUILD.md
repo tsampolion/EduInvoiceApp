@@ -1,6 +1,6 @@
 # Rebuild Walkthrough
 
-This document describes a step-by-step process for performing a complete rebuild of **TutorBillingApp**. It is intended for contributors who need to restructure the project while keeping builds reproducible and tests passing.
+This document describes a step-by-step process for performing a complete rebuild of **EduInvoiceApp**. It is intended for contributors who need to restructure the project while keeping builds reproducible and tests passing.
 
 ## 1. Environment preparation
 

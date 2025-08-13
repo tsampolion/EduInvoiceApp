@@ -23,5 +23,3 @@ class VisualTests {
 fun SampleComposable() {
     Text("Snapshot Test")
 }
-
-

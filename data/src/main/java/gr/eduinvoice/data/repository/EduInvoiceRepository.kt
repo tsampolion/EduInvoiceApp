@@ -15,7 +15,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Enhanced TutorBillingRepository with concurrency safety
+ * Enhanced EduInvoiceRepository with concurrency safety
  *
  * This repository now uses the ConcurrencyController to ensure:
  * - Thread-safe database operations

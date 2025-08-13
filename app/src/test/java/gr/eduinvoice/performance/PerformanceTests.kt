@@ -12,6 +12,3 @@ class PerformanceTests {
         assert(elapsed < 10_000)
     }
 }
-
-
-

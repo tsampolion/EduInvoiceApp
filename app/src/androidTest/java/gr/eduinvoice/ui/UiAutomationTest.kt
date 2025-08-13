@@ -23,5 +23,3 @@ class UiAutomationTest {
         assert(true)
     }
 }
-
-
