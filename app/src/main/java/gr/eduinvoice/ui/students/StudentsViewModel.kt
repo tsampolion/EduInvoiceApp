@@ -104,12 +104,10 @@ class StudentsViewModel @Inject constructor(
         }
 
         // Use modern search when query present
-        val baseStudents = PerformanceTraces.trace("students_load_page") {
-            if (query.isBlank()) {
-                studentUseCases.getStudentsPaginated(uid, pageSize, page * pageSize)
-            } else {
-                modernSearchRepository.searchAll(query, pageSize).students
-            }
+        val baseStudents = if (query.isBlank()) {
+            studentUseCases.getStudentsPaginated(uid, pageSize, page * pageSize)
+        } else {
+            modernSearchRepository.searchAll(query, pageSize).students
         }
         val students = modernFilterManager.applyStudentFilters(baseStudents, filters)
 

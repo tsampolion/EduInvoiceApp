@@ -14,6 +14,17 @@ object PerformanceTraces {
             trace.stop()
         }
     }
+
+    suspend fun <T> traceSuspend(name: String, block: suspend () -> T): T {
+        val perf = FirebasePerformance.getInstance()
+        val trace: Trace = perf.newTrace(name)
+        trace.start()
+        return try {
+            block()
+        } finally {
+            trace.stop()
+        }
+    }
 }
 
 

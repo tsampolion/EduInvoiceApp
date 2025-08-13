@@ -52,7 +52,7 @@ class AndroidPdfGenerator(
 
             pdf.finishPage(page)
             // Guard memory during IO and large buffer write
-            MemoryMonitor("PDF").guardOperation(thresholdPct = 92) {
+            MemoryMonitor(context).guardOperation(thresholdPct = 92) {
                 FileOutputStream(outputFile).use { out ->
                     PerformanceTraces.trace("pdf_write") {
                         pdf.writeTo(out)

@@ -1,6 +1,7 @@
 package gr.eduinvoice.security
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -8,7 +9,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 object IntegrityChecks {
     fun isDeviceCompromised(context: Context): Boolean {
-        val isDebuggable = (context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
+        val appInfo = context.applicationInfo
+        val isDebuggable = appInfo != null && (appInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0
         val isEmulator = Build.FINGERPRINT.lowercase().contains("generic") ||
             Build.MODEL.contains("google_sdk") || Build.MODEL.lowercase().contains("emulator") ||
             Build.MANUFACTURER.lowercase().contains("genymotion")
@@ -31,10 +33,11 @@ object IntegrityChecks {
 
     fun isTampered(context: Context): Boolean {
         return try {
-            val pkg = context.packageManager.getPackageInfo(context.packageName, 0)
             // Basic tamper heuristic: debug build or unknown installer
             val installer = context.packageManager.getInstallerPackageName(context.packageName)
-            val tampered = installer == null && (pkg.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) == 0
+            val appInfo = context.applicationInfo
+            val isDebuggable = (appInfo?.flags ?: 0) and ApplicationInfo.FLAG_DEBUGGABLE != 0
+            val tampered = installer == null && !isDebuggable
             if (tampered) FirebaseCrashlytics.getInstance().log("Integrity: possible tamper detected")
             tampered
         } catch (t: Throwable) {
