@@ -74,7 +74,7 @@ class PerformanceMonitor @Inject constructor(
             if (BuildConfig.DEBUG) {
                 Log.d("PerformanceMonitor", "Trace $name completed in ${duration}ms")
             }
-            // TODO: Send to Firebase Performance when available
+            // Bridge to Firebase Performance custom metrics if needed
         }
 
         fun putMetric(key: String, value: Long) {

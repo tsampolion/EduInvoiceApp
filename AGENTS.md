@@ -3,7 +3,7 @@
 
 ## 1. Project Overview
 EduInvoiceApp is a production-ready Android application for tutoring business management with enterprise-grade features.
-**Current Version:** 0.24.9 | **Status:** Production Ready with Enterprise Features
+**Current Version:** 0.27.0 | **Status:** Production Ready with Enterprise Features
 **Tech Stack:** Kotlin 2.1.10, Android Gradle Plugin 8.8.0, Jetpack Compose, Room with SQLCipher, Hilt, DataStore, Robolectric
 
 ## 2. Environment Setup
@@ -121,9 +121,9 @@ Checklist:
 
 ## 9. Changelog Management
 
-From version `0.24.9` onward, changelog entries use the full `[MAJOR.MINOR.PATCH]` format. Gather changes under the next release heading and bump `versionName` in `app/build.gradle` only when cutting a release (patch/minor/major). The current version is `0.24.9`.
+From version `0.27.0` onward, changelog entries use the full `[MAJOR.MINOR.PATCH]` format. Gather changes under the next release heading and bump `versionName` in `app/build.gradle` only when cutting a release (patch/minor/major). The current version is `0.27.0`.
 
-**IMPORTANT**: When updating the changelog, also bump version numbers as explicitly described in the documentation.
+**IMPORTANT**: When updating the changelog, also bump version numbers as explicitly described in the documentation, and keep `README.md`, `AGENTS.md`, and `CHANGELOG.md` in sync.
 
 ## 10. Documentation Standards
 
@@ -137,7 +137,7 @@ From version `0.24.9` onward, changelog entries use the full `[MAJOR.MINOR.PATCH
 
 ### Documentation Updates
 * Update documentation for any new features or API changes
-* Maintain consistency with current version (0.24.9)
+* Maintain consistency with current version (0.27.0)
 * Include code examples and usage patterns
 * Document all enterprise features and procedures
 

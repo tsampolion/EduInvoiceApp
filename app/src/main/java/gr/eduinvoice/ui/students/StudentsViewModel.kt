@@ -20,6 +20,7 @@ import gr.eduinvoice.domain.user.CurrentUserProvider
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import gr.eduinvoice.analytics.PerformanceTraces
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -103,22 +104,28 @@ class StudentsViewModel @Inject constructor(
         }
 
         // Use modern search when query present
-        val baseStudents = if (query.isBlank()) {
-            studentUseCases.getStudentsPaginated(uid, pageSize, page * pageSize)
-        } else {
-            modernSearchRepository.searchAll(query, pageSize).students
+        val baseStudents = PerformanceTraces.trace("students_load_page") {
+            if (query.isBlank()) {
+                studentUseCases.getStudentsPaginated(uid, pageSize, page * pageSize)
+            } else {
+                modernSearchRepository.searchAll(query, pageSize).students
+            }
         }
         val students = modernFilterManager.applyStudentFilters(baseStudents, filters)
 
         // Get lessons for earnings calculation
         var lessons = lessonUseCases.getAllLessons(uid).first()
         // Apply date range to lessons before earnings calc
-        lessons = modernFilterManager.applyLessonDateRange(lessons, filters.dateRange)
+        lessons = PerformanceTraces.trace("apply_lesson_date_range") {
+            modernFilterManager.applyLessonDateRange(lessons, filters.dateRange)
+        }
 
         // Calculate earnings and create UiStudentWithEarnings
-        val studentsWithEarnings = students.map { student ->
-            val (weekEarnings, monthEarnings) = EarningsCalculator.calculate(student, lessons)
-            student.withEarnings(weekEarnings, monthEarnings)
+        val studentsWithEarnings = PerformanceTraces.trace("earnings_calculation") {
+            students.map { student ->
+                val (weekEarnings, monthEarnings) = EarningsCalculator.calculate(student, lessons)
+                student.withEarnings(weekEarnings, monthEarnings)
+            }
         }
 
         // Sort if needed

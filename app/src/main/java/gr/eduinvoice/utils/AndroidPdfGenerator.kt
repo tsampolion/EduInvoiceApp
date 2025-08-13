@@ -7,6 +7,8 @@ import gr.eduinvoice.domain.billing.DomainPdfGenerator
 import gr.eduinvoice.domain.billing.DomainPdfTheme
 import java.io.File
 import java.io.FileOutputStream
+import gr.eduinvoice.analytics.PerformanceTraces
+import gr.eduinvoice.utils.MemoryMonitor
 
 /**
  * Android implementation of DomainPdfGenerator
@@ -49,7 +51,14 @@ class AndroidPdfGenerator(
             )
 
             pdf.finishPage(page)
-            FileOutputStream(outputFile).use { out -> pdf.writeTo(out) }
+            // Guard memory during IO and large buffer write
+            MemoryMonitor("PDF").guardOperation(thresholdPct = 92) {
+                FileOutputStream(outputFile).use { out ->
+                    PerformanceTraces.trace("pdf_write") {
+                        pdf.writeTo(out)
+                    }
+                }
+            }
             pdf.close()
 
             Result.success(outputFile.absolutePath)

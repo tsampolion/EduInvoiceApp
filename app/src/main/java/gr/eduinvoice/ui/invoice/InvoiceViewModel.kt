@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
+import gr.eduinvoice.analytics.PerformanceTraces
 
 @HiltViewModel
 class InvoiceViewModel @Inject constructor(
@@ -65,10 +66,12 @@ class InvoiceViewModel @Inject constructor(
                     lessonUseCases
                         .getLessonsWithStudentsByStudentAndDateRange(id, start.toString(), end.toString())
                         .collect { lessonList ->
-                            val studentMap = studentList.associateBy { it.id }
-                            val uiLessons = lessonList.mapNotNull { lesson ->
-                                studentMap[lesson.studentId]?.let { student ->
-                                    UiInvoiceLesson(lesson, student)
+                            val uiLessons = PerformanceTraces.trace("invoice_lessons_map") {
+                                val studentMap = studentList.associateBy { it.id }
+                                lessonList.mapNotNull { lesson ->
+                                    studentMap[lesson.studentId]?.let { student ->
+                                        UiInvoiceLesson(lesson, student)
+                                    }
                                 }
                             }
                             _lessons.value = uiLessons

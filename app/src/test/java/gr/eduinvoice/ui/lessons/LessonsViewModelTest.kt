@@ -33,6 +33,7 @@ import gr.eduinvoice.domain.student.SearchStudentsPaginated
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.lesson.GetLessonsWithStudentsByStudentAndDateRange
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.flow.first
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -114,19 +115,16 @@ class LessonsViewModelTest {
     }
 
     @Test
-    fun `viewModel should be created with correct initial state`() = runTest {
-        // Test that the ViewModel can be created and has the expected structure
-        val uiState = viewModel.uiState.value
-        val searchQuery = viewModel.searchQuery.value
-        val filters = viewModel.filters.value
-        
-        // Verify initial state structure
-        assertEquals("Initial lessons should be empty", 0, uiState.lessons.size)
-        assertEquals("Initial search query should be empty", "", searchQuery)
-        assertEquals("Initial current page should be 0", 0, uiState.currentPage)
-        assertEquals("Initial hasMoreData should be true", true, uiState.hasMoreData)
-        assertEquals("Initial isLoadingMore should be false", false, uiState.isLoadingMore)
-        assertEquals("Initial dialog should be null", null, uiState.dialog)
+    fun `emits seeded lesson in expected order`() = runTest {
+        viewModel.uiState.test {
+            val firstEmission = awaitItem()
+            // loadLessonsWithPagination emits asynchronously; allow next emission
+            val next = awaitItem()
+            assertEquals(1, next.lessons.size)
+            assertEquals(1L, next.lessons.first().lesson.id)
+            assertEquals(1L, next.lessons.first().student.id)
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 
     @Test

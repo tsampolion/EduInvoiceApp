@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.*
 import gr.eduinvoice.ui.components.FilterOptions
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import gr.eduinvoice.analytics.PerformanceTraces
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -52,13 +53,15 @@ class LessonsViewModel @Inject constructor(
                     ) { lessons, lessonsWithStudents, query, _ ->
                         // For now, we'll use the lessons directly and create UI DTOs
                         // In a real implementation, we'd need to get students separately
-                        val filteredLessons = if (query.isBlank()) {
-                            gr.eduinvoice.utils.ModernFilterManager().applyLessonDateRange(lessons, _filters.value.dateRange)
-                        } else {
-                            var all = gr.eduinvoice.utils.ModernFilterManager().applyLessonDateRange(lessons, _filters.value.dateRange)
-                            all.filter { l ->
-                                val hay = "${l.notes ?: ""} ${l.date} ${l.startTime}".lowercase()
-                                hay.contains(query.lowercase())
+                        val filteredLessons = PerformanceTraces.trace("search_filter_lessons") {
+                            if (query.isBlank()) {
+                                gr.eduinvoice.utils.ModernFilterManager().applyLessonDateRange(lessons, _filters.value.dateRange)
+                            } else {
+                                val all = gr.eduinvoice.utils.ModernFilterManager().applyLessonDateRange(lessons, _filters.value.dateRange)
+                                all.filter { l ->
+                                    val hay = "${l.notes ?: ""} ${l.date} ${l.startTime}".lowercase()
+                                    hay.contains(query.lowercase())
+                                }
                             }
                         }
 
