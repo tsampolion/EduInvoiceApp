@@ -5,24 +5,32 @@ import com.google.firebase.perf.metrics.Trace
 
 object PerformanceTraces {
     fun <T> trace(name: String, block: () -> T): T {
-        val perf = FirebasePerformance.getInstance()
-        val trace: Trace = perf.newTrace(name)
-        trace.start()
         return try {
+            val perf = FirebasePerformance.getInstance()
+            val trace: Trace = perf.newTrace(name)
+            trace.start()
+            try {
+                block()
+            } finally {
+                trace.stop()
+            }
+        } catch (_: Throwable) {
             block()
-        } finally {
-            trace.stop()
         }
     }
 
     suspend fun <T> traceSuspend(name: String, block: suspend () -> T): T {
-        val perf = FirebasePerformance.getInstance()
-        val trace: Trace = perf.newTrace(name)
-        trace.start()
         return try {
+            val perf = FirebasePerformance.getInstance()
+            val trace: Trace = perf.newTrace(name)
+            trace.start()
+            try {
+                block()
+            } finally {
+                trace.stop()
+            }
+        } catch (_: Throwable) {
             block()
-        } finally {
-            trace.stop()
         }
     }
 }

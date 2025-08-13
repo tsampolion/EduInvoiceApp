@@ -117,8 +117,7 @@ class LessonsViewModelTest {
     @Test
     fun `emits seeded lesson in expected order`() = runTest {
         viewModel.uiState.test {
-            val firstEmission = awaitItem()
-            // loadLessonsWithPagination emits asynchronously; allow next emission
+            skipItems(1) // initial state
             val next = awaitItem()
             assertEquals(1, next.lessons.size)
             assertEquals(1L, next.lessons.first().lesson.id)

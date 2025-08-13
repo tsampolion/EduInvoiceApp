@@ -8,7 +8,7 @@ class ArchitectureRulesTest {
     @Test
     fun `app must not import data`() {
         val prohibitedPrefixes = listOf("gr.eduinvoice.data")
-        val files = Konsist.scopeFromProject().files.filter { it.path.contains("/app/") || it.path.contains("\\app\\") }
+        val files = Konsist.scopeFromProject().files.filter { it.path.replace('\\','/').contains("/app/") }
         files.forEach { file ->
             val imports = file.imports.map { it.name }
             val violations = imports.filter { imp -> prohibitedPrefixes.any { p -> imp.startsWith(p) } }
@@ -19,7 +19,7 @@ class ArchitectureRulesTest {
     @Test
     fun `domain must not import app or data`() {
         val prohibitedPrefixes = listOf("gr.eduinvoice.data", "gr.eduinvoice.ui", "gr.eduinvoice.app")
-        val files = Konsist.scopeFromProject().files.filter { it.path.contains("/domain/") || it.path.contains("\\domain\\") }
+        val files = Konsist.scopeFromProject().files.filter { it.path.replace('\\','/').contains("/domain/") }
         files.forEach { file ->
             val imports = file.imports.map { it.name }
             val violations = imports.filter { imp -> prohibitedPrefixes.any { p -> imp.startsWith(p) } }
@@ -30,7 +30,7 @@ class ArchitectureRulesTest {
     @Test
     fun `data must not import app ui`() {
         val prohibitedPrefixes = listOf("gr.eduinvoice.ui", "gr.eduinvoice.app")
-        val files = Konsist.scopeFromProject().files.filter { it.path.contains("/data/") || it.path.contains("\\data\\") }
+        val files = Konsist.scopeFromProject().files.filter { it.path.replace('\\','/').contains("/data/") }
         files.forEach { file ->
             val imports = file.imports.map { it.name }
             val violations = imports.filter { imp -> prohibitedPrefixes.any { p -> imp.startsWith(p) } }

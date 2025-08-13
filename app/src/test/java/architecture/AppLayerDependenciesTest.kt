@@ -17,7 +17,7 @@ class AppLayerDependenciesTest {
 
         files.forEach { file ->
             val bad = file.imports.map { it.name }
-                .filter { name -> prohibited.any { name.startsWith(it) } }
+                .filter { name -> prohibited.any { prefix -> name.startsWith(prefix) } }
             assertTrue("Forbidden imports in ${file.path}: $bad", bad.isEmpty())
         }
     }
