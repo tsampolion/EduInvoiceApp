@@ -10,6 +10,7 @@ plugins {
     id 'com.google.firebase.crashlytics'
     id 'io.gitlab.arturbosch.detekt'
     id 'com.diffplug.spotless'
+    id 'org.jetbrains.kotlinx.kover'
 }
 
 def firebaseKey = ""
