@@ -275,5 +275,10 @@ tasks.withType(Test).configureEach {
         "--add-opens=java.base/java.util=ALL-UNNAMED",
         "--add-opens=java.base/java.io=ALL-UNNAMED"
     )
+    
+    // Paparazzi configuration
+    systemProperty 'paparazzi.snapshots.dir', file('src/test/snapshots').absolutePath
+    systemProperty 'paparazzi.verify.mode', 'true'
+    systemProperty 'paparazzi.record.mode', 'false'
 }
 
