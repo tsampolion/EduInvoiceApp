@@ -2,35 +2,69 @@ package gr.eduinvoice.utils
 
 import android.app.ActivityManager
 import android.content.Context
-import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.delay
-
+import java.lang.ref.WeakReference
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
-/**
- * Monitors memory usage and provides memory management utilities.
- * Helps prevent memory leaks and optimize performance.
- */
 @Singleton
 class MemoryMonitor @Inject constructor(
     private val context: Context
 ) {
-    
     companion object {
         private const val TAG = "MemoryMonitor"
-        private const val MEMORY_CHECK_INTERVAL_MS = 30000L // 30 seconds
+        private const val MEMORY_CHECK_INTERVAL_MS = 30_000L
         private const val LOW_MEMORY_THRESHOLD_PERCENT = 70.0
         private const val CRITICAL_MEMORY_THRESHOLD_PERCENT = 85.0
-        private const val MAX_MEMORY_USAGE_MB = 100L
+        private const val RECOMMENDED_MAX_USAGE_MB = 100L
     }
-    
-    /**
-     * Memory status information
-     */
+
+    private val handler = Handler(Looper.getMainLooper())
+    private val running = AtomicBoolean(false)
+    private val snapshotRunnable = object : Runnable {
+        override fun run() {
+            logSnapshot()
+            if (running.get()) handler.postDelayed(this, MEMORY_CHECK_INTERVAL_MS)
+        }
+    }
+
+    fun start() {
+        if (running.compareAndSet(false, true)) handler.post(snapshotRunnable)
+    }
+
+    fun stop() {
+        running.set(false)
+        handler.removeCallbacksAndMessages(null)
+    }
+
+    fun logSnapshot() {
+        val runtime = Runtime.getRuntime()
+        val used = runtime.totalMemory() - runtime.freeMemory()
+        val max = runtime.maxMemory()
+        val pct = (used.toDouble() / max.toDouble()) * 100.0
+        Log.d(TAG, "mem_used_bytes=$used mem_max_bytes=$max usage_pct=${"%.1f".format(pct)}")
+        if (pct > 80) System.gc()
+    }
+
+    fun guardOperation(thresholdPct: Int = 90, onAbort: (() -> Unit)? = null, block: () -> Unit) {
+        val runtime = Runtime.getRuntime()
+        val used = runtime.totalMemory() - runtime.freeMemory()
+        val max = runtime.maxMemory()
+        val pct = (used.toDouble() / max.toDouble()) * 100.0
+        if (pct > thresholdPct) {
+            Log.e(TAG, "Aborting operation due to memory pressure (${"%.1f".format(pct)}%)")
+            onAbort?.invoke()
+            return
+        }
+        block()
+    }
+
     data class MemoryStatus(
         val isLowMemory: Boolean,
         val isCriticalMemory: Boolean,
@@ -40,10 +74,7 @@ class MemoryMonitor @Inject constructor(
         val memoryUsagePercent: Double,
         val recommendations: List<String>
     )
-    
-    /**
-     * Memory usage statistics
-     */
+
     data class MemoryUsage(
         val usedMemoryMB: Long,
         val totalMemoryMB: Long,
@@ -51,20 +82,14 @@ class MemoryMonitor @Inject constructor(
         val memoryUsagePercent: Double,
         val timestamp: Long = System.currentTimeMillis()
     )
-    
-    /**
-     * Cleanup operation results
-     */
+
     data class CleanupResult(
         val success: Boolean,
         val freedMemoryMB: Long,
         val operations: List<CleanupOperation>,
         val errors: List<String>
     )
-    
-    /**
-     * Types of cleanup operations
-     */
+
     sealed class CleanupOperation {
         object GarbageCollection : CleanupOperation()
         object ClearImageCache : CleanupOperation()
@@ -72,148 +97,87 @@ class MemoryMonitor @Inject constructor(
         object ClearDatabaseCache : CleanupOperation()
         data class CustomOperation(val name: String) : CleanupOperation()
     }
-    
-    /**
-     * Check current memory pressure
-     */
+
     fun checkMemoryPressure(): MemoryStatus {
         val runtime = Runtime.getRuntime()
-        val usedMemory = runtime.totalMemory() - runtime.freeMemory()
-        val maxMemory = runtime.maxMemory()
-        val availableMemory = maxMemory - usedMemory
-        
-        val usedMemoryMB = usedMemory / (1024 * 1024)
-        val totalMemoryMB = maxMemory / (1024 * 1024)
-        val availableMemoryMB = availableMemory / (1024 * 1024)
-        val memoryUsagePercent = (usedMemory.toDouble() / maxMemory.toDouble()) * 100.0
-        
-        val isLowMemory = memoryUsagePercent >= LOW_MEMORY_THRESHOLD_PERCENT
-        val isCriticalMemory = memoryUsagePercent >= CRITICAL_MEMORY_THRESHOLD_PERCENT
-        
-        val recommendations = mutableListOf<String>()
-        
-        if (isCriticalMemory) {
-            recommendations.add("Critical memory pressure detected. Perform immediate cleanup.")
-            recommendations.add("Consider reducing image quality or clearing caches.")
-            recommendations.add("Monitor for memory leaks.")
-        } else if (isLowMemory) {
-            recommendations.add("Low memory pressure detected. Consider cleanup.")
-            recommendations.add("Monitor memory usage trends.")
+        val used = runtime.totalMemory() - runtime.freeMemory()
+        val max = runtime.maxMemory()
+        val avail = max - used
+
+        val usedMB = used / (1024 * 1024)
+        val totalMB = max / (1024 * 1024)
+        val availMB = avail / (1024 * 1024)
+        val pct = (used.toDouble() / max.toDouble()) * 100.0
+
+        val isLow = pct >= LOW_MEMORY_THRESHOLD_PERCENT
+        val isCritical = pct >= CRITICAL_MEMORY_THRESHOLD_PERCENT
+
+        val recs = mutableListOf<String>()
+        if (isCritical) {
+            recs += "Critical memory pressure; perform immediate cleanup"
+            recs += "Reduce image quality or clear caches"
+            recs += "Monitor for memory leaks"
+        } else if (isLow) {
+            recs += "Low memory pressure; consider cleanup"
         }
-        
-        if (usedMemoryMB > MAX_MEMORY_USAGE_MB) {
-            recommendations.add("Memory usage exceeds recommended limit (${MAX_MEMORY_USAGE_MB}MB).")
-        }
-        
-        Log.d(TAG, "Memory status: ${usedMemoryMB}MB used, ${memoryUsagePercent}% usage")
-        
-        return MemoryStatus(
-            isLowMemory = isLowMemory,
-            isCriticalMemory = isCriticalMemory,
-            usedMemoryMB = usedMemoryMB,
-            totalMemoryMB = totalMemoryMB,
-            availableMemoryMB = availableMemoryMB,
-            memoryUsagePercent = memoryUsagePercent,
-            recommendations = recommendations
-        )
+        if (usedMB > RECOMMENDED_MAX_USAGE_MB) recs += "Usage exceeds ${RECOMMENDED_MAX_USAGE_MB}MB"
+
+        return MemoryStatus(isLow, isCritical, usedMB, totalMB, availMB, pct, recs)
     }
-    
-    /**
-     * Perform memory cleanup operations
-     */
+
     fun performCleanup(): CleanupResult {
-        val operations = mutableListOf<CleanupOperation>()
+        val ops = mutableListOf<CleanupOperation>()
         val errors = mutableListOf<String>()
-        val initialMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
-        
+        val initial = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
+
         try {
-            // Force garbage collection
             try {
                 System.gc()
-                operations.add(CleanupOperation.GarbageCollection)
-                Log.d(TAG, "Garbage collection completed")
-            } catch (e: Exception) {
-                errors.add("Garbage collection failed: ${e.message}")
-                Log.e(TAG, "Garbage collection failed", e)
+                ops += CleanupOperation.GarbageCollection
+            } catch (t: Throwable) {
+                errors += "GC failed: ${t.message}"
             }
-            
-            // Clear image caches if available
             try {
                 clearImageCaches()
-                operations.add(CleanupOperation.ClearImageCache)
-                Log.d(TAG, "Image cache cleared")
-            } catch (e: Exception) {
-                errors.add("Image cache cleanup failed: ${e.message}")
-                Log.e(TAG, "Image cache cleanup failed", e)
-            }
-            
-            // Clear ViewModel caches
+                ops += CleanupOperation.ClearImageCache
+            } catch (t: Throwable) { errors += "Image cache cleanup failed: ${t.message}" }
             try {
                 clearViewModelCaches()
-                operations.add(CleanupOperation.ClearViewModelCache)
-                Log.d(TAG, "ViewModel cache cleared")
-            } catch (e: Exception) {
-                errors.add("ViewModel cache cleanup failed: ${e.message}")
-                Log.e(TAG, "ViewModel cache cleanup failed", e)
-            }
-            
-            // Clear database caches
+                ops += CleanupOperation.ClearViewModelCache
+            } catch (t: Throwable) { errors += "ViewModel cache cleanup failed: ${t.message}" }
             try {
                 clearDatabaseCaches()
-                operations.add(CleanupOperation.ClearDatabaseCache)
-                Log.d(TAG, "Database cache cleared")
-            } catch (e: Exception) {
-                errors.add("Database cache cleanup failed: ${e.message}")
-                Log.e(TAG, "Database cache cleanup failed", e)
-            }
-            
-        } catch (e: Exception) {
-            errors.add("General cleanup failed: ${e.message}")
-            Log.e(TAG, "General cleanup failed", e)
+                ops += CleanupOperation.ClearDatabaseCache
+            } catch (t: Throwable) { errors += "Database cache cleanup failed: ${t.message}" }
+        } catch (t: Throwable) {
+            errors += "General cleanup failed: ${t.message}"
         }
-        
-        val finalMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
-        val freedMemory = initialMemory - finalMemory
-        val freedMemoryMB = freedMemory / (1024 * 1024)
-        
-        Log.i(TAG, "Cleanup completed: freed ${freedMemoryMB}MB, operations: ${operations.size}, errors: ${errors.size}")
-        
-        return CleanupResult(
-            success = errors.isEmpty(),
-            freedMemoryMB = freedMemoryMB,
-            operations = operations,
-            errors = errors
-        )
+
+        val finalMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
+        val freedMB = (initial - finalMem) / (1024 * 1024)
+        return CleanupResult(errors.isEmpty(), freedMB, ops, errors)
     }
-    
-    /**
-     * Monitor memory usage continuously
-     */
+
     fun monitorMemoryUsage(): Flow<MemoryUsage> = flow {
         while (true) {
             val runtime = Runtime.getRuntime()
-            val usedMemory = runtime.totalMemory() - runtime.freeMemory()
-            val maxMemory = runtime.maxMemory()
-            val availableMemory = maxMemory - usedMemory
-            
-            val memoryUsage = MemoryUsage(
-                usedMemoryMB = usedMemory / (1024 * 1024),
-                totalMemoryMB = maxMemory / (1024 * 1024),
-                availableMemoryMB = availableMemory / (1024 * 1024),
-                memoryUsagePercent = (usedMemory.toDouble() / maxMemory.toDouble()) * 100.0
+            val used = runtime.totalMemory() - runtime.freeMemory()
+            val max = runtime.maxMemory()
+            val avail = max - used
+            emit(
+                MemoryUsage(
+                    usedMemoryMB = used / (1024 * 1024),
+                    totalMemoryMB = max / (1024 * 1024),
+                    availableMemoryMB = avail / (1024 * 1024),
+                    memoryUsagePercent = (used.toDouble() / max.toDouble()) * 100.0
+                )
             )
-            
-            emit(memoryUsage)
             delay(MEMORY_CHECK_INTERVAL_MS)
         }
     }
-    
-    /**
-     * Get detailed memory information
-     */
+
     fun getDetailedMemoryInfo(): Map<String, Any> {
         val runtime = Runtime.getRuntime()
-        
         return mapOf(
             "maxMemory" to runtime.maxMemory(),
             "totalMemory" to runtime.totalMemory(),
@@ -222,59 +186,27 @@ class MemoryMonitor @Inject constructor(
             "availableProcessors" to runtime.availableProcessors()
         )
     }
-    
-    /**
-     * Check if device has low memory
-     */
-    fun isDeviceLowMemory(): Boolean {
-        return try {
-            val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            val memoryInfo = ActivityManager.MemoryInfo()
-            activityManager.getMemoryInfo(memoryInfo)
-            memoryInfo.lowMemory
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to check device memory", e)
-            false
-        }
-    }
-    
-    /**
-     * Get memory class of the device
-     */
-    fun getMemoryClass(): Int {
-        return try {
-            val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            activityManager.memoryClass
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to get memory class", e)
-            16 // Default fallback
-        }
-    }
-    
-    /**
-     * Clear image caches
-     */
-    private fun clearImageCaches() {
-        // This would integrate with image loading libraries like Glide or Coil
-        // For now, we'll just log the operation
-        Log.d(TAG, "Image cache cleanup requested")
-    }
-    
-    /**
-     * Clear ViewModel caches
-     */
-    private fun clearViewModelCaches() {
-        // This would clear any cached ViewModels or data
-        // For now, we'll just log the operation
-        Log.d(TAG, "ViewModel cache cleanup requested")
-    }
-    
-    /**
-     * Clear database caches
-     */
-    private fun clearDatabaseCaches() {
-        // This would clear Room database caches
-        // For now, we'll just log the operation
-        Log.d(TAG, "Database cache cleanup requested")
-    }
-} 
+
+    fun isDeviceLowMemory(): Boolean = try {
+        val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val info = ActivityManager.MemoryInfo()
+        am.getMemoryInfo(info)
+        info.lowMemory
+    } catch (t: Throwable) { false }
+
+    fun getMemoryClass(): Int = try {
+        val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        am.memoryClass
+    } catch (t: Throwable) { 16 }
+
+    private fun clearImageCaches() { Log.d(TAG, "Image cache cleanup requested") }
+    private fun clearViewModelCaches() { Log.d(TAG, "ViewModel cache cleanup requested") }
+    private fun clearDatabaseCaches() { Log.d(TAG, "Database cache cleanup requested") }
+}
+
+class MemoryMonitorHandle(owner: Any, private val monitor: MemoryMonitor) {
+    private val ref = WeakReference(owner)
+    fun start() = monitor.start()
+    fun stopIfOwnerGone() { if (ref.get() == null) monitor.stop() }
+}
+ 

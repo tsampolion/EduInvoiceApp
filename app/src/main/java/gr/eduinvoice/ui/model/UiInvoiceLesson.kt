@@ -14,7 +14,7 @@ data class UiInvoiceLesson(
     val notes: String? get() = lesson.notes
     val isPaid: Boolean get() = lesson.isPaid
     val isInvoiced: Boolean get() = lesson.isInvoiced
-    
+
     fun calculateFee(): Double {
         return if (student.rateType == "per_lesson") {
             student.rate

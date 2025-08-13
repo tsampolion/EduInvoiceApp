@@ -11,11 +11,12 @@ import gr.eduinvoice.ui.mappers.with
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.testcompat.getFullName
 import gr.eduinvoice.utils.GlobalCache
-import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.domain.user.CurrentUserProvider
 import kotlinx.coroutines.flow.*
 import gr.eduinvoice.ui.components.FilterOptions
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import gr.eduinvoice.analytics.PerformanceTraces
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -34,11 +35,11 @@ class LessonsViewModel @Inject constructor(
     val filters: StateFlow<FilterOptions> = _filters.asStateFlow()
 
     private val pageSize = 50
-    
+
     init {
         loadLessonsWithPagination()
     }
-    
+
     private fun loadLessonsWithPagination() {
         viewModelScope.launch {
             currentUserProvider.loggedInUserId
@@ -52,16 +53,18 @@ class LessonsViewModel @Inject constructor(
                     ) { lessons, lessonsWithStudents, query, _ ->
                         // For now, we'll use the lessons directly and create UI DTOs
                         // In a real implementation, we'd need to get students separately
-                        val filteredLessons = if (query.isBlank()) {
-                            gr.eduinvoice.utils.ModernFilterManager().applyLessonDateRange(lessons, _filters.value.dateRange)
-                        } else {
-                            var all = gr.eduinvoice.utils.ModernFilterManager().applyLessonDateRange(lessons, _filters.value.dateRange)
-                            all.filter { l ->
-                                val hay = "${l.notes ?: ""} ${l.date} ${l.startTime}".lowercase()
-                                hay.contains(query.lowercase())
+                        val filteredLessons = PerformanceTraces.trace("search_filter_lessons") {
+                            if (query.isBlank()) {
+                                gr.eduinvoice.utils.ModernFilterManager().applyLessonDateRange(lessons, _filters.value.dateRange)
+                            } else {
+                                val all = gr.eduinvoice.utils.ModernFilterManager().applyLessonDateRange(lessons, _filters.value.dateRange)
+                                all.filter { l ->
+                                    val hay = "${l.notes ?: ""} ${l.date} ${l.startTime}".lowercase()
+                                    hay.contains(query.lowercase())
+                                }
                             }
                         }
-                        
+
                         // For now, create UI DTOs with placeholder students
                         // TODO: Get actual students and create proper UI DTOs
                         filteredLessons.map { lesson ->
@@ -95,19 +98,19 @@ class LessonsViewModel @Inject constructor(
                 }
         }
     }
-    
+
     private suspend fun loadLessonsWithCaching(uid: Long, page: Int): List<UiLessonWithStudent> {
         val cacheKey = "lessons_${uid}_$page"
-        
+
         // Try to get from cache first
         val cachedData = GlobalCache.getCachedDataTyped<List<UiLessonWithStudent>>(cacheKey)
         if (cachedData != null) {
             return cachedData
         }
-        
+
         // Load from database with pagination
         val lessons = lessonUseCases.getLessonsWithStudentsPaginated(uid, pageSize, page * pageSize)
-        
+
         // Create UI DTOs with placeholder students for now
         // TODO: Get actual students and create proper UI DTOs
         val uiLessons = lessons.map { lesson ->
@@ -124,31 +127,31 @@ class LessonsViewModel @Inject constructor(
                 )
             )
         }
-        
+
         // Sort lessons
         val sortedLessons = uiLessons.sortedWith(
             compareByDescending<UiLessonWithStudent> { it.lesson.date }
                 .thenByDescending { it.lesson.startTime }
         )
-        
+
         // Cache the result
         GlobalCache.cacheData(cacheKey, sortedLessons)
-        
+
         return sortedLessons
     }
-    
+
     fun loadMoreLessons() {
         if (_uiState.value.isLoadingMore || !_uiState.value.hasMoreData || _searchQuery.value.isNotBlank()) return
-        
+
         viewModelScope.launch {
             _uiState.update { it.copy(isLoadingMore = true) }
-            
+
             val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: return@launch
             val nextPage = _uiState.value.currentPage + 1
-            
+
             try {
                 val newLessons = loadLessonsWithCaching(uid, nextPage)
-                
+
                 if (newLessons.isNotEmpty()) {
                     _uiState.update { currentState ->
                         currentState.copy(

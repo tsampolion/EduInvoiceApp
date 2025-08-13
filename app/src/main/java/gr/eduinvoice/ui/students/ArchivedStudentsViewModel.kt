@@ -7,7 +7,7 @@ import gr.eduinvoice.ui.model.UiStudentWithEarnings
 import gr.eduinvoice.ui.mappers.withEarnings
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
-import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.domain.user.CurrentUserProvider
 import gr.eduinvoice.utils.EarningsCalculator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

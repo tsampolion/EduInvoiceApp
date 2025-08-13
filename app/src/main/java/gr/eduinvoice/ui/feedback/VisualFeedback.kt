@@ -46,14 +46,14 @@ fun PressableCard(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    
+
     Card(
         modifier = modifier
             .clickable(
                 onClick = onClick
             )
             .background(
-                color = if (isPressed) 
+                color = if (isPressed)
                     MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)
                 else Color.Transparent,
                 shape = RoundedCornerShape(16.dp)
@@ -73,13 +73,13 @@ fun SuccessFeedback(
     onDismiss: () -> Unit
 ) {
     var isVisible by remember { mutableStateOf(true) }
-    
+
     LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(3000)
         isVisible = false
         onDismiss()
     }
-    
+
     AnimatedVisibility(
         visible = isVisible,
         enter = slideInVertically() + fadeIn(),
@@ -122,13 +122,13 @@ fun ErrorFeedback(
     onDismiss: () -> Unit
 ) {
     var isVisible by remember { mutableStateOf(true) }
-    
+
     LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(5000)
         isVisible = false
         onDismiss()
     }
-    
+
     AnimatedVisibility(
         visible = isVisible,
         enter = slideInVertically() + fadeIn(),
@@ -180,7 +180,7 @@ fun LoadingOverlay(
 ) {
     Box {
         content()
-        
+
         if (isLoading) {
             Box(
                 modifier = Modifier
@@ -239,7 +239,7 @@ fun ProgressFeedback(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 IconButton(onClick = onCancel) {
                     Icon(
                         Icons.Default.Close,
@@ -248,18 +248,18 @@ fun ProgressFeedback(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             LinearProgressIndicator(
                 progress = { progress },
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = "${(progress * 100).toInt()}%",
                 style = MaterialTheme.typography.labelMedium,

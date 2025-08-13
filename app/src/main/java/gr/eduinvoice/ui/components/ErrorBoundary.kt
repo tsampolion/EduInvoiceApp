@@ -29,30 +29,30 @@ fun ErrorBoundary(
     var showDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    
+
     // Error handler and reporter instances
     val errorHandler = remember { ErrorHandler(context) }
     val errorReporter = remember { ErrorReporter(context) }
-    
+
     DisposableEffect(Unit) {
         onDispose {
             // Cleanup if needed
         }
     }
-    
+
     if (error != null) {
         // Report error to analytics
         LaunchedEffect(error) {
-            error?.let { 
+            error?.let {
                 errorReporter.reportError(it, "ErrorBoundary")
                 onError(it)
             }
         }
-        
+
         if (showErrorDialog) {
             showDialog = true
         }
-        
+
         // Show error UI
         ErrorFallbackUI(
             error = error!!,
@@ -72,7 +72,7 @@ fun ErrorBoundary(
             content()
         }
     }
-    
+
     // Error dialog
     if (showDialog && error != null) {
         ErrorDialog(
@@ -110,18 +110,18 @@ private fun ErrorFallbackUI(
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.error
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         Text(
             text = stringResource(R.string.error_try_again_later),
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -130,7 +130,7 @@ private fun ErrorFallbackUI(
             ) {
                 Text(stringResource(R.string.dismiss))
             }
-            
+
             Button(
                 onClick = onRetry
             ) {
@@ -143,8 +143,8 @@ private fun ErrorFallbackUI(
 /**
  * CompositionLocal for providing error handler to child composables
  */
-val LocalErrorHandler = compositionLocalOf<ErrorHandler> { 
-    error("No ErrorHandler provided") 
+val LocalErrorHandler = compositionLocalOf<ErrorHandler> {
+    error("No ErrorHandler provided")
 }
 
 /**
@@ -153,4 +153,4 @@ val LocalErrorHandler = compositionLocalOf<ErrorHandler> {
 @Composable
 fun getErrorHandler(): ErrorHandler {
     return LocalErrorHandler.current
-} 
+}

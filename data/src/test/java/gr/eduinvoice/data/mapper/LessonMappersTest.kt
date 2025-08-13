@@ -1,30 +1,30 @@
 package gr.eduinvoice.data.mapper
 
-import gr.eduinvoice.data.model.Lesson
-import gr.eduinvoice.domain.model.DomainLesson
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Ignore
 import org.junit.Test
+import org.junit.Assert.assertEquals
+import gr.eduinvoice.data.mapper.Fixtures.sampleDataLesson
+import gr.eduinvoice.data.mapper.Fixtures.sampleDomainLessonForData
+import gr.eduinvoice.data.mapper.toDomain
+import gr.eduinvoice.data.mapper.toData
+import gr.eduinvoice.domain.model.DomainLesson
 
 class LessonMappersTest {
 
-    @Ignore("Implement sampleDataLesson/sampleDomainLessonForData in Fixtures.kt")
-    @Test fun `data to domain to data roundtrip`() {
-        val data: Lesson = sampleDataLesson(
-            id = 11L, studentId = 5L, durationMinutes = 90, defaultRate = 18.0
-        )
-        val roundTrip = data.toDomain().toData()
-        assertNotNull(roundTrip)
-        assertEquals(11L, roundTrip.id)
+    @Test
+    fun `data to domain to data roundtrip should preserve data`() {
+        val data = sampleDataLesson()
+        val domain = data.toDomain()
+        val back = domain.toData()
+        assertEquals(data, back)
     }
 
-    @Ignore("Implement sampleDataLesson/sampleDomainLessonForData in Fixtures.kt")
-    @Test fun `domain to data to domain roundtrip`() {
-        val domain: DomainLesson = sampleDomainLessonForData(
-            id = 15L, studentId = 6L, durationMinutes = 60, defaultRate = null
-        )
-        val roundTrip = domain.toData().toDomain()
-        assertEquals(15L, roundTrip.id)
+    @Test
+    fun `domain to data to domain roundtrip should preserve data`() {
+        val domain = sampleDomainLessonForData()
+        val data = domain.toData()
+        val back = data.toDomain()
+        // defaultRate does not exist in data model, so it is dropped during mapping
+        val expected = domain.copy(defaultRate = null)
+        assertEquals(expected, back)
     }
 }

@@ -39,25 +39,25 @@ fun <T> LazyLoadingList(
     threshold: Int = 3
 ) {
     val currentPage = paginationState.currentPage
-    
+
     // Check if we should load more items
     val shouldLoadMore by remember {
         derivedStateOf {
             val layoutInfo = listState.layoutInfo
             val totalItems = layoutInfo.totalItemsCount
             val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            
+
             totalItems > 0 && lastVisibleItem >= totalItems - threshold
         }
     }
-    
+
     // Load more items when threshold is reached
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore && !paginationState.isLoading && !paginationState.hasReachedEnd) {
             onLoadMore()
         }
     }
-    
+
     Box(modifier = modifier.fillMaxSize()) {
         when {
             // Show loading state
@@ -66,7 +66,7 @@ fun <T> LazyLoadingList(
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
-            
+
             // Show error state
             paginationState.error != null && currentPage == null -> {
                 errorItem?.invoke(paginationState.error!!) ?: run {
@@ -79,7 +79,7 @@ fun <T> LazyLoadingList(
                     )
                 }
             }
-            
+
             // Show empty state
             currentPage?.isEmpty == true -> {
                 emptyItem?.invoke() ?: run {
@@ -92,7 +92,7 @@ fun <T> LazyLoadingList(
                     )
                 }
             }
-            
+
             // Show list with items
             else -> {
                 LazyColumn(
@@ -105,7 +105,7 @@ fun <T> LazyLoadingList(
                             itemContent(item)
                         }
                     }
-                    
+
                     // Add loading indicator at the end
                     if (paginationState.isLoading) {
                         item {
@@ -121,7 +121,7 @@ fun <T> LazyLoadingList(
                             }
                         }
                     }
-                    
+
                     // Add error indicator at the end
                     if (paginationState.error != null && currentPage != null) {
                         item {
@@ -163,18 +163,18 @@ fun <T> SimpleLazyLoadingList(
             val layoutInfo = listState.layoutInfo
             val totalItems = layoutInfo.totalItemsCount
             val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            
+
             totalItems > 0 && lastVisibleItem >= totalItems - threshold && hasMoreItems
         }
     }
-    
+
     // Load more items when threshold is reached
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore && !isLoading) {
             onLoadMore()
         }
     }
-    
+
     LazyColumn(
         state = listState,
         modifier = modifier.fillMaxSize()
@@ -183,7 +183,7 @@ fun <T> SimpleLazyLoadingList(
         items(items) { item ->
             itemContent(item)
         }
-        
+
         // Add loading indicator at the end
         if (isLoading) {
             item {
@@ -221,18 +221,18 @@ fun <T> PaginatedLazyList(
             val layoutInfo = listState.layoutInfo
             val totalItems = layoutInfo.totalItemsCount
             val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
-            
+
             totalItems > 0 && lastVisibleItem >= totalItems - threshold && paginatedList?.hasNextPage == true
         }
     }
-    
+
     // Load more items when threshold is reached
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore) {
             onLoadNextPage()
         }
     }
-    
+
     Box(modifier = modifier.fillMaxSize()) {
         when {
             // Show empty state
@@ -245,7 +245,7 @@ fun <T> PaginatedLazyList(
                     textAlign = TextAlign.Center
                 )
             }
-            
+
             // Show list with items
             else -> {
                 LazyColumn(
@@ -256,7 +256,7 @@ fun <T> PaginatedLazyList(
                     items(paginatedList.items) { item ->
                         itemContent(item)
                     }
-                    
+
                     // Add loading indicator at the end if there are more pages
                     if (paginatedList.hasNextPage) {
                         item {
@@ -276,4 +276,4 @@ fun <T> PaginatedLazyList(
             }
         }
     }
-} 
+}

@@ -109,9 +109,9 @@ fun ModernSkeletonCard() {
             ) {
                 // Empty content for shimmer effect
             }
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 ShimmerText(width = 140, height = 18)
                 Spacer(modifier = Modifier.height(8.dp))
@@ -158,13 +158,13 @@ fun ModernLessonSkeletonCard() {
                 ShimmerText(width = 120, height = 20)
                 ShimmerText(width = 60, height = 16)
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             ShimmerText(width = 200, height = 14)
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -212,17 +212,17 @@ fun ModernInvoiceSkeletonCard() {
                 ShimmerText(width = 100, height = 18)
                 ShimmerText(width = 80, height = 16)
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             ShimmerText(width = 180, height = 14)
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             ShimmerText(width = 150, height = 14)
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween

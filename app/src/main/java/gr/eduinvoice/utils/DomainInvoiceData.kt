@@ -16,7 +16,7 @@ data class DomainInvoiceData(
 ) {
     companion object {
         private var invoiceCounter = 0
-        
+
         private fun generateInvoiceNumber(): String {
             invoiceCounter++
             val date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))

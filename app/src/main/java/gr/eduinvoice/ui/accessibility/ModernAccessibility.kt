@@ -15,11 +15,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
-import gr.eduinvoice.data.model.Student
+import gr.eduinvoice.domain.model.DomainStudent
 
 @Composable
 fun AccessibleModernCard(
-    student: Student,
+    student: DomainStudent,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -61,32 +61,32 @@ fun AccessibleModernCard(
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = student.name,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
-                
+
                 Text(
                     text = student.className,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
-                
+
                 Text(
                     text = if (student.isActive) "Active" else "Inactive",
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (student.isActive) 
-                        MaterialTheme.colorScheme.primary 
-                    else 
+                    color = if (student.isActive)
+                        MaterialTheme.colorScheme.primary
+                    else
                         MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -129,7 +129,7 @@ fun AccessibleModernTextField(
     placeholder: String? = null
 ) {
     val focusRequester = remember { FocusRequester() }
-    
+
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -191,7 +191,7 @@ fun AccessibleModernSwitch(
                 role = Role.Switch
             }
         )
-        
+
         if (label != null) {
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -223,7 +223,7 @@ fun AccessibleModernCheckbox(
                 role = Role.Checkbox
             }
         )
-        
+
         if (label != null) {
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -255,7 +255,7 @@ fun AccessibleModernRadioButton(
                 role = Role.RadioButton
             }
         )
-        
+
         if (label != null) {
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -284,7 +284,7 @@ fun AccessibleModernSlider(
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
-        
+
         androidx.compose.material3.Slider(
             value = value,
             onValueChange = onValueChange,
@@ -312,7 +312,7 @@ fun AccessibleModernProgressIndicator(
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
-        
+
         LinearProgressIndicator(
             progress = progress,
             modifier = Modifier.semantics {

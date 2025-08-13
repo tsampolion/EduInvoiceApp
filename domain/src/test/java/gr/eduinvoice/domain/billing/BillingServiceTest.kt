@@ -1,31 +1,41 @@
 package gr.eduinvoice.domain.billing
 
-import gr.eduinvoice.domain.model.DomainLesson
-import gr.eduinvoice.domain.model.DomainStudent
-import org.junit.Assert.assertEquals
-import org.junit.Ignore
 import org.junit.Test
+import org.junit.Assert.assertEquals
+import gr.eduinvoice.domain.utils.DomainFeeCalculator
+import gr.eduinvoice.domain.model.DomainRateTypes
 
 class BillingServiceTest {
 
-    @Ignore("Fill sampleDomainStudent/sampleDomainLesson in Fixtures.kt then remove @Ignore")
-    @Test fun `0 minutes yields 0`() {
-        val student: DomainStudent = sampleDomainStudent(hourlyRate = 20.0)
-        val lesson: DomainLesson = sampleDomainLesson(durationMinutes = 0, defaultRate = 15.0)
-        assertEquals(0.0, BillingService.fee(lesson, student), 0.001)
+    @Test
+    fun `zero minutes should return zero cost`() {
+        val student = Fixtures.sampleDomainStudent(rate = 40.0, rateType = DomainRateTypes.HOURLY)
+        val lesson = Fixtures.sampleDomainLesson(durationMinutes = 0, defaultRate = 25.0)
+
+        val fee = DomainFeeCalculator.calculateFee(lesson, student)
+
+        assertEquals(0.0, fee, 0.001)
     }
 
-    @Ignore("Fill sampleDomainStudent/sampleDomainLesson in Fixtures.kt then remove @Ignore")
-    @Test fun `uses student hourlyRate when present`() {
-        val student = sampleDomainStudent(hourlyRate = 24.0)
-        val lesson = sampleDomainLesson(durationMinutes = 90, defaultRate = 15.0)
-        assertEquals(36.0, BillingService.fee(lesson, student), 0.001)
+    @Test
+    fun `should prefer student rate over lesson rate`() {
+        // Given hourly rate type, the student's hourly rate is used regardless of lesson defaultRate
+        val student = Fixtures.sampleDomainStudent(rate = 40.0, rateType = DomainRateTypes.HOURLY)
+        val lesson = Fixtures.sampleDomainLesson(durationMinutes = 60, defaultRate = 25.0)
+
+        val fee = DomainFeeCalculator.calculateFee(lesson, student)
+
+        assertEquals(40.0, fee, 0.001)
     }
 
-    @Ignore("Fill sampleDomainStudent/sampleDomainLesson in Fixtures.kt then remove @Ignore")
-    @Test fun `falls back to lesson defaultRate when student rate is null`() {
-        val student = sampleDomainStudent(hourlyRate = null)
-        val lesson = sampleDomainLesson(durationMinutes = 60, defaultRate = 18.0)
-        assertEquals(18.0, BillingService.fee(lesson, student), 0.001)
+    @Test
+    fun `per-lesson rate uses student's per-lesson value`() {
+        val student = Fixtures.sampleDomainStudent(rate = 35.0, rateType = DomainRateTypes.PER_LESSON)
+        val lesson = Fixtures.sampleDomainLesson(durationMinutes = 120, defaultRate = 50.0)
+
+        val fee = DomainFeeCalculator.calculateFee(lesson, student)
+
+        // For per-lesson type, fee equals the student's per-lesson rate
+        assertEquals(35.0, fee, 0.001)
     }
 }

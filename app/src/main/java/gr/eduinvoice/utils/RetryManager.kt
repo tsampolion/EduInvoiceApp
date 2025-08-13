@@ -12,10 +12,10 @@ import javax.inject.Singleton
  */
 @Singleton
 class RetryManager @Inject constructor() {
-    
+
     private val activeRetries = mutableMapOf<String, Job>()
     private val retryCounters = mutableMapOf<String, AtomicInteger>()
-    
+
     /**
      * Executes an operation with automatic retry logic
      */
@@ -28,7 +28,7 @@ class RetryManager @Inject constructor() {
     ): Result<T> {
         var lastError: Throwable? = null
         val counter = retryCounters.getOrPut(retryId) { AtomicInteger(0) }
-        
+
         repeat(maxRetries + 1) { attempt ->
             try {
                 val result = operation()
@@ -36,22 +36,22 @@ class RetryManager @Inject constructor() {
                 return Result.success(result)
             } catch (error: Throwable) {
                 lastError = error
-                
+
                 if (attempt == maxRetries || !shouldRetry(error)) {
                     return Result.failure(error)
                 }
-                
+
                 onRetry(error, attempt + 1)
                 counter.incrementAndGet()
-                
+
                 val delayTime = calculateRetryDelay(error, attempt)
                 kotlinx.coroutines.delay(delayTime)
             }
         }
-        
+
         return Result.failure(lastError ?: Exception("Unknown error"))
     }
-    
+
     /**
      * Executes an operation with retry and returns a Flow of results
      */
@@ -62,7 +62,7 @@ class RetryManager @Inject constructor() {
         shouldRetry: (Throwable) -> Boolean = { true }
     ): Flow<RetryResult<T>> = callbackFlow {
         trySend(RetryResult.Loading)
-        
+
         // Launch the operation in a coroutine
         val job = CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -75,7 +75,7 @@ class RetryManager @Inject constructor() {
                         trySend(RetryResult.Retrying(error, attempt))
                     }
                 )
-                
+
                 trySend(
                     if (result.isSuccess) {
                         RetryResult.Success(result.getOrNull()!!)
@@ -89,10 +89,10 @@ class RetryManager @Inject constructor() {
                 close()
             }
         }
-        
+
         awaitClose { job.cancel() }
     }
-    
+
     /**
      * Executes multiple operations with retry and returns when all succeed or max failures reached
      */
@@ -104,29 +104,29 @@ class RetryManager @Inject constructor() {
     ): List<Result<T>> {
         val results = mutableListOf<Result<T>>()
         var failureCount = 0
-        
+
         operations.forEachIndexed { index, operation ->
             if (failureCount >= maxFailures) {
                 results.add(Result.failure(Exception("Max failures reached")))
                 return@forEachIndexed
             }
-            
+
             val result = executeWithRetry(
                 operation = operation,
                 maxRetries = maxRetries,
                 retryId = "operation_$index",
                 shouldRetry = shouldRetry
             )
-            
+
             results.add(result)
             if (result.isFailure) {
                 failureCount++
             }
         }
-        
+
         return results
     }
-    
+
     /**
      * Executes operations in parallel with retry
      */
@@ -147,7 +147,7 @@ class RetryManager @Inject constructor() {
             }
         }.awaitAll()
     }
-    
+
     /**
      * Cancels all active retries for a specific retry ID
      */
@@ -156,7 +156,7 @@ class RetryManager @Inject constructor() {
         activeRetries.remove(retryId)
         retryCounters.remove(retryId)
     }
-    
+
     /**
      * Cancels all active retries
      */
@@ -165,14 +165,14 @@ class RetryManager @Inject constructor() {
         activeRetries.clear()
         retryCounters.clear()
     }
-    
+
     /**
      * Gets retry statistics for a specific retry ID
      */
     fun getRetryCount(retryId: String): Int {
         return retryCounters[retryId]?.get() ?: 0
     }
-    
+
     /**
      * Calculates retry delay with exponential backoff and jitter
      */
@@ -183,16 +183,16 @@ class RetryManager @Inject constructor() {
             is java.io.IOException -> 1500L
             else -> 3000L
         }
-        
+
         // Exponential backoff: baseDelay * 2^attempt
         val exponentialDelay = baseDelay * (1L shl attempt)
-        
+
         // Add jitter (±25% random variation)
         val jitter = (exponentialDelay * 0.25 * (Math.random() - 0.5)).toLong()
-        
+
         return (exponentialDelay + jitter).coerceAtMost(30000L) // Max 30 seconds
     }
-    
+
     /**
      * Creates a retry policy with custom configuration
      */
@@ -259,4 +259,4 @@ suspend fun <T> retry(
         maxRetries = maxRetries,
         shouldRetry = shouldRetry
     )
-} 
+}

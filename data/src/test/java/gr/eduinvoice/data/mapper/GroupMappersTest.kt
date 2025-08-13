@@ -1,24 +1,28 @@
 package gr.eduinvoice.data.mapper
 
-import gr.eduinvoice.data.model.StudentGroup
-import gr.eduinvoice.domain.model.DomainStudentGroup
-import org.junit.Assert.assertEquals
-import org.junit.Ignore
 import org.junit.Test
+import org.junit.Assert.assertEquals
+import gr.eduinvoice.data.mapper.Fixtures.sampleDataGroup
+import gr.eduinvoice.data.mapper.Fixtures.sampleDomainGroupForData
+import gr.eduinvoice.data.mapper.toDomain
+import gr.eduinvoice.data.mapper.toData
+import gr.eduinvoice.domain.model.DomainStudentGroup
 
 class GroupMappersTest {
 
-    @Ignore("Implement sampleDataGroup/sampleDomainGroupForData in Fixtures.kt")
-    @Test fun `data to domain to data roundtrip`() {
-        val data: StudentGroup = sampleDataGroup(id = 3L, name = "B2")
-        val roundTrip = data.toDomain().toData()
-        assertEquals(3L, roundTrip.id)
+    @Test
+    fun `data to domain to data roundtrip should preserve data`() {
+        val data = sampleDataGroup()
+        val domain = data.toDomain()
+        val back = domain.toData()
+        assertEquals(data, back)
     }
 
-    @Ignore("Implement sampleDataGroup/sampleDomainGroupForData in Fixtures.kt")
-    @Test fun `domain to data to domain roundtrip`() {
-        val domain: DomainStudentGroup = sampleDomainGroupForData(id = 4L, name = "C1")
-        val roundTrip = domain.toData().toDomain()
-        assertEquals(4L, roundTrip.id)
+    @Test
+    fun `domain to data to domain roundtrip should preserve data`() {
+        val domain = sampleDomainGroupForData()
+        val data = domain.toData()
+        val back = data.toDomain()
+        assertEquals(domain, back)
     }
 }

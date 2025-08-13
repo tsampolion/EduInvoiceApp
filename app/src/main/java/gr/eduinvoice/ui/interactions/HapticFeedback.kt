@@ -19,7 +19,7 @@ fun HapticButton(
     content: @Composable () -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
-    
+
     Button(
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -42,13 +42,13 @@ fun HapticCard(
     val haptic = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    
+
     LaunchedEffect(isPressed) {
         if (isPressed) {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
         }
     }
-    
+
     Card(
         modifier = modifier
             .clickable(
@@ -70,7 +70,7 @@ fun HapticIconButton(
     content: @Composable () -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
-    
+
     IconButton(
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -91,7 +91,7 @@ fun HapticSwitch(
     enabled: Boolean = true
 ) {
     val haptic = LocalHapticFeedback.current
-    
+
     Switch(
         checked = checked,
         onCheckedChange = { newValue ->
@@ -111,7 +111,7 @@ fun HapticCheckbox(
     enabled: Boolean = true
 ) {
     val haptic = LocalHapticFeedback.current
-    
+
     Checkbox(
         checked = checked,
         onCheckedChange = { newValue ->

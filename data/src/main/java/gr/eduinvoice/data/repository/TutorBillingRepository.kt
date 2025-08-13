@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 /**
  * Enhanced TutorBillingRepository with concurrency safety
- * 
+ *
  * This repository now uses the ConcurrencyController to ensure:
  * - Thread-safe database operations
  * - Proper transaction management
@@ -39,7 +39,7 @@ class TutorBillingRepository @Inject constructor(
      */
     suspend fun addStudent(student: Student): Long {
         require(student.name.isNotBlank()) { "First name cannot be empty" }
-        
+
         return concurrencyController.executeSafeOperation(
             operation = { studentDao.insert(student) },
             operationType = OperationType.WRITE,
@@ -100,14 +100,14 @@ class TutorBillingRepository @Inject constructor(
      */
     suspend fun addLesson(lesson: Lesson, userId: Long): Long {
         require(lesson.durationMinutes > 0) { "Lesson duration must be positive" }
-        
+
         return concurrencyController.executeSafeOperation(
             operation = {
                 // Validate student exists and is active within transaction
                 val student = studentDao.getStudentById(lesson.studentId, userId).first()
                 checkNotNull(student) { "Cannot add lesson for a non-existent student" }
                 check(student.isActive) { "Cannot add lesson for an inactive student" }
-                
+
                 lessonDao.insert(lesson)
             },
             operationType = OperationType.WRITE,
@@ -123,7 +123,7 @@ class TutorBillingRepository @Inject constructor(
      */
     suspend fun addGroupLesson(groupId: Long, lesson: Lesson, userId: Long): List<Long> {
         require(lesson.durationMinutes > 0) { "Lesson duration must be positive" }
-        
+
         return concurrencyController.executeSafeOperation(
             operation = {
                 val students = groupDao.getStudentsForGroup(groupId, userId).first()
@@ -188,7 +188,7 @@ class TutorBillingRepository @Inject constructor(
         val operations = students.map { student ->
             suspend { studentDao.update(student) }
         }
-        
+
         return concurrencyController.executeBatchSafeOperations(
             operations = operations,
             operationType = OperationType.BATCH,
@@ -209,7 +209,7 @@ class TutorBillingRepository @Inject constructor(
         val operations = lessons.map { lesson ->
             suspend { lessonDao.update(lesson) }
         }
-        
+
         return concurrencyController.executeBatchSafeOperations(
             operations = operations,
             operationType = OperationType.BATCH,

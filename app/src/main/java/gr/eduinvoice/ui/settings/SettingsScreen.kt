@@ -100,17 +100,18 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
             Text(stringResource(R.string.general), style = MaterialTheme.typography.titleMedium)
-            SettingCard(containerColor = AppColors.primaryContainer) {
-                var expanded by remember { mutableStateOf(false) }
-                ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
-                    OutlinedTextField(
-                        value = state.settings.currencySymbol,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(stringResource(R.string.currency)) },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
-                    )
+            state.settings?.let { settings ->
+                SettingCard(containerColor = AppColors.primaryContainer) {
+                    var expanded by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+                        OutlinedTextField(
+                            value = settings.currencySymbol,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(stringResource(R.string.currency)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
+                        )
                     ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         currencies.forEach { (symbol, label) ->
                             DropdownMenuItem(text = { Text("$symbol - $label") }, onClick = {
@@ -121,17 +122,17 @@ fun SettingsScreen(
                     }
                 }
             }
-            SettingCard(containerColor = AppColors.secondaryContainer) {
-                var expanded by remember { mutableStateOf(false) }
-                ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
-                    OutlinedTextField(
-                        value = state.settings.roundingDecimals.toString(),
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(stringResource(R.string.decimal_places)) },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
-                    )
+                SettingCard(containerColor = AppColors.secondaryContainer) {
+                    var expanded by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+                        OutlinedTextField(
+                            value = settings.roundingDecimals.toString(),
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(stringResource(R.string.decimal_places)) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
+                        )
                     ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         listOf(0, 1, 2).forEach { option ->
                             DropdownMenuItem(text = { Text(option.toString()) }, onClick = {
@@ -152,22 +153,22 @@ fun SettingsScreen(
                 ) {
                     Text(stringResource(R.string.dark_theme))
                     Switch(
-                        checked = state.settings.darkTheme,
+                        checked = settings.darkTheme,
                         onCheckedChange = viewModel::updateDarkTheme
                     )
                 }
             }
-            SettingCard(containerColor = AppColors.tertiaryContainer) {
-                var expanded by remember { mutableStateOf(false) }
-                ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
-                    OutlinedTextField(
-                        value = state.settings.pdfThemeKey,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("PDF Theme") },
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
-                    )
+                SettingCard(containerColor = AppColors.tertiaryContainer) {
+                    var expanded by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+                        OutlinedTextField(
+                            value = settings.pdfThemeKey,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("PDF Theme") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
+                        )
                     ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         listOf("default").forEach { key ->
                             DropdownMenuItem(text = { Text(key) }, onClick = {
@@ -177,6 +178,7 @@ fun SettingsScreen(
                         }
                     }
                 }
+            }
             }
             Text(stringResource(R.string.account), style = MaterialTheme.typography.titleMedium)
             val loggedIn = state.user != null
@@ -265,4 +267,3 @@ private val currencies = listOf(
     "₺" to "Lira",
     "₱" to "Pesos"
 )
-

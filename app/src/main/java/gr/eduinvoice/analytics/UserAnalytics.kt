@@ -10,7 +10,7 @@ import javax.inject.Singleton
 class UserAnalytics @Inject constructor(
     private val context: Context
 ) {
-    
+
     fun trackScreenView(screenName: String) {
         if (BuildConfig.DEBUG) {
             Log.d("UserAnalytics", "Screen viewed: $screenName")
@@ -20,7 +20,7 @@ class UserAnalytics @Inject constructor(
         //     param(FirebaseAnalytics.Param.SCREEN_NAME, screenName)
         // }
     }
-    
+
     fun trackUserAction(action: String, parameters: Map<String, String> = emptyMap()) {
         if (BuildConfig.DEBUG) {
             Log.d("UserAnalytics", "User action: $action with params: $parameters")
@@ -33,7 +33,7 @@ class UserAnalytics @Inject constructor(
         //     }
         // }
     }
-    
+
     fun trackFeatureUsage(feature: String) {
         if (BuildConfig.DEBUG) {
             Log.d("UserAnalytics", "Feature used: $feature")
@@ -44,7 +44,7 @@ class UserAnalytics @Inject constructor(
         //     param("timestamp", System.currentTimeMillis().toString())
         // }
     }
-    
+
     fun trackError(error: Throwable, context: String = "") {
         if (BuildConfig.DEBUG) {
             Log.e("UserAnalytics", "Error tracked: ${error.message} in context: $context")
@@ -52,7 +52,7 @@ class UserAnalytics @Inject constructor(
         // TODO: Integrate with Firebase Crashlytics when available
         // FirebaseCrashlytics.getInstance().recordException(error)
     }
-    
+
     fun trackPerformance(operation: String, duration: Long) {
         if (BuildConfig.DEBUG) {
             Log.d("UserAnalytics", "Performance: $operation took ${duration}ms")

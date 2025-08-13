@@ -30,4 +30,3 @@ fun archiveInvoice(file: File): Boolean {
         false
     }
 }
-

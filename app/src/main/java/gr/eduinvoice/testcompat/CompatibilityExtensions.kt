@@ -1,10 +1,10 @@
 package gr.eduinvoice.testcompat
 
-import gr.eduinvoice.data.model.Student
+import gr.eduinvoice.domain.model.DomainStudent
 
 /**
  * Compatibility extensions for data layer models
  * Provides missing functions that tests expect
  */
 
-fun Student.getFullName(): String = "${name} ${surname}".trim()
+fun DomainStudent.getFullName(): String = "${name} ${surname}".trim()

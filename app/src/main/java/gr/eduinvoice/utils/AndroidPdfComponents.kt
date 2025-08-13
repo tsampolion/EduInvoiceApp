@@ -6,7 +6,7 @@ import gr.eduinvoice.domain.model.DomainLesson
 import gr.eduinvoice.domain.billing.BillingService
 
 class AndroidPdfComponents(private val theme: DomainPdfTheme) {
-    
+
     fun drawHeader(
         canvas: Canvas,
         width: Float,
@@ -18,7 +18,7 @@ class AndroidPdfComponents(private val theme: DomainPdfTheme) {
     ) {
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         val rect = RectF(0f, 0f, width, height)
-        
+
         // Convert hex color to int
         val primaryColor = android.graphics.Color.parseColor(theme.colorScheme.primary)
         paint.shader = LinearGradient(
@@ -52,17 +52,17 @@ class AndroidPdfComponents(private val theme: DomainPdfTheme) {
         val rowHeight = 24f
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         val alt = android.graphics.Color.parseColor(theme.colorScheme.surfaceVariant)
-        
+
         lessons.forEachIndexed { index, lesson ->
             if (index % 2 == 0) {
                 paint.color = alt
                 canvas.drawRect(0f, y - rowHeight + 4f, width, y + 4f, paint)
             }
-            
+
             // Note: We need student info for fee calculation, but we only have lessons here
             // This is a limitation of the current design - we should pass student info or use a different approach
             val fee = 0.0 // Placeholder - would need student info for proper calculation
-            
+
             drawText(canvas, lesson.date ?: "", 24f, y, theme.typography.bodyLarge, theme.colorScheme.onSurface)
             drawText(canvas, "€%.2f".format(fee), width - 80f, y, theme.typography.bodyLarge, theme.colorScheme.onSurface)
             y += rowHeight

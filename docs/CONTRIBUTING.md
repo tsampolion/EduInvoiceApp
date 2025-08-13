@@ -73,6 +73,18 @@ source ~/.profile
 - Use **meaningful commit messages**
 - Add **documentation** for public APIs
 
+#### Static Analysis Ratchet Policy
+
+- Spotless formatting uses a ratchet from `origin/main` to prevent unrelated reformatting.
+- Detekt baseline stays as-is. When you touch a file, fix its Detekt issues or add a local suppression with a short rationale. Do NOT add new issues to the baseline.
+- Optional CI may run Detekt only on changed files as a fail-fast gate.
+
+Example local suppression (use sparingly, with rationale):
+
+```kotlin
+@file:Suppress("LongMethod") // rationale: Legacy method; will be refactored in follow-up PR
+```
+
 ## 🧪 Testing Guidelines
 
 ### Unit Tests

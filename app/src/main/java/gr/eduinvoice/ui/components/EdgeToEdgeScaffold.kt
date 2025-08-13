@@ -20,12 +20,12 @@ fun EdgeToEdgeScaffold(
     val systemUiController = rememberSystemUiController()
     val statusBarColor = Color.Transparent
     val navigationBarColor = Color.Transparent
-    
+
     SideEffect {
         systemUiController.setStatusBarColor(statusBarColor)
         systemUiController.setNavigationBarColor(navigationBarColor)
     }
-    
+
     Scaffold(
         topBar = topBar ?: {},
         bottomBar = bottomBar ?: {},

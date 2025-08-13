@@ -315,7 +315,7 @@ class SyncRepository @Inject constructor(
         if (!networkMonitor.isConnected()) {
             return@withContext SyncResult.NoConnection
         }
-        
+
         syncManager.syncData()
     }
 
@@ -361,4 +361,4 @@ class SyncRepository @Inject constructor(
     fun stopBackgroundSync() {
         syncManager.stopBackgroundSync()
     }
-} 
+}

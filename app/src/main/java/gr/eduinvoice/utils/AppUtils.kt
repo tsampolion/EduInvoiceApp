@@ -41,7 +41,7 @@ fun formatDuration(minutes: Int): String {
 
 object AppUtils {
     private val isoFormatter = DateTimeFormatter.ISO_LOCAL_DATE
-    
+
     fun toEpochMillis(dateIso: String): Long {
         return try {
             val d = LocalDate.parse(dateIso, isoFormatter)
@@ -50,16 +50,16 @@ object AppUtils {
             0L
         }
     }
-    
+
     // Validation functions
     fun isValidName(name: String): Boolean {
         return name.isNotBlank() && name.length <= 50 && name.matches(Regex("^[a-zA-Z\\s]+$"))
     }
-    
+
     fun isValidClassName(className: String): Boolean {
         return className.isNotBlank() && className.length <= 30
     }
-    
+
     fun isValidDate(date: String): Boolean {
         return try {
             LocalDate.parse(date)
@@ -68,7 +68,7 @@ object AppUtils {
             false
         }
     }
-    
+
     fun isValidTime(time: String): Boolean {
         return try {
             LocalTime.parse(time)
@@ -77,11 +77,11 @@ object AppUtils {
             false
         }
     }
-    
+
     fun isValidDuration(duration: Int): Boolean {
         return duration > 0 && duration <= 480 // Max 8 hours
     }
-    
+
     fun isValidNotes(notes: String): Boolean {
         return notes.length <= 500
     }

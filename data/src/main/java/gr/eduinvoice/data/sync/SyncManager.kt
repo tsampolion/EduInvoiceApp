@@ -25,7 +25,7 @@ class SyncManager @Inject constructor(
     private val backoff = ExponentialBackoff()
     private val isSyncing = AtomicBoolean(false)
     private val syncStatusFlow = MutableStateFlow<SyncStatus>(SyncStatus.Idle)
-    
+
     private var backgroundSyncJob: Job? = null
     private var connectivityJob: Job? = null
 
@@ -154,7 +154,7 @@ class SyncManager @Inject constructor(
                 // Log retry attempt
             }
         )
-        
+
         return result.getOrThrow()
     }
 
@@ -179,7 +179,7 @@ class SyncManager @Inject constructor(
         return try {
             // Simulate remote API call with potential conflict
             val hasConflict = operation.retryCount > 0 // Simulate conflict on retry
-            
+
             if (hasConflict) {
                 val conflict = SyncConflict(
                     localData = operation.data,
@@ -230,13 +230,13 @@ class SyncManager @Inject constructor(
     suspend fun resolveConflicts(conflicts: List<SyncConflict>): SyncResult {
         return try {
             var resolvedCount = 0
-            
+
             for (conflict in conflicts) {
                 val resolution = conflictResolver.resolveConflict(
                     conflict.localData,
                     conflict.remoteData
                 )
-                
+
                 when (resolution) {
                     is ConflictResolution.UseLocal -> {
                         // Re-queue with local data
@@ -264,7 +264,7 @@ class SyncManager @Inject constructor(
                     }
                 }
             }
-            
+
             SyncResult.Success(resolvedCount)
         } catch (e: Exception) {
             SyncResult.Failure(e)
@@ -324,4 +324,4 @@ data class SyncConflict(
     val localData: String,
     val remoteData: String,
     val operation: PendingOperation
-) 
+)

@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 /**
  * Coordinates transaction management and operation queuing for safe concurrent operations
- * 
+ *
  * Features:
  * - Unified interface for concurrent operations
  * - Automatic conflict detection and resolution
@@ -27,18 +27,18 @@ class ConcurrencyController @Inject constructor(
     private val operationQueueManager: OperationQueueManager
 ) {
     private val TAG = "ConcurrencyController"
-    
+
     // Resource locks
     private val resourceLocks = mutableMapOf<String, Mutex>()
     private val globalLock = Mutex()
-    
+
     // Statistics
     private val _concurrencyStats = MutableStateFlow(ConcurrencyStats())
     val concurrencyStats: StateFlow<ConcurrencyStats> = _concurrencyStats.asStateFlow()
-    
+
     // Operation counter
     private val operationCounter = AtomicLong(0)
-    
+
     /**
      * Executes a safe concurrent operation with automatic conflict resolution
      */
@@ -52,10 +52,10 @@ class ConcurrencyController @Inject constructor(
     ): Result<T> = withContext(Dispatchers.IO) {
         val operationId = generateOperationId()
         val startTime = System.currentTimeMillis()
-        
+
         try {
             Log.d(TAG, "Starting safe operation: $operationId (${operationType.name})")
-            
+
             // Acquire resource lock if specified
             val resourceLock = resourceId?.let { getResourceLock(it) }
             resourceLock?.withLock {
@@ -89,7 +89,7 @@ class ConcurrencyController @Inject constructor(
                     }
                 }
             }
-            
+
         } catch (error: Throwable) {
             Log.e(TAG, "Safe operation $operationId failed: ${error.message}")
             Result.failure(error)
@@ -98,7 +98,7 @@ class ConcurrencyController @Inject constructor(
             updateConcurrencyStats(operationType, startTime)
         }
     }
-    
+
     /**
      * Executes multiple operations safely with conflict resolution
      */
@@ -111,10 +111,10 @@ class ConcurrencyController @Inject constructor(
     ): Result<List<T>> = withContext(Dispatchers.IO) {
         val batchId = generateOperationId()
         val startTime = System.currentTimeMillis()
-        
+
         try {
             Log.d(TAG, "Starting batch safe operations: $batchId with ${operations.size} operations")
-            
+
             // Use batch transaction if requested
             if (useTransaction) {
                 transactionManager.executeBatchInTransaction(
@@ -134,7 +134,7 @@ class ConcurrencyController @Inject constructor(
                 }
                 Result.success(results)
             }
-            
+
         } catch (error: Throwable) {
             Log.e(TAG, "Batch safe operations $batchId failed: ${error.message}")
             Result.failure(error)
@@ -142,7 +142,7 @@ class ConcurrencyController @Inject constructor(
             updateConcurrencyStats(operationType, startTime, isBatch = true)
         }
     }
-    
+
     /**
      * Executes read-only operations safely
      */
@@ -152,16 +152,16 @@ class ConcurrencyController @Inject constructor(
     ): Result<T> = withContext(Dispatchers.IO) {
         val operationId = generateOperationId()
         val startTime = System.currentTimeMillis()
-        
+
         try {
             Log.d(TAG, "Starting read-only operation: $operationId")
-            
+
             // Use read-only transaction
             transactionManager.executeReadOnly(
                 operation = operation,
                 transactionName = "readonly_$operationId"
             )
-            
+
         } catch (error: Throwable) {
             Log.e(TAG, "Read-only operation $operationId failed: ${error.message}")
             Result.failure(error)
@@ -169,7 +169,7 @@ class ConcurrencyController @Inject constructor(
             updateConcurrencyStats(OperationType.READ, startTime)
         }
     }
-    
+
     /**
      * Locks a resource for exclusive access
      */
@@ -182,7 +182,7 @@ class ConcurrencyController @Inject constructor(
             operation()
         }
     }
-    
+
     /**
      * Checks if operations should be queued
      */
@@ -193,19 +193,19 @@ class ConcurrencyController @Inject constructor(
             OperationType.READ -> resourceId != null && hasConflictingOperations(resourceId)
         }
     }
-    
+
     /**
      * Checks for conflicting operations on a resource
      */
     private fun hasConflictingOperations(resourceId: String): Boolean {
         val activeOperations = operationQueueManager.getActiveOperations()
         return activeOperations.values.any { operation ->
-            operation.resourceId == resourceId && 
+            operation.resourceId == resourceId &&
             operation.status == OperationStatus.EXECUTING &&
             operation.type in listOf(OperationType.WRITE, OperationType.UPDATE, OperationType.DELETE)
         }
     }
-    
+
     /**
      * Gets or creates a resource lock
      */
@@ -214,7 +214,7 @@ class ConcurrencyController @Inject constructor(
             resourceLocks.getOrPut(resourceId) { Mutex() }
         }
     }
-    
+
     /**
      * Updates concurrency statistics
      */
@@ -224,17 +224,17 @@ class ConcurrencyController @Inject constructor(
         isBatch: Boolean = false
     ) {
         val duration = System.currentTimeMillis() - startTime
-        
+
         _concurrencyStats.value = _concurrencyStats.value.copy(
             totalOperations = _concurrencyStats.value.totalOperations + 1,
-            batchOperations = if (isBatch) _concurrencyStats.value.batchOperations + 1 
+            batchOperations = if (isBatch) _concurrencyStats.value.batchOperations + 1
                             else _concurrencyStats.value.batchOperations,
             averageOperationTime = calculateAverageOperationTime(duration),
             activeResourceLocks = resourceLocks.size,
             lastOperationType = operationType.name
         )
     }
-    
+
     /**
      * Calculates average operation time
      */
@@ -245,28 +245,28 @@ class ConcurrencyController @Inject constructor(
             totalTime / (current.totalOperations + 1)
         } else 0
     }
-    
+
     /**
      * Generates unique operation ID
      */
     private fun generateOperationId(): String {
         return "safe_op_${operationCounter.incrementAndGet()}_${System.currentTimeMillis()}"
     }
-    
+
     /**
      * Gets current concurrency statistics
      */
     fun getConcurrencyStatistics(): ConcurrencyStats {
         return _concurrencyStats.value
     }
-    
+
     /**
      * Gets active resource locks
      */
     fun getActiveResourceLocks(): Set<String> {
         return resourceLocks.keys.toSet()
     }
-    
+
     /**
      * Releases all resource locks (emergency cleanup)
      */
@@ -276,7 +276,7 @@ class ConcurrencyController @Inject constructor(
             resourceLocks.clear()
         }
     }
-    
+
     /**
      * Performs health check on concurrency components
      */
@@ -285,11 +285,11 @@ class ConcurrencyController @Inject constructor(
             val transactionStats = transactionManager.transactionStats.value
             val queueStats = operationQueueManager.getQueueStatistics()
             val concurrencyStats = _concurrencyStats.value
-            
+
             val isHealthy = transactionStats.failedTransactions < 10 &&
                            queueStats.failedOperations < 10 &&
                            concurrencyStats.totalOperations > 0
-            
+
             HealthCheckResult(
                 isHealthy = isHealthy,
                 transactionStats = transactionStats,
@@ -307,23 +307,23 @@ class ConcurrencyController @Inject constructor(
             )
         }
     }
-    
+
     /**
      * Emergency cleanup of all concurrency components
      */
     suspend fun emergencyCleanup() {
         Log.w(TAG, "Performing emergency cleanup of concurrency components")
-        
+
         try {
             // Cancel all operations
             operationQueueManager.cancelAllOperations()
-            
+
             // Cancel all transactions
             transactionManager.cancelAllTransactions()
-            
+
             // Release all resource locks
             releaseAllResourceLocks()
-            
+
             Log.i(TAG, "Emergency cleanup completed successfully")
         } catch (error: Throwable) {
             Log.e(TAG, "Emergency cleanup failed: ${error.message}")
@@ -354,4 +354,4 @@ data class HealthCheckResult(
     val activeTransactions: Int = 0,
     val activeOperations: Int = 0,
     val error: String? = null
-) 
+)

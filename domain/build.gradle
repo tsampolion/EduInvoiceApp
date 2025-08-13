@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'com.diffplug.spotless'
+    id 'org.jetbrains.kotlinx.kover'
 }
 
 android {
@@ -46,9 +48,30 @@ dependencies {
     testImplementation "org.bouncycastle:bcprov-jdk15on:1.70"
     testImplementation "io.mockk:mockk:1.13.8"
     testImplementation "com.lemonappdev:konsist:0.16.0"
+    testImplementation "app.cash.turbine:turbine:1.1.0"
     
     // Test fixtures
     // TODO: Move to module-local fixtures (Option A)
     // testImplementation(testFixtures(project(":test-support")))
+}
+
+// Spotless configuration
+spotless {
+    ratchetFrom 'origin/main'
+    kotlin {
+        target '**/*.kt'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    kotlinGradle {
+        target '**/*.kts'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    format 'misc', {
+        target '**/*.md', '**/.gitignore'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 

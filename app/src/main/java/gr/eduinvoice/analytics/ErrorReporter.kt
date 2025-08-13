@@ -22,16 +22,16 @@ import javax.inject.Singleton
 class ErrorReporter @Inject constructor(
     private val context: Context
 ) {
-    
+
     private val crashlytics = FirebaseCrashlytics.getInstance()
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-    
+
     private val _errorPatterns = MutableStateFlow<List<ErrorPattern>>(emptyList())
     val errorPatterns: Flow<List<ErrorPattern>> = _errorPatterns.asStateFlow()
-    
+
     private val _errorStats = MutableStateFlow(ErrorStats())
     val errorStats: Flow<ErrorStats> = _errorStats.asStateFlow()
-    
+
     /**
      * Reports an error to analytics and logging systems
      */
@@ -39,24 +39,24 @@ class ErrorReporter @Inject constructor(
         try {
             // Log to Android logcat
             Log.e(TAG, "Error in $context: ${error.message}", error)
-            
+
             // Report to Firebase Crashlytics
             reportToCrashlytics(error, context)
-            
+
             // Log to local file
             logToFile(error, context)
-            
+
             // Update error patterns
             updateErrorPatterns(error, context)
-            
+
             // Update statistics
             updateErrorStats(error)
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Failed to report error", e)
         }
     }
-    
+
     /**
      * Reports error with custom metadata
      */
@@ -70,15 +70,15 @@ class ErrorReporter @Inject constructor(
             metadata.forEach { (key, value) ->
                 crashlytics.setCustomKey(key, value)
             }
-            
+
             // Report error
             reportError(error, context)
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Failed to report error with metadata", e)
         }
     }
-    
+
     /**
      * Reports non-fatal error (doesn't crash the app)
      */
@@ -95,43 +95,43 @@ class ErrorReporter @Inject constructor(
                 ErrorSeverity.WARNING -> Log.w(TAG, "Non-fatal error in $context: ${error.message}")
                 ErrorSeverity.ERROR -> Log.e(TAG, "Non-fatal error in $context: ${error.message}")
             }
-            
+
             // Report to Crashlytics as non-fatal
             crashlytics.recordException(error)
-            
+
             // Log to local file
             logToFile(error, context, severity)
-            
+
             // Update patterns and stats
             updateErrorPatterns(error, context)
             updateErrorStats(error)
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Failed to report non-fatal error", e)
         }
     }
-    
+
     /**
      * Tracks error patterns for analytics
      */
     fun trackErrorPatterns(): Flow<ErrorPattern> = errorPatterns.map { patterns ->
         patterns.maxByOrNull { it.occurrenceCount } ?: ErrorPattern("", "", 0)
     }
-    
+
     /**
      * Gets error statistics
      */
     fun getErrorStatistics(): ErrorStats {
         return _errorStats.value
     }
-    
+
     /**
      * Clears error history
      */
     fun clearErrorHistory() {
         _errorPatterns.value = emptyList()
         _errorStats.value = ErrorStats()
-        
+
         // Clear local log file
         try {
             val logFile = File(this.context.filesDir, ERROR_LOG_FILE)
@@ -142,7 +142,7 @@ class ErrorReporter @Inject constructor(
             Log.e(TAG, "Failed to clear error history", e)
         }
     }
-    
+
     /**
      * Exports error logs to file
      */
@@ -161,7 +161,7 @@ class ErrorReporter @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Reports error to Firebase Crashlytics
      */
@@ -174,7 +174,7 @@ class ErrorReporter @Inject constructor(
             Log.e(TAG, "Failed to report to Crashlytics", e)
         }
     }
-    
+
     /**
      * Logs error to local file
      */
@@ -182,7 +182,7 @@ class ErrorReporter @Inject constructor(
         try {
             val logFile = File(this.context.filesDir, ERROR_LOG_FILE)
             val timestamp = dateFormat.format(Date())
-            
+
             FileWriter(logFile, true).use { writer ->
                 PrintWriter(writer).use { printer ->
                     printer.println("[$timestamp] [$severity] [$context] ${error.javaClass.simpleName}: ${error.message}")
@@ -196,16 +196,16 @@ class ErrorReporter @Inject constructor(
             Log.e(TAG, "Failed to log error to file", e)
         }
     }
-    
+
     /**
      * Updates error patterns for analytics
      */
     private fun updateErrorPatterns(error: Throwable, context: String) {
         val errorType = error.javaClass.simpleName
         val currentPatterns = _errorPatterns.value.toMutableList()
-        
+
         val existingPattern = currentPatterns.find { it.errorType == errorType && it.context == context }
-        
+
         if (existingPattern != null) {
             val updatedPattern = existingPattern.copy(
                 occurrenceCount = existingPattern.occurrenceCount + 1,
@@ -223,26 +223,26 @@ class ErrorReporter @Inject constructor(
             )
             currentPatterns.add(newPattern)
         }
-        
+
         _errorPatterns.value = currentPatterns
     }
-    
+
     /**
      * Updates error statistics
      */
     private fun updateErrorStats(error: Throwable) {
         val currentStats = _errorStats.value
         val errorType = error.javaClass.simpleName
-        
+
         val updatedStats = currentStats.copy(
             totalErrors = currentStats.totalErrors + 1,
             errorsByType = currentStats.errorsByType + (errorType to (currentStats.errorsByType[errorType] ?: 0) + 1),
             lastErrorTime = System.currentTimeMillis()
         )
-        
+
         _errorStats.value = updatedStats
     }
-    
+
     companion object {
         private const val TAG = "ErrorReporter"
         private const val ERROR_LOG_FILE = "error_log.txt"
@@ -277,4 +277,4 @@ data class ErrorStats(
     val totalErrors: Int = 0,
     val errorsByType: Map<String, Int> = emptyMap(),
     val lastErrorTime: Long = 0L
-) 
+)

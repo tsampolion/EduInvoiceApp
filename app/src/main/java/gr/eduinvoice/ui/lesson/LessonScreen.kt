@@ -24,7 +24,7 @@ import androidx.compose.foundation.clickable
 import gr.eduinvoice.ui.components.ClickableReadOnlyField
 import gr.eduinvoice.testcompat.getFullName
 import androidx.compose.runtime.*
-import gr.eduinvoice.data.model.RateTypes
+import gr.eduinvoice.domain.model.DomainRateTypes
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -255,7 +255,7 @@ fun LessonScreen(
                 )
             }
 
-            if (uiState.rateType == RateTypes.HOURLY) {
+            if (uiState.rateType == DomainRateTypes.HOURLY) {
                 OutlinedTextField(
                     value = uiState.durationMinutes,
                     onValueChange = viewModel::updateDuration,
@@ -289,7 +289,7 @@ fun LessonScreen(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "€%.2f".format(if (uiState.rateType == RateTypes.PER_LESSON) uiState.studentRate else viewModel.calculateFee()),
+                        text = "€%.2f".format(if (uiState.rateType == DomainRateTypes.PER_LESSON) uiState.studentRate else viewModel.calculateFee()),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     )

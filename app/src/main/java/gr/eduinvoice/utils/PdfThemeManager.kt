@@ -9,5 +9,3 @@ class PdfThemeManager @Inject constructor() {
     fun getTheme(): ModernPdfTheme = currentTheme
     fun setTheme(theme: ModernPdfTheme) { currentTheme = theme }
 }
-
-

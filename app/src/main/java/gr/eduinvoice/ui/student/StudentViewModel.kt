@@ -14,7 +14,7 @@ import gr.eduinvoice.domain.billing.calculateFeeWith
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.model.DomainLesson
-import gr.eduinvoice.data.user.CurrentUserProvider
+import gr.eduinvoice.domain.user.CurrentUserProvider
 import gr.eduinvoice.utils.EarningsCalculator
 import gr.eduinvoice.utils.ClassOptions
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +45,7 @@ class StudentViewModel @Inject constructor(
     // UI State
     private val _uiState = MutableStateFlow(StudentUiState(isEditMode = studentId == 0L))
     val uiState: StateFlow<StudentUiState> = _uiState.asStateFlow()
-    
+
     // Error handling components
     private val errorHandler = ErrorHandler(context)
     private val retryManager = RetryManager()
@@ -70,7 +70,7 @@ class StudentViewModel @Inject constructor(
                 currentUserProvider.loggedInUserId
                     .filterNotNull()
                     .flatMapLatest { studentAndLessonsFlow(it) }
-                    .catch { e -> 
+                    .catch { e ->
                         val errorResult = errorHandler.handleError(e, "StudentViewModel_LoadData")
                         errorReporter.reportError(e, "StudentViewModel_LoadData")
                         _uiState.update { it.copy(errorMessage = errorResult.userMessage) }
@@ -266,7 +266,7 @@ class StudentViewModel @Inject constructor(
                     errorReporter.reportError(error, "StudentViewModel_Save_Retry_$attempt")
                 }
             )
-            
+
             if (result.isSuccess) {
                 withContext(Dispatchers.Main) {
                     _uiState.update { it.copy(isLoading = false) }
@@ -276,7 +276,7 @@ class StudentViewModel @Inject constructor(
                 val error = result.exceptionOrNull() ?: Exception("Unknown save error")
                 val errorResult = errorHandler.handleError(error, "StudentViewModel_Save")
                 errorReporter.reportError(error, "StudentViewModel_Save")
-                
+
                 _uiState.update {
                     it.copy(isLoading = false, errorMessage = errorResult.userMessage)
                 }
@@ -284,7 +284,7 @@ class StudentViewModel @Inject constructor(
         } catch (e: Exception) {
             val errorResult = errorHandler.handleError(e, "StudentViewModel_Save")
             errorReporter.reportError(e, "StudentViewModel_Save")
-            
+
             _uiState.update {
                 it.copy(isLoading = false, errorMessage = errorResult.userMessage)
             }
@@ -325,7 +325,7 @@ class StudentViewModel @Inject constructor(
                         errorReporter.reportError(error, "StudentViewModel_Delete_Retry_$attempt")
                     }
                 )
-                
+
                 if (result.isSuccess) {
                     // Clear loading and navigate back on main thread
                     withContext(Dispatchers.Main) {
@@ -336,7 +336,7 @@ class StudentViewModel @Inject constructor(
                     val error = result.exceptionOrNull() ?: Exception("Unknown delete error")
                     val errorResult = errorHandler.handleError(error, "StudentViewModel_Delete")
                     errorReporter.reportError(error, "StudentViewModel_Delete")
-                    
+
                     _uiState.update {
                         it.copy(isLoading = false, errorMessage = errorResult.userMessage)
                     }
@@ -344,7 +344,7 @@ class StudentViewModel @Inject constructor(
             } catch (e: Exception) {
                 val errorResult = errorHandler.handleError(e, "StudentViewModel_Delete")
                 errorReporter.reportError(e, "StudentViewModel_Delete")
-                
+
                 _uiState.update {
                     it.copy(isLoading = false, errorMessage = errorResult.userMessage)
                 }

@@ -102,7 +102,7 @@ object ModernTypographyStyles {
         lineHeight = 56.sp,
         letterSpacing = (-0.5).sp
     )
-    
+
     val displayMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
@@ -110,7 +110,7 @@ object ModernTypographyStyles {
         lineHeight = 48.sp,
         letterSpacing = (-0.25).sp
     )
-    
+
     val displaySmall = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
@@ -118,7 +118,7 @@ object ModernTypographyStyles {
         lineHeight = 44.sp,
         letterSpacing = 0.sp
     )
-    
+
     val caption = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
@@ -126,7 +126,7 @@ object ModernTypographyStyles {
         lineHeight = 14.sp,
         letterSpacing = 0.4.sp
     )
-    
+
     val overline = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
@@ -134,7 +134,7 @@ object ModernTypographyStyles {
         lineHeight = 16.sp,
         letterSpacing = 1.5.sp
     )
-    
+
     val button = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
@@ -142,7 +142,7 @@ object ModernTypographyStyles {
         lineHeight = 20.sp,
         letterSpacing = 0.1.sp
     )
-    
+
     val input = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
@@ -150,7 +150,7 @@ object ModernTypographyStyles {
         lineHeight = 24.sp,
         letterSpacing = 0.15.sp
     )
-    
+
     val code = TextStyle(
         fontFamily = FontFamily.Monospace,
         fontWeight = FontWeight.Normal,

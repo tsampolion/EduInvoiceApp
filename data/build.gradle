@@ -4,6 +4,8 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization' version '2.1.10'
     id 'com.google.devtools.ksp'
     id 'com.google.dagger.hilt.android'
+    id 'com.diffplug.spotless'
+    id 'org.jetbrains.kotlinx.kover'
 }
 
 android {
@@ -69,6 +71,7 @@ dependencies {
     testImplementation "androidx.test:runner:1.5.0"
     testImplementation "androidx.test:rules:1.5.0"
     testImplementation "com.lemonappdev:konsist:0.16.0"
+    testImplementation "app.cash.turbine:turbine:1.1.0"
     
     // Test fixtures - temporarily commented out to break circular dependency
     // testImplementation(testFixtures(project(":test-support")))
@@ -76,4 +79,24 @@ dependencies {
 
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
+}
+
+// Spotless configuration
+spotless {
+    ratchetFrom 'origin/main'
+    kotlin {
+        target '**/*.kt'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    kotlinGradle {
+        target '**/*.kts'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    format 'misc', {
+        target '**/*.md', '**/.gitignore'
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }

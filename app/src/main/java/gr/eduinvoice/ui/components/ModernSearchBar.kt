@@ -75,5 +75,3 @@ fun ModernSearchBar(
         suggestionsContent()
     }
 }
-
-
