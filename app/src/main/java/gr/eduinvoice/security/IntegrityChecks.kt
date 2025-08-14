@@ -2,6 +2,7 @@ package gr.eduinvoice.security
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
@@ -34,7 +35,16 @@ object IntegrityChecks {
     fun isTampered(context: Context): Boolean {
         return try {
             // Basic tamper heuristic: debug build or unknown installer
-            val installer = context.packageManager.getInstallerPackageName(context.packageName)
+            val installer = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                try {
+                    context.packageManager.getInstallSourceInfo(context.packageName).installingPackageName
+                } catch (_: Exception) {
+                    null
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getInstallerPackageName(context.packageName)
+            }
             val appInfo = context.applicationInfo
             val isDebuggable = (appInfo?.flags ?: 0) and ApplicationInfo.FLAG_DEBUGGABLE != 0
             val tampered = installer == null && !isDebuggable

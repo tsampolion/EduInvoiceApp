@@ -42,7 +42,7 @@ class OperationQueueManager @Inject constructor() {
     /**
      * Queues an operation for execution
      */
-    suspend fun <T> queueOperation(
+    suspend fun <T : Any> queueOperation(
         operation: suspend () -> T,
         operationType: OperationType,
         resourceId: String? = null,
@@ -56,7 +56,7 @@ class OperationQueueManager @Inject constructor() {
             // Create queued operation
             val queuedOperation = QueuedOperation(
                 id = operationId,
-                operation = operation as suspend () -> Any,
+                operation = { operation() as Any },
                 type = operationType,
                 resourceId = resourceId,
                 priority = priority,
@@ -87,6 +87,7 @@ class OperationQueueManager @Inject constructor() {
                 return@withContext Result.failure(Exception("Operation timed out"))
             }
 
+            @Suppress("UNCHECKED_CAST")
             result as Result<T>
 
         } catch (error: Throwable) {
@@ -101,7 +102,7 @@ class OperationQueueManager @Inject constructor() {
     /**
      * Executes operations in batch
      */
-    suspend fun <T> executeBatchOperations(
+    suspend fun <T : Any> executeBatchOperations(
         operations: List<suspend () -> T>,
         operationType: OperationType,
         resourceId: String? = null,
@@ -116,7 +117,7 @@ class OperationQueueManager @Inject constructor() {
             val results = mutableListOf<Result<T>>()
 
             operations.forEachIndexed { index, operation ->
-                val result = queueOperation(
+                val result = queueOperation<T>(
                     operation = operation,
                     operationType = operationType,
                     resourceId = resourceId,

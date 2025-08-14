@@ -45,9 +45,9 @@ fun EduInvoiceTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            val insetsController = WindowCompat.getInsetsController(window, view)
-            insetsController.isAppearanceLightStatusBars = !darkTheme
-            window.statusBarColor = colorScheme.primary.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            // Use transparent status bar and rely on EdgeToEdgeScaffold for insets
+            window.statusBarColor = android.graphics.Color.TRANSPARENT
         }
     }
 
