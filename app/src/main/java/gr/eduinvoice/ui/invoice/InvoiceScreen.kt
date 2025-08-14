@@ -72,6 +72,7 @@ fun InvoiceScreen(
     val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
     var showConfirm by remember { mutableStateOf(false) }
     var generatedInvoice by remember { mutableStateOf<Uri?>(null) }
+    var generatedInvoiceFile by remember { mutableStateOf<File?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -117,8 +118,7 @@ fun InvoiceScreen(
 
             if (lessons.isNotEmpty()) {
                 TextButton(onClick = { viewModel.selectAll() }) {
-                    Text("Select All")
-                }
+                    Text("Select All") }
             }
 
             if (lessons.isEmpty()) {
@@ -160,9 +160,15 @@ fun InvoiceScreen(
                         val theme = gr.eduinvoice.domain.billing.DomainPdfThemes.Default
                         val result = gr.eduinvoice.utils.AndroidPdfGenerator(context, theme).generateInvoice(invoiceData, outFile)
                         result.fold(
-                            onSuccess = { jUri ->
+                            onSuccess = { path ->
+                                val file = java.io.File(path)
+                                generatedInvoice = androidx.core.content.FileProvider.getUriForFile(
+                                    context,
+                                    "${context.packageName}.provider",
+                                    file
+                                )
+                                generatedInvoiceFile = file
                                 viewModel.markAsPaid(selected.map { it.lesson.id })
-                                generatedInvoice = android.net.Uri.parse(jUri.toString())
                                 showConfirm = false
                             },
                             onFailure = {
@@ -183,34 +189,48 @@ fun InvoiceScreen(
                 text = { Text("Share or print the invoice?") },
                 confirmButton = {
                     TextButton(onClick = {
-                        val pdfFile = uri.toFile()
                         val share = Intent(Intent.ACTION_SEND).apply {
                             type = "application/pdf"
-                            putExtra(
-                                Intent.EXTRA_STREAM,
-                                FileProvider.getUriForFile(
-                                    context,
-                                    "${context.packageName}.provider",
-                                    pdfFile
-                                )
-                            )
+                            putExtra(Intent.EXTRA_STREAM, uri)
                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         }
                         context.startActivity(Intent.createChooser(share, null))
                         generatedInvoice = null
+                        generatedInvoiceFile = null
                     }) { Text("Share") }
                 },
                 dismissButton = {
                     TextButton(onClick = {
-                        val pdfFile = uri.toFile()
-                        val printManager =
-                            context.getSystemService(android.content.Context.PRINT_SERVICE) as android.print.PrintManager
-                        printManager.print(
-                            "invoice",
-                            gr.eduinvoice.utils.PdfFilePrintAdapter(context, pdfFile),
-                            null
-                        )
-                        generatedInvoice = null
+                        val file = generatedInvoiceFile
+                        if (file != null) {
+                            val printManager =
+                                context.getSystemService(android.content.Context.PRINT_SERVICE) as android.print.PrintManager
+                            printManager.print(
+                                "invoice",
+                                gr.eduinvoice.utils.PdfFilePrintAdapter(context, file),
+                                null
+                            )
+                            generatedInvoice = null
+                            generatedInvoiceFile = null
+                        } else {
+                            // Fallback: stream via temp file
+                            val input = context.contentResolver.openInputStream(uri)
+                            val temp = java.io.File(context.cacheDir, "invoice-print.pdf")
+                            input.use { ins ->
+                                java.io.FileOutputStream(temp).use { outs ->
+                                    if (ins != null) ins.copyTo(outs)
+                                }
+                            }
+                            val printManager =
+                                context.getSystemService(android.content.Context.PRINT_SERVICE) as android.print.PrintManager
+                            printManager.print(
+                                "invoice",
+                                gr.eduinvoice.utils.PdfFilePrintAdapter(context, temp),
+                                null
+                            )
+                            generatedInvoice = null
+                            generatedInvoiceFile = null
+                        }
                     }) { Text("Print") }
                 }
             )

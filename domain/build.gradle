@@ -1,55 +1,33 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'com.diffplug.spotless'
-    id 'org.jetbrains.kotlinx.kover'
+    alias(libs.plugins.kotlin.jvm)
+    id 'java-library'
+    id 'java-test-fixtures'
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.kover)
+    
 }
 
-android {
-    namespace 'gr.eduinvoice.domain'
-    compileSdk 35
-
-    defaultConfig {
-        minSdk 26
-        targetSdk 35
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-
-    kotlinOptions {
-        jvmTarget = '17'
-    }
-
-    testFixtures {
-        enable = true
-    }
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 dependencies {
-    implementation 'javax.inject:javax.inject:1'
-    implementation 'com.google.dagger:hilt-core:2.54'
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0"
-    
+    implementation libs.javax.inject
+    implementation libs.dagger.hilt.core
+    implementation libs.coroutines.core
+    implementation libs.serialization.json
+
     // Test fixtures dependencies
-    testFixturesImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
-    
-    testImplementation "junit:junit:4.13.2"
-    testImplementation "androidx.test:core:1.5.0"
-    testImplementation "androidx.test.ext:junit:1.1.5"
-    testImplementation "androidx.test:runner:1.5.0"
-    testImplementation "androidx.test:rules:1.5.0"
-    testImplementation "org.robolectric:robolectric:4.11.1"
-    testImplementation "androidx.room:room-testing:2.7.1"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0"
-    testImplementation "org.bouncycastle:bcprov-jdk15on:1.70"
-    testImplementation "io.mockk:mockk:1.13.8"
-    testImplementation "com.lemonappdev:konsist:0.16.0"
-    testImplementation "app.cash.turbine:turbine:1.1.0"
-    
+    testFixturesImplementation libs.coroutines.core
+
+    testImplementation libs.junit4
+    testImplementation libs.coroutines.test
+    testImplementation libs.bouncycastle
+    testImplementation libs.mockk
+    testImplementation libs.konsist
+    testImplementation libs.turbine
+
     // Test fixtures
     // TODO: Move to module-local fixtures (Option A)
     // testImplementation(testFixtures(project(":test-support")))

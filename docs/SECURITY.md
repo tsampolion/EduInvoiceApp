@@ -6,8 +6,8 @@ We actively maintain and provide security updates for the following versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
+| 0.28.x  | :white_check_mark: |
 | 0.27.x  | :white_check_mark: |
-| 0.26.x  | :white_check_mark: |
 | 0.25.x  | :x:                |
 | < 0.25  | :x:                |
 
@@ -58,7 +58,7 @@ Suggested Fix:
 Environment:
 - OS: [e.g., Android 14]
 - Device: [e.g., Pixel 7]
-- App Version: [e.g., 0.27.0]
+- App Version: [e.g., 0.28.0]
 
 Additional Information:
 [Screenshots, logs, or other relevant details]

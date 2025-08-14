@@ -3,8 +3,8 @@ package gr.eduinvoice.testcompat
 import gr.eduinvoice.domain.model.DomainStudent
 
 /**
- * Compatibility extensions for data layer models
- * Provides missing functions that tests expect
+ * Legacy location kept for binary/source compatibility with older tests.
+ * Delegates to the canonical DomainStudent.getFullName() implementation to avoid duplication.
  */
 
-fun DomainStudent.getFullName(): String = "${name} ${surname}".trim()
+fun DomainStudent.getFullName(): String = this.getFullName()

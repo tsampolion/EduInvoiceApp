@@ -314,7 +314,7 @@ fun AccessibleModernProgressIndicator(
         }
 
         LinearProgressIndicator(
-            progress = progress,
+            progress = { progress },
             modifier = Modifier.semantics {
                 contentDescription = label ?: "Progress indicator"
                 stateDescription = "${(progress * 100).toInt()}% complete"

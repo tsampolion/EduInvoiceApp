@@ -19,8 +19,8 @@ class FakeStudentsRepository : DomainStudentRepository {
     }
 
     override suspend fun updateStudent(student: DomainStudent) {
-        students.value = students.value.map { 
-            if (it.id == student.id) student else it 
+        students.value = students.value.map {
+            if (it.id == student.id) student else it
         }
     }
 
@@ -29,8 +29,8 @@ class FakeStudentsRepository : DomainStudentRepository {
     }
 
     override suspend fun softDeleteStudent(studentId: Long, userId: Long) {
-        students.value = students.value.map { 
-            if (it.id == studentId) it.copy(isActive = false) else it 
+        students.value = students.value.map {
+            if (it.id == studentId) it.copy(isActive = false) else it
         }
     }
 
@@ -51,8 +51,8 @@ class FakeStudentsRepository : DomainStudentRepository {
     }
 
     override suspend fun restoreStudent(studentId: Long, userId: Long) {
-        students.value = students.value.map { 
-            if (it.id == studentId) it.copy(isActive = true) else it 
+        students.value = students.value.map {
+            if (it.id == studentId) it.copy(isActive = true) else it
         }
     }
 
@@ -69,9 +69,9 @@ class FakeStudentsRepository : DomainStudentRepository {
     }
 
     override suspend fun searchStudentsPaginated(
-        userId: Long, 
-        searchQuery: String, 
-        limit: Int, 
+        userId: Long,
+        searchQuery: String,
+        limit: Int,
         offset: Int
     ): List<DomainStudent> {
         val filtered = students.value.filter { student ->

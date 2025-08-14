@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -106,7 +107,7 @@ fun ModernTopAppBar(
             if (onNavigateBack != null) {
                 IconButton(onClick = onNavigateBack) {
                     Icon(
-                        Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Navigate back"
                     )
                 }
@@ -133,26 +134,32 @@ fun ModernSearchTopAppBar(
     modifier: Modifier = Modifier
 ) {
     SearchBar(
-        query = query,
-        onQueryChange = onQueryChange,
-        onSearch = onSearch,
-        active = false,
-        onActiveChange = {},
-        placeholder = { Text("Search...") },
-        leadingIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(
-                    Icons.Default.ArrowBack,
-                    contentDescription = "Navigate back"
-                )
-            }
-        },
-        trailingIcon = {
-            Icon(
-                Icons.Default.Search,
-                contentDescription = "Search"
+        inputField = {
+            SearchBarDefaults.InputField(
+                query = query,
+                onQueryChange = onQueryChange,
+                onSearch = onSearch,
+                expanded = false,
+                onExpandedChange = {},
+                placeholder = { Text("Search...") },
+                leadingIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Navigate back"
+                        )
+                    }
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search"
+                    )
+                },
             )
         },
+        expanded = false,
+        onExpandedChange = {},
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
         colors = SearchBarDefaults.colors(
@@ -243,9 +250,8 @@ fun ModernTabRow(
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.primary,
         indicator = { tabPositions ->
-            TabRowDefaults.Indicator(
+            TabRowDefaults.SecondaryIndicator(
                 modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                height = 3.dp,
                 color = MaterialTheme.colorScheme.primary
             )
         }

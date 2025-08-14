@@ -83,6 +83,7 @@ sdkmanager --version
 3. **Configure Gradle:**
    - File → Settings → Build, Execution, Deployment → Gradle
    - Set Gradle JDK to version 17
+   - Version Catalog is in `gradle/libs.versions.toml`
 
 #### VS Code (Alternative)
 Install extensions:
@@ -605,6 +606,7 @@ versionName "0.24.10"
 versionCode 38
 
 // 2. Update CHANGELOG.md
+// 2b. If dependencies/plugins change, update `gradle/libs.versions.toml`
 // 3. Create release tag
 git tag -a v0.24.10 -m "Release version 0.24.10"
 git push origin v0.24.10

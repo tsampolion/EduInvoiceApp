@@ -22,5 +22,3 @@ class StressTest {
         assert(time < 6_000)
     }
 }
-
-

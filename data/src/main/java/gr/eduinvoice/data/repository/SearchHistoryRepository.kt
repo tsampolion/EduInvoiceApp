@@ -1,26 +1,27 @@
-package gr.eduinvoice.utils
+package gr.eduinvoice.data.repository
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import gr.eduinvoice.domain.user.SearchHistoryRepository
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 @Singleton
-class SearchHistoryRepository @Inject constructor(
+class DataSearchHistoryRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>
-) {
+) : SearchHistoryRepository {
     private val KEY_HISTORY = stringPreferencesKey("search_history_csv")
     private val maxHistory = 10
 
-    val history: Flow<List<String>> = dataStore.data.map { prefs ->
+    override val history: Flow<List<String>> = dataStore.data.map { prefs ->
         prefs[KEY_HISTORY]?.split('|')?.filter { it.isNotBlank() } ?: emptyList()
     }
 
-    suspend fun add(query: String) {
+    override suspend fun add(query: String) {
         val q = query.trim()
         if (q.isBlank()) return
         dataStore.edit { prefs ->
@@ -32,7 +33,9 @@ class SearchHistoryRepository @Inject constructor(
         }
     }
 
-    suspend fun clear() {
+    override suspend fun clear() {
         dataStore.edit { it.remove(KEY_HISTORY) }
     }
 }
+
+

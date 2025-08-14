@@ -49,3 +49,17 @@
 ---
 
 *This document will be continuously updated as the architecture evolves.*
+
+## Build & Dependency Management
+
+EduInvoiceApp uses Gradle with a centralized Version Catalog. All dependency and plugin versions live in `gradle/libs.versions.toml`, and modules consume them via `alias(libs.*)`.
+
+- Dependencies and plugin versions are managed centrally via the catalog
+- Compose and Firebase are aligned using their BoMs
+
+Example:
+```
+implementation libs.androidx.core.ktx
+implementation platform(libs.compose.bom)
+implementation libs.compose.material3
+```

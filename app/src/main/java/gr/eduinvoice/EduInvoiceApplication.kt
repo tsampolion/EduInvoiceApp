@@ -9,7 +9,7 @@ import com.google.firebase.perf.FirebasePerformance
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class TutorBillingApplication : Application() {
+class EduInvoiceApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
@@ -30,9 +30,9 @@ class TutorBillingApplication : Application() {
             //     setSessionsDataCollectionEnabled(false)
             // }
 
-            Log.d("TutorBillingApplication", "Firebase initialized successfully")
+            Log.d("EduInvoiceApplication", "Firebase initialized successfully")
         } catch (e: Exception) {
-            Log.w("TutorBillingApplication", "Failed to initialize Firebase", e)
+            Log.w("EduInvoiceApplication", "Failed to initialize Firebase", e)
             // Don't crash the app if Firebase initialization fails
         }
     }

@@ -46,68 +46,72 @@ fun GroupsScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddGroup) {
-                Icon(Icons.Default.Add, contentDescription = "Add Group")
+            if (uiState.groups.isNotEmpty()) {
+                FloatingActionButton(onClick = onAddGroup) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Group")
+                }
             }
         }
     ) { padding ->
-        var searchActive by remember { mutableStateOf(false) }
-        var query by remember { mutableStateOf("") }
-        val groupsHistory = remember(query) { emptyList<String>() }
-        ModernSearchBar(
-            query = query,
-            onQueryChange = { query = it },
-            onVoiceInput = {},
-            onSearch = {},
-            active = searchActive,
-            onActiveChange = { searchActive = it },
-            suggestionsContent = {
-                Column(Modifier.fillMaxWidth()) {
-                    groupsHistory.forEach { item ->
+        Column(Modifier.padding(padding)) {
+            var searchActive by remember { mutableStateOf(false) }
+            var query by remember { mutableStateOf("") }
+            val groupsHistory = remember(query) { emptyList<String>() }
+            ModernSearchBar(
+                query = query,
+                onQueryChange = { query = it },
+                onVoiceInput = {},
+                onSearch = {},
+                active = searchActive,
+                onActiveChange = { searchActive = it },
+                suggestionsContent = {
+                    Column(Modifier.fillMaxWidth()) {
+                        groupsHistory.forEach { item ->
+                            Text(
+                                text = item,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = gr.eduinvoice.ui.design.Dimensions.PaddingMedium, vertical = 8.dp)
+                            )
+                            HorizontalDivider()
+                        }
+                    }
+                },
+                modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium)
+            )
+            var showFilters by remember { mutableStateOf(false) }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Dimensions.PaddingMedium),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                AssistChip(onClick = { showFilters = true }, label = { Text("Filters") })
+            }
+            if (showFilters) {
+                ModernFilterSheet(
+                    filters = FilterOptions(),
+                    onFiltersChange = { /* Future: add filtering for groups */ },
+                    onDismiss = { showFilters = false }
+                )
+            }
+            if (uiState.groups.isEmpty()) {
+                ModernEmptyGroupsState(onCreateGroup = onAddGroup)
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    items(uiState.groups) { group ->
                         Text(
-                            text = item,
+                            text = group.name,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = gr.eduinvoice.ui.design.Dimensions.PaddingMedium, vertical = 8.dp)
+                                .clickable { onGroupClick(group.id) }
+                                .padding(Dimensions.PaddingMedium)
                         )
                         HorizontalDivider()
                     }
-                }
-            }
-        )
-        var showFilters by remember { mutableStateOf(false) }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Dimensions.PaddingMedium),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            AssistChip(onClick = { showFilters = true }, label = { Text("Filters") })
-        }
-        if (showFilters) {
-            ModernFilterSheet(
-                filters = FilterOptions(),
-                onFiltersChange = { /* Future: add filtering for groups */ },
-                onDismiss = { showFilters = false }
-            )
-        }
-        if (uiState.groups.isEmpty()) {
-            ModernEmptyGroupsState(onCreateGroup = onAddGroup)
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-            ) {
-                items(uiState.groups) { group ->
-                    Text(
-                        text = group.name,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onGroupClick(group.id) }
-                            .padding(Dimensions.PaddingMedium)
-                    )
-                    HorizontalDivider()
                 }
             }
         }

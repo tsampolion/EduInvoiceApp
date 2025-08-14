@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.1] - 2025-08-14
+
+### Fixed
+- Auth gating: removed drawer access on Welcome and blocked drawer interactions while unauthenticated. Removed `WelcomeScreen` menu icon and parameter.
+- Drawer: added Classes and Revenue menu items and routing; ensured drawer respects scaffold insets across screens.
+- Home: removed redundant top app bar as universal topbar is provided by `MainActivity`.
+- Search bars: added `modifier` to `ModernSearchBar`, standardized spacing; applied correct padding in Students/Lessons/Groups to avoid overlap.
+- FAB visibility: hide FABs on Students/Lessons/Groups when lists are empty.
+- Lists refresh: clear `DataCache` after saving a student so lists update immediately.
+- Groups: implemented delete flow with confirmation.
+- Date/time pickers: made entire field area clickable.
+- PDF printing: use actual file for printing; keep `FileProvider` `Uri` for sharing.
+
+### DevOps
+- CI: deduplicated workflows; standardized JDK 17; added assembleRelease sanity step; instrumented tests on API 35.
+- Dependencies: bumped SQLCipher `net.zetetic:android-database-sqlcipher` to 4.6.1 for broader device support.
+
+## [0.28.0] - 2025-08-14
+
+### Added
+- Workspace-friendly Android SDK bootstrap; automatic license acceptance; `local.properties` handling.
+- Comprehensive domain tests; runnable performance test suite.
+
+### Enhanced
+- Coverage (Kover), architecture checks (Konsist), static analysis (Detekt) integrated and enforced.
+
+### Fixed
+- Build stability across environments by removing privileged SDK setup requirements.
+
+### Technical
+- Gradle/Kotlin alignment; scripted test execution via `scripts/run_comprehensive_tests.ps1`.
+
 ## [0.25.0] - 2024-12-19
 
 ### Added
@@ -103,19 +135,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Better conflict resolution for data synchronization
   - Optimized database operations
 
-### Technical
-- **Performance Improvements**
-  - Optimized database queries
-  - Enhanced UI rendering performance
-  - Improved memory usage patterns
-  - Better background processing
-
-### Security
-- **Security Enhancements**
-  - Enhanced data encryption
-  - Improved authentication security
-  - Better password handling
-  - Enhanced backup security
+### Fixed
+- **Bug Fixes**
+  - Fixed search history persistence
+  - Resolved PDF generation issues
+  - Improved error handling in search operations
+  - Enhanced UI responsiveness
 
 ## [0.24.7] - 2024-12-16
 

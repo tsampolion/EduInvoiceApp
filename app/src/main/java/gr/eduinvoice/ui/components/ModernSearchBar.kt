@@ -27,12 +27,13 @@ fun ModernSearchBar(
     onSearch: (String) -> Unit,
     active: Boolean,
     onActiveChange: (Boolean) -> Unit,
-    suggestionsContent: @Composable () -> Unit = {}
+    suggestionsContent: @Composable () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     SearchBar(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = MaterialTheme.shapes.large,
         colors = SearchBarDefaults.colors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,

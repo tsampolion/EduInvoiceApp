@@ -14,6 +14,7 @@ Welcome to the comprehensive documentation for EduInvoiceApp, a professional And
 - **[Development Guide](DEVELOPMENT.md)** - Development setup and guidelines
 - **[Testing Strategy](TESTING_STRATEGY.md)** - Comprehensive testing approach
 - **[Code Standards](CODE_STANDARDS.md)** - Coding conventions and best practices
+ - **Build System** - Centralized Version Catalog in `gradle/libs.versions.toml`
 
 ### 📱 User Guide
 - **[User Manual](USER_MANUAL.md)** - Complete user guide for all features
@@ -39,7 +40,7 @@ Welcome to the comprehensive documentation for EduInvoiceApp, a professional And
 
 ## 📊 Current Status
 
-**Version:** 0.27.0  
+**Version:** 0.28.0  
 **Last Updated:** January 2025  
 **Status:** Production Ready with Enterprise Features
 

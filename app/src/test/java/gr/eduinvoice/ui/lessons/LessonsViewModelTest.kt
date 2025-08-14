@@ -110,8 +110,8 @@ class LessonsViewModelTest {
         fakeLessonsRepository.setLessons(listOf(testLesson))
         fakeCurrentUserProvider.setUserId(1L)
 
-        // Create ViewModel
-        viewModel = LessonsViewModel(lessonUseCases, fakeCurrentUserProvider)
+        // Create ViewModel with an in-memory cache
+        viewModel = LessonsViewModel(lessonUseCases, fakeCurrentUserProvider, gr.eduinvoice.data.cache.DataCache())
     }
 
     @Test

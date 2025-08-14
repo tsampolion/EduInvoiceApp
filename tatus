@@ -1,7 +1,7 @@
 warning: in the working copy of 'data/build.gradle', LF will be replaced by CRLF the next time Git touches it
 app/build.gradle
 app/src/main/java/gr/eduinvoice/MainActivity.kt
-app/src/main/java/gr/eduinvoice/TutorBillingApplication.kt
+app/src/main/java/gr/eduinvoice/EduInvoiceApplication.kt
 app/src/main/java/gr/eduinvoice/analytics/BusinessMetrics.kt
 app/src/main/java/gr/eduinvoice/analytics/ErrorReporter.kt
 app/src/main/java/gr/eduinvoice/analytics/PerformanceMonitor.kt
@@ -80,7 +80,7 @@ data/src/main/java/gr/eduinvoice/data/repository/BackupRepository.kt
 data/src/main/java/gr/eduinvoice/data/repository/OfflineDataManager.kt
 data/src/main/java/gr/eduinvoice/data/repository/StudentRepository.kt
 data/src/main/java/gr/eduinvoice/data/repository/SyncRepository.kt
-data/src/main/java/gr/eduinvoice/data/repository/TutorBillingRepository.kt
+data/src/main/java/gr/eduinvoice/data/repository/EduInvoiceRepository.kt
 data/src/main/java/gr/eduinvoice/data/repository/UserRepository.kt
 data/src/main/java/gr/eduinvoice/data/sync/ConflictResolver.kt
 data/src/main/java/gr/eduinvoice/data/sync/SyncManager.kt
