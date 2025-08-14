@@ -1,11 +1,12 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'org.jetbrains.kotlin.plugin.serialization' version '2.1.10'
-    id 'com.google.devtools.ksp'
-    id 'com.google.dagger.hilt.android'
-    id 'com.diffplug.spotless'
-    id 'org.jetbrains.kotlinx.kover'
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.kover)
+    
 }
 
 android {
@@ -38,40 +39,40 @@ android {
 dependencies {
     implementation project(':domain')
     
-    implementation "androidx.room:room-runtime:2.7.1"
-    implementation "androidx.room:room-ktx:2.7.1"
-    ksp "androidx.room:room-compiler:2.7.1"
+    implementation libs.room.runtime
+    implementation libs.room.ktx
+    ksp libs.room.compiler
 
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
-    implementation "com.google.code.gson:gson:2.10.1"
-    implementation "net.zetetic:android-database-sqlcipher:4.5.4"
+    implementation libs.serialization.json
+    implementation libs.gson
+    implementation libs.sqlcipher
 
-    implementation "androidx.datastore:datastore-preferences:1.1.7"
-    implementation "androidx.security:security-crypto:1.1.0"
+    implementation libs.datastore.prefs
+    implementation libs.androidx.security.crypto
 
-    implementation "org.mindrot:jbcrypt:0.4"
+    implementation libs.jbcrypt
 
-    implementation "com.google.dagger:hilt-android:2.54"
-    ksp "com.google.dagger:hilt-compiler:2.54"
+    implementation libs.dagger.hilt.android
+    ksp libs.dagger.hilt.compiler
 
     // Test fixtures dependencies
     testFixturesImplementation project(':domain')
-    testFixturesImplementation "androidx.room:room-ktx:2.7.1"
-    testFixturesImplementation "androidx.test:core-ktx:1.5.0"
-    testFixturesImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0"
+    testFixturesImplementation libs.room.ktx
+    testFixturesImplementation libs.androidx.test.core.ktx
+    testFixturesImplementation libs.coroutines.core
 
-    testImplementation "junit:junit:4.13.2"
-    testImplementation "androidx.room:room-testing:2.7.1"
-    testImplementation "androidx.test:core:1.5.0"
-    testImplementation "androidx.test.ext:junit:1.1.5"
-    testImplementation "org.robolectric:robolectric:4.11.1"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0"
-    testImplementation "org.bouncycastle:bcprov-jdk15on:1.70"
-    testImplementation "io.mockk:mockk:1.13.8"
-    testImplementation "androidx.test:runner:1.5.0"
-    testImplementation "androidx.test:rules:1.5.0"
-    testImplementation "com.lemonappdev:konsist:0.16.0"
-    testImplementation "app.cash.turbine:turbine:1.1.0"
+    testImplementation libs.junit4
+    testImplementation libs.room.testing
+    testImplementation libs.androidx.test.core
+    testImplementation libs.androidx.test.ext.junit
+    testImplementation libs.robolectric
+    testImplementation libs.coroutines.test
+    testImplementation libs.bouncycastle
+    testImplementation libs.mockk
+    testImplementation libs.androidx.test.runner
+    testImplementation libs.androidx.test.rules
+    testImplementation libs.konsist
+    testImplementation libs.turbine
     
     // Test fixtures - temporarily commented out to break circular dependency
     // testImplementation(testFixtures(project(":test-support")))

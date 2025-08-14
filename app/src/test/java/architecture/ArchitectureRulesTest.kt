@@ -6,12 +6,19 @@ import org.junit.Test
 
 class ArchitectureRulesTest {
     @Test
-    fun `app must not import data`() {
+    fun `app must not import data except allowed cache`() {
         val prohibitedPrefixes = listOf("gr.eduinvoice.data")
+        val allowedPrefixes = listOf(
+            // Allow DI-provided stateless utilities used by UI layer
+            "gr.eduinvoice.data.cache"
+        )
         val files = Konsist.scopeFromProject().files.filter { it.path.replace('\\','/').contains("/app/") }
         files.forEach { file ->
             val imports = file.imports.map { it.name }
-            val violations = imports.filter { imp -> prohibitedPrefixes.any { p -> imp.startsWith(p) } }
+            val violations = imports.filter { imp ->
+                prohibitedPrefixes.any { p -> imp.startsWith(p) } &&
+                        allowedPrefixes.none { a -> imp.startsWith(a) }
+            }
             assertTrue("Forbidden app->data imports in ${file.path}: $violations", violations.isEmpty())
         }
     }

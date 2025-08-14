@@ -10,7 +10,7 @@ import gr.eduinvoice.ui.model.UiLessonWithStudent
 import gr.eduinvoice.ui.mappers.with
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.testcompat.getFullName
-import gr.eduinvoice.utils.GlobalCache
+import gr.eduinvoice.data.cache.DataCache
 import gr.eduinvoice.domain.user.CurrentUserProvider
 import kotlinx.coroutines.flow.*
 import gr.eduinvoice.ui.components.FilterOptions
@@ -22,7 +22,8 @@ import gr.eduinvoice.analytics.PerformanceTraces
 @HiltViewModel
 class LessonsViewModel @Inject constructor(
     private val lessonUseCases: LessonUseCases,
-    private val currentUserProvider: CurrentUserProvider
+    private val currentUserProvider: CurrentUserProvider,
+    private val dataCache: DataCache
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LessonsUiState())
@@ -103,7 +104,7 @@ class LessonsViewModel @Inject constructor(
         val cacheKey = "lessons_${uid}_$page"
 
         // Try to get from cache first
-        val cachedData = GlobalCache.getCachedDataTyped<List<UiLessonWithStudent>>(cacheKey)
+        val cachedData = dataCache.getCachedDataTyped<List<UiLessonWithStudent>>(cacheKey)
         if (cachedData != null) {
             return cachedData
         }
@@ -135,7 +136,7 @@ class LessonsViewModel @Inject constructor(
         )
 
         // Cache the result
-        GlobalCache.cacheData(cacheKey, sortedLessons)
+        dataCache.cacheData(cacheKey, sortedLessons)
 
         return sortedLessons
     }

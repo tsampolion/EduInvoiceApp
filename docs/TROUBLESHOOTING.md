@@ -67,6 +67,11 @@
 - **Version Control** - Git and version control problems
 - **CI/CD Issues** - Continuous integration problems
 
+### Build System Notes
+- Ensure Gradle JDK is set to 17
+- If dependency versions appear inconsistent, verify `gradle/libs.versions.toml` and that modules use `libs.*` aliases
+- Compose and Firebase should be aligned via their BoMs in module `build.gradle`
+
 ---
 
 *This document will be continuously updated as issues are identified and resolved.*

@@ -15,7 +15,7 @@ import gr.eduinvoice.utils.ModernSearchRepository
 import gr.eduinvoice.utils.ModernFilterManager
 import gr.eduinvoice.domain.user.SearchHistoryRepository
 import gr.eduinvoice.ui.components.FilterOptions
-import gr.eduinvoice.utils.GlobalCache
+import gr.eduinvoice.data.cache.DataCache
 import gr.eduinvoice.domain.user.CurrentUserProvider
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -30,7 +30,8 @@ class StudentsViewModel @Inject constructor(
     private val currentUserProvider: CurrentUserProvider,
     private val modernSearchRepository: ModernSearchRepository,
     private val modernFilterManager: ModernFilterManager,
-    private val searchHistoryRepository: SearchHistoryRepository
+    private val searchHistoryRepository: SearchHistoryRepository,
+    private val dataCache: DataCache
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StudentsUiState())
@@ -98,7 +99,7 @@ class StudentsViewModel @Inject constructor(
         val cacheKey = "students_${uid}_${query}_${ascending}_$page"
 
         // Try to get from cache first
-        val cachedData = GlobalCache.getCachedDataTyped<List<UiStudentWithEarnings>>(cacheKey)
+        val cachedData = dataCache.getCachedDataTyped<List<UiStudentWithEarnings>>(cacheKey)
         if (cachedData != null) {
             return cachedData
         }
@@ -134,7 +135,7 @@ class StudentsViewModel @Inject constructor(
         }
 
         // Cache the result
-        GlobalCache.cacheData(cacheKey, sortedStudents)
+        dataCache.cacheData(cacheKey, sortedStudents)
 
         return sortedStudents
     }

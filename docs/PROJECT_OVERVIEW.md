@@ -26,6 +26,7 @@ EduInvoiceApp follows modern Android development practices with a clean architec
 - **Navigation:** Jetpack Navigation Compose
 - **State Management:** StateFlow and LiveData
 - **Testing:** JUnit, Robolectric, and Compose Testing
+ - **Build System:** Gradle with centralized Version Catalog (`gradle/libs.versions.toml`)
 
 ### Module Structure
 ```

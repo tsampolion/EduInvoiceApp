@@ -146,9 +146,9 @@ Scope
 - Centralize dependency versions
 
 Tasks
-- [ ] Introduce `gradle/libs.versions.toml` and migrate dependencies
-- [ ] Move plugin versions to `settings.gradle` `pluginManagement` where applicable
-- [ ] Align Firebase and Compose via BoMs only
+- [x] Introduce `gradle/libs.versions.toml` and migrate dependencies
+- [x] Move plugin versions to version catalog and simplify `settings.gradle` plugin management
+- [x] Align Compose and Firebase via BoMs only
 
 Acceptance
 - [ ] Root and modules build using cataloged versions; CI green
