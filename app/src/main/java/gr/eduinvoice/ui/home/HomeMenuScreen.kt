@@ -12,8 +12,6 @@ import android.util.Log
 import gr.eduinvoice.BuildConfig
 import gr.eduinvoice.ui.design.AppColors
 import gr.eduinvoice.ui.design.Dimensions
-import gr.eduinvoice.ui.design.AppTopBar
-import gr.eduinvoice.ui.design.NavigationMenuButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -58,12 +56,6 @@ fun HomeMenuScreen(
 
 
     EdgeToEdgeScaffold(
-        topBar = {
-            AppTopBar(
-                title = stringResource(R.string.app_name),
-                navigationIcon = { NavigationMenuButton(onOpenDrawer) }
-            )
-        },
         bottomBar = {
             Row(
                 modifier = Modifier

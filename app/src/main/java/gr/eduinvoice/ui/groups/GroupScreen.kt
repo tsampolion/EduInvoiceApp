@@ -32,6 +32,25 @@ fun GroupScreen(
                     }
                 },
                 actions = {
+                    if (viewModel.groupId != 0L) {
+                        var showDelete by remember { mutableStateOf(false) }
+                        TextButton(onClick = { showDelete = true }) { Text("Delete") }
+                        if (showDelete) {
+                            AlertDialog(
+                                onDismissRequest = { showDelete = false },
+                                title = { Text("Delete Group") },
+                                text = { Text("Are you sure you want to delete this group?") },
+                                confirmButton = {
+                                    TextButton(onClick = {
+                                        viewModel.deleteGroup()
+                                        showDelete = false
+                                        onBack()
+                                    }) { Text("Delete") }
+                                },
+                                dismissButton = { TextButton(onClick = { showDelete = false }) { Text("Cancel") } }
+                            )
+                        }
+                    }
                     TextButton(onClick = { viewModel.saveGroup(); onBack() }) {
                         Text("Save")
                     }

@@ -10,17 +10,21 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewModelScope
 import javax.inject.Inject
+import gr.eduinvoice.domain.user.CurrentUserProvider
+import kotlinx.coroutines.flow.first
 
 @HiltViewModel
 class GroupsViewModel @Inject constructor(
-    groupUseCases: GroupUseCases
+    private val groupUseCases: GroupUseCases,
+    private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GroupsUiState())
     val uiState: StateFlow<GroupsUiState> = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            groupUseCases.getAllGroups().collect { groups ->
+            val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+            groupUseCases.getAllGroups(userId).collect { groups ->
                 _uiState.value = GroupsUiState(groups)
             }
         }

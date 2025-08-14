@@ -23,6 +23,8 @@
     <string name="add_student">Add Student</string>
     <string name="edit_student">Edit Student</string>
     <string name="students">Students</string>
+    <string name="classes">Classes</string>
+    <string name="revenue">Revenue</string>
     <string name="student_name">Student Name</string>
     <string name="hourly_rate">Hourly Rate</string>
     <string name="per_lesson_rate">Per Lesson Rate</string>
