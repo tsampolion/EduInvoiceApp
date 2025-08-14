@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.0] - 2025-08-14
+
+### Added
+- Workspace-friendly Android SDK bootstrap; automatic license acceptance; `local.properties` handling.
+- Comprehensive domain tests; runnable performance test suite.
+
+### Enhanced
+- Coverage (Kover), architecture checks (Konsist), static analysis (Detekt) integrated and enforced.
+
+### Fixed
+- Build stability across environments by removing privileged SDK setup requirements.
+
+### Technical
+- Gradle/Kotlin alignment; scripted test execution via `scripts/run_comprehensive_tests.ps1`.
+
 ## [0.25.0] - 2024-12-19
 
 ### Added

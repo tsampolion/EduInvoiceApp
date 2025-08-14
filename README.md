@@ -182,7 +182,7 @@ EduInvoiceApp/
 
 ## 📊 Current Status
 
-**Version:** 0.27.0  
+**Version:** 0.28.0  
 **Last Updated:** January 2025  
 **Status:** Production Ready with Enterprise Features
 
