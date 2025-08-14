@@ -20,5 +20,3 @@ class AccessibilityTests {
         compose.onNodeWithText("Hello").assertExists()
     }
 }
-
-

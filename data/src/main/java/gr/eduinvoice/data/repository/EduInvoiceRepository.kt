@@ -15,7 +15,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Enhanced TutorBillingRepository with concurrency safety
+ * Enhanced EduInvoiceRepository with concurrency safety
  *
  * This repository now uses the ConcurrencyController to ensure:
  * - Thread-safe database operations
@@ -25,7 +25,7 @@ import javax.inject.Singleton
  * - Operation queuing for conflicting operations
  */
 @Singleton
-class TutorBillingRepository @Inject constructor(
+class EduInvoiceRepository @Inject constructor(
     private val studentDao: StudentDao,
     private val lessonDao: LessonDao,
     private val groupDao: gr.eduinvoice.data.dao.GroupDao,

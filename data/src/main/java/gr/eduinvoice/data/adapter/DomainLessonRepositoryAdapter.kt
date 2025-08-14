@@ -2,7 +2,7 @@ package gr.eduinvoice.data.adapter
 
 import gr.eduinvoice.domain.repository.DomainLessonRepository
 import gr.eduinvoice.domain.model.DomainLesson
-import gr.eduinvoice.data.repository.TutorBillingRepository
+import gr.eduinvoice.data.repository.EduInvoiceRepository
 import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.model.Lesson
 import kotlinx.coroutines.flow.Flow
@@ -13,23 +13,23 @@ import javax.inject.Singleton
 
 @Singleton
 class DomainLessonRepositoryAdapter @Inject constructor(
-    private val tutorBillingRepository: TutorBillingRepository,
+    private val eduInvoiceRepository: EduInvoiceRepository,
     private val lessonDao: LessonDao
 ) : DomainLessonRepository {
 
     override suspend fun addLesson(lesson: DomainLesson, userId: Long): Long =
-        tutorBillingRepository.addLesson(lesson.toDataModel(), userId)
+        eduInvoiceRepository.addLesson(lesson.toDataModel(), userId)
 
     override suspend fun addGroupLesson(lesson: DomainLesson, userId: Long): Long {
-        val lessonIds = tutorBillingRepository.addGroupLesson(lesson.groupId ?: 0L, lesson.toDataModel(), userId)
+        val lessonIds = eduInvoiceRepository.addGroupLesson(lesson.groupId ?: 0L, lesson.toDataModel(), userId)
         return lessonIds.firstOrNull() ?: 0L
     }
 
     override suspend fun updateLesson(lesson: DomainLesson, userId: Long) =
-        tutorBillingRepository.updateLesson(lesson.toDataModel())
+        eduInvoiceRepository.updateLesson(lesson.toDataModel())
 
     override suspend fun deleteLesson(lessonId: Long, userId: Long) =
-        tutorBillingRepository.deleteLesson(lessonId, userId)
+        eduInvoiceRepository.deleteLesson(lessonId, userId)
 
     override suspend fun updateLessonPaidStatus(lessonId: Long, isPaid: Boolean, userId: Long) =
         lessonDao.updatePaidStatus(listOf(lessonId), isPaid, userId)
@@ -49,7 +49,7 @@ class DomainLessonRepositoryAdapter @Inject constructor(
         lessonDao.getLessonById(lessonId, userId).map { it?.toDomainModel() }
 
     override fun getStudentLessons(studentId: Long, userId: Long): Flow<List<DomainLesson>> =
-        tutorBillingRepository.getLessonsForStudent(studentId, userId).map { lessons ->
+        eduInvoiceRepository.getLessonsForStudent(studentId, userId).map { lessons ->
             lessons.map { it.toDomainModel() }
         }
 

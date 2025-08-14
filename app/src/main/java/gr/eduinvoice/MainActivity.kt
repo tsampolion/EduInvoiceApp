@@ -23,14 +23,14 @@ import android.view.MenuItem
 import android.view.View
 import gr.eduinvoice.domain.model.DomainException
 import gr.eduinvoice.ui.settings.SettingsViewModel
-import gr.eduinvoice.ui.theme.TutorBillingTheme
+import gr.eduinvoice.ui.theme.EduInvoiceTheme
 import gr.eduinvoice.ui.components.ErrorBoundary
 import gr.eduinvoice.utils.ErrorHandler
 import gr.eduinvoice.analytics.ErrorReporter
 import gr.eduinvoice.utils.GlobalPdfGenerator
 import gr.eduinvoice.utils.GlobalBackgroundProcessor
 import gr.eduinvoice.utils.BackgroundProcessor
-import gr.eduinvoice.TutorBillingApp
+import gr.eduinvoice.EduInvoiceApp
 import dagger.hilt.android.AndroidEntryPoint
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 navController = controller
                 val viewModel: SettingsViewModel = hiltViewModel()
                 val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
-                TutorBillingTheme(darkTheme = uiState.settings?.darkTheme ?: false) {
+                EduInvoiceTheme(darkTheme = uiState.settings?.darkTheme ?: false) {
                     LaunchedEffect(controller) {
                         controller.addOnDestinationChangedListener { _, destination, _ ->
                             // Hide the XML toolbar for all screens since we're using modern Compose AppTopBar
@@ -117,7 +117,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 errorReporter.reportError(error)
                             }
                         ) {
-                            TutorBillingApp(
+                            EduInvoiceApp(
                                 navController = controller,
                                 openDrawer = { openDrawer() }
                             )

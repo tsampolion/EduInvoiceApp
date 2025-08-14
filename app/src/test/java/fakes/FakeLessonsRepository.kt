@@ -23,8 +23,8 @@ class FakeLessonsRepository : DomainLessonRepository {
     }
 
     override suspend fun updateLesson(lesson: DomainLesson, userId: Long) {
-        lessons.value = lessons.value.map { 
-            if (it.id == lesson.id) lesson else it 
+        lessons.value = lessons.value.map {
+            if (it.id == lesson.id) lesson else it
         }
     }
 
@@ -33,14 +33,14 @@ class FakeLessonsRepository : DomainLessonRepository {
     }
 
     override suspend fun updateLessonPaidStatus(lessonId: Long, isPaid: Boolean, userId: Long) {
-        lessons.value = lessons.value.map { 
-            if (it.id == lessonId) it.copy(isPaid = isPaid) else it 
+        lessons.value = lessons.value.map {
+            if (it.id == lessonId) it.copy(isPaid = isPaid) else it
         }
     }
 
     override suspend fun updateLessonInvoicedStatus(lessonId: Long, isInvoiced: Boolean, userId: Long) {
-        lessons.value = lessons.value.map { 
-            if (it.id == lessonId) it.copy(isInvoiced = isInvoiced) else it 
+        lessons.value = lessons.value.map {
+            if (it.id == lessonId) it.copy(isInvoiced = isInvoiced) else it
         }
     }
 
@@ -67,10 +67,10 @@ class FakeLessonsRepository : DomainLessonRepository {
         userId: Long
     ): Flow<List<DomainLesson>> {
         return MutableStateFlow(
-            lessons.value.filter { 
-                it.studentId == studentId && 
-                it.date >= startDate && 
-                it.date <= endDate 
+            lessons.value.filter {
+                it.studentId == studentId &&
+                it.date >= startDate &&
+                it.date <= endDate
             }
         )
     }

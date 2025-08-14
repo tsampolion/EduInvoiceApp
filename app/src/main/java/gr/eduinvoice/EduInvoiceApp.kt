@@ -36,7 +36,7 @@ import gr.eduinvoice.ui.user.ResetPasswordScreen
 import gr.eduinvoice.ui.components.ErrorBoundary
 
 @Composable
-fun TutorBillingApp(
+fun EduInvoiceApp(
     navController: NavHostController = rememberNavController(),
     openDrawer: () -> Unit = {},
 ) {

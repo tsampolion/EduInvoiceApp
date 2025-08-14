@@ -209,4 +209,3 @@ class MemoryMonitorHandle(owner: Any, private val monitor: MemoryMonitor) {
     fun start() = monitor.start()
     fun stopIfOwnerGone() { if (ref.get() == null) monitor.stop() }
 }
- 
