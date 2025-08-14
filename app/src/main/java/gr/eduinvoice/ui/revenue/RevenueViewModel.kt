@@ -32,10 +32,17 @@ class RevenueViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            combine(
-                studentUseCases.getActiveStudents(),
-                lessonUseCases.getAllLessons()
-            ) { students, lessons ->
+            currentUserProvider.loggedInUserId
+                .filterNotNull()
+                .flatMapLatest { uid ->
+                    combine(
+                        studentUseCases.getActiveStudents(uid),
+                        lessonUseCases.getAllLessons(uid)
+                    ) { students, lessons ->
+                        Pair(students, lessons)
+                    }
+                }
+                .map { (students, lessons) ->
                 val studentMap = students.associateBy { it.id }
 
                 val today = LocalDate.now()
@@ -99,9 +106,10 @@ class RevenueViewModel @Inject constructor(
                     monthlyUnpaid = unpaidTotal,
                     debts = debts
                 )
-            }.collect { state ->
-                _uiState.value = state
-            }
+                }
+                .collect { state ->
+                    _uiState.value = state
+                }
         }
     }
 

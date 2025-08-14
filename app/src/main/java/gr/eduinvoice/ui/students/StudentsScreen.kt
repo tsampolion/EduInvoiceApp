@@ -2,8 +2,7 @@ package gr.eduinvoice.ui.students
 
 import gr.eduinvoice.R
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+// Removed unused LazyColumn/items imports
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add

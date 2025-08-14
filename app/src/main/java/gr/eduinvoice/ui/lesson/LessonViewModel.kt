@@ -73,7 +73,10 @@ class LessonViewModel @Inject constructor(
 
     private fun loadStudentInfo() {
         viewModelScope.launch {
-            studentUseCases.getActiveStudents().collect { list ->
+            currentUserProvider.loggedInUserId
+                .filterNotNull()
+                .flatMapLatest { uid -> studentUseCases.getActiveStudents(uid) }
+                .collect { list ->
                 val selectedId = studentId?.takeIf { it != 0L } ?: _uiState.value.selectedStudentId
                 val selectedStudent = list.firstOrNull { it.id == selectedId }
                 _uiState.update { state ->

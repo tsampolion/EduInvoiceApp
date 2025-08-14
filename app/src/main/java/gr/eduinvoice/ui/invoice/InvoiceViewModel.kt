@@ -38,7 +38,9 @@ class InvoiceViewModel @Inject constructor(
     val endDate: StateFlow<LocalDate> = _endDate.asStateFlow()
 
     val students: StateFlow<List<DomainStudent>> =
-        studentUseCases.getActiveStudents()
+        currentUserProvider.loggedInUserId
+            .filterNotNull()
+            .flatMapLatest { uid -> studentUseCases.getActiveStudents(uid) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _selectedStudentId = MutableStateFlow<Long?>(null)

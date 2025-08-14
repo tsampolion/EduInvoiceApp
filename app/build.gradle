@@ -95,10 +95,7 @@ android {
         compose true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "2.1.10"
-
-    }
+    // Compose plugin manages the compiler; no explicit composeOptions needed
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17

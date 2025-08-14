@@ -116,7 +116,7 @@ class MainActivity : ComponentActivity() {
 							colors = NavigationDrawerItemDefaults.colors()
 						)
 						NavigationDrawerItem(
-							label = { Text("Classes") },
+							label = { Text(stringResource(id = R.string.classes)) },
 							selected = false,
 							onClick = {
 								if (!isWelcome) navController.navigate(Screen.Classes.route)
@@ -126,7 +126,7 @@ class MainActivity : ComponentActivity() {
 							colors = NavigationDrawerItemDefaults.colors()
 						)
 						NavigationDrawerItem(
-							label = { Text("Revenue") },
+							label = { Text(stringResource(id = R.string.revenue)) },
 							selected = false,
 							onClick = {
 								if (!isWelcome) navController.navigate(Screen.Revenue.route)

@@ -14,6 +14,8 @@ class EduInvoiceApplication : Application() {
         super.onCreate()
 
         try {
+            // Load SQLCipher native library early
+            System.loadLibrary("sqlcipher")
             // Initialize Firebase
             FirebaseApp.initializeApp(this)
 
