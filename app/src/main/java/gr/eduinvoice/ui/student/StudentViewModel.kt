@@ -27,6 +27,7 @@ import gr.eduinvoice.utils.ErrorHandler
 import gr.eduinvoice.utils.RetryManager
 import gr.eduinvoice.analytics.ErrorReporter
 import javax.inject.Inject
+import gr.eduinvoice.data.cache.DataCache
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -35,7 +36,8 @@ class StudentViewModel @Inject constructor(
     private val lessonUseCases: LessonUseCases,
     savedStateHandle: SavedStateHandle,
     private val currentUserProvider: CurrentUserProvider,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val dataCache: DataCache
 ) : ViewModel() {
 
     val studentId: Long = savedStateHandle.get<Long>("studentId") ?: 0L
@@ -268,6 +270,8 @@ class StudentViewModel @Inject constructor(
             )
 
             if (result.isSuccess) {
+                // Clear cached lists so screens reload fresh data
+                dataCache.clearCache()
                 withContext(Dispatchers.Main) {
                     _uiState.update { it.copy(isLoading = false) }
                     navigateBack()

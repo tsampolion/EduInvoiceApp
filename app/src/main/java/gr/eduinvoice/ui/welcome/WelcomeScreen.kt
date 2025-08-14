@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,7 +23,6 @@ fun WelcomeScreen(
     onSignIn: () -> Unit,
     onSignUp: () -> Unit,
     onSettings: () -> Unit,
-    onMenuClick: () -> Unit,
 ) {
     Scaffold(
         floatingActionButton = {
@@ -43,15 +41,6 @@ fun WelcomeScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            IconButton(
-                onClick = onMenuClick,
-                modifier = Modifier.align(Alignment.TopStart),
-                colors = IconButtonDefaults.iconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary
-                )
-            ) {
-                Icon(Icons.Default.Menu, contentDescription = "Menu")
-            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -95,5 +84,4 @@ fun WelcomeScreen(
         }
         }
     }
-}
 }

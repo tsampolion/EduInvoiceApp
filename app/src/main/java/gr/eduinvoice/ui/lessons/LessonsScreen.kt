@@ -56,76 +56,80 @@ fun LessonsScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddLesson,
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Lesson")
+            if (uiState.lessons.isNotEmpty()) {
+                FloatingActionButton(
+                    onClick = onAddLesson,
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Lesson")
+                }
             }
         }
     ) { padding ->
-        var searchActive by remember { mutableStateOf(false) }
-        val query by viewModel.searchQuery.collectAsStateWithLifecycle()
-        val lessonsHistory = remember(query) { emptyList<String>() }
-        ModernSearchBar(
-            query = query,
-            onQueryChange = viewModel::updateSearchQuery,
-            onVoiceInput = {},
-            onSearch = {},
-            active = searchActive,
-            onActiveChange = { searchActive = it },
-            suggestionsContent = {
-                Column(Modifier.fillMaxWidth()) {
-                    lessonsHistory.forEach { item ->
-                        Text(
-                            text = item,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
-                        )
-                        HorizontalDivider()
+        Column(Modifier.padding(padding)) {
+            var searchActive by remember { mutableStateOf(false) }
+            val query by viewModel.searchQuery.collectAsStateWithLifecycle()
+            val lessonsHistory = remember(query) { emptyList<String>() }
+            ModernSearchBar(
+                query = query,
+                onQueryChange = viewModel::updateSearchQuery,
+                onVoiceInput = {},
+                onSearch = {},
+                active = searchActive,
+                onActiveChange = { searchActive = it },
+                suggestionsContent = {
+                    Column(Modifier.fillMaxWidth()) {
+                        lessonsHistory.forEach { item ->
+                            Text(
+                                text = item,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
+                            )
+                            HorizontalDivider()
+                        }
                     }
-                }
-            }
-        )
-        var showFilters by remember { mutableStateOf(false) }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Dimensions.PaddingMedium),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            AssistChip(onClick = { showFilters = true }, label = { Text("Filters") })
-        }
-        if (showFilters) {
-            ModernFilterSheet(
-                filters = viewModel.filters.collectAsStateWithLifecycle().value,
-                onFiltersChange = viewModel::updateFilters,
-                onDismiss = { showFilters = false }
+                },
+                modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium)
             )
-        }
-        if (uiState.lessons.isEmpty()) {
-            Box(
+            var showFilters by remember { mutableStateOf(false) }
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .padding(horizontal = Dimensions.PaddingMedium),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                ModernEmptyLessonsState(onAddLesson = onAddLesson)
+                AssistChip(onClick = { showFilters = true }, label = { Text("Filters") })
             }
-        } else {
-            VirtualLessonList(
-                lessons = uiState.lessons,
-                onLessonClick = { studentId, lessonId, groupId ->
-                    onLessonClick(studentId, lessonId, groupId)
-                },
-                onPaidChange = { lessonId, isPaid ->
-                    viewModel.updatePaid(lessonId, isPaid)
-                },
-                modifier = Modifier.fillMaxSize(),
-                onLoadMore = { viewModel.loadMoreLessons() },
-                isLoadingMore = uiState.isLoadingMore
-            )
+            if (showFilters) {
+                ModernFilterSheet(
+                    filters = viewModel.filters.collectAsStateWithLifecycle().value,
+                    onFiltersChange = viewModel::updateFilters,
+                    onDismiss = { showFilters = false }
+                )
+            }
+            if (uiState.lessons.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ModernEmptyLessonsState(onAddLesson = onAddLesson)
+                }
+            } else {
+                VirtualLessonList(
+                    lessons = uiState.lessons,
+                    onLessonClick = { studentId, lessonId, groupId ->
+                        onLessonClick(studentId, lessonId, groupId)
+                    },
+                    onPaidChange = { lessonId, isPaid ->
+                        viewModel.updatePaid(lessonId, isPaid)
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                    onLoadMore = { viewModel.loadMoreLessons() },
+                    isLoadingMore = uiState.isLoadingMore
+                )
+            }
         }
     }
 

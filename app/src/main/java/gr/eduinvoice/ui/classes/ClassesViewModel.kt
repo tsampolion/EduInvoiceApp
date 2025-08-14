@@ -10,10 +10,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import gr.eduinvoice.domain.user.CurrentUserProvider
+import kotlinx.coroutines.flow.first
 
 @HiltViewModel
 class ClassesViewModel @Inject constructor(
-    private val studentUseCases: StudentUseCases
+    private val studentUseCases: StudentUseCases,
+    private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ClassesUiState())
@@ -21,7 +24,8 @@ class ClassesViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            studentUseCases.getActiveStudents().map { students ->
+            val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+            studentUseCases.getActiveStudents(userId).map { students ->
                 val grouped = students.groupBy { student ->
                     val name = student.className.trim()
                     if (name.isBlank() || name.equals("unknown", ignoreCase = true)) {

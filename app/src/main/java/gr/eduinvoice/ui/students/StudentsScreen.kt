@@ -52,11 +52,13 @@ fun StudentsScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddStudent,
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Student")
+            if (uiState.students.isNotEmpty()) {
+                FloatingActionButton(
+                    onClick = onAddStudent,
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Student")
+                }
             }
         }
     ) { paddingValues ->
@@ -88,7 +90,8 @@ fun StudentsScreen(
                             HorizontalDivider()
                         }
                     }
-                }
+                },
+                modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium)
             )
             Row(
                 modifier = Modifier

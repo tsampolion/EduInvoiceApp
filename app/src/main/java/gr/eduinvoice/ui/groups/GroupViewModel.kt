@@ -73,6 +73,15 @@ class GroupViewModel @Inject constructor(
             toRemove.forEach { groupUseCases.removeStudentFromGroup(id, it, userId) }
         }
     }
+
+    fun deleteGroup() {
+        viewModelScope.launch {
+            val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+            val state = _uiState.value
+            val group = DomainStudentGroup(id = groupId, ownerId = userId, name = state.name)
+            groupUseCases.deleteGroup(group, userId)
+        }
+    }
 }
 
 data class StudentSelection(val id: Long, val name: String, val surname: String, val selected: Boolean)
