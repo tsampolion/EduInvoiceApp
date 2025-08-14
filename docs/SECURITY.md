@@ -58,7 +58,7 @@ Suggested Fix:
 Environment:
 - OS: [e.g., Android 14]
 - Device: [e.g., Pixel 7]
-- App Version: [e.g., 0.27.0]
+- App Version: [e.g., 0.28.0]
 
 Additional Information:
 [Screenshots, logs, or other relevant details]

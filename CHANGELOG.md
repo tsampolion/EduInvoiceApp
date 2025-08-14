@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.0] - 2025-08-14
+
+### Added
+- Workspace-friendly Android SDK bootstrap that downloads cmdline-tools and installs API 35 + Build Tools 35.0.0 without requiring root.
+- Kover coverage reports (XML/HTML) aggregated per module and root.
+- Detekt static analysis reports (HTML/MD/SARIF) in `:app`.
+
+### Changed
+- Build environment stabilized: Gradle wrapper and Android SDK path auto-configured via `local.properties`.
+- CI-friendly automation for accepting Android SDK licenses and writing `local.properties`.
+
+### Fixed
+- Resolved critical build blocker: missing Android SDK detection prevented tests from running.
+- All unit tests across modules now compile and pass.
+
+### Quality
+- Static analysis: Detekt finds 0 new code smells (baseline respected).
+- Coverage: Kover reports generated for `:app`, `:data`, and `:domain`; verification rule set at minimum 10% to gate regressions.
+
+### Notes
+- Performance tests runnable via `./gradlew :app:testDebugUnitTest --tests "gr.eduinvoice.performance.*"`.
+- Reports:
+  - Root coverage HTML: `build/reports/kover/html/index.html`
+  - App coverage HTML: `app/build/reports/kover/html/index.html`
+  - Detekt (app): `app/build/reports/detekt/detekt.html`
+
 ## [0.25.0] - 2024-12-19
 
 ### Added

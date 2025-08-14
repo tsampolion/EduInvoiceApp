@@ -31,8 +31,8 @@ assignees: ''
 
 - **OS**: [e.g., Android 14, iOS 17]
 - **Device**: [e.g., Pixel 7, iPhone 15]
-- **App Version**: [e.g., 0.27.0]
-- **Build Number**: [e.g., 40]
+- **App Version**: [e.g., 0.28.0]
+- **Build Number**: [e.g., 41]
 - **Android Studio**: [e.g., Hedgehog | 2023.1.1]
 - **Gradle Version**: [e.g., 8.10.2]
 
