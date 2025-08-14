@@ -13,7 +13,7 @@ import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.utils.EarningsCalculator
 import gr.eduinvoice.utils.ModernSearchRepository
 import gr.eduinvoice.utils.ModernFilterManager
-import gr.eduinvoice.utils.SearchHistoryRepository
+import gr.eduinvoice.domain.user.SearchHistoryRepository
 import gr.eduinvoice.ui.components.FilterOptions
 import gr.eduinvoice.utils.GlobalCache
 import gr.eduinvoice.domain.user.CurrentUserProvider

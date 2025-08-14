@@ -20,4 +20,19 @@ class FallbackForbiddenImportsTest {
             }
         assertTrue("Forbidden imports in app module:\n${bad.joinToString("\n")}", bad.isEmpty())
     }
+
+    @Test
+    fun noDomainPrefixedClassesInApp() {
+        val appSrc = File("app/src/main/java")
+        val offenders = mutableListOf<String>()
+        appSrc.walkTopDown()
+            .filter { it.isFile && it.extension in listOf("kt","java") }
+            .forEach { f ->
+                val name = f.nameWithoutExtension
+                if (name.startsWith("Domain") ) {
+                    offenders += f.path
+                }
+            }
+        assertTrue("App module must not declare types prefixed with Domain*: \n${offenders.joinToString("\n")}", offenders.isEmpty())
+    }
 }

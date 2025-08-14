@@ -2,7 +2,7 @@ package gr.eduinvoice.utils
 
 import gr.eduinvoice.domain.model.DomainStudent
 import gr.eduinvoice.domain.model.DomainLesson
-import gr.eduinvoice.ui.model.UiInvoiceLesson
+import gr.eduinvoice.domain.billing.DomainInvoiceData
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -40,13 +40,10 @@ object PdfFixtures {
             lastModified = System.currentTimeMillis()
         )
 
-        // Create UiInvoiceLesson combining the lesson and student
-        val uiInvoiceLesson = UiInvoiceLesson(lesson, student)
-
         // Return DomainInvoiceData with the student and lesson
         return DomainInvoiceData(
             student = student,
-            lessons = listOf(uiInvoiceLesson),
+            lessons = listOf(lesson),
             invoiceDate = LocalDate.of(2024, 1, 15),
             invoiceNumber = "INV-20240115-001"
         )
