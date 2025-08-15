@@ -29,6 +29,7 @@ class EduInvoiceRepository @Inject constructor(
     private val studentDao: StudentDao,
     private val lessonDao: LessonDao,
     private val groupDao: gr.eduinvoice.data.dao.GroupDao,
+    private val userDao: gr.eduinvoice.data.dao.UserDao,
     private val concurrencyController: ConcurrencyController
 ) {
 
@@ -234,4 +235,26 @@ class EduInvoiceRepository @Inject constructor(
      * Gets concurrency statistics
      */
     fun getConcurrencyStatistics() = concurrencyController.getConcurrencyStatistics()
+
+    /**
+     * Permanently deletes a user account and all of their data (students, lessons, groups, cross-refs).
+     * This operation is executed transactionally.
+     */
+    suspend fun deleteAccount(userId: Long) {
+        concurrencyController.executeSafeOperation(
+            operation = {
+                // Order: delete lessons -> cross-refs -> groups -> students -> user
+                lessonDao.deleteAllByOwner(userId)
+                groupDao.deleteAllCrossRefsByOwner(userId)
+                groupDao.deleteAllGroupsByOwner(userId)
+                studentDao.deleteAllByOwner(userId)
+                userDao.deleteById(userId)
+            },
+            operationType = OperationType.DELETE,
+            resourceId = "user_$userId",
+            priority = OperationPriority.HIGH,
+            useTransaction = true,
+            isolationLevel = TransactionIsolationLevel.SERIALIZABLE
+        ).getOrThrow()
+    }
 }

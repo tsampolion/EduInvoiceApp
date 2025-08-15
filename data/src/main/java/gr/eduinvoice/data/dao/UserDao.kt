@@ -20,4 +20,7 @@ interface UserDao {
 
     @Query("SELECT * FROM ${gr.eduinvoice.data.database.DatabaseConstants.USERS_TABLE} WHERE username = :username LIMIT 1")
     suspend fun getByUsername(username: String): User?
+
+    @Query("DELETE FROM ${gr.eduinvoice.data.database.DatabaseConstants.USERS_TABLE} WHERE id = :id")
+    suspend fun deleteById(id: Long)
 }

@@ -121,6 +121,8 @@
     <string name="dark_theme">Dark theme</string>
     <string name="logout">Logout</string>
     <string name="switch_account">Switch account</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_confirmation">This will permanently delete your account and all associated data on this device. This action cannot be undone. Continue?</string>
     <string name="profile">Profile</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="backup_export">Export Backup</string>

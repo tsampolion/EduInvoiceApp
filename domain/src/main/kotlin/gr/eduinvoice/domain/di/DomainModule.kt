@@ -12,6 +12,7 @@ import gr.eduinvoice.domain.lesson.*
 import gr.eduinvoice.domain.student.*
 import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.domain.user.*
+import gr.eduinvoice.domain.user.DeleteAccount
 import javax.inject.Singleton
 
 @Module
@@ -56,7 +57,8 @@ object DomainModule {
             authenticateUser = AuthenticateUser(repository),
             getUserProfile = GetUserProfile(repository),
             updateUser = UpdateUser(repository),
-            resetPassword = ResetPassword(repository)
+            resetPassword = ResetPassword(repository),
+            deleteAccount = DeleteAccount(repository)
         )
 
     @Provides

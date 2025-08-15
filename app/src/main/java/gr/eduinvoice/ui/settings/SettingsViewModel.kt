@@ -112,4 +112,16 @@ class SettingsViewModel @Inject constructor(
 
 
     fun dismissError() { _errorMessage.value = null }
+
+    fun deleteAccount(onDone: () -> Unit) {
+        viewModelScope.launch {
+            val id = _uiState.value.user?.id ?: return@launch
+            try {
+                userUseCases.deleteAccount(id)
+                onDone()
+            } catch (e: Exception) {
+                _errorMessage.value = "Failed to delete account: ${e.message}".trim()
+            }
+        }
+    }
 }

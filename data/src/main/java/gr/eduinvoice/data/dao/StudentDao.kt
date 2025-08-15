@@ -66,4 +66,7 @@ interface StudentDao {
 
     @Query("SELECT COUNT(*) FROM students WHERE LOWER(className) = LOWER(:name) AND ownerId = :userId")
     suspend fun classNameExists(name: String, userId: Long): Int
+
+    @Query("DELETE FROM students WHERE ownerId = :userId")
+    suspend fun deleteAllByOwner(userId: Long)
 }

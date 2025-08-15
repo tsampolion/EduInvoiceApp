@@ -19,6 +19,7 @@ class UserRepository @Inject constructor(
     suspend fun getByUsername(username: String): User? = dao.getByUsername(username)
     suspend fun updateUser(user: User) = dao.update(user)
     suspend fun deleteUser(user: User) = dao.delete(user)
+    suspend fun deleteUserById(userId: Long) = dao.deleteById(userId)
 
     suspend fun authenticate(username: String, password: String): User? {
         val user = dao.getByUsername(username) ?: return null

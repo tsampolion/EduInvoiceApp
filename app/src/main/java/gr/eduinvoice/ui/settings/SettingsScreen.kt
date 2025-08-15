@@ -204,6 +204,28 @@ fun SettingsScreen(
                         Text(stringResource(R.string.switch_account))
                     }
                 }
+
+                var showConfirm by remember { mutableStateOf(false) }
+                if (showConfirm) {
+                    AlertDialog(
+                        onDismissRequest = { showConfirm = false },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                showConfirm = false
+                                viewModel.deleteAccount { onLogout() }
+                            }) { Text(stringResource(R.string.delete)) }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showConfirm = false }) { Text(stringResource(R.string.cancel)) }
+                        },
+                        text = { Text(stringResource(R.string.delete_account_confirmation)) }
+                    )
+                }
+                Button(
+                    onClick = { showConfirm = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red.copy(alpha = 0.15f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text(stringResource(R.string.delete_account), color = Color.Red) }
             } ?: run {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium),

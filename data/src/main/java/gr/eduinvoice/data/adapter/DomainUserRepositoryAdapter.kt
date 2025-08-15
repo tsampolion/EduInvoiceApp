@@ -11,7 +11,8 @@ import javax.inject.Singleton
 
 @Singleton
 class DomainUserRepositoryAdapter @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val eduInvoiceRepository: gr.eduinvoice.data.repository.EduInvoiceRepository
 ) : DomainUserRepository {
 
     override suspend fun createUser(user: DomainUser): Long =
@@ -32,6 +33,10 @@ class DomainUserRepositoryAdapter @Inject constructor(
         code: String,
         newPassword: String
     ): Boolean = userRepository.resetPassword(username, fullName, code, newPassword)
+
+    override suspend fun deleteAccount(userId: Long) {
+        eduInvoiceRepository.deleteAccount(userId)
+    }
 
     private fun DomainUser.toDataModel(): User = User(
         id = id,

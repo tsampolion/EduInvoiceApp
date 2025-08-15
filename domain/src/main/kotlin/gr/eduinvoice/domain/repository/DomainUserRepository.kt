@@ -14,4 +14,5 @@ interface DomainUserRepository {
         code: String,
         newPassword: String
     ): Boolean
+    suspend fun deleteAccount(userId: Long)
 }
