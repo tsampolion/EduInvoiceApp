@@ -10,8 +10,7 @@ import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
 import gr.eduinvoice.ui.design.NavigationMenuButton
 import androidx.compose.material3.HorizontalDivider
-import gr.eduinvoice.ui.components.ModernSearchBar
-import gr.eduinvoice.ui.components.ModernFilterSheet
+import gr.eduinvoice.ui.components.ModernSearchFilterSheet
 import gr.eduinvoice.ui.components.FilterOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -45,12 +44,7 @@ fun LessonsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     EdgeToEdgeScaffold(
-        topBar = {
-            AppTopBar(
-                title = "Lessons",
-                navigationIcon = { }
-            )
-        },
+        topBar = { },
         floatingActionButton = {
             if (uiState.lessons.isNotEmpty()) {
                 FloatingActionButton(
@@ -65,45 +59,36 @@ fun LessonsScreen(
         }
     ) { padding ->
         Column(Modifier.padding(padding)) {
-            var searchActive by remember { mutableStateOf(false) }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Lessons", style = MaterialTheme.typography.titleLarge)
+            }
+            // Bottom-sheet search & filter
             val query by viewModel.searchQuery.collectAsStateWithLifecycle()
-            val lessonsHistory = remember(query) { emptyList<String>() }
-            ModernSearchBar(
-                query = query,
-                onQueryChange = viewModel::updateSearchQuery,
-                onVoiceInput = {},
-                onSearch = {},
-                active = searchActive,
-                onActiveChange = { searchActive = it },
-                suggestionsContent = {
-                    Column(Modifier.fillMaxWidth()) {
-                        lessonsHistory.forEach { item ->
-                            Text(
-                                text = item,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
-                            )
-                            HorizontalDivider()
-                        }
-                    }
-                },
-                modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium)
-            )
-            var showFilters by remember { mutableStateOf(false) }
+            var showSheet by remember { mutableStateOf(false) }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = Dimensions.PaddingMedium),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.Start
             ) {
-                AssistChip(onClick = { showFilters = true }, label = { Text("Filters") })
+                AssistChip(onClick = { showSheet = true }, label = { Text("Search & Filter") })
             }
-            if (showFilters) {
-                ModernFilterSheet(
+            if (showSheet) {
+                ModernSearchFilterSheet(
+                    title = stringResource(R.string.lessons),
+                    query = query,
+                    onQueryChange = viewModel::updateSearchQuery,
+                    sortAscending = null,
+                    onToggleSort = null,
                     filters = viewModel.filters.collectAsStateWithLifecycle().value,
                     onFiltersChange = viewModel::updateFilters,
-                    onDismiss = { showFilters = false }
+                    onDismiss = { showSheet = false }
                 )
             }
             if (uiState.lessons.isEmpty()) {

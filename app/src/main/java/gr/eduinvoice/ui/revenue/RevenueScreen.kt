@@ -37,12 +37,7 @@ fun RevenueScreen(
     val settings = settingsState.settings
 
     Scaffold(
-        topBar = {
-            AppTopBar(
-                title = "Revenue",
-                navigationIcon = { }
-            )
-        },
+        topBar = { },
         floatingActionButton = {
             NavigationMenuButton(openDrawer)
         }
@@ -50,10 +45,15 @@ fun RevenueScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .padding(Dimensions.PaddingMedium),
+                .padding(padding),
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
+            Text(
+                text = "Revenue",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
+            )
+            Spacer(Modifier.height(4.dp))
             settings?.let { safeSettings ->
             Row(
                 modifier = Modifier.fillMaxWidth(),

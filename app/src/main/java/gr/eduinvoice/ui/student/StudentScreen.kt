@@ -51,30 +51,7 @@ fun StudentScreen(
     var showArchiveDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = {
-            AppTopBar(
-                title = when {
-                    uiState.isEditMode && viewModel.studentId == 0L -> stringResource(R.string.add_student)
-                    uiState.isEditMode -> stringResource(R.string.edit_student)
-                    else -> "${uiState.name} ${uiState.surname}".trim()
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
-                    }
-                },
-                actions = {
-                    if (!uiState.isEditMode && viewModel.studentId != 0L) {
-                        IconButton(onClick = { viewModel.toggleEditMode() }) {
-                            Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
-                        }
-                        IconButton(onClick = { showArchiveDialog = true }) {
-                            Icon(Icons.Default.Archive, contentDescription = stringResource(R.string.archive))
-                        }
-                    }
-                }
-            )
-        },
+        topBar = { },
         floatingActionButton = {
             if (!uiState.isEditMode && viewModel.studentId != 0L) {
                 FloatingActionButton(onClick = onAddLesson) {
@@ -83,6 +60,35 @@ fun StudentScreen(
             }
         }
     ) { paddingValues ->
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = when {
+                    uiState.isEditMode && viewModel.studentId == 0L -> stringResource(R.string.add_student)
+                    uiState.isEditMode -> stringResource(R.string.edit_student)
+                    else -> "${uiState.name} ${uiState.surname}".trim()
+                },
+                style = MaterialTheme.typography.titleLarge
+            )
+            Row {
+                if (!uiState.isEditMode && viewModel.studentId != 0L) {
+                    IconButton(onClick = { viewModel.toggleEditMode() }) {
+                        Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
+                    }
+                    IconButton(onClick = { showArchiveDialog = true }) {
+                        Icon(Icons.Default.Archive, contentDescription = stringResource(R.string.archive))
+                    }
+                }
+                IconButton(onClick = onNavigateBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                }
+            }
+        }
         if (uiState.isEditMode) {
             StudentEditForm(
                 uiState = uiState,

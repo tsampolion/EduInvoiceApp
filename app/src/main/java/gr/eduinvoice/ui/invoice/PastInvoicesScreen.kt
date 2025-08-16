@@ -45,16 +45,7 @@ fun PastInvoicesScreen(onBack: () -> Unit) {
     }
 
     Scaffold(
-        topBar = {
-            AppTopBar(
-                title = "Past Invoices",
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        },
+        topBar = { },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         if (invoices.isEmpty()) {
@@ -63,6 +54,18 @@ fun PastInvoicesScreen(onBack: () -> Unit) {
             }
         } else {
             LazyColumn(Modifier.fillMaxSize().padding(padding)) {
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "Past Invoices", style = MaterialTheme.typography.titleLarge)
+                        IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
+                    }
+                }
                 items(invoices) { file ->
                     var expanded by remember { mutableStateOf(false) }
                     ListItem(

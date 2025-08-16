@@ -7,6 +7,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,8 +23,8 @@ fun AppTopBar(
         navigationIcon = navigationIcon ?: {},
         actions = actions,
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = AppColors.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            containerColor = Color.Transparent,
+            titleContentColor = MaterialTheme.colorScheme.onSurface
         )
     )
 }

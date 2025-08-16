@@ -83,12 +83,7 @@ fun SettingsScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        topBar = {
-            AppTopBar(
-                title = stringResource(R.string.settings),
-                navigationIcon = { }
-            )
-        }
+        topBar = { }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -99,6 +94,8 @@ fun SettingsScreen(
                 .padding(Dimensions.PaddingMedium),
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
+            Text(text = stringResource(R.string.settings), style = MaterialTheme.typography.titleLarge)
+            Divider()
             Text(stringResource(R.string.general), style = MaterialTheme.typography.titleMedium)
             state.settings?.let { settings ->
                 SettingCard(containerColor = AppColors.primaryContainer) {

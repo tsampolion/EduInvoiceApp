@@ -22,8 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.ui.components.StudentCard
 import gr.eduinvoice.ui.components.VirtualStudentList
-import gr.eduinvoice.ui.components.ModernSearchBar
-import gr.eduinvoice.ui.components.ModernFilterSheet
+import gr.eduinvoice.ui.components.ModernSearchFilterSheet
 import gr.eduinvoice.ui.components.FilterOptions
 import gr.eduinvoice.ui.components.ModernEmptyStudentsState
 
@@ -39,17 +38,7 @@ fun StudentsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = {
-            AppTopBar(
-                title = stringResource(R.string.students),
-                navigationIcon = { },
-                actions = {
-                    IconButton(onClick = onViewArchived) {
-                        Icon(Icons.Default.Unarchive, contentDescription = stringResource(R.string.archived_students))
-                    }
-                }
-            )
-        },
+        topBar = { },
         floatingActionButton = {
             if (uiState.students.isNotEmpty()) {
                 FloatingActionButton(
@@ -67,50 +56,41 @@ fun StudentsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Search and sort controls
-            var searchActive by remember { mutableStateOf(false) }
-            val history = remember(uiState.searchQuery) { viewModel.getSearchHistorySnapshot() }
-            ModernSearchBar(
-                query = uiState.searchQuery,
-                onQueryChange = viewModel::updateSearchQuery,
-                onVoiceInput = { /* TODO: trigger voice input */ },
-                onSearch = { /* No-op, we react to query change */ },
-                active = searchActive,
-                onActiveChange = { searchActive = it },
-                suggestionsContent = {
-                    Column(Modifier.fillMaxWidth()) {
-                        history.forEach { item ->
-                            Text(
-                                text = item,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
-                                    .clickable { viewModel.updateSearchQuery(item) }
-                            )
-                            HorizontalDivider()
-                        }
-                    }
-                },
-                modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium)
-            )
+            // Title row overlay
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = stringResource(R.string.students), style = MaterialTheme.typography.titleLarge)
+                IconButton(onClick = onViewArchived) {
+                    Icon(Icons.Default.Unarchive, contentDescription = stringResource(R.string.archived_students))
+                }
+            }
+            // Bottom-sheet search & filter
+            val sortAscending by viewModel.sortAscending.collectAsStateWithLifecycle()
+            var showSheet by remember { mutableStateOf(false) }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = Dimensions.PaddingMedium),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.Start
             ) {
-                var showFilters by remember { mutableStateOf(false) }
-                AssistChip(onClick = { showFilters = true }, label = { Text("Filters") })
-                IconButton(onClick = { viewModel.toggleSortOrder() }) {
-                    Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort")
-                }
-                if (showFilters) {
-                    ModernFilterSheet(
-                        filters = viewModel.filters.collectAsState().value,
-                        onFiltersChange = { viewModel.updateFilters(it) },
-                        onDismiss = { showFilters = false }
-                    )
-                }
+                AssistChip(onClick = { showSheet = true }, label = { Text("Search & Filter") })
+            }
+            if (showSheet) {
+                ModernSearchFilterSheet(
+                    title = stringResource(R.string.students),
+                    query = uiState.searchQuery,
+                    onQueryChange = viewModel::updateSearchQuery,
+                    sortAscending = sortAscending,
+                    onToggleSort = viewModel::toggleSortOrder,
+                    filters = viewModel.filters.collectAsStateWithLifecycle().value,
+                    onFiltersChange = viewModel::updateFilters,
+                    onDismiss = { showSheet = false }
+                )
             }
 
             // Virtual scrolling list for students

@@ -43,26 +43,7 @@ fun LoginScreen(
     val autofillManager = remember { context.getSystemService(AutofillManager::class.java) }
     var showAutofillDialog by remember { mutableStateOf(autofillManager?.hasEnabledAutofillServices() == false) }
 
-    Scaffold(
-        topBar = {
-            AppTopBar(
-                title = stringResource(R.string.login),
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
-                    }
-                }
-            )
-        }
-    ) { padding ->
+    Scaffold(topBar = { }) { padding ->
         AnimatedVisibility(
             visible = true,
             enter = fadeIn(),
@@ -77,6 +58,24 @@ fun LoginScreen(
                 .padding(Dimensions.PaddingMedium),
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = stringResource(R.string.login), style = MaterialTheme.typography.titleLarge)
+                Row {
+                    IconButton(onClick = onSettings) {
+                        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
+                    }
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
+                    }
+                }
+            }
             Spacer(modifier = Modifier.height(Dimensions.PaddingMedium * 2))
             Image(
                 painter = painterResource(R.drawable.tutorbilling_logo),

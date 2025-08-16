@@ -21,8 +21,7 @@ import androidx.compose.runtime.getValue
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
 import gr.eduinvoice.ui.design.NavigationMenuButton
-import gr.eduinvoice.ui.components.ModernSearchBar
-import gr.eduinvoice.ui.components.ModernFilterSheet
+import gr.eduinvoice.ui.components.ModernSearchFilterSheet
 import gr.eduinvoice.ui.components.FilterOptions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.layout.Column
@@ -39,12 +38,7 @@ fun GroupsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     EdgeToEdgeScaffold(
-        topBar = {
-            AppTopBar(
-                title = "Groups",
-                navigationIcon = { }
-            )
-        },
+        topBar = { },
         floatingActionButton = {
             if (uiState.groups.isNotEmpty()) {
                 FloatingActionButton(onClick = onAddGroup) {
@@ -55,45 +49,32 @@ fun GroupsScreen(
         }
     ) { padding ->
         Column(Modifier.padding(padding)) {
-            var searchActive by remember { mutableStateOf(false) }
-            var query by remember { mutableStateOf("") }
-            val groupsHistory = remember(query) { emptyList<String>() }
-            ModernSearchBar(
-                query = query,
-                onQueryChange = { query = it },
-                onVoiceInput = {},
-                onSearch = {},
-                active = searchActive,
-                onActiveChange = { searchActive = it },
-                suggestionsContent = {
-                    Column(Modifier.fillMaxWidth()) {
-                        groupsHistory.forEach { item ->
-                            Text(
-                                text = item,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = gr.eduinvoice.ui.design.Dimensions.PaddingMedium, vertical = 8.dp)
-                            )
-                            HorizontalDivider()
-                        }
-                    }
-                },
-                modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium)
+            // Slim header row
+            Text(
+                text = "Groups",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
             )
-            var showFilters by remember { mutableStateOf(false) }
+
+            var showSheet by remember { mutableStateOf(false) }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = Dimensions.PaddingMedium),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                AssistChip(onClick = { showFilters = true }, label = { Text("Filters") })
+                AssistChip(onClick = { showSheet = true }, label = { Text("Search & Filter") })
             }
-            if (showFilters) {
-                ModernFilterSheet(
-                    filters = FilterOptions(),
-                    onFiltersChange = { /* Future: add filtering for groups */ },
-                    onDismiss = { showFilters = false }
+            if (showSheet) {
+                ModernSearchFilterSheet(
+                    title = "Groups",
+                    query = "",
+                    onQueryChange = { /* TODO: implement query in GroupsViewModel */ },
+                    sortAscending = null,
+                    onToggleSort = null,
+                    filters = null,
+                    onFiltersChange = null,
+                    onDismiss = { showSheet = false }
                 )
             }
             if (uiState.groups.isEmpty()) {
@@ -104,14 +85,21 @@ fun GroupsScreen(
                         .fillMaxSize()
                 ) {
                     items(uiState.groups) { group ->
-                        Text(
-                            text = group.name,
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onGroupClick(group.id) }
-                                .padding(Dimensions.PaddingMedium)
-                        )
-                        HorizontalDivider()
+                                .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onGroupClick(group.id) }
+                                    .padding(Dimensions.PaddingMedium)
+                            ) {
+                                Text(text = group.name, style = MaterialTheme.typography.titleMedium)
+                            }
+                        }
                     }
                 }
             }

@@ -83,16 +83,7 @@ fun InvoiceScreen(
     }
 
     Scaffold(
-        topBar = {
-            AppTopBar(
-                title = "Invoice",
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        },
+        topBar = { },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
             Row(
@@ -111,6 +102,16 @@ fun InvoiceScreen(
         }
     ) { padding ->
         Column(Modifier.padding(padding).padding(Dimensions.PaddingMedium)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Invoice", style = MaterialTheme.typography.titleLarge)
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                }
+            }
             StudentDropdown(students, selectedStudentId, onSelect = viewModel::selectStudent)
             DateField("Start", startDate) { date -> viewModel.updateStartDate(date) }
             DateField("End", endDate) { date -> viewModel.updateEndDate(date) }

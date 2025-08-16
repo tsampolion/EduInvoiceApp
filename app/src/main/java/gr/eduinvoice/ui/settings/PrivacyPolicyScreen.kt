@@ -19,18 +19,7 @@ import gr.eduinvoice.R
 @Composable
 fun PrivacyPolicyScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    Scaffold(
-        topBar = {
-            AppTopBar(
-                title = stringResource(R.string.privacy_policy),
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
-                    }
-                }
-            )
-        }
-    ) { padding ->
+    Scaffold(topBar = { }) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -38,6 +27,16 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
                 .padding(Dimensions.PaddingMedium),
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = stringResource(R.string.privacy_policy), style = MaterialTheme.typography.titleLarge)
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                }
+            }
             Text(stringResource(R.string.privacy_policy_text))
             val url = stringResource(R.string.privacy_policy_url)
             Button(onClick = {

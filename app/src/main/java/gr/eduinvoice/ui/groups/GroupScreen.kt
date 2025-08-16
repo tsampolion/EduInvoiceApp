@@ -22,16 +22,21 @@ fun GroupScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Scaffold(
-        topBar = {
-            AppTopBar(
-                title = if (viewModel.groupId == 0L) "Add Group" else "Edit Group",
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
+    Scaffold(topBar = { }) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(Dimensions.PaddingMedium),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = if (viewModel.groupId == 0L) "Add Group" else "Edit Group", style = MaterialTheme.typography.titleLarge)
+                Row {
                     if (viewModel.groupId != 0L) {
                         var showDelete by remember { mutableStateOf(false) }
                         TextButton(onClick = { showDelete = true }) { Text("Delete") }
@@ -52,25 +57,17 @@ fun GroupScreen(
                         }
                     }
                     val nameState = viewModel.uiState.collectAsStateWithLifecycle().value.name
-                    var nameError by remember { mutableStateOf(false) }
+                    var nameErrorHeader by remember { mutableStateOf(false) }
                     TextButton(onClick = {
                         if (nameState.isBlank()) {
-                            nameError = true
+                            nameErrorHeader = true
                         } else {
                             viewModel.saveGroup(); onBack()
                         }
                     }) { Text("Save") }
+                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
                 }
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(Dimensions.PaddingMedium),
-            verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
-        ) {
+            }
             var nameError by remember { mutableStateOf(false) }
             OutlinedTextField(
                 value = uiState.name,

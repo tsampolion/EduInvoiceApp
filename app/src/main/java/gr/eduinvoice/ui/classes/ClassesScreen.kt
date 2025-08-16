@@ -38,12 +38,7 @@ fun ClassesScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        topBar = {
-            AppTopBar(
-                title = "Classes",
-                navigationIcon = { }
-            )
-        },
+        topBar = { },
         floatingActionButton = {
             NavigationMenuButton(openDrawer)
         }
@@ -55,11 +50,12 @@ fun ClassesScreen(
                     .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = stringResource(R.string.no_classes),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                // Use a shared empty state look
+                Card {
+                    Column(Modifier.padding(Dimensions.PaddingMedium), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = stringResource(R.string.no_classes), style = MaterialTheme.typography.titleMedium)
+                    }
+                }
             }
         } else {
             LazyColumn(
@@ -67,6 +63,14 @@ fun ClassesScreen(
                     .fillMaxSize()
                     .padding(padding)
             ) {
+                item {
+                    // Slim header
+                    Text(
+                        text = "Classes",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
+                    )
+                }
                 uiState.studentsByClass
                     .filterKeys { it != "Unassigned" }
                     .toSortedMap()
@@ -75,17 +79,19 @@ fun ClassesScreen(
                             Text(
                                 text = className,
                                 style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(Dimensions.PaddingMedium)
+                                modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
                             )
                             HorizontalDivider()
                         }
                         items(students) { student ->
-                            Text(
-                                text = student.getFullName(),
+                            Row(
                                 modifier = Modifier
-                                    .padding(horizontal = 32.dp, vertical = 8.dp)
+                                    .fillMaxWidth()
                                     .clickable { onStudentClick(student.id) }
-                            )
+                                    .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
+                            ) {
+                                Text(text = student.getFullName(), style = MaterialTheme.typography.bodyLarge)
+                            }
                         }
                     }
 
@@ -95,17 +101,19 @@ fun ClassesScreen(
                             Text(
                                 text = "Unassigned",
                                 style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(Dimensions.PaddingMedium)
+                                modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
                             )
                             HorizontalDivider()
                         }
                         items(students) { student ->
-                            Text(
-                                text = student.getFullName(),
+                            Row(
                                 modifier = Modifier
-                                    .padding(horizontal = 32.dp, vertical = 8.dp)
+                                    .fillMaxWidth()
                                     .clickable { onStudentClick(student.id) }
-                            )
+                                    .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
+                            ) {
+                                Text(text = student.getFullName(), style = MaterialTheme.typography.bodyLarge)
+                            }
                         }
                     }
                 }

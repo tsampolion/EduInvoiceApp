@@ -29,18 +29,7 @@ fun ArchivedStudentsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Scaffold(
-        topBar = {
-            AppTopBar(
-                title = stringResource(R.string.archived_students),
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
+    Scaffold(topBar = { }) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -48,6 +37,19 @@ fun ArchivedStudentsScreen(
             contentPadding = PaddingValues(vertical = 8.dp)
         ) {
             item {
+                // Compact header row
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = stringResource(R.string.archived_students), style = MaterialTheme.typography.titleLarge)
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                    }
+                }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

@@ -48,23 +48,32 @@ fun LessonScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Scaffold(
-        topBar = {
-            AppTopBar(
-                title = if (lessonId == 0L) stringResource(R.string.add_lesson) else stringResource(R.string.edit_lesson),
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
-                    }
-                },
-                actions = {
+    Scaffold(topBar = { }) { paddingValues ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .imePadding()
+                .padding(Dimensions.PaddingMedium),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = if (lessonId == 0L) stringResource(R.string.add_lesson) else stringResource(R.string.edit_lesson), style = MaterialTheme.typography.titleLarge)
+                Row {
                     var showDelete by remember { mutableStateOf(false) }
                     if (lessonId != 0L) {
                         IconButton(onClick = { showDelete = true }) {
-                        Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
+                            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
                         }
                     }
-
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
+                    }
                     if (showDelete) {
                         AlertDialog(
                             onDismissRequest = { showDelete = false },
@@ -84,18 +93,7 @@ fun LessonScreen(
                         )
                     }
                 }
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .imePadding()
-                .padding(Dimensions.PaddingMedium),
-            verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
-        ) {
+            }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "Group Lesson")
                 Spacer(modifier = Modifier.width(8.dp))

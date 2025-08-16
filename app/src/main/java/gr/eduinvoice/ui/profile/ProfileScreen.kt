@@ -37,18 +37,7 @@ fun ProfileScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Scaffold(
-        topBar = {
-            AppTopBar(
-                title = stringResource(R.string.profile),
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back))
-                    }
-                }
-            )
-        }
-    ) { padding ->
+    Scaffold(topBar = { }) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -58,6 +47,16 @@ fun ProfileScreen(
                 .padding(Dimensions.PaddingMedium),
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = stringResource(R.string.profile), style = MaterialTheme.typography.titleLarge)
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back))
+                }
+            }
             OutlinedTextField(
                 value = state.fullName,
                 onValueChange = viewModel::updateFullName,
