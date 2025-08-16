@@ -18,6 +18,18 @@ android {
         targetSdk 35
     }
 
+    flavorDimensions "security"
+    productFlavors {
+        encrypted {
+            dimension "security"
+            buildConfigField "boolean", "DB_ENCRYPTION_ENABLED", "true"
+        }
+        plain {
+            dimension "security"
+            buildConfigField "boolean", "DB_ENCRYPTION_ENABLED", "false"
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17

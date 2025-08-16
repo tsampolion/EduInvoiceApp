@@ -43,12 +43,15 @@ object DatabaseModule {
         @ApplicationContext context: Context,
         prefs: UserPreferencesRepository
     ): EduInvoiceDatabase {
-        var sqlCipherAvailable = true
-        try {
-            SQLiteDatabase.loadLibs(context)
-        } catch (t: Throwable) {
-            sqlCipherAvailable = false
-            Log.w("DatabaseModule", "SQLCipher native library not available on this device/emulator", t)
+        val encryptionEnabled = BuildConfig.DB_ENCRYPTION_ENABLED
+        var sqlCipherAvailable = false
+        if (encryptionEnabled) {
+            try {
+                SQLiteDatabase.loadLibs(context)
+                sqlCipherAvailable = true
+            } catch (t: Throwable) {
+                Log.w("DatabaseModule", "SQLCipher native library not available on this device/emulator", t)
+            }
         }
 
         // Get passphrase with better error handling
@@ -70,7 +73,7 @@ object DatabaseModule {
 
         Log.d("DatabaseModule", "Passphrase length: ${passphrase.size}")
 
-        if (sqlCipherAvailable) {
+        if (encryptionEnabled && sqlCipherAvailable) {
             return try {
                 EduInvoiceDatabase.getDatabase(context, passphrase)
             } catch (e: Exception) {
@@ -100,23 +103,17 @@ object DatabaseModule {
                     throw DatabaseInitException("Failed to create database", e)
                 }
             }
-        } else {
-            // Fallback for debug builds on emulators/devices where SQLCipher native libs are incompatible
-            if (BuildConfig.DEBUG) {
-                Log.w("DatabaseModule", "Falling back to UNENCRYPTED Room database for debug build")
-                return Room.databaseBuilder(
-                    context.applicationContext,
-                    EduInvoiceDatabase::class.java,
-                    DatabaseConstants.DATABASE_NAME + "_plain"
-                )
-                    .fallbackToDestructiveMigration(true)
-                    .build()
-            } else {
-                throw DatabaseInitException(
-                    "SQLCipher native library unavailable on this device and fallback is disabled for release builds"
-                )
-            }
         }
+
+        // Unencrypted path
+        Log.w("DatabaseModule", "Using UNENCRYPTED Room database per flavor configuration")
+        return Room.databaseBuilder(
+            context.applicationContext,
+            EduInvoiceDatabase::class.java,
+            DatabaseConstants.DATABASE_NAME + "_plain"
+        )
+            .fallbackToDestructiveMigration(true)
+            .build()
     }
 
     // DatabaseModule only provides the Room database instance.
