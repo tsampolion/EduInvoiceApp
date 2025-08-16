@@ -44,14 +44,15 @@ fun HomeMenuScreen(
         Log.d("HomeMenuScreen", "Collected uiState -> $uiState")
     }
 
-    val studentButtonColors = remember(uiState.studentCount) {
-        if (BuildConfig.DEBUG) {
-            Log.d("HomeMenuScreen", "Student button color recalculated for count ${uiState.studentCount}")
-        }
-        ButtonDefaults.buttonColors(
-            containerColor = if (uiState.studentCount > 0) AppColors.successContainer else AppColors.errorContainer
-        )
+    val successContainer = AppColors.successContainer
+    val errorContainer = AppColors.errorContainer
+    val studentContainerColor = if (uiState.studentCount > 0) successContainer else errorContainer
+    if (BuildConfig.DEBUG) {
+        Log.d("HomeMenuScreen", "Student button color recalculated for count ${uiState.studentCount}")
     }
+    val studentButtonColors = ButtonDefaults.buttonColors(
+        containerColor = studentContainerColor
+    )
 
 
     EdgeToEdgeScaffold(
