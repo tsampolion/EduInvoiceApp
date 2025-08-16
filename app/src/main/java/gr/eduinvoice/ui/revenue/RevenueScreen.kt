@@ -40,8 +40,11 @@ fun RevenueScreen(
         topBar = {
             AppTopBar(
                 title = "Revenue",
-                navigationIcon = { NavigationMenuButton(openDrawer) }
+                navigationIcon = { }
             )
+        },
+        floatingActionButton = {
+            NavigationMenuButton(openDrawer)
         }
     ) { padding ->
         Column(

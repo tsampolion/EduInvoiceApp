@@ -41,8 +41,11 @@ fun ClassesScreen(
         topBar = {
             AppTopBar(
                 title = "Classes",
-                navigationIcon = { NavigationMenuButton(openDrawer) }
+                navigationIcon = { }
             )
+        },
+        floatingActionButton = {
+            NavigationMenuButton(openDrawer)
         }
     ) { padding ->
         if (uiState.studentsByClass.isEmpty()) {

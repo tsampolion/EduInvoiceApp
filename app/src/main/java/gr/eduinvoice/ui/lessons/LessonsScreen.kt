@@ -48,7 +48,7 @@ fun LessonsScreen(
         topBar = {
             AppTopBar(
                 title = "Lessons",
-                navigationIcon = { NavigationMenuButton(openDrawer) }
+                navigationIcon = { }
             )
         },
         floatingActionButton = {
@@ -60,6 +60,8 @@ fun LessonsScreen(
                     Icon(Icons.Default.Add, contentDescription = "Add Lesson")
                 }
             }
+            // Drawer FAB (top-left) per requirements
+            NavigationMenuButton(openDrawer, modifier = Modifier)
         }
     ) { padding ->
         Column(Modifier.padding(padding)) {

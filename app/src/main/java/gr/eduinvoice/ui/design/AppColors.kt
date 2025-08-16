@@ -19,7 +19,7 @@ object AppColors {
 
     val successContainer: Color
         @Composable
-        get() = MaterialTheme.colorScheme.secondaryContainer
+        get() = Color(0xFFDFF5E1)
 
     val errorContainer: Color
         @Composable

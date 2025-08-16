@@ -51,9 +51,15 @@ fun GroupScreen(
                             )
                         }
                     }
-                    TextButton(onClick = { viewModel.saveGroup(); onBack() }) {
-                        Text("Save")
-                    }
+                    val nameState = viewModel.uiState.collectAsStateWithLifecycle().value.name
+                    var nameError by remember { mutableStateOf(false) }
+                    TextButton(onClick = {
+                        if (nameState.isBlank()) {
+                            nameError = true
+                        } else {
+                            viewModel.saveGroup(); onBack()
+                        }
+                    }) { Text("Save") }
                 }
             )
         }
@@ -65,10 +71,16 @@ fun GroupScreen(
                 .padding(Dimensions.PaddingMedium),
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
+            var nameError by remember { mutableStateOf(false) }
             OutlinedTextField(
                 value = uiState.name,
-                onValueChange = viewModel::updateName,
-                label = { Text("Group Name") },
+                onValueChange = {
+                    nameError = false
+                    viewModel.updateName(it)
+                },
+                isError = nameError,
+                supportingText = { if (nameError) Text("Required") },
+                label = { Text("Group Name*") },
                 modifier = Modifier.fillMaxWidth()
             )
 

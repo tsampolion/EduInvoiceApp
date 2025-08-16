@@ -42,7 +42,7 @@ fun GroupsScreen(
         topBar = {
             AppTopBar(
                 title = "Groups",
-                navigationIcon = { NavigationMenuButton(openDrawer) }
+                navigationIcon = { }
             )
         },
         floatingActionButton = {
@@ -51,6 +51,7 @@ fun GroupsScreen(
                     Icon(Icons.Default.Add, contentDescription = "Add Group")
                 }
             }
+            NavigationMenuButton(openDrawer)
         }
     ) { padding ->
         Column(Modifier.padding(padding)) {

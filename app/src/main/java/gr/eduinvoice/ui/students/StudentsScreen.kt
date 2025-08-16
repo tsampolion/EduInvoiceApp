@@ -42,7 +42,7 @@ fun StudentsScreen(
         topBar = {
             AppTopBar(
                 title = stringResource(R.string.students),
-                navigationIcon = { NavigationMenuButton(openDrawer) },
+                navigationIcon = { },
                 actions = {
                     IconButton(onClick = onViewArchived) {
                         Icon(Icons.Default.Unarchive, contentDescription = stringResource(R.string.archived_students))
@@ -59,6 +59,7 @@ fun StudentsScreen(
                     Icon(Icons.Default.Add, contentDescription = "Add Student")
                 }
             }
+            NavigationMenuButton(openDrawer)
         }
     ) { paddingValues ->
         Column(

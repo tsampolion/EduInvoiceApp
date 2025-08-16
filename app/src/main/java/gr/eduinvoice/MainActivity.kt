@@ -39,6 +39,7 @@ import gr.eduinvoice.ui.theme.EduInvoiceTheme
 import android.util.Log
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.material3.ModalDrawerSheet
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -75,91 +76,82 @@ class MainActivity : ComponentActivity() {
 				ModalNavigationDrawer(
 					drawerState = drawerState,
 					drawerContent = {
-						NavigationDrawerItem(
-							label = { Text(stringResource(id = R.string.home)) },
-							selected = false,
-							onClick = {
-								if (!isWelcome) navController.navigate(Screen.Home.route)
-								drawerOpen = false
-							},
-							modifier = Modifier,
-							colors = NavigationDrawerItemDefaults.colors()
-						)
-						NavigationDrawerItem(
-							label = { Text(stringResource(id = R.string.students)) },
-							selected = false,
-							onClick = {
-								if (!isWelcome) navController.navigate(Screen.Students.route)
-								drawerOpen = false
-							},
-							modifier = Modifier,
-							colors = NavigationDrawerItemDefaults.colors()
-						)
-						NavigationDrawerItem(
-							label = { Text(stringResource(id = R.string.lessons)) },
-							selected = false,
-							onClick = {
-								if (!isWelcome) navController.navigate(Screen.Lessons.route)
-								drawerOpen = false
-							},
-							modifier = Modifier,
-							colors = NavigationDrawerItemDefaults.colors()
-						)
-						NavigationDrawerItem(
-							label = { Text(stringResource(id = R.string.groups)) },
-							selected = false,
-							onClick = {
-								if (!isWelcome) navController.navigate(Screen.Groups.route)
-								drawerOpen = false
-							},
-							modifier = Modifier,
-							colors = NavigationDrawerItemDefaults.colors()
-						)
-						NavigationDrawerItem(
-							label = { Text(stringResource(id = R.string.classes)) },
-							selected = false,
-							onClick = {
-								if (!isWelcome) navController.navigate(Screen.Classes.route)
-								drawerOpen = false
-							},
-							modifier = Modifier,
-							colors = NavigationDrawerItemDefaults.colors()
-						)
-						NavigationDrawerItem(
-							label = { Text(stringResource(id = R.string.revenue)) },
-							selected = false,
-							onClick = {
-								if (!isWelcome) navController.navigate(Screen.Revenue.route)
-								drawerOpen = false
-							},
-							modifier = Modifier,
-							colors = NavigationDrawerItemDefaults.colors()
-						)
-						NavigationDrawerItem(
-							label = { Text(stringResource(id = R.string.settings)) },
-							selected = false,
-							onClick = {
-								if (!isWelcome) navController.navigate(Screen.Settings.route)
-								drawerOpen = false
-							},
-							modifier = Modifier,
-							colors = NavigationDrawerItemDefaults.colors()
-						)
+						ModalDrawerSheet {
+							NavigationDrawerItem(
+								label = { Text(stringResource(id = R.string.home)) },
+								selected = false,
+								onClick = {
+									if (!isWelcome) navController.navigate(Screen.Home.route)
+									drawerOpen = false
+								},
+								modifier = Modifier,
+								colors = NavigationDrawerItemDefaults.colors()
+							)
+							NavigationDrawerItem(
+								label = { Text(stringResource(id = R.string.students)) },
+								selected = false,
+								onClick = {
+									if (!isWelcome) navController.navigate(Screen.Students.route)
+									drawerOpen = false
+								},
+								modifier = Modifier,
+								colors = NavigationDrawerItemDefaults.colors()
+							)
+							NavigationDrawerItem(
+								label = { Text(stringResource(id = R.string.lessons)) },
+								selected = false,
+								onClick = {
+									if (!isWelcome) navController.navigate(Screen.Lessons.route)
+									drawerOpen = false
+								},
+								modifier = Modifier,
+								colors = NavigationDrawerItemDefaults.colors()
+							)
+							NavigationDrawerItem(
+								label = { Text(stringResource(id = R.string.groups)) },
+								selected = false,
+								onClick = {
+									if (!isWelcome) navController.navigate(Screen.Groups.route)
+									drawerOpen = false
+								},
+								modifier = Modifier,
+								colors = NavigationDrawerItemDefaults.colors()
+							)
+							NavigationDrawerItem(
+								label = { Text(stringResource(id = R.string.classes)) },
+								selected = false,
+								onClick = {
+									if (!isWelcome) navController.navigate(Screen.Classes.route)
+									drawerOpen = false
+								},
+								modifier = Modifier,
+								colors = NavigationDrawerItemDefaults.colors()
+							)
+							NavigationDrawerItem(
+								label = { Text(stringResource(id = R.string.revenue)) },
+								selected = false,
+								onClick = {
+									if (!isWelcome) navController.navigate(Screen.Revenue.route)
+									drawerOpen = false
+								},
+								modifier = Modifier,
+								colors = NavigationDrawerItemDefaults.colors()
+							)
+							NavigationDrawerItem(
+								label = { Text(stringResource(id = R.string.settings)) },
+								selected = false,
+								onClick = {
+									if (!isWelcome) navController.navigate(Screen.Settings.route)
+									drawerOpen = false
+								},
+								modifier = Modifier,
+								colors = NavigationDrawerItemDefaults.colors()
+							)
+						}
 					}
 				) {
 					Scaffold(
-						topBar = {
-							TopAppBar(
-								title = { Text(text = stringResource(id = R.string.app_name)) },
-								navigationIcon = {
-									if (!isWelcome) {
-										IconButton(onClick = { drawerOpen = !drawerOpen }) {
-											Icon(Icons.Default.Menu, contentDescription = "Menu")
-										}
-									}
-								}
-							)
-						}
+						topBar = { }
 					) { padding ->
 						Surface(
 							modifier = Modifier

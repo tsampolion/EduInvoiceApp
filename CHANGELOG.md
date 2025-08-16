@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.3] - 2025-08-16
+
+### Fixed
+- Drawer: wrapped drawer content with `ModalDrawerSheet` to render correctly and be interactive; disabled redundant global app bar.
+- Global Top Bar: removed redundant `TopAppBar` from `MainActivity` to avoid double bars and follow per-screen bars.
+- Lesson form: fixed student selection not populating by passing `userId` to `getStudentById` and wiring group loading with `userId`.
+- Groups: added inline validation for required group name with error state on Save.
+
+### UX
+- Search/Filter: planned migration to a unified bottom sheet; inline search bars will be replaced in subsequent commits.
+- Home: clarified Students button color logic; set up for distinct success vs error container colors.
+
+### DevOps
+- Version bumped to 0.28.3.
+
 ## [0.28.2] - 2025-08-15
 
 ### Added

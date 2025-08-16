@@ -86,7 +86,7 @@ fun SettingsScreen(
         topBar = {
             AppTopBar(
                 title = stringResource(R.string.settings),
-                navigationIcon = { NavigationMenuButton(openDrawer) }
+                navigationIcon = { }
             )
         }
     ) { padding ->

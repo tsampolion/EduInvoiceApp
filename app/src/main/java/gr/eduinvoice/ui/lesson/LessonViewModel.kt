@@ -94,9 +94,12 @@ class LessonViewModel @Inject constructor(
 
     private fun loadGroups() {
         viewModelScope.launch {
-            groupUseCases.getAllGroups().collect { groups ->
-                _uiState.update { it.copy(availableGroups = groups) }
-            }
+            currentUserProvider.loggedInUserId
+                .filterNotNull()
+                .flatMapLatest { uid -> groupUseCases.getAllGroups(uid) }
+                .collect { groups ->
+                    _uiState.update { it.copy(availableGroups = groups) }
+                }
         }
     }
 
@@ -141,7 +144,8 @@ class LessonViewModel @Inject constructor(
 
     fun updateSelectedStudent(id: Long) {
         viewModelScope.launch {
-            studentUseCases.getStudentById(id).collect { student ->
+            val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+            studentUseCases.getStudentById(id, uid).collect { student ->
                 student?.let { s ->
                     _uiState.update {
                         it.copy(
