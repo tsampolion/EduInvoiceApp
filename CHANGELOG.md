@@ -43,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### DevOps
 - CI: deduplicated workflows; standardized JDK 17; added assembleRelease sanity step; instrumented tests on API 35.
-- Dependencies: bumped SQLCipher `net.zetetic:android-database-sqlcipher` to 4.6.1 for broader device support.
+- Dependencies: keep SQLCipher `net.zetetic:android-database-sqlcipher` at 4.5.4 (latest available in repo). Add runtime fallback to unencrypted Room DB for debug builds when SQLCipher native libs are incompatible (e.g., 16KB page size devices/emulators).
 
 ## [0.28.0] - 2025-08-14
 

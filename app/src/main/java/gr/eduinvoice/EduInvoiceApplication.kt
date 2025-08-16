@@ -14,8 +14,6 @@ class EduInvoiceApplication : Application() {
         super.onCreate()
 
         try {
-            // Load SQLCipher native library early
-            System.loadLibrary("sqlcipher")
             // Initialize Firebase
             FirebaseApp.initializeApp(this)
 
@@ -33,8 +31,8 @@ class EduInvoiceApplication : Application() {
             // }
 
             Log.d("EduInvoiceApplication", "Firebase initialized successfully")
-        } catch (e: Exception) {
-            Log.w("EduInvoiceApplication", "Failed to initialize Firebase", e)
+        } catch (t: Throwable) {
+            Log.w("EduInvoiceApplication", "Failed to initialize Firebase", t)
             // Don't crash the app if Firebase initialization fails
         }
     }
