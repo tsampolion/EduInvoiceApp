@@ -19,6 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.testcompat.getFullName
 import gr.eduinvoice.ui.design.NavigationMenuButton
+import gr.eduinvoice.ui.design.SlimHeader
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,19 +59,12 @@ fun ClassesScreen(
                 }
             }
         } else {
+            Box(Modifier.fillMaxSize().padding(padding)) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding)
             ) {
-                item {
-                    // Slim header
-                    Text(
-                        text = "Classes",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
-                    )
-                }
+                item { SlimHeader(title = "Classes") }
                 uiState.studentsByClass
                     .filterKeys { it != "Unassigned" }
                     .toSortedMap()
@@ -117,6 +111,15 @@ fun ClassesScreen(
                         }
                     }
                 }
+            }
+
+            NavigationMenuButton(
+                onClick = openDrawer,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .statusBarsPadding()
+                    .padding(8.dp)
+            )
             }
         }
     }

@@ -40,8 +40,8 @@ android {
         applicationId "gr.eduinvoice"
         minSdk 26
         targetSdk 35
-        versionCode 44  // Increment version code
-        versionName "0.28.3"  // Increment version name
+        versionCode 45  // Increment version code
+        versionName "0.28.4"  // Increment version name
         testInstrumentationRunner "com.google.dagger.hilt.android.testing.HiltTestRunner"
         buildConfigField "String", "FIREBASE_API_KEY", "\"${firebaseKey}\""
         

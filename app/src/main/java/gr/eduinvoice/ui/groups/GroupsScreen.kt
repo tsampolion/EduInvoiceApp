@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
 import gr.eduinvoice.ui.design.NavigationMenuButton
+import gr.eduinvoice.ui.design.SlimHeader
 import gr.eduinvoice.ui.components.ModernSearchFilterSheet
 import gr.eduinvoice.ui.components.FilterOptions
 import androidx.compose.material3.HorizontalDivider
@@ -45,16 +46,11 @@ fun GroupsScreen(
                     Icon(Icons.Default.Add, contentDescription = "Add Group")
                 }
             }
-            NavigationMenuButton(openDrawer)
         }
     ) { padding ->
-        Column(Modifier.padding(padding)) {
-            // Slim header row
-            Text(
-                text = "Groups",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
-            )
+        Box(Modifier.fillMaxSize().padding(padding)) {
+            Column(Modifier.fillMaxSize()) {
+            SlimHeader(title = "Groups")
 
             var showSheet by remember { mutableStateOf(false) }
             Row(
@@ -103,6 +99,14 @@ fun GroupsScreen(
                     }
                 }
             }
+
+            NavigationMenuButton(
+                onClick = openDrawer,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .statusBarsPadding()
+                    .padding(8.dp)
+            )
         }
     }
 }

@@ -12,6 +12,7 @@ import gr.eduinvoice.ui.design.AppColors
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
 import gr.eduinvoice.ui.design.NavigationMenuButton
+import gr.eduinvoice.ui.design.SlimHeader
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -85,16 +86,16 @@ fun SettingsScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = { }
     ) { padding ->
+        Box(Modifier.fillMaxSize().padding(padding)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .imePadding()
                 .padding(Dimensions.PaddingMedium),
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
-            Text(text = stringResource(R.string.settings), style = MaterialTheme.typography.titleLarge)
+            SlimHeader(title = stringResource(R.string.settings))
             Divider()
             Text(stringResource(R.string.general), style = MaterialTheme.typography.titleMedium)
             state.settings?.let { settings ->
@@ -256,6 +257,14 @@ fun SettingsScreen(
             ) {
                 Text(stringResource(R.string.privacy_policy))
             }
+        }
+        NavigationMenuButton(
+            onClick = openDrawer,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .statusBarsPadding()
+                .padding(8.dp)
+        )
         }
     }
 }

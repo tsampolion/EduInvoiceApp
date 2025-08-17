@@ -50,21 +50,27 @@ fun ArchivedStudentsScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
                     }
                 }
+                var showSheet by remember { mutableStateOf(false) }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(Dimensions.PaddingMedium),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(horizontal = Dimensions.PaddingMedium),
+                    horizontalArrangement = Arrangement.Start
                 ) {
-                    OutlinedTextField(
-                        value = uiState.searchQuery,
-                        onValueChange = viewModel::updateSearchQuery,
-                        modifier = Modifier.weight(1f),
-                        label = { Text(stringResource(R.string.search)) }
+                    AssistChip(onClick = { showSheet = true }, label = { Text("Search & Filter") })
+                }
+                if (showSheet) {
+                    val sortAscending by viewModel.sortAscending.collectAsStateWithLifecycle()
+                    ModernSearchFilterSheet(
+                        title = stringResource(R.string.archived_students),
+                        query = uiState.searchQuery,
+                        onQueryChange = viewModel::updateSearchQuery,
+                        sortAscending = sortAscending,
+                        onToggleSort = viewModel::toggleSortOrder,
+                        filters = null,
+                        onFiltersChange = null,
+                        onDismiss = { showSheet = false }
                     )
-                    IconButton(onClick = { viewModel.toggleSortOrder() }) {
-                        Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = stringResource(R.string.sort))
-                    }
                 }
             }
 

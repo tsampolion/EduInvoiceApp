@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MenuAnchorType
@@ -32,6 +33,7 @@ import gr.eduinvoice.domain.model.DomainLesson
 import gr.eduinvoice.utils.ClassOptions
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
+import gr.eduinvoice.ui.design.SlimHeader
 import gr.eduinvoice.ui.design.AppColors
 import gr.eduinvoice.ui.design.MetricCard
 import java.time.LocalDate
@@ -60,22 +62,14 @@ fun StudentScreen(
             }
         }
     ) { paddingValues ->
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = when {
-                    uiState.isEditMode && viewModel.studentId == 0L -> stringResource(R.string.add_student)
-                    uiState.isEditMode -> stringResource(R.string.edit_student)
-                    else -> "${uiState.name} ${uiState.surname}".trim()
-                },
-                style = MaterialTheme.typography.titleLarge
-            )
-            Row {
+        SlimHeader(
+            title = when {
+                uiState.isEditMode && viewModel.studentId == 0L -> stringResource(R.string.add_student)
+                uiState.isEditMode -> stringResource(R.string.edit_student)
+                else -> "${uiState.name} ${uiState.surname}".trim()
+            },
+            onBack = onNavigateBack,
+            actions = {
                 if (!uiState.isEditMode && viewModel.studentId != 0L) {
                     IconButton(onClick = { viewModel.toggleEditMode() }) {
                         Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
@@ -84,11 +78,8 @@ fun StudentScreen(
                         Icon(Icons.Default.Archive, contentDescription = stringResource(R.string.archive))
                     }
                 }
-                IconButton(onClick = onNavigateBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
-                }
             }
-        }
+        )
         if (uiState.isEditMode) {
             StudentEditForm(
                 uiState = uiState,
@@ -348,7 +339,7 @@ private fun StudentEditForm(
     val nameError = uiState.name.isBlank()
     val rateValue = uiState.rate.toDoubleOrNull()
     val rateError = rateValue == null || rateValue <= 0.0
-    var showContactWarning by remember { mutableStateOf(false) }
+    var showContactWarning by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = modifier

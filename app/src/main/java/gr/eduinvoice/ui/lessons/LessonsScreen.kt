@@ -9,6 +9,7 @@ import gr.eduinvoice.ui.components.ModernEmptyLessonsState
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
 import gr.eduinvoice.ui.design.NavigationMenuButton
+import gr.eduinvoice.ui.design.SlimHeader
 import androidx.compose.material3.HorizontalDivider
 import gr.eduinvoice.ui.components.ModernSearchFilterSheet
 import gr.eduinvoice.ui.components.FilterOptions
@@ -54,20 +55,11 @@ fun LessonsScreen(
                     Icon(Icons.Default.Add, contentDescription = "Add Lesson")
                 }
             }
-            // Drawer FAB (top-left) per requirements
-            NavigationMenuButton(openDrawer, modifier = Modifier)
         }
     ) { padding ->
-        Column(Modifier.padding(padding)) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "Lessons", style = MaterialTheme.typography.titleLarge)
-            }
+        Box(Modifier.fillMaxSize().padding(padding)) {
+            Column(Modifier.fillMaxSize()) {
+            SlimHeader(title = stringResource(R.string.lessons))
             // Bottom-sheet search & filter
             val query by viewModel.searchQuery.collectAsStateWithLifecycle()
             var showSheet by remember { mutableStateOf(false) }
@@ -79,6 +71,15 @@ fun LessonsScreen(
             ) {
                 AssistChip(onClick = { showSheet = true }, label = { Text("Search & Filter") })
             }
+
+            NavigationMenuButton(
+                onClick = openDrawer,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .statusBarsPadding()
+                    .padding(8.dp)
+            )
+        }
             if (showSheet) {
                 ModernSearchFilterSheet(
                     title = stringResource(R.string.lessons),

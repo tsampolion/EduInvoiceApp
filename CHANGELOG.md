@@ -14,11 +14,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Groups: added inline validation for required group name with error state on Save.
 
 ### UX
-- Search/Filter: planned migration to a unified bottom sheet; inline search bars will be replaced in subsequent commits.
-- Home: clarified Students button color logic; set up for distinct success vs error container colors.
+- Search/Filter: unified bottom sheet implemented on Students, Lessons, Groups, and Archived Students; inline search bars removed.
+- Headers: replaced bar-style headers with slim in-content headers across major screens; added top-left drawer FAB overlay to avoid FAB collisions.
+- Home: clarified Students button color logic; distinct success vs error container colors.
 
 ### DevOps
 - Version bumped to 0.28.3.
+
+## [0.28.4] - 2025-08-16
+
+### Fixed
+- Student and Group lesson forms respect per-user lookups for students/groups; selection fields populate reliably.
+
+### UX
+- Drawer: top-left FAB overlay on Students, Lessons, Groups, Classes, Revenue so it won’t conflict with primary FABs.
+- Headers: slim in-content headers adopted for Student, Group, Privacy, Profile, Login, Register, Reset Password.
+- Archived Students: migrated to bottom sheet for search/sort.
+
+### DevOps
+- Version bumped to 0.28.4.
 
 ## [0.28.2] - 2025-08-15
 

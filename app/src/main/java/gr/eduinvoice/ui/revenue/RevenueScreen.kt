@@ -10,6 +10,7 @@ import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
 import gr.eduinvoice.ui.design.MetricCard
 import gr.eduinvoice.ui.design.NavigationMenuButton
+import gr.eduinvoice.ui.design.SlimHeader
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -37,22 +38,19 @@ fun RevenueScreen(
     val settings = settingsState.settings
 
     Scaffold(
-        topBar = { },
-        floatingActionButton = {
-            NavigationMenuButton(openDrawer)
-        }
+        topBar = { }
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(padding)
+        ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
-            Text(
-                text = "Revenue",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
-            )
+            SlimHeader(title = "Revenue")
             Spacer(Modifier.height(4.dp))
             settings?.let { safeSettings ->
             Row(
@@ -143,6 +141,15 @@ fun RevenueScreen(
                     }
                 }
             }
+        }
+
+        NavigationMenuButton(
+            onClick = openDrawer,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .statusBarsPadding()
+                .padding(8.dp)
+        )
         }
     }
 }

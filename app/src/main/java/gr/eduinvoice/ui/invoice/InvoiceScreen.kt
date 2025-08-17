@@ -10,6 +10,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
 import gr.eduinvoice.ui.design.AppTopBar
+import gr.eduinvoice.ui.design.SlimHeader
 import gr.eduinvoice.ui.design.Dimensions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.DatePickerDialog
@@ -102,16 +103,7 @@ fun InvoiceScreen(
         }
     ) { padding ->
         Column(Modifier.padding(padding).padding(Dimensions.PaddingMedium)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "Invoice", style = MaterialTheme.typography.titleLarge)
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                }
-            }
+            SlimHeader(title = "Invoice", onBack = onBack)
             StudentDropdown(students, selectedStudentId, onSelect = viewModel::selectStudent)
             DateField("Start", startDate) { date -> viewModel.updateStartDate(date) }
             DateField("End", endDate) { date -> viewModel.updateEndDate(date) }

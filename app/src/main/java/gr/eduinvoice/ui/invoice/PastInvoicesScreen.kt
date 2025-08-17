@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
+import gr.eduinvoice.ui.design.SlimHeader
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
@@ -54,18 +55,7 @@ fun PastInvoicesScreen(onBack: () -> Unit) {
             }
         } else {
             LazyColumn(Modifier.fillMaxSize().padding(padding)) {
-                item {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = "Past Invoices", style = MaterialTheme.typography.titleLarge)
-                        IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
-                    }
-                }
+                item { SlimHeader(title = "Past Invoices", onBack = onBack) }
                 items(invoices) { file ->
                     var expanded by remember { mutableStateOf(false) }
                     ListItem(

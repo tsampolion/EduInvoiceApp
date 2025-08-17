@@ -25,6 +25,9 @@ import gr.eduinvoice.ui.components.VirtualStudentList
 import gr.eduinvoice.ui.components.ModernSearchFilterSheet
 import gr.eduinvoice.ui.components.FilterOptions
 import gr.eduinvoice.ui.components.ModernEmptyStudentsState
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.statusBarsPadding
+import gr.eduinvoice.ui.design.SlimHeader
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,27 +51,21 @@ fun StudentsScreen(
                     Icon(Icons.Default.Add, contentDescription = "Add Student")
                 }
             }
-            NavigationMenuButton(openDrawer)
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            // Title row overlay
-            Row(
+        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
             ) {
-                Text(text = stringResource(R.string.students), style = MaterialTheme.typography.titleLarge)
-                IconButton(onClick = onViewArchived) {
-                    Icon(Icons.Default.Unarchive, contentDescription = stringResource(R.string.archived_students))
+            SlimHeader(
+                title = stringResource(R.string.students),
+                actions = {
+                    IconButton(onClick = onViewArchived) {
+                        Icon(Icons.Default.Unarchive, contentDescription = stringResource(R.string.archived_students))
+                    }
                 }
-            }
+            )
             // Bottom-sheet search & filter
             val sortAscending by viewModel.sortAscending.collectAsStateWithLifecycle()
             var showSheet by remember { mutableStateOf(false) }
@@ -106,6 +103,15 @@ fun StudentsScreen(
                     isLoadingMore = uiState.isLoadingMore
                 )
             }
+
+            // Overlay top-left drawer FAB
+            NavigationMenuButton(
+                onClick = openDrawer,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .statusBarsPadding()
+                    .padding(8.dp)
+            )
         }
     }
 }
