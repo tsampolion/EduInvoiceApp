@@ -50,13 +50,19 @@ class DomainGroupRepositoryAdapter @Inject constructor(
     private fun DomainStudentGroup.toDataModel(): StudentGroup = StudentGroup(
         id = id,
         ownerId = ownerId,
-        name = name
+        name = name,
+        className = className,
+        rate = rate,
+        rateType = rateType
     )
 
     private fun StudentGroup.toDomainModel(): DomainStudentGroup = DomainStudentGroup(
         id = id,
         ownerId = ownerId,
-        name = name
+        name = name,
+        className = className,
+        rate = rate,
+        rateType = rateType
     )
 
     private fun Student.toDomainModel(): DomainStudent = DomainStudent(

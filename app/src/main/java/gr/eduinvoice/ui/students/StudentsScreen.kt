@@ -25,7 +25,6 @@ import gr.eduinvoice.ui.components.VirtualStudentList
 import gr.eduinvoice.ui.components.ModernSearchFilterSheet
 import gr.eduinvoice.ui.components.FilterOptions
 import gr.eduinvoice.ui.components.ModernEmptyStudentsState
-import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.statusBarsPadding
 import gr.eduinvoice.ui.design.SlimHeader
 
@@ -58,53 +57,52 @@ fun StudentsScreen(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-            SlimHeader(
-                title = stringResource(R.string.students),
-                actions = {
-                    IconButton(onClick = onViewArchived) {
-                        Icon(Icons.Default.Unarchive, contentDescription = stringResource(R.string.archived_students))
-                    }
-                }
-            )
-            // Bottom-sheet search & filter
-            val sortAscending by viewModel.sortAscending.collectAsStateWithLifecycle()
-            var showSheet by remember { mutableStateOf(false) }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Dimensions.PaddingMedium),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                AssistChip(onClick = { showSheet = true }, label = { Text("Search & Filter") })
-            }
-            if (showSheet) {
-                ModernSearchFilterSheet(
+                SlimHeader(
                     title = stringResource(R.string.students),
-                    query = uiState.searchQuery,
-                    onQueryChange = viewModel::updateSearchQuery,
-                    sortAscending = sortAscending,
-                    onToggleSort = viewModel::toggleSortOrder,
-                    filters = viewModel.filters.collectAsStateWithLifecycle().value,
-                    onFiltersChange = viewModel::updateFilters,
-                    onDismiss = { showSheet = false }
+                    actions = {
+                        IconButton(onClick = onViewArchived) {
+                            Icon(Icons.Default.Unarchive, contentDescription = stringResource(R.string.archived_students))
+                        }
+                    }
                 )
-            }
+                // Bottom-sheet search & filter
+                val sortAscending by viewModel.sortAscending.collectAsStateWithLifecycle()
+                var showSheet by remember { mutableStateOf(false) }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimensions.PaddingMedium),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    AssistChip(onClick = { showSheet = true }, label = { Text("Search & Filter") })
+                }
+                if (showSheet) {
+                    ModernSearchFilterSheet(
+                        title = stringResource(R.string.students),
+                        query = uiState.searchQuery,
+                        onQueryChange = viewModel::updateSearchQuery,
+                        sortAscending = sortAscending,
+                        onToggleSort = viewModel::toggleSortOrder,
+                        filters = viewModel.filters.collectAsStateWithLifecycle().value,
+                        onFiltersChange = viewModel::updateFilters,
+                        onDismiss = { showSheet = false }
+                    )
+                }
 
-            // Virtual scrolling list for students
-            if (uiState.students.isEmpty()) {
-                ModernEmptyStudentsState(onAddStudent = onAddStudent)
-            } else {
-                VirtualStudentList(
-                    students = uiState.students,
-                    onStudentClick = { studentId -> onNavigateToStudent(studentId) },
-                    onDeleteClick = { studentId -> viewModel.deleteStudent(studentId) },
-                    modifier = Modifier.weight(1f),
-                    onLoadMore = { viewModel.loadMoreStudents() },
-                    isLoadingMore = uiState.isLoadingMore
-                )
+                // Virtual scrolling list for students
+                if (uiState.students.isEmpty()) {
+                    ModernEmptyStudentsState(onAddStudent = onAddStudent)
+                } else {
+                    VirtualStudentList(
+                        students = uiState.students,
+                        onStudentClick = { studentId -> onNavigateToStudent(studentId) },
+                        onDeleteClick = { studentId -> viewModel.deleteStudent(studentId) },
+                        modifier = Modifier.weight(1f),
+                        onLoadMore = { viewModel.loadMoreStudents() },
+                        isLoadingMore = uiState.isLoadingMore
+                    )
+                }
             }
-
-            // Overlay top-left drawer FAB
             NavigationMenuButton(
                 onClick = openDrawer,
                 modifier = Modifier

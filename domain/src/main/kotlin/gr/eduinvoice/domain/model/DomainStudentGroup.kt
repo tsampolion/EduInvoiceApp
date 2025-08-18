@@ -6,5 +6,8 @@ import kotlinx.serialization.Serializable
 data class DomainStudentGroup(
     val id: Long = 0,
     val ownerId: Long = 0,
-    val name: String
+    val name: String,
+    val className: String = "",
+    val rate: Double = 0.0,
+    val rateType: String = DomainRateTypes.HOURLY
 )

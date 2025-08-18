@@ -6,11 +6,17 @@ import gr.eduinvoice.domain.model.DomainStudentGroup
 fun StudentGroup.toDomain(): DomainStudentGroup = DomainStudentGroup(
     id = id,
     ownerId = ownerId,
-    name = name
+    name = name,
+    className = className,
+    rate = rate,
+    rateType = rateType
 )
 
 fun DomainStudentGroup.toData(): StudentGroup = StudentGroup(
     id = id,
     ownerId = ownerId,
-    name = name
+    name = name,
+    className = className,
+    rate = rate,
+    rateType = rateType
 )

@@ -59,19 +59,53 @@ fun LessonsScreen(
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             Column(Modifier.fillMaxSize()) {
-            SlimHeader(title = stringResource(R.string.lessons))
-            // Bottom-sheet search & filter
-            val query by viewModel.searchQuery.collectAsStateWithLifecycle()
-            var showSheet by remember { mutableStateOf(false) }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Dimensions.PaddingMedium),
-                horizontalArrangement = Arrangement.Start
-            ) {
-                AssistChip(onClick = { showSheet = true }, label = { Text("Search & Filter") })
+                SlimHeader(title = stringResource(R.string.lessons))
+                // Bottom-sheet search & filter
+                val query by viewModel.searchQuery.collectAsStateWithLifecycle()
+                var showSheet by remember { mutableStateOf(false) }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimensions.PaddingMedium),
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    AssistChip(onClick = { showSheet = true }, label = { Text("Search & Filter") })
+                }
+                if (showSheet) {
+                    ModernSearchFilterSheet(
+                        title = stringResource(R.string.lessons),
+                        query = query,
+                        onQueryChange = viewModel::updateSearchQuery,
+                        sortAscending = null,
+                        onToggleSort = null,
+                        filters = viewModel.filters.collectAsStateWithLifecycle().value,
+                        onFiltersChange = viewModel::updateFilters,
+                        onDismiss = { showSheet = false }
+                    )
+                }
+                if (uiState.lessons.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        ModernEmptyLessonsState(onAddLesson = onAddLesson)
+                    }
+                } else {
+                    VirtualLessonList(
+                        lessons = uiState.lessons,
+                        onLessonClick = { studentId, lessonId, groupId ->
+                            onLessonClick(studentId, lessonId, groupId)
+                        },
+                        onPaidChange = { lessonId, isPaid ->
+                            viewModel.updatePaid(lessonId, isPaid)
+                        },
+                        modifier = Modifier.fillMaxSize(),
+                        onLoadMore = { viewModel.loadMoreLessons() },
+                        isLoadingMore = uiState.isLoadingMore
+                    )
+                }
             }
-
             NavigationMenuButton(
                 onClick = openDrawer,
                 modifier = Modifier
@@ -79,41 +113,6 @@ fun LessonsScreen(
                     .statusBarsPadding()
                     .padding(8.dp)
             )
-        }
-            if (showSheet) {
-                ModernSearchFilterSheet(
-                    title = stringResource(R.string.lessons),
-                    query = query,
-                    onQueryChange = viewModel::updateSearchQuery,
-                    sortAscending = null,
-                    onToggleSort = null,
-                    filters = viewModel.filters.collectAsStateWithLifecycle().value,
-                    onFiltersChange = viewModel::updateFilters,
-                    onDismiss = { showSheet = false }
-                )
-            }
-            if (uiState.lessons.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    ModernEmptyLessonsState(onAddLesson = onAddLesson)
-                }
-            } else {
-                VirtualLessonList(
-                    lessons = uiState.lessons,
-                    onLessonClick = { studentId, lessonId, groupId ->
-                        onLessonClick(studentId, lessonId, groupId)
-                    },
-                    onPaidChange = { lessonId, isPaid ->
-                        viewModel.updatePaid(lessonId, isPaid)
-                    },
-                    modifier = Modifier.fillMaxSize(),
-                    onLoadMore = { viewModel.loadMoreLessons() },
-                    isLoadingMore = uiState.isLoadingMore
-                )
-            }
         }
     }
 
@@ -139,24 +138,7 @@ fun LessonsScreen(
                 }
             )
         }
-        is LessonDialog.GenerateInvoice -> {
-            AlertDialog(
-                onDismissRequest = { viewModel.dismissDialog() },
-                title = { Text(stringResource(R.string.generate_invoice)) },
-                text = { Text(stringResource(R.string.generate_invoice_prompt)) },
-                confirmButton = {
-                    TextButton(onClick = {
-                        viewModel.applyPaidStatus(dialog.lessonId, true)
-                        onInvoice(dialog.studentId)
-                    }) { Text(stringResource(R.string.generate_invoice)) }
-                },
-                dismissButton = {
-                    TextButton(onClick = { viewModel.applyPaidStatus(dialog.lessonId, true) }) {
-                        Text(stringResource(R.string.cancel))
-                    }
-                }
-            )
-        }
+        is LessonDialog.GenerateInvoice -> {}
         null -> {}
     }
 }

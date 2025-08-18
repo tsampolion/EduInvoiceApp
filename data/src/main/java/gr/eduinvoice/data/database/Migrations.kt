@@ -110,3 +110,12 @@ val MIGRATION_14_15 = object : Migration(14, 15) {
         }
     }
 }
+
+// Add group fields: className, rate, rateType
+val MIGRATION_15_16 = object : Migration(15, 16) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE ${DatabaseConstants.GROUPS_TABLE} ADD COLUMN className TEXT NOT NULL DEFAULT ''")
+        db.execSQL("ALTER TABLE ${DatabaseConstants.GROUPS_TABLE} ADD COLUMN rate REAL NOT NULL DEFAULT 0.0")
+        db.execSQL("ALTER TABLE ${DatabaseConstants.GROUPS_TABLE} ADD COLUMN rateType TEXT NOT NULL DEFAULT 'hourly'")
+    }
+}

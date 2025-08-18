@@ -13,6 +13,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.*
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MenuAnchorType
+import gr.eduinvoice.domain.model.DomainRateTypes
+import gr.eduinvoice.utils.ClassOptions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,6 +26,11 @@ fun GroupScreen(
     viewModel: GroupViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showClassWarning by remember { mutableStateOf(false) }
+    var showBillingWarning by remember { mutableStateOf(false) }
+    var pendingClassMismatch by remember { mutableStateOf(false) }
+    var pendingBillingMismatch by remember { mutableStateOf(false) }
+    var classConfirmed by remember { mutableStateOf(false) }
 
     Scaffold(topBar = { }) { padding ->
         Column(
@@ -62,7 +72,22 @@ fun GroupScreen(
                         if (nameState.isBlank()) {
                             nameErrorHeader = true
                         } else {
-                            viewModel.saveGroup(); onBack()
+                            val state = viewModel.uiState.value
+                            val targetClass = if (state.selectedClass == "Custom") state.customClass else state.selectedClass
+                            val selectedStudents = state.students.filter { it.selected }
+                            val classMismatch = selectedStudents.any { it.className != targetClass }
+                            val billingMismatch = selectedStudents.any { it.rateType != state.rateType }
+                            pendingClassMismatch = classMismatch
+                            pendingBillingMismatch = billingMismatch
+                            classConfirmed = false
+                            if (classMismatch) {
+                                showClassWarning = true
+                            } else if (billingMismatch) {
+                                showBillingWarning = true
+                            } else {
+                                viewModel.saveGroup(overrideClass = false, overrideBilling = false)
+                                onBack()
+                            }
                         }
                     }) { Text("Save") }
                     IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
@@ -81,6 +106,96 @@ fun GroupScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            var classExpanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                expanded = classExpanded,
+                onExpandedChange = { classExpanded = !classExpanded }
+            ) {
+                OutlinedTextField(
+                    value = uiState.selectedClass,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Group Class*") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(classExpanded) },
+                    modifier = Modifier
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+                        .fillMaxWidth()
+                )
+                ExposedDropdownMenu(
+                    expanded = classExpanded,
+                    onDismissRequest = { classExpanded = false }
+                ) {
+                    ClassOptions.DEFAULT.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option) },
+                            onClick = {
+                                viewModel.updateSelectedClass(option)
+                                classExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            val customClassError = uiState.selectedClass == "Custom" && uiState.customClass.isBlank()
+            if (uiState.selectedClass == "Custom") {
+                OutlinedTextField(
+                    value = uiState.customClass,
+                    onValueChange = viewModel::updateCustomClass,
+                    label = { Text("Class Description*") },
+                    isError = customClassError,
+                    supportingText = { if (customClassError) Text("Required") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            }
+
+            var typeExpanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                expanded = typeExpanded,
+                onExpandedChange = { typeExpanded = !typeExpanded }
+            ) {
+                OutlinedTextField(
+                    value = if (uiState.rateType == DomainRateTypes.HOURLY) "Hourly" else "Per Lesson",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Billing Method") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(typeExpanded) },
+                    modifier = Modifier
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true)
+                        .fillMaxWidth()
+                )
+                ExposedDropdownMenu(
+                    expanded = typeExpanded,
+                    onDismissRequest = { typeExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Hourly") },
+                        onClick = {
+                            viewModel.updateRateType(DomainRateTypes.HOURLY)
+                            typeExpanded = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Per Lesson") },
+                        onClick = {
+                            viewModel.updateRateType(DomainRateTypes.PER_LESSON)
+                            typeExpanded = false
+                        }
+                    )
+                }
+            }
+
+            OutlinedTextField(
+                value = uiState.rate,
+                onValueChange = viewModel::updateRate,
+                label = { Text(if (uiState.rateType == DomainRateTypes.HOURLY) "Hourly Rate (€)*" else "Lesson Fee (€)*") },
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                prefix = { Text("€") }
+            )
+
             Text(text = "Students", style = MaterialTheme.typography.titleMedium)
             LazyColumn {
                 items(uiState.students) { item ->
@@ -95,6 +210,42 @@ fun GroupScreen(
                         Text(text = item.name)
                     }
                 }
+            }
+
+            if (showClassWarning) {
+                AlertDialog(
+                    onDismissRequest = { showClassWarning = false },
+                    title = { Text("Warning") },
+                    text = { Text("Warning: Some selected students are not in ${uiState.selectedClass.ifBlank { "the selected class" }}. Adding them to this group will overwrite their current class. Do you want to proceed?") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showClassWarning = false
+                            classConfirmed = true
+                            if (pendingBillingMismatch) {
+                                showBillingWarning = true
+                            } else {
+                                viewModel.saveGroup(overrideClass = true, overrideBilling = false)
+                                onBack()
+                            }
+                        }) { Text("Proceed") }
+                    },
+                    dismissButton = { TextButton(onClick = { showClassWarning = false }) { Text("Cancel") } }
+                )
+            }
+            if (showBillingWarning) {
+                AlertDialog(
+                    onDismissRequest = { showBillingWarning = false },
+                    title = { Text("Warning") },
+                    text = { Text("Warning: The billing method for some selected students differs from the group's. This will overwrite their individual billing settings. Do you want to proceed?") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showBillingWarning = false
+                            viewModel.saveGroup(overrideClass = classConfirmed, overrideBilling = true)
+                            onBack()
+                        }) { Text("Proceed") }
+                    },
+                    dismissButton = { TextButton(onClick = { showBillingWarning = false }) { Text("Cancel") } }
+                )
             }
         }
     }

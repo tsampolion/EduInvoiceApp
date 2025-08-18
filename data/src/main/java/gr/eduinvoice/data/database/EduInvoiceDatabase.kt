@@ -13,6 +13,7 @@ import gr.eduinvoice.data.dao.UserDao
 import gr.eduinvoice.data.database.MIGRATION_12_13
 import gr.eduinvoice.data.database.MIGRATION_13_15
 import gr.eduinvoice.data.database.MIGRATION_14_15
+import gr.eduinvoice.data.database.MIGRATION_15_16
 import gr.eduinvoice.data.model.GroupStudentCrossRef
 import gr.eduinvoice.data.model.Lesson
 import gr.eduinvoice.data.model.Student
@@ -22,7 +23,7 @@ import net.sqlcipher.database.SupportFactory
 
 @Database(
     entities = [Student::class, Lesson::class, StudentGroup::class, GroupStudentCrossRef::class, User::class],
-    version = 15,
+    version = 16,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6, spec = AutoMigration5To6::class),
@@ -68,7 +69,8 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
                     .addMigrations(
                         MIGRATION_12_13,
                         MIGRATION_13_15,
-                        MIGRATION_14_15
+                        MIGRATION_14_15,
+                        MIGRATION_15_16
                     )
                     .build()
                 INSTANCE = instance

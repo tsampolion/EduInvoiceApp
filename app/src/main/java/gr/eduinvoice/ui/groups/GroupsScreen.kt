@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import gr.eduinvoice.ui.components.EdgeToEdgeScaffold
 import gr.eduinvoice.ui.components.ModernEmptyGroupsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
@@ -98,6 +99,8 @@ fun GroupsScreen(
                         }
                     }
                 }
+            }
+
             }
 
             NavigationMenuButton(
