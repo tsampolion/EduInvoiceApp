@@ -32,7 +32,7 @@ class GetLessonsByStudentIdTest {
             Fixtures.sampleDomainLesson(studentId = studentId),
             Fixtures.sampleDomainLesson(studentId = studentId)
         )
-        
+
         every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
 
         // When
@@ -52,7 +52,7 @@ class GetLessonsByStudentIdTest {
         val expectedLessons = listOf(
             Fixtures.sampleDomainLesson(studentId = studentId)
         )
-        
+
         every { mockRepository.getStudentLessons(studentId, 0) } returns flowOf(expectedLessons)
 
         // When
@@ -71,7 +71,7 @@ class GetLessonsByStudentIdTest {
         val studentId = 999L
         val userId = 101L
         val expectedLessons = emptyList<DomainLesson>()
-        
+
         every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
 
         // When
@@ -92,7 +92,7 @@ class GetLessonsByStudentIdTest {
         val expectedLessons = listOf(
             Fixtures.sampleDomainLesson(studentId = studentId)
         )
-        
+
         every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
 
         // When
@@ -111,7 +111,7 @@ class GetLessonsByStudentIdTest {
         val studentId = -1L
         val userId = 303L
         val expectedLessons = emptyList<DomainLesson>()
-        
+
         every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
 
         // When
@@ -132,7 +132,7 @@ class GetLessonsByStudentIdTest {
         val expectedLessons = listOf(
             Fixtures.sampleDomainLesson(studentId = studentId)
         )
-        
+
         every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
 
         // When
@@ -153,7 +153,7 @@ class GetLessonsByStudentIdTest {
         val expectedLessons = listOf(
             Fixtures.sampleDomainLesson(studentId = studentId)
         )
-        
+
         every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
 
         // When
@@ -174,7 +174,7 @@ class GetLessonsByStudentIdTest {
         val expectedLessons = listOf(
             Fixtures.sampleDomainLesson(studentId = studentId)
         )
-        
+
         every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
 
         // When
@@ -195,7 +195,7 @@ class GetLessonsByStudentIdTest {
         val expectedLessons = listOf(
             Fixtures.sampleDomainLesson(studentId = studentId)
         )
-        
+
         every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
 
         // When
@@ -214,7 +214,7 @@ class GetLessonsByStudentIdTest {
         val studentId = Long.MIN_VALUE
         val userId = Long.MIN_VALUE
         val expectedLessons = emptyList<DomainLesson>()
-        
+
         every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
 
         // When
@@ -235,7 +235,7 @@ class GetLessonsByStudentIdTest {
         val expectedLessons = listOf(
             Fixtures.sampleDomainLesson(studentId = studentId)
         )
-        
+
         every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
 
         // When
@@ -261,7 +261,7 @@ class GetLessonsByStudentIdTest {
             Fixtures.sampleDomainLesson(studentId = studentId2),
             Fixtures.sampleDomainLesson(studentId = studentId2)
         )
-        
+
         every { mockRepository.getStudentLessons(studentId1, userId) } returns flowOf(expectedLessons1)
         every { mockRepository.getStudentLessons(studentId2, userId) } returns flowOf(expectedLessons2)
 
@@ -274,7 +274,7 @@ class GetLessonsByStudentIdTest {
         result1.collect { collectedLessons1.add(it) }
         val collectedLessons2 = mutableListOf<List<DomainLesson>>()
         result2.collect { collectedLessons2.add(it) }
-        
+
         assertEquals(expectedLessons1, collectedLessons1[0])
         assertEquals(expectedLessons2, collectedLessons2[0])
     }
@@ -292,7 +292,7 @@ class GetLessonsByStudentIdTest {
             Fixtures.sampleDomainLesson(studentId = studentId),
             Fixtures.sampleDomainLesson(studentId = studentId)
         )
-        
+
         every { mockRepository.getStudentLessons(studentId, userId1) } returns flowOf(expectedLessons1)
         every { mockRepository.getStudentLessons(studentId, userId2) } returns flowOf(expectedLessons2)
 
@@ -305,7 +305,7 @@ class GetLessonsByStudentIdTest {
         result1.collect { collectedLessons1.add(it) }
         val collectedLessons2 = mutableListOf<List<DomainLesson>>()
         result2.collect { collectedLessons2.add(it) }
-        
+
         assertEquals(expectedLessons1, collectedLessons1[0])
         assertEquals(expectedLessons2, collectedLessons2[0])
     }
@@ -335,7 +335,7 @@ class GetLessonsByStudentIdTest {
                 isInvoiced = true
             )
         )
-        
+
         every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
 
         // When

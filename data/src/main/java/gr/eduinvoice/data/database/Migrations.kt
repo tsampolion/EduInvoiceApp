@@ -119,3 +119,10 @@ val MIGRATION_15_16 = object : Migration(15, 16) {
         db.execSQL("ALTER TABLE ${DatabaseConstants.GROUPS_TABLE} ADD COLUMN rateType TEXT NOT NULL DEFAULT 'hourly'")
     }
 }
+
+// Add isActive to groups for archiving
+val MIGRATION_16_17 = object : Migration(16, 17) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE ${DatabaseConstants.GROUPS_TABLE} ADD COLUMN isActive INTEGER NOT NULL DEFAULT 1")
+    }
+}

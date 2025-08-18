@@ -37,5 +37,3 @@ class DataSearchHistoryRepository @Inject constructor(
         dataStore.edit { it.remove(KEY_HISTORY) }
     }
 }
-
-

@@ -14,7 +14,7 @@ import org.junit.Ignore
 
 @Ignore("Temporarily disabled - Paparazzi configuration needs fixing")
 class VisualTests {
-    
+
     @get:Rule
     val paparazzi = Paparazzi(
         deviceConfig = DeviceConfig.PIXEL_6,
@@ -23,15 +23,15 @@ class VisualTests {
 
     @Test
     fun simpleText_snapshot() {
-        paparazzi.snapshot { 
+        paparazzi.snapshot {
             MaterialTheme {
                 Surface {
-                    SampleComposable() 
+                    SampleComposable()
                 }
             }
         }
     }
-    
+
     @Test
     fun styledText_snapshot() {
         paparazzi.snapshot {
@@ -42,7 +42,7 @@ class VisualTests {
             }
         }
     }
-    
+
     @Test
     fun multipleTextVariants_snapshot() {
         paparazzi.snapshot {

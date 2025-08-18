@@ -126,5 +126,3 @@ fun ModernSearchFilterSheet(
         }
     }
 }
-
-

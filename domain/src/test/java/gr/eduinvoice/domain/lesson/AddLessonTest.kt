@@ -27,7 +27,7 @@ class AddLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val userId = 123L
         val expectedLessonId = 456L
-        
+
         coEvery { mockRepository.addLesson(lesson, userId) } returns expectedLessonId
 
         // When
@@ -42,7 +42,7 @@ class AddLessonTest {
         // Given
         val lesson = Fixtures.sampleDomainLesson()
         val expectedLessonId = 789L
-        
+
         coEvery { mockRepository.addLesson(lesson, 0) } returns expectedLessonId
 
         // When
@@ -58,7 +58,7 @@ class AddLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val customUserId = 999L
         val expectedLessonId = 111L
-        
+
         coEvery { mockRepository.addLesson(lesson, customUserId) } returns expectedLessonId
 
         // When
@@ -74,7 +74,7 @@ class AddLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val zeroUserId = 0L
         val expectedLessonId = 222L
-        
+
         coEvery { mockRepository.addLesson(lesson, zeroUserId) } returns expectedLessonId
 
         // When
@@ -90,7 +90,7 @@ class AddLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val negativeUserId = -1L
         val expectedLessonId = 333L
-        
+
         coEvery { mockRepository.addLesson(lesson, negativeUserId) } returns expectedLessonId
 
         // When
@@ -106,7 +106,7 @@ class AddLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val largeUserId = Long.MAX_VALUE
         val expectedLessonId = 444L
-        
+
         coEvery { mockRepository.addLesson(lesson, largeUserId) } returns expectedLessonId
 
         // When
@@ -124,7 +124,7 @@ class AddLessonTest {
         val userId = 456L
         val expectedRegularId = 789L
         val expectedGroupId = 101L
-        
+
         coEvery { mockRepository.addLesson(regularLesson, userId) } returns expectedRegularId
         coEvery { mockRepository.addLesson(groupLesson, userId) } returns expectedGroupId
 
@@ -145,7 +145,7 @@ class AddLessonTest {
         val userId = 789L
         val expectedShortId = 111L
         val expectedLongId = 222L
-        
+
         coEvery { mockRepository.addLesson(shortLesson, userId) } returns expectedShortId
         coEvery { mockRepository.addLesson(longLesson, userId) } returns expectedLongId
 

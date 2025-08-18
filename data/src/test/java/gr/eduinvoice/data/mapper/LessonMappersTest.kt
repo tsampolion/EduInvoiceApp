@@ -34,7 +34,7 @@ class LessonMappersTest {
     fun `should handle null groupId correctly`() {
         val data = sampleDataLesson(groupId = null)
         val domain = data.toDomain()
-        
+
         assertNull(domain.groupId)
         assertEquals(data.groupId, domain.groupId)
     }
@@ -44,7 +44,7 @@ class LessonMappersTest {
         val groupId = 123L
         val data = sampleDataLesson(groupId = groupId)
         val domain = data.toDomain()
-        
+
         assertEquals(groupId, domain.groupId)
         assertNotNull(domain.groupId)
     }
@@ -54,7 +54,7 @@ class LessonMappersTest {
         val duration = 90
         val data = sampleDataLesson(durationMinutes = duration)
         val domain = data.toDomain()
-        
+
         assertEquals(duration, domain.durationMinutes)
     }
 
@@ -63,7 +63,7 @@ class LessonMappersTest {
         val date = "2024-01-15"
         val data = sampleDataLesson(date = date)
         val domain = data.toDomain()
-        
+
         assertEquals(date, domain.date)
     }
 
@@ -72,7 +72,7 @@ class LessonMappersTest {
         val startTime = "14:30"
         val data = sampleDataLesson(startTime = startTime)
         val domain = data.toDomain()
-        
+
         assertEquals(startTime, domain.startTime)
     }
 
@@ -81,7 +81,7 @@ class LessonMappersTest {
         val notes = "Test lesson notes"
         val data = sampleDataLesson(notes = notes)
         val domain = data.toDomain()
-        
+
         assertEquals(notes, domain.notes)
     }
 
@@ -90,7 +90,7 @@ class LessonMappersTest {
         val isInvoiced = true
         val data = sampleDataLesson(isInvoiced = isInvoiced)
         val domain = data.toDomain()
-        
+
         assertEquals(isInvoiced, domain.isInvoiced)
     }
 
@@ -99,7 +99,7 @@ class LessonMappersTest {
         val id = 456L
         val data = sampleDataLesson(id = id)
         val domain = data.toDomain()
-        
+
         assertEquals(id, domain.id)
     }
 
@@ -108,7 +108,7 @@ class LessonMappersTest {
         val studentId = 789L
         val data = sampleDataLesson(studentId = studentId)
         val domain = data.toDomain()
-        
+
         assertEquals(studentId, domain.studentId)
     }
 
@@ -116,7 +116,7 @@ class LessonMappersTest {
     fun `should handle zero duration`() {
         val data = sampleDataLesson(durationMinutes = 0)
         val domain = data.toDomain()
-        
+
         assertEquals(0, domain.durationMinutes)
     }
 
@@ -125,7 +125,7 @@ class LessonMappersTest {
         val duration = 480 // 8 hours
         val data = sampleDataLesson(durationMinutes = duration)
         val domain = data.toDomain()
-        
+
         assertEquals(duration, domain.durationMinutes)
     }
 
@@ -133,7 +133,7 @@ class LessonMappersTest {
     fun `should handle empty notes`() {
         val data = sampleDataLesson(notes = "")
         val domain = data.toDomain()
-        
+
         assertEquals("", domain.notes)
     }
 
@@ -141,7 +141,7 @@ class LessonMappersTest {
     fun `should handle null notes`() {
         val data = sampleDataLesson(notes = null)
         val domain = data.toDomain()
-        
+
         assertNull(domain.notes)
     }
 
@@ -152,7 +152,7 @@ class LessonMappersTest {
                        "regardless of its length or content."
         val data = sampleDataLesson(notes = longNotes)
         val domain = data.toDomain()
-        
+
         assertEquals(longNotes, domain.notes)
     }
 
@@ -168,10 +168,10 @@ class LessonMappersTest {
             notes = "Comprehensive test lesson",
             isInvoiced = false
         )
-        
+
         val domain = originalData.toDomain()
         val roundtripData = domain.toData()
-        
+
         // Verify all properties are preserved
         assertEquals(originalData.id, roundtripData.id)
         assertEquals(originalData.studentId, roundtripData.studentId)

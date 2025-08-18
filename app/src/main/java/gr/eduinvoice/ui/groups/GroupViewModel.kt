@@ -148,6 +148,15 @@ class GroupViewModel @Inject constructor(
             groupUseCases.deleteGroup(group, userId)
         }
     }
+
+    fun archiveGroup() {
+        viewModelScope.launch {
+            val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+            if (groupId != 0L) {
+                groupUseCases.archiveGroup(groupId, userId)
+            }
+        }
+    }
 }
 
 data class StudentSelection(

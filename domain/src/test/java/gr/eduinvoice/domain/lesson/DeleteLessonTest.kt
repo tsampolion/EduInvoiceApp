@@ -24,7 +24,7 @@ class DeleteLessonTest {
         // Given
         val lessonId = 123L
         val userId = 456L
-        
+
         coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
 
         // When
@@ -39,7 +39,7 @@ class DeleteLessonTest {
         // Given
         val lessonId = 0L
         val userId = 789L
-        
+
         coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
 
         // When
@@ -54,7 +54,7 @@ class DeleteLessonTest {
         // Given
         val lessonId = -1L
         val userId = 101L
-        
+
         coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
 
         // When
@@ -69,7 +69,7 @@ class DeleteLessonTest {
         // Given
         val lessonId = Long.MAX_VALUE
         val userId = 202L
-        
+
         coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
 
         // When
@@ -84,7 +84,7 @@ class DeleteLessonTest {
         // Given
         val lessonId = 303L
         val userId = 0L
-        
+
         coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
 
         // When
@@ -99,7 +99,7 @@ class DeleteLessonTest {
         // Given
         val lessonId = 404L
         val userId = -1L
-        
+
         coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
 
         // When
@@ -114,7 +114,7 @@ class DeleteLessonTest {
         // Given
         val lessonId = 505L
         val userId = Long.MAX_VALUE
-        
+
         coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
 
         // When
@@ -129,7 +129,7 @@ class DeleteLessonTest {
         // Given
         val lessonId = Long.MIN_VALUE
         val userId = Long.MIN_VALUE
-        
+
         coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
 
         // When
@@ -144,7 +144,7 @@ class DeleteLessonTest {
         // Given
         val lessonId = Long.MAX_VALUE
         val userId = Long.MAX_VALUE
-        
+
         coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
 
         // When
@@ -160,7 +160,7 @@ class DeleteLessonTest {
         val lessonId1 = 111L
         val lessonId2 = 222L
         val userId = 333L
-        
+
         coEvery { mockRepository.deleteLesson(lessonId1, userId) } returns Unit
         coEvery { mockRepository.deleteLesson(lessonId2, userId) } returns Unit
 
@@ -169,7 +169,7 @@ class DeleteLessonTest {
         deleteLesson(lessonId2, userId)
 
         // Then
-        coVerify { 
+        coVerify {
             mockRepository.deleteLesson(lessonId1, userId)
             mockRepository.deleteLesson(lessonId2, userId)
         }
@@ -181,7 +181,7 @@ class DeleteLessonTest {
         val lessonId = 444L
         val userId1 = 555L
         val userId2 = 666L
-        
+
         coEvery { mockRepository.deleteLesson(lessonId, userId1) } returns Unit
         coEvery { mockRepository.deleteLesson(lessonId, userId2) } returns Unit
 
@@ -190,7 +190,7 @@ class DeleteLessonTest {
         deleteLesson(lessonId, userId2)
 
         // Then
-        coVerify { 
+        coVerify {
             mockRepository.deleteLesson(lessonId, userId1)
             mockRepository.deleteLesson(lessonId, userId2)
         }

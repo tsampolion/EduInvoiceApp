@@ -21,5 +21,3 @@ class StudentsFabVisibilityTest {
         composeRule.onAllNodesWithContentDescription("Add Student").assertCountEquals(0)
     }
 }
-
-

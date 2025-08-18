@@ -6,6 +6,7 @@ data class GroupUseCases @Inject constructor(
     val insertGroup: InsertGroup,
     val updateGroup: UpdateGroup,
     val deleteGroup: DeleteGroup,
+    val archiveGroup: ArchiveGroup,
     val getAllGroups: GetAllGroups,
     val getGroupById: GetGroupById,
     val addStudentToGroup: AddStudentToGroup,

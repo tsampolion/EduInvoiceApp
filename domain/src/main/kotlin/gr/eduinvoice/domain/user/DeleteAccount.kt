@@ -8,5 +8,3 @@ class DeleteAccount @Inject constructor(
 ) {
     suspend operator fun invoke(userId: Long) = repository.deleteAccount(userId)
 }
-
-

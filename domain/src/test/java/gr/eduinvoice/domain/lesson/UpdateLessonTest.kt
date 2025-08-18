@@ -26,7 +26,7 @@ class UpdateLessonTest {
         // Given
         val lesson = Fixtures.sampleDomainLesson()
         val userId = 123L
-        
+
         coEvery { mockRepository.updateLesson(lesson, userId) } returns Unit
 
         // When
@@ -40,7 +40,7 @@ class UpdateLessonTest {
     fun `should update lesson with default userId when not specified`() = runTest {
         // Given
         val lesson = Fixtures.sampleDomainLesson()
-        
+
         coEvery { mockRepository.updateLesson(lesson, 0) } returns Unit
 
         // When
@@ -55,7 +55,7 @@ class UpdateLessonTest {
         // Given
         val lesson = Fixtures.sampleDomainLesson()
         val customUserId = 999L
-        
+
         coEvery { mockRepository.updateLesson(lesson, customUserId) } returns Unit
 
         // When
@@ -70,7 +70,7 @@ class UpdateLessonTest {
         // Given
         val lesson = Fixtures.sampleDomainLesson()
         val zeroUserId = 0L
-        
+
         coEvery { mockRepository.updateLesson(lesson, zeroUserId) } returns Unit
 
         // When
@@ -85,7 +85,7 @@ class UpdateLessonTest {
         // Given
         val lesson = Fixtures.sampleDomainLesson()
         val negativeUserId = -1L
-        
+
         coEvery { mockRepository.updateLesson(lesson, negativeUserId) } returns Unit
 
         // When
@@ -100,7 +100,7 @@ class UpdateLessonTest {
         // Given
         val lesson = Fixtures.sampleDomainLesson()
         val largeUserId = Long.MAX_VALUE
-        
+
         coEvery { mockRepository.updateLesson(lesson, largeUserId) } returns Unit
 
         // When
@@ -116,7 +116,7 @@ class UpdateLessonTest {
         val regularLesson = Fixtures.sampleDomainLesson(groupId = null)
         val groupLesson = Fixtures.sampleDomainLesson(groupId = 123L)
         val userId = 456L
-        
+
         coEvery { mockRepository.updateLesson(regularLesson, userId) } returns Unit
         coEvery { mockRepository.updateLesson(groupLesson, userId) } returns Unit
 
@@ -134,7 +134,7 @@ class UpdateLessonTest {
         val shortLesson = Fixtures.sampleDomainLesson(durationMinutes = 30)
         val longLesson = Fixtures.sampleDomainLesson(durationMinutes = 120)
         val userId = 789L
-        
+
         coEvery { mockRepository.updateLesson(shortLesson, userId) } returns Unit
         coEvery { mockRepository.updateLesson(longLesson, userId) } returns Unit
 
@@ -152,7 +152,7 @@ class UpdateLessonTest {
         val lessonWithNotes = Fixtures.sampleDomainLesson(notes = "Updated notes")
         val lessonWithoutNotes = Fixtures.sampleDomainLesson(notes = null)
         val userId = 101L
-        
+
         coEvery { mockRepository.updateLesson(lessonWithNotes, userId) } returns Unit
         coEvery { mockRepository.updateLesson(lessonWithoutNotes, userId) } returns Unit
 
@@ -170,7 +170,7 @@ class UpdateLessonTest {
         val lessonToday = Fixtures.sampleDomainLesson(date = "2024-01-15")
         val lessonTomorrow = Fixtures.sampleDomainLesson(date = "2024-01-16")
         val userId = 202L
-        
+
         coEvery { mockRepository.updateLesson(lessonToday, userId) } returns Unit
         coEvery { mockRepository.updateLesson(lessonTomorrow, userId) } returns Unit
 

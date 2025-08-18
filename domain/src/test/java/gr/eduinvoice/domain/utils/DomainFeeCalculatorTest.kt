@@ -102,7 +102,7 @@ class DomainFeeCalculatorTest {
     @Test
     fun `per lesson rate ignores duration completely`() {
         val student = Fixtures.sampleDomainStudent(rate = 35.0, rateType = DomainRateTypes.PER_LESSON)
-        
+
         val shortLesson = Fixtures.sampleDomainLesson(durationMinutes = 15, defaultRate = 25.0)
         val longLesson = Fixtures.sampleDomainLesson(durationMinutes = 180, defaultRate = 25.0)
 
@@ -117,7 +117,7 @@ class DomainFeeCalculatorTest {
     @Test
     fun `hourly rate scales linearly with duration`() {
         val student = Fixtures.sampleDomainStudent(rate = 60.0, rateType = DomainRateTypes.HOURLY)
-        
+
         val lesson30 = Fixtures.sampleDomainLesson(durationMinutes = 30, defaultRate = 25.0)
         val lesson60 = Fixtures.sampleDomainLesson(durationMinutes = 60, defaultRate = 25.0)
         val lesson120 = Fixtures.sampleDomainLesson(durationMinutes = 120, defaultRate = 25.0)
@@ -129,7 +129,7 @@ class DomainFeeCalculatorTest {
         assertEquals(30.0, fee30, 0.001) // 30/60 * 60 = 0.5 * 60 = 30
         assertEquals(60.0, fee60, 0.001) // 60/60 * 60 = 1.0 * 60 = 60
         assertEquals(120.0, fee120, 0.001) // 120/60 * 60 = 2.0 * 60 = 120
-        
+
         // Verify linear relationship
         assertEquals(fee60, fee30 * 2, 0.001)
         assertEquals(fee120, fee60 * 2, 0.001)

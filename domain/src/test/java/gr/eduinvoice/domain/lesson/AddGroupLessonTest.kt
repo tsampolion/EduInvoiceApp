@@ -29,7 +29,7 @@ class AddGroupLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val userId = 456L
         val expectedLessonId = 789L
-        
+
         coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
 
         // When
@@ -46,7 +46,7 @@ class AddGroupLessonTest {
         val groupId = 101L
         val lesson = Fixtures.sampleDomainLesson()
         val expectedLessonId = 202L
-        
+
         coEvery { mockRepository.addGroupLesson(lesson, 0) } returns expectedLessonId
 
         // When
@@ -64,7 +64,7 @@ class AddGroupLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val userId = 303L
         val expectedLessonId = 404L
-        
+
         coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
 
         // When
@@ -82,7 +82,7 @@ class AddGroupLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val userId = 505L
         val expectedLessonId = 606L
-        
+
         coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
 
         // When
@@ -100,7 +100,7 @@ class AddGroupLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val userId = 707L
         val expectedLessonId = 808L
-        
+
         coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
 
         // When
@@ -118,7 +118,7 @@ class AddGroupLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val userId = 0L
         val expectedLessonId = 1010L
-        
+
         coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
 
         // When
@@ -136,7 +136,7 @@ class AddGroupLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val userId = -1L
         val expectedLessonId = 1212L
-        
+
         coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
 
         // When
@@ -154,7 +154,7 @@ class AddGroupLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val userId = Long.MAX_VALUE
         val expectedLessonId = 1414L
-        
+
         coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
 
         // When
@@ -172,7 +172,7 @@ class AddGroupLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val userId = Long.MIN_VALUE
         val expectedLessonId = Long.MAX_VALUE
-        
+
         coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
 
         // When
@@ -191,7 +191,7 @@ class AddGroupLessonTest {
         val lesson2 = Fixtures.sampleDomainLesson(durationMinutes = 60)
         val lesson3 = Fixtures.sampleDomainLesson(durationMinutes = 90)
         val userId = 1616L
-        
+
         coEvery { mockRepository.addGroupLesson(lesson1, userId) } returns 1717L
         coEvery { mockRepository.addGroupLesson(lesson2, userId) } returns 1818L
         coEvery { mockRepository.addGroupLesson(lesson3, userId) } returns 1919L
@@ -205,8 +205,8 @@ class AddGroupLessonTest {
         assertEquals(1717L, result1)
         assertEquals(1818L, result2)
         assertEquals(1919L, result3)
-        
-        coVerify { 
+
+        coVerify {
             mockRepository.addGroupLesson(lesson1, userId)
             mockRepository.addGroupLesson(lesson2, userId)
             mockRepository.addGroupLesson(lesson3, userId)
@@ -220,7 +220,7 @@ class AddGroupLessonTest {
         val groupId2 = 2121L
         val lesson = Fixtures.sampleDomainLesson()
         val userId = 2222L
-        
+
         coEvery { mockRepository.addGroupLesson(lesson, userId) } returns 2323L
 
         // When
@@ -230,7 +230,7 @@ class AddGroupLessonTest {
         // Then
         assertEquals(2323L, result1)
         assertEquals(2323L, result2)
-        
+
         coVerify(exactly = 2) { mockRepository.addGroupLesson(lesson, userId) }
     }
 
@@ -250,7 +250,7 @@ class AddGroupLessonTest {
         )
         val userId = 2828L
         val expectedLessonId = 2929L
-        
+
         coEvery { mockRepository.addGroupLesson(customLesson, userId) } returns expectedLessonId
 
         // When
@@ -268,7 +268,7 @@ class AddGroupLessonTest {
         val lesson = Fixtures.sampleDomainLesson(durationMinutes = 0)
         val userId = 3131L
         val expectedLessonId = 3232L
-        
+
         coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
 
         // When
@@ -286,7 +286,7 @@ class AddGroupLessonTest {
         val lesson = Fixtures.sampleDomainLesson(durationMinutes = Int.MAX_VALUE)
         val userId = 3434L
         val expectedLessonId = 3535L
-        
+
         coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
 
         // When

@@ -42,6 +42,7 @@ object DomainModule {
             insertGroup = InsertGroup(repository),
             updateGroup = UpdateGroup(repository),
             deleteGroup = DeleteGroup(repository),
+            archiveGroup = ArchiveGroup(repository),
             getAllGroups = GetAllGroups(repository),
             getGroupById = GetGroupById(repository),
             addStudentToGroup = AddStudentToGroup(repository),

@@ -25,7 +25,15 @@ class DomainGroupRepositoryAdapter @Inject constructor(
 
     override suspend fun deleteGroup(groupId: Long, userId: Long) {
         val group = groupRepository.getGroupById(groupId, userId).first()
-        group?.let { groupRepository.deleteGroup(it) }
+        group?.let {
+            // Clean up cross-refs then delete group
+            groupRepository.deleteAllCrossRefsForGroup(groupId, userId)
+            groupRepository.deleteGroup(it)
+        }
+    }
+
+    override suspend fun archiveGroup(groupId: Long, userId: Long) {
+        groupRepository.softArchiveGroup(groupId, userId)
     }
 
     override fun getAllGroups(userId: Long): Flow<List<DomainStudentGroup>> =
@@ -53,7 +61,8 @@ class DomainGroupRepositoryAdapter @Inject constructor(
         name = name,
         className = className,
         rate = rate,
-        rateType = rateType
+        rateType = rateType,
+        isActive = isActive
     )
 
     private fun StudentGroup.toDomainModel(): DomainStudentGroup = DomainStudentGroup(
@@ -62,7 +71,8 @@ class DomainGroupRepositoryAdapter @Inject constructor(
         name = name,
         className = className,
         rate = rate,
-        rateType = rateType
+        rateType = rateType,
+        isActive = isActive
     )
 
     private fun Student.toDomainModel(): DomainStudent = DomainStudent(

@@ -38,16 +38,19 @@ spotless {
     ratchetFrom 'origin/main'
     kotlin {
         target '**/*.kt'
+        targetExclude '**/build/**'
         trimTrailingWhitespace()
         endWithNewline()
     }
     kotlinGradle {
         target '**/*.kts'
+        targetExclude '**/build/**'
         trimTrailingWhitespace()
         endWithNewline()
     }
     format 'misc', {
         target '**/*.md', '**/.gitignore'
+        targetExclude '**/build/**'
         trimTrailingWhitespace()
         endWithNewline()
     }

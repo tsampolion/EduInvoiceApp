@@ -25,7 +25,7 @@ class IsLessonInvoicedTest {
         // Given
         val lessonId = 123L
         val userId = 456L
-        
+
         coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns true
 
         // When
@@ -40,7 +40,7 @@ class IsLessonInvoicedTest {
         // Given
         val lessonId = 789L
         val userId = 101L
-        
+
         coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns false
 
         // When
@@ -54,7 +54,7 @@ class IsLessonInvoicedTest {
     fun `should use default userId when not specified`() = runTest {
         // Given
         val lessonId = 202L
-        
+
         coEvery { mockRepository.isLessonInvoiced(lessonId, 0) } returns true
 
         // When
@@ -69,7 +69,7 @@ class IsLessonInvoicedTest {
         // Given
         val lessonId = 0L
         val userId = 303L
-        
+
         coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns false
 
         // When
@@ -84,7 +84,7 @@ class IsLessonInvoicedTest {
         // Given
         val lessonId = -1L
         val userId = 404L
-        
+
         coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns false
 
         // When
@@ -99,7 +99,7 @@ class IsLessonInvoicedTest {
         // Given
         val lessonId = Long.MAX_VALUE
         val userId = 505L
-        
+
         coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns true
 
         // When
@@ -114,7 +114,7 @@ class IsLessonInvoicedTest {
         // Given
         val lessonId = 606L
         val userId = 0L
-        
+
         coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns false
 
         // When
@@ -129,7 +129,7 @@ class IsLessonInvoicedTest {
         // Given
         val lessonId = 707L
         val userId = -1L
-        
+
         coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns true
 
         // When
@@ -144,7 +144,7 @@ class IsLessonInvoicedTest {
         // Given
         val lessonId = 808L
         val userId = Long.MAX_VALUE
-        
+
         coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns false
 
         // When
@@ -159,7 +159,7 @@ class IsLessonInvoicedTest {
         // Given
         val lessonId = Long.MIN_VALUE
         val userId = Long.MIN_VALUE
-        
+
         coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns true
 
         // When
@@ -174,7 +174,7 @@ class IsLessonInvoicedTest {
         // Given
         val lessonId = Long.MAX_VALUE
         val userId = Long.MAX_VALUE
-        
+
         coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns false
 
         // When
@@ -190,7 +190,7 @@ class IsLessonInvoicedTest {
         val lessonId1 = 111L
         val lessonId2 = 222L
         val userId = 333L
-        
+
         coEvery { mockRepository.isLessonInvoiced(lessonId1, userId) } returns true
         coEvery { mockRepository.isLessonInvoiced(lessonId2, userId) } returns false
 
@@ -209,7 +209,7 @@ class IsLessonInvoicedTest {
         val lessonId = 444L
         val userId1 = 555L
         val userId2 = 666L
-        
+
         coEvery { mockRepository.isLessonInvoiced(lessonId, userId1) } returns true
         coEvery { mockRepository.isLessonInvoiced(lessonId, userId2) } returns false
 

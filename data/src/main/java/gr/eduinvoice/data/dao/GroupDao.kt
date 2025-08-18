@@ -18,11 +18,14 @@ interface GroupDao {
     @Delete
     suspend fun deleteGroup(group: StudentGroup)
 
-    @Query("SELECT * FROM ${gr.eduinvoice.data.database.DatabaseConstants.GROUPS_TABLE} WHERE ownerId = :userId ORDER BY name ASC")
+    @Query("SELECT * FROM ${gr.eduinvoice.data.database.DatabaseConstants.GROUPS_TABLE} WHERE ownerId = :userId AND isActive = 1 ORDER BY name ASC")
     fun getAllGroups(userId: Long): Flow<List<StudentGroup>>
 
     @Query("SELECT * FROM ${gr.eduinvoice.data.database.DatabaseConstants.GROUPS_TABLE} WHERE id = :id AND ownerId = :userId")
     fun getGroupById(id: Long, userId: Long): Flow<StudentGroup?>
+
+    @Query("UPDATE ${gr.eduinvoice.data.database.DatabaseConstants.GROUPS_TABLE} SET isActive = 0 WHERE id = :groupId AND ownerId = :userId")
+    suspend fun softArchiveGroup(groupId: Long, userId: Long)
 
     // Cross-ref operations
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -32,6 +35,9 @@ interface GroupDao {
         "DELETE FROM ${gr.eduinvoice.data.database.DatabaseConstants.GROUP_STUDENT_CROSS_REF_TABLE} WHERE groupId = :groupId AND studentId = :studentId AND ownerId = :userId"
     )
     suspend fun deleteCrossRef(groupId: Long, studentId: Long, userId: Long)
+
+    @Query("DELETE FROM ${gr.eduinvoice.data.database.DatabaseConstants.GROUP_STUDENT_CROSS_REF_TABLE} WHERE groupId = :groupId AND ownerId = :userId")
+    suspend fun deleteAllCrossRefsForGroup(groupId: Long, userId: Long)
 
     @Query("DELETE FROM ${gr.eduinvoice.data.database.DatabaseConstants.GROUP_STUDENT_CROSS_REF_TABLE} WHERE ownerId = :userId")
     suspend fun deleteAllCrossRefsByOwner(userId: Long)

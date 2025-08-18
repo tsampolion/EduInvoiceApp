@@ -9,5 +9,6 @@ data class DomainStudentGroup(
     val name: String,
     val className: String = "",
     val rate: Double = 0.0,
-    val rateType: String = DomainRateTypes.HOURLY
+    val rateType: String = DomainRateTypes.HOURLY,
+    val isActive: Boolean = true
 )

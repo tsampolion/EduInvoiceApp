@@ -14,5 +14,6 @@ data class StudentGroup(
     val name: String,
     val className: String = "",
     val rate: Double = 0.0,
-    val rateType: String = RateTypes.HOURLY
+    val rateType: String = RateTypes.HOURLY,
+    val isActive: Boolean = true
 )

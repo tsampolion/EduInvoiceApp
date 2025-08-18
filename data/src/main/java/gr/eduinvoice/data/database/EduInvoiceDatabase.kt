@@ -23,7 +23,7 @@ import net.sqlcipher.database.SupportFactory
 
 @Database(
     entities = [Student::class, Lesson::class, StudentGroup::class, GroupStudentCrossRef::class, User::class],
-    version = 16,
+    version = 17,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6, spec = AutoMigration5To6::class),
@@ -70,7 +70,8 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
                         MIGRATION_12_13,
                         MIGRATION_13_15,
                         MIGRATION_14_15,
-                        MIGRATION_15_16
+                        MIGRATION_15_16,
+                        MIGRATION_16_17
                     )
                     .build()
                 INSTANCE = instance

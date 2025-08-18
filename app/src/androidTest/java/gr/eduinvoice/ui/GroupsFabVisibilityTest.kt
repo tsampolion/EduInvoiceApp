@@ -21,5 +21,3 @@ class GroupsFabVisibilityTest {
         composeRule.onAllNodesWithContentDescription("Add Group").assertCountEquals(0)
     }
 }
-
-

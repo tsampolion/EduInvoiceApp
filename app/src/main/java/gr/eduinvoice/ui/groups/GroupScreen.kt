@@ -8,6 +8,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.*
@@ -48,13 +49,31 @@ fun GroupScreen(
                 Text(text = if (viewModel.groupId == 0L) "Add Group" else "Edit Group", style = MaterialTheme.typography.titleLarge)
                 Row {
                     if (viewModel.groupId != 0L) {
+                        var showArchive by remember { mutableStateOf(false) }
                         var showDelete by remember { mutableStateOf(false) }
+                        TextButton(onClick = { showArchive = true }) { Text("Archive") }
+                        Spacer(Modifier.width(8.dp))
                         TextButton(onClick = { showDelete = true }) { Text("Delete") }
+                        if (showArchive) {
+                            AlertDialog(
+                                onDismissRequest = { showArchive = false },
+                                title = { Text("Archive Group") },
+                                text = { Text("Archive this group? It will be hidden from the main list.") },
+                                confirmButton = {
+                                    TextButton(onClick = {
+                                        viewModel.archiveGroup()
+                                        showArchive = false
+                                        onBack()
+                                    }) { Text("Archive") }
+                                },
+                                dismissButton = { TextButton(onClick = { showArchive = false }) { Text("Cancel") } }
+                            )
+                        }
                         if (showDelete) {
                             AlertDialog(
                                 onDismissRequest = { showDelete = false },
                                 title = { Text("Delete Group") },
-                                text = { Text("Are you sure you want to delete this group?") },
+                                text = { Text("Are you sure you want to permanently delete this group?") },
                                 confirmButton = {
                                     TextButton(onClick = {
                                         viewModel.deleteGroup()

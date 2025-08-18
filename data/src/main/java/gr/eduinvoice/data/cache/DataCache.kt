@@ -38,5 +38,3 @@ class DataCache {
     suspend fun removeCachedData(key: String) { mutex.withLock { cache.remove(key) } }
     suspend fun clearCache() { mutex.withLock { cache.clear() } }
 }
-
-

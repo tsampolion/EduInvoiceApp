@@ -25,7 +25,7 @@ class UpdateLessonPaidStatusTest {
         val lessonIds = listOf(123L)
         val paid = true
         val userId = 456L
-        
+
         coEvery { mockRepository.updateLessonPaidStatus(123L, true, 456L) } returns Unit
 
         // When
@@ -41,7 +41,7 @@ class UpdateLessonPaidStatusTest {
         val lessonIds = listOf(789L)
         val paid = false
         val userId = 101L
-        
+
         coEvery { mockRepository.updateLessonPaidStatus(789L, false, 101L) } returns Unit
 
         // When
@@ -57,7 +57,7 @@ class UpdateLessonPaidStatusTest {
         val lessonIds = listOf(111L, 222L, 333L)
         val paid = true
         val userId = 444L
-        
+
         coEvery { mockRepository.updateLessonPaidStatus(111L, true, 444L) } returns Unit
         coEvery { mockRepository.updateLessonPaidStatus(222L, true, 444L) } returns Unit
         coEvery { mockRepository.updateLessonPaidStatus(333L, true, 444L) } returns Unit
@@ -66,7 +66,7 @@ class UpdateLessonPaidStatusTest {
         updateLessonPaidStatus(lessonIds, paid, userId)
 
         // Then
-        coVerify { 
+        coVerify {
             mockRepository.updateLessonPaidStatus(111L, true, 444L)
             mockRepository.updateLessonPaidStatus(222L, true, 444L)
             mockRepository.updateLessonPaidStatus(333L, true, 444L)
@@ -94,7 +94,7 @@ class UpdateLessonPaidStatusTest {
         val lessonIds = listOf(666L)
         val paid = false
         val userId = 0L
-        
+
         coEvery { mockRepository.updateLessonPaidStatus(666L, false, 0L) } returns Unit
 
         // When
@@ -110,7 +110,7 @@ class UpdateLessonPaidStatusTest {
         val lessonIds = listOf(777L)
         val paid = true
         val userId = -1L
-        
+
         coEvery { mockRepository.updateLessonPaidStatus(777L, true, -1L) } returns Unit
 
         // When
@@ -126,7 +126,7 @@ class UpdateLessonPaidStatusTest {
         val lessonIds = listOf(888L)
         val paid = false
         val userId = Long.MAX_VALUE
-        
+
         coEvery { mockRepository.updateLessonPaidStatus(888L, false, Long.MAX_VALUE) } returns Unit
 
         // When
@@ -142,7 +142,7 @@ class UpdateLessonPaidStatusTest {
         val lessonIds = listOf(0L)
         val paid = true
         val userId = 999L
-        
+
         coEvery { mockRepository.updateLessonPaidStatus(0L, true, 999L) } returns Unit
 
         // When
@@ -158,7 +158,7 @@ class UpdateLessonPaidStatusTest {
         val lessonIds = listOf(-1L)
         val paid = false
         val userId = 1000L
-        
+
         coEvery { mockRepository.updateLessonPaidStatus(-1L, false, 1000L) } returns Unit
 
         // When
@@ -174,7 +174,7 @@ class UpdateLessonPaidStatusTest {
         val lessonIds = listOf(Long.MAX_VALUE)
         val paid = true
         val userId = 1111L
-        
+
         coEvery { mockRepository.updateLessonPaidStatus(Long.MAX_VALUE, true, 1111L) } returns Unit
 
         // When
@@ -190,7 +190,7 @@ class UpdateLessonPaidStatusTest {
         val lessonIds = listOf(0L, -1L, 123L, Long.MAX_VALUE)
         val paid = true
         val userId = 2222L
-        
+
         coEvery { mockRepository.updateLessonPaidStatus(0L, true, 2222L) } returns Unit
         coEvery { mockRepository.updateLessonPaidStatus(-1L, true, 2222L) } returns Unit
         coEvery { mockRepository.updateLessonPaidStatus(123L, true, 2222L) } returns Unit
@@ -200,7 +200,7 @@ class UpdateLessonPaidStatusTest {
         updateLessonPaidStatus(lessonIds, paid, userId)
 
         // Then
-        coVerify { 
+        coVerify {
             mockRepository.updateLessonPaidStatus(0L, true, 2222L)
             mockRepository.updateLessonPaidStatus(-1L, true, 2222L)
             mockRepository.updateLessonPaidStatus(123L, true, 2222L)
@@ -214,7 +214,7 @@ class UpdateLessonPaidStatusTest {
         val lessonIds = (1L..100L).toList()
         val paid = false
         val userId = 3333L
-        
+
         lessonIds.forEach { id ->
             coEvery { mockRepository.updateLessonPaidStatus(id, false, 3333L) } returns Unit
         }
@@ -234,7 +234,7 @@ class UpdateLessonPaidStatusTest {
         val lessonIds = listOf(123L, 123L, 456L, 456L)
         val paid = true
         val userId = 4444L
-        
+
         coEvery { mockRepository.updateLessonPaidStatus(123L, true, 4444L) } returns Unit
         coEvery { mockRepository.updateLessonPaidStatus(456L, true, 4444L) } returns Unit
 

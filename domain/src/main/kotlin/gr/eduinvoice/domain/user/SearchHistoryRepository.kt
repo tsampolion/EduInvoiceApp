@@ -7,5 +7,3 @@ interface SearchHistoryRepository {
     suspend fun add(query: String)
     suspend fun clear()
 }
-
-

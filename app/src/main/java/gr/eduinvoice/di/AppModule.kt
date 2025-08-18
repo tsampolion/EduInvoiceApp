@@ -32,5 +32,3 @@ object AppModule {
         theme: DomainPdfTheme
     ): DomainPdfGenerator = AndroidPdfGenerator(context, theme)
 }
-
-
