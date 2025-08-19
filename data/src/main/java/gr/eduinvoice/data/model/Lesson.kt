@@ -23,7 +23,10 @@ import java.time.LocalTime
     ],
     indices = [
         Index(value = ["studentId"]),
-        Index(value = ["date"])
+        Index(value = ["date"]),
+        Index(value = ["masterId"]),
+        Index(value = ["invoiceMasterId"]),
+        Index(value = ["paymentBatchId"])
     ]
 )
 data class Lesson(
@@ -31,13 +34,9 @@ data class Lesson(
     val id: Long = 0,
     val ownerId: Long = 0,
     val studentId: Long,
-    @ColumnInfo(defaultValue = "NULL")
     val groupId: Long? = null,
-    @ColumnInfo(defaultValue = "NULL")
     val masterId: Long? = null,
-    @ColumnInfo(defaultValue = "NULL")
     val invoiceMasterId: Long? = null,
-    @ColumnInfo(defaultValue = "NULL")
     val paymentBatchId: Long? = null,
     val date: String, // Store as ISO date string (yyyy-MM-dd)
     val startTime: String, // Store as time string (HH:mm)

@@ -24,6 +24,7 @@ import javax.inject.Inject
 import gr.eduinvoice.analytics.PerformanceTraces
 
 @HiltViewModel
+@kotlin.OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class InvoiceViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val lessonUseCases: LessonUseCases,

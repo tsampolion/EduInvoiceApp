@@ -36,7 +36,7 @@ fun ReschedulesScreen(
                             headlineContent = { Text("${m.newDate} ${m.newStartTime}") },
                             supportingContent = { Text(m.notes ?: "") }
                         )
-                        Divider()
+                        HorizontalDivider()
                     }
                 }
             }
@@ -44,6 +44,7 @@ fun ReschedulesScreen(
     }
 }
 
+@kotlin.OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @dagger.hilt.android.lifecycle.HiltViewModel
 class ReschedulesViewModel @javax.inject.Inject constructor(
     private val lessonUseCases: gr.eduinvoice.domain.lesson.LessonUseCases,
