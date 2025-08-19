@@ -22,8 +22,10 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @HiltViewModel
+@OptIn(ExperimentalCoroutinesApi::class)
 class RevenueViewModel @Inject constructor(
     private val studentUseCases: StudentUseCases,
     private val lessonUseCases: LessonUseCases,

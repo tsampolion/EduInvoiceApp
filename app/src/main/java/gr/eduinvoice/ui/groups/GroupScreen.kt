@@ -167,6 +167,13 @@ fun GroupScreen(
                             }
                         )
                     }
+                    DropdownMenuItem(
+                        text = { Text("Custom") },
+                        onClick = {
+                            viewModel.updateSelectedClass("Custom")
+                            classExpanded = false
+                        }
+                    )
                 }
             }
 
@@ -219,10 +226,16 @@ fun GroupScreen(
                 }
             }
 
+            var rateError by remember { mutableStateOf(false) }
             OutlinedTextField(
                 value = uiState.rate,
-                onValueChange = viewModel::updateRate,
+                onValueChange = {
+                    rateError = false
+                    viewModel.updateRate(it)
+                },
                 label = { Text(if (uiState.rateType == DomainRateTypes.HOURLY) "Hourly Rate (€)*" else "Lesson Fee (€)*") },
+                isError = rateError,
+                supportingText = { if (rateError) Text("Required") },
                 keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,

@@ -28,6 +28,10 @@ import gr.eduinvoice.ui.components.FilterOptions
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
+import gr.eduinvoice.domain.model.DomainAbsence
+import gr.eduinvoice.domain.lesson.GetGroupAbsences
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,8 +54,13 @@ fun GroupsScreen(
         }
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
+            var selectedTab by remember { mutableStateOf(0) }
             Column(Modifier.fillMaxSize()) {
             SlimHeader(title = "Groups")
+            TabRow(selectedTabIndex = selectedTab) {
+                Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }, text = { Text("Groups") })
+                Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }, text = { Text("Absences") })
+            }
 
             var showSheet by remember { mutableStateOf(false) }
             Row(
@@ -74,31 +83,36 @@ fun GroupsScreen(
                     onDismiss = { showSheet = false }
                 )
             }
-            if (uiState.groups.isEmpty()) {
-                ModernEmptyGroupsState(onCreateGroup = onAddGroup)
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                    items(uiState.groups) { group ->
-                        Card(
+            when (selectedTab) {
+                0 -> {
+                    if (uiState.groups.isEmpty()) {
+                        ModernEmptyGroupsState(onCreateGroup = onAddGroup)
+                    } else {
+                        LazyColumn(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                                .fillMaxSize()
                         ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onGroupClick(group.id) }
-                                    .padding(Dimensions.PaddingMedium)
-                            ) {
-                                Text(text = group.name, style = MaterialTheme.typography.titleMedium)
+                            items(uiState.groups) { group ->
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { onGroupClick(group.id) }
+                                            .padding(Dimensions.PaddingMedium)
+                                    ) {
+                                        Text(text = group.name, style = MaterialTheme.typography.titleMedium)
+                                    }
+                                }
                             }
                         }
                     }
                 }
+                1 -> GroupsAbsencesList(viewModel = viewModel)
             }
 
             }
@@ -110,6 +124,48 @@ fun GroupsScreen(
                     .statusBarsPadding()
                     .padding(8.dp)
             )
+        }
+    }
+}
+
+@Composable
+private fun GroupsAbsencesList(viewModel: GroupsViewModel) {
+    val absences by viewModel.absences.collectAsStateWithLifecycle()
+    if (absences.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "No absences recorded", style = MaterialTheme.typography.bodyLarge)
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 80.dp)
+        ) {
+            items(absences) { a ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(Dimensions.PaddingMedium),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = a.date, style = MaterialTheme.typography.titleSmall)
+                            Text(text = a.startTime, style = MaterialTheme.typography.bodyMedium)
+                        }
+                        Text(text = "Group #${a.groupId} • Student #${a.studentId}", style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
         }
     }
 }

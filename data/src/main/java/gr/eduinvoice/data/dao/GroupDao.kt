@@ -24,6 +24,14 @@ interface GroupDao {
     @Query("SELECT * FROM ${gr.eduinvoice.data.database.DatabaseConstants.GROUPS_TABLE} WHERE id = :id AND ownerId = :userId")
     fun getGroupById(id: Long, userId: Long): Flow<StudentGroup?>
 
+    @Transaction
+    @Query(
+        "SELECT g.* FROM ${gr.eduinvoice.data.database.DatabaseConstants.GROUPS_TABLE} g " +
+            "INNER JOIN ${gr.eduinvoice.data.database.DatabaseConstants.GROUP_STUDENT_CROSS_REF_TABLE} x ON g.id = x.groupId " +
+            "WHERE x.studentId = :studentId AND g.ownerId = :userId AND x.ownerId = :userId"
+    )
+    fun getGroupsForStudent(studentId: Long, userId: Long): Flow<List<StudentGroup>>
+
     @Query("UPDATE ${gr.eduinvoice.data.database.DatabaseConstants.GROUPS_TABLE} SET isActive = 0 WHERE id = :groupId AND ownerId = :userId")
     suspend fun softArchiveGroup(groupId: Long, userId: Long)
 

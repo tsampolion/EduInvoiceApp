@@ -44,6 +44,9 @@ class DomainGroupRepositoryAdapter @Inject constructor(
     override fun getGroupById(groupId: Long, userId: Long): Flow<DomainStudentGroup?> =
         groupRepository.getGroupById(groupId, userId).map { it?.toDomainModel() }
 
+    override fun getStudentGroups(studentId: Long, userId: Long): Flow<List<DomainStudentGroup>> =
+        groupRepository.getGroupsForStudent(studentId, userId).map { it.map { g -> g.toDomainModel() } }
+
     override suspend fun addStudentToGroup(studentId: Long, groupId: Long, userId: Long) =
         groupRepository.insertCrossRef(gr.eduinvoice.data.model.GroupStudentCrossRef(groupId, studentId, userId))
 

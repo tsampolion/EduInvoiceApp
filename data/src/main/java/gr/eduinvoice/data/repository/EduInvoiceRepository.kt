@@ -128,9 +128,60 @@ class EduInvoiceRepository @Inject constructor(
         return concurrencyController.executeSafeOperation(
             operation = {
                 val students = groupDao.getStudentsForGroup(groupId, userId).first()
+                val masterId = lessonDao.insertGroupLessonMaster(
+                    gr.eduinvoice.data.model.GroupLessonMaster(
+                        ownerId = userId,
+                        groupId = groupId,
+                        date = lesson.date,
+                        startTime = lesson.startTime,
+                        durationMinutes = lesson.durationMinutes,
+                        notes = lesson.notes
+                    )
+                )
                 val lessons = students.map { student ->
                     lesson.copy(studentId = student.id, groupId = groupId)
                 }
+                lessonDao.insertGroupLessons(lessons)
+            },
+            operationType = OperationType.BATCH,
+            resourceId = "group_$groupId",
+            priority = OperationPriority.NORMAL,
+            useTransaction = true
+        ).getOrThrow()
+    }
+
+    suspend fun addGroupLessonWithAbsences(
+        groupId: Long,
+        lesson: Lesson,
+        absentStudentIds: List<Long>,
+        userId: Long
+    ): List<Long> {
+        require(lesson.durationMinutes > 0) { "Lesson duration must be positive" }
+        return concurrencyController.executeSafeOperation(
+            operation = {
+                val students = groupDao.getStudentsForGroup(groupId, userId).first()
+                val masterId = lessonDao.insertGroupLessonMaster(
+                    gr.eduinvoice.data.model.GroupLessonMaster(
+                        ownerId = userId,
+                        groupId = groupId,
+                        date = lesson.date,
+                        startTime = lesson.startTime,
+                        durationMinutes = lesson.durationMinutes,
+                        notes = lesson.notes
+                    )
+                )
+                val present = students.filter { it.id !in absentStudentIds }
+                val lessons = present.map { student ->
+                    lesson.copy(studentId = student.id, groupId = groupId)
+                }
+                val absenceRows = absentStudentIds.map { sid ->
+                    gr.eduinvoice.data.model.GroupLessonAbsence(
+                        ownerId = userId,
+                        groupLessonId = masterId,
+                        studentId = sid
+                    )
+                }
+                if (absenceRows.isNotEmpty()) lessonDao.insertAbsences(absenceRows)
                 lessonDao.insertGroupLessons(lessons)
             },
             operationType = OperationType.BATCH,

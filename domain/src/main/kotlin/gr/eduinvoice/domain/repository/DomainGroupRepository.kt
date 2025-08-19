@@ -11,6 +11,7 @@ interface DomainGroupRepository {
     suspend fun archiveGroup(groupId: Long, userId: Long)
     fun getAllGroups(userId: Long): Flow<List<DomainStudentGroup>>
     fun getGroupById(groupId: Long, userId: Long): Flow<DomainStudentGroup?>
+    fun getStudentGroups(studentId: Long, userId: Long): Flow<List<DomainStudentGroup>>
     suspend fun addStudentToGroup(studentId: Long, groupId: Long, userId: Long)
     suspend fun removeStudentFromGroup(studentId: Long, groupId: Long, userId: Long)
     fun getGroupStudents(groupId: Long, userId: Long): Flow<List<DomainStudent>>

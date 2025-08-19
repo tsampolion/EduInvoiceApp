@@ -8,5 +8,5 @@ class AddGroupLesson @Inject constructor(
     private val repository: DomainLessonRepository
 ) {
     suspend operator fun invoke(groupId: Long, lesson: DomainLesson, userId: Long = 0): Long =
-        repository.addGroupLesson(lesson, userId)
+        repository.addGroupLesson(lesson.copy(groupId = groupId), userId)
 }

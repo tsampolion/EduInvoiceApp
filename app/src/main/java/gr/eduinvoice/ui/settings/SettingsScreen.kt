@@ -96,7 +96,7 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
             SlimHeader(title = stringResource(R.string.settings))
-            Divider()
+            HorizontalDivider()
             Text(stringResource(R.string.general), style = MaterialTheme.typography.titleMedium)
             state.settings?.let { settings ->
                 SettingCard(containerColor = AppColors.primaryContainer) {
@@ -119,7 +119,8 @@ fun SettingsScreen(
                         }
                     }
                 }
-            }
+                }
+                }
                 SettingCard(containerColor = AppColors.secondaryContainer) {
                     var expanded by remember { mutableStateOf(false) }
                     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
@@ -140,6 +141,7 @@ fun SettingsScreen(
                         }
                     }
                 }
+                }
             }
 
             Text(stringResource(R.string.appearance), style = MaterialTheme.typography.titleMedium)
@@ -151,11 +153,12 @@ fun SettingsScreen(
                 ) {
                     Text(stringResource(R.string.dark_theme))
                     Switch(
-                        checked = settings.darkTheme,
+                        checked = state.settings?.darkTheme == true,
                         onCheckedChange = viewModel::updateDarkTheme
                     )
                 }
             }
+            state.settings?.let { settings ->
                 SettingCard(containerColor = AppColors.tertiaryContainer) {
                     var expanded by remember { mutableStateOf(false) }
                     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
@@ -176,7 +179,6 @@ fun SettingsScreen(
                         }
                     }
                 }
-            }
             }
             Text(stringResource(R.string.account), style = MaterialTheme.typography.titleMedium)
             val loggedIn = state.user != null

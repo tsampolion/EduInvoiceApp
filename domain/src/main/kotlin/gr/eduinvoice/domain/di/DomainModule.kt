@@ -45,6 +45,7 @@ object DomainModule {
             archiveGroup = ArchiveGroup(repository),
             getAllGroups = GetAllGroups(repository),
             getGroupById = GetGroupById(repository),
+            getStudentGroups = GetStudentGroups(repository),
             addStudentToGroup = AddStudentToGroup(repository),
             removeStudentFromGroup = RemoveStudentFromGroup(repository),
             getGroupStudents = GetGroupStudents(repository)
@@ -73,11 +74,13 @@ object DomainModule {
             getLessonsWithStudentsByStudentAndDateRange = GetLessonsWithStudentsByStudentAndDateRange(repository),
             addLesson = AddLesson(repository),
             addGroupLesson = AddGroupLesson(repository),
+            addGroupLessonWithAbsences = AddGroupLessonWithAbsences(repository),
             updateLesson = UpdateLesson(repository),
             deleteLesson = DeleteLesson(repository),
             updateLessonPaidStatus = UpdateLessonPaidStatus(repository),
             updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(repository),
             isLessonInvoiced = IsLessonInvoiced(repository),
-            getLessonsWithStudentsPaginated = GetLessonsWithStudentsPaginated(repository)
+            getLessonsWithStudentsPaginated = GetLessonsWithStudentsPaginated(repository),
+            getAbsencesForStudent = GetAbsencesForStudent(repository)
         )
 }

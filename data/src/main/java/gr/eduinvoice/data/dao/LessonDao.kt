@@ -17,6 +17,31 @@ interface LessonDao {
         return ids
     }
 
+    // Group lesson master + absences
+    @Insert
+    suspend fun insertGroupLessonMaster(master: gr.eduinvoice.data.model.GroupLessonMaster): Long
+
+    @Insert
+    suspend fun insertAbsences(absences: List<gr.eduinvoice.data.model.GroupLessonAbsence>): List<Long>
+
+    @Query("SELECT * FROM group_lesson_absences WHERE ownerId = :userId")
+    fun getAllAbsences(userId: Long): Flow<List<gr.eduinvoice.data.model.GroupLessonAbsence>>
+
+    @Query("SELECT a.* FROM group_lesson_absences a INNER JOIN group_lesson_master m ON a.groupLessonId = m.id WHERE a.studentId = :studentId AND a.ownerId = :userId ORDER BY m.date DESC, m.startTime DESC")
+    fun getAbsencesForStudent(studentId: Long, userId: Long): Flow<List<gr.eduinvoice.data.model.GroupLessonAbsence>>
+
+    @Query(
+        "SELECT a.id AS id, a.groupLessonId AS groupLessonId, m.groupId AS groupId, a.studentId AS studentId, m.date AS date, m.startTime AS startTime " +
+            "FROM group_lesson_absences a INNER JOIN group_lesson_master m ON a.groupLessonId = m.id WHERE a.ownerId = :userId ORDER BY m.date DESC, m.startTime DESC"
+    )
+    fun getAllAbsenceDetails(userId: Long): Flow<List<gr.eduinvoice.data.database.AbsenceDetailRow>>
+
+    @Query(
+        "SELECT a.id AS id, a.groupLessonId AS groupLessonId, m.groupId AS groupId, a.studentId AS studentId, m.date AS date, m.startTime AS startTime " +
+            "FROM group_lesson_absences a INNER JOIN group_lesson_master m ON a.groupLessonId = m.id WHERE a.studentId = :studentId AND a.ownerId = :userId ORDER BY m.date DESC, m.startTime DESC"
+    )
+    fun getAbsenceDetailsForStudent(studentId: Long, userId: Long): Flow<List<gr.eduinvoice.data.database.AbsenceDetailRow>>
+
     @Update
     suspend fun update(lesson: Lesson)
 

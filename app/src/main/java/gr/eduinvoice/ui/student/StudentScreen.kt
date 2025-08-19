@@ -38,6 +38,7 @@ import gr.eduinvoice.ui.design.AppColors
 import gr.eduinvoice.ui.design.MetricCard
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import gr.eduinvoice.domain.model.DomainAbsence
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,12 +98,26 @@ fun StudentScreen(
                 modifier = modifier.padding(paddingValues)
             )
         } else {
-            StudentDetailView(
-                uiState = uiState,
-                viewModel = viewModel,
-                onLessonClick = onNavigateToLesson,
-                modifier = modifier.padding(paddingValues)
-            )
+            var selectedTab by remember { mutableStateOf(0) }
+            Column(modifier = modifier.padding(paddingValues)) {
+                TabRow(selectedTabIndex = selectedTab) {
+                    Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }, text = { Text("Lessons") })
+                    if (!uiState.groupName.isNullOrBlank()) {
+                        Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }, text = { Text("Absences") })
+                    }
+                }
+                when (selectedTab) {
+                    0 -> StudentDetailView(
+                        uiState = uiState,
+                        viewModel = viewModel,
+                        onLessonClick = onNavigateToLesson,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    1 -> if (!uiState.groupName.isNullOrBlank()) {
+                        AbsencesList(uiState = uiState)
+                    }
+                }
+            }
         }
     }
 
@@ -188,9 +203,17 @@ private fun StudentDetailView(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "€${uiState.rate}/hour",
+                        text = if (uiState.rateType == DomainRateTypes.HOURLY) "€${uiState.rate}/hour" else "€${uiState.rate} per lesson",
                         style = MaterialTheme.typography.titleMedium
                     )
+                    val groupName = uiState.groupName
+                    if (!groupName.isNullOrBlank()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Group: $groupName",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             }
         }
@@ -237,6 +260,48 @@ private fun StudentDetailView(
                     onDeleteClick = { viewModel.deleteLesson(lesson.id) }
                 )
                 HorizontalDivider()
+            }
+        }
+    }
+}
+
+@Composable
+private fun AbsencesList(uiState: StudentUiState) {
+    val absences = uiState.absences
+    if (absences.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "No absences recorded", style = MaterialTheme.typography.bodyLarge)
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 80.dp)
+        ) {
+            items(absences) { a ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(Dimensions.PaddingMedium),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = LocalDate.parse(a.date).format(DateTimeFormatter.ofPattern("MMM d, yyyy")), style = MaterialTheme.typography.titleSmall)
+                            Text(text = a.startTime, style = MaterialTheme.typography.bodyMedium)
+                        }
+                        Text(text = "Group #${a.groupId}", style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
             }
         }
     }

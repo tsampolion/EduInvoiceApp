@@ -2,10 +2,12 @@ package gr.eduinvoice.domain.repository
 
 import gr.eduinvoice.domain.model.DomainLesson
 import kotlinx.coroutines.flow.Flow
+import gr.eduinvoice.domain.model.DomainAbsence
 
 interface DomainLessonRepository {
     suspend fun addLesson(lesson: DomainLesson, userId: Long = 0): Long
     suspend fun addGroupLesson(lesson: DomainLesson, userId: Long = 0): Long
+    suspend fun addGroupLessonWithAbsences(lesson: DomainLesson, absentStudentIds: List<Long>, userId: Long = 0): List<Long>
     suspend fun updateLesson(lesson: DomainLesson, userId: Long = 0)
     suspend fun deleteLesson(lessonId: Long, userId: Long = 0)
     suspend fun updateLessonPaidStatus(lessonId: Long, isPaid: Boolean, userId: Long = 0)
@@ -26,4 +28,6 @@ interface DomainLessonRepository {
         limit: Int,
         offset: Int
     ): List<DomainLesson>
+    fun getGroupAbsences(userId: Long = 0): Flow<List<DomainAbsence>>
+    fun getAbsencesForStudent(studentId: Long, userId: Long = 0): Flow<List<DomainAbsence>>
 }

@@ -25,6 +25,12 @@ class DomainLessonRepositoryAdapter @Inject constructor(
         return lessonIds.firstOrNull() ?: 0L
     }
 
+    override suspend fun addGroupLessonWithAbsences(
+        lesson: DomainLesson,
+        absentStudentIds: List<Long>,
+        userId: Long
+    ): List<Long> = eduInvoiceRepository.addGroupLessonWithAbsences(lesson.groupId ?: 0L, lesson.toDataModel(), absentStudentIds, userId)
+
     override suspend fun updateLesson(lesson: DomainLesson, userId: Long) =
         eduInvoiceRepository.updateLesson(lesson.toDataModel())
 
@@ -76,6 +82,16 @@ class DomainLessonRepositoryAdapter @Inject constructor(
     ): List<DomainLesson> =
         lessonDao.getLessonsWithStudentsPaginated(userId, limit, offset)
             .map { it.lesson.toDomainModel() }
+
+    override fun getGroupAbsences(userId: Long): Flow<List<gr.eduinvoice.domain.model.DomainAbsence>> =
+        lessonDao.getAllAbsenceDetails(userId).map { rows ->
+            rows.map { r -> gr.eduinvoice.domain.model.DomainAbsence(r.id, r.groupLessonId, r.groupId, r.studentId, r.date, r.startTime) }
+        }
+
+    override fun getAbsencesForStudent(studentId: Long, userId: Long): Flow<List<gr.eduinvoice.domain.model.DomainAbsence>> =
+        lessonDao.getAbsenceDetailsForStudent(studentId, userId).map { rows ->
+            rows.map { r -> gr.eduinvoice.domain.model.DomainAbsence(r.id, r.groupLessonId, r.groupId, r.studentId, r.date, r.startTime) }
+        }
 
     private fun DomainLesson.toDataModel(): Lesson = Lesson(
         id = id,

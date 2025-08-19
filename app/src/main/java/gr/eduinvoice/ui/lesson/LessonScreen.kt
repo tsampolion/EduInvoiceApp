@@ -100,6 +100,12 @@ fun LessonScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Switch(checked = uiState.isGroupLesson, onCheckedChange = viewModel::toggleGroupLesson)
             }
+            if (studentId == null) {
+                // If launched for a group from Group Details, set group mode
+                LaunchedEffect(Unit) {
+                    // already handled in ViewModel init via SavedStateHandle
+                }
+            }
 
             var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuBox(

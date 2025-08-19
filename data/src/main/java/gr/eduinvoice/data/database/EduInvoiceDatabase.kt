@@ -19,11 +19,13 @@ import gr.eduinvoice.data.model.Lesson
 import gr.eduinvoice.data.model.Student
 import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.data.model.User
+import gr.eduinvoice.data.model.GroupLessonMaster
+import gr.eduinvoice.data.model.GroupLessonAbsence
 import net.sqlcipher.database.SupportFactory
 
 @Database(
-    entities = [Student::class, Lesson::class, StudentGroup::class, GroupStudentCrossRef::class, User::class],
-    version = 17,
+    entities = [Student::class, Lesson::class, StudentGroup::class, GroupStudentCrossRef::class, User::class, GroupLessonMaster::class, GroupLessonAbsence::class],
+    version = 18,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6, spec = AutoMigration5To6::class),
@@ -71,7 +73,8 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
                         MIGRATION_13_15,
                         MIGRATION_14_15,
                         MIGRATION_15_16,
-                        MIGRATION_16_17
+                        MIGRATION_16_17,
+                        MIGRATION_17_18
                     )
                     .build()
                 INSTANCE = instance

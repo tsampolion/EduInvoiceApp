@@ -19,6 +19,8 @@ class GroupRepository @Inject constructor(
     fun getAllGroups(userId: Long): Flow<List<StudentGroup>> = dao.getAllGroups(userId)
     fun getGroupById(id: Long, userId: Long): Flow<StudentGroup?> =
         dao.getGroupById(id, userId)
+    fun getGroupsForStudent(studentId: Long, userId: Long): Flow<List<StudentGroup>> =
+        dao.getGroupsForStudent(studentId, userId)
     suspend fun insertCrossRef(crossRef: GroupStudentCrossRef) = dao.insertCrossRef(crossRef)
     suspend fun deleteCrossRef(groupId: Long, studentId: Long, userId: Long) =
         dao.deleteCrossRef(groupId, studentId, userId)

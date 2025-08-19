@@ -126,3 +126,33 @@ val MIGRATION_16_17 = object : Migration(16, 17) {
         db.execSQL("ALTER TABLE ${DatabaseConstants.GROUPS_TABLE} ADD COLUMN isActive INTEGER NOT NULL DEFAULT 1")
     }
 }
+
+// Add group lesson master and absences tables
+val MIGRATION_17_18 = object : Migration(17, 18) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS group_lesson_master (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "ownerId INTEGER NOT NULL DEFAULT 0, " +
+                "groupId INTEGER NOT NULL, " +
+                "date TEXT NOT NULL, " +
+                "startTime TEXT NOT NULL, " +
+                "durationMinutes INTEGER NOT NULL, " +
+                "notes TEXT, " +
+                "lastModified INTEGER NOT NULL DEFAULT 0)"
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_group_lesson_master_groupId ON group_lesson_master(groupId)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_group_lesson_master_date ON group_lesson_master(date)")
+
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS group_lesson_absences (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "ownerId INTEGER NOT NULL DEFAULT 0, " +
+                "groupLessonId INTEGER NOT NULL, " +
+                "studentId INTEGER NOT NULL, " +
+                "FOREIGN KEY(groupLessonId) REFERENCES group_lesson_master(id) ON DELETE CASCADE)"
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_group_lesson_absences_groupLessonId ON group_lesson_absences(groupLessonId)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_group_lesson_absences_studentId ON group_lesson_absences(studentId)")
+    }
+}

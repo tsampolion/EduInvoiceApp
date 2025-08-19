@@ -14,6 +14,7 @@ import gr.eduinvoice.domain.group.GroupUseCases
 import gr.eduinvoice.domain.user.CurrentUserProvider
 import android.database.sqlite.SQLiteException
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -22,6 +23,7 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
+@OptIn(ExperimentalCoroutinesApi::class)
 class LessonViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val lessonUseCases: LessonUseCases,
@@ -40,6 +42,7 @@ class LessonViewModel @Inject constructor(
 
     private val studentId: Long? = savedStateHandle.get<Long>("studentId")
     private val lessonId: Long? = savedStateHandle.get<Long>("lessonId")
+    private val initialGroupId: Long? = savedStateHandle.get<Long>("groupId")
 
     private fun initialState(): LessonUiState {
         val nowDate = LocalDate.now().format(dateFormatter)
@@ -70,6 +73,10 @@ class LessonViewModel @Inject constructor(
         loadGroups()
         if (lessonId != null && lessonId != 0L) {
             loadLesson()
+        }
+        initialGroupId?.takeIf { it != 0L }?.let { gid ->
+            _uiState.update { it.copy(isGroupLesson = true) }
+            updateSelectedGroup(gid)
         }
     }
 
@@ -276,9 +283,8 @@ class LessonViewModel @Inject constructor(
                         // We call addGroupLesson which expands to all current members. To respect absences,
                         // fall back to per-student adds when absences are marked.
                         if (state.markAbsences) {
-                            presentMembers.forEach { s ->
-                                lessonUseCases.addLesson(base.copy(studentId = s.id), userId)
-                            }
+                            val absentIds = members.filter { m -> state.absentStudents[m.id] == true }.map { it.id }
+                            lessonUseCases.addGroupLessonWithAbsences(state.selectedGroupId!!, base, absentIds, userId)
                         } else {
                             lessonUseCases.addGroupLesson(state.selectedGroupId!!, base, userId)
                         }

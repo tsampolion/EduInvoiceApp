@@ -12,7 +12,9 @@ import gr.eduinvoice.domain.model.DomainStudent
 import gr.eduinvoice.domain.model.DomainRateTypes
 import gr.eduinvoice.domain.billing.calculateFeeWith
 import gr.eduinvoice.domain.student.StudentUseCases
+import gr.eduinvoice.domain.group.GroupUseCases
 import gr.eduinvoice.domain.lesson.LessonUseCases
+import gr.eduinvoice.domain.model.DomainAbsence
 import gr.eduinvoice.domain.model.DomainLesson
 import gr.eduinvoice.domain.user.CurrentUserProvider
 import gr.eduinvoice.utils.EarningsCalculator
@@ -37,7 +39,8 @@ class StudentViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val currentUserProvider: CurrentUserProvider,
     @ApplicationContext private val context: Context,
-    private val dataCache: DataCache
+    private val dataCache: DataCache,
+    private val groupUseCases: GroupUseCases
 ) : ViewModel() {
 
     val studentId: Long = savedStateHandle.get<Long>("studentId") ?: 0L
@@ -71,7 +74,7 @@ class StudentViewModel @Inject constructor(
             try {
                 currentUserProvider.loggedInUserId
                     .filterNotNull()
-                    .flatMapLatest { studentAndLessonsFlow(it) }
+                    .flatMapLatest { uid -> studentAndLessonsFlow(uid) }
                     .catch { e ->
                         val errorResult = errorHandler.handleError(e, "StudentViewModel_LoadData")
                         errorReporter.reportError(e, "StudentViewModel_LoadData")
@@ -84,14 +87,35 @@ class StudentViewModel @Inject constructor(
                 _uiState.update { it.copy(errorMessage = errorResult.userMessage) }
             }
         }
+
+        // Observe student's group assignment and absences
+        viewModelScope.launch {
+            currentUserProvider.loggedInUserId
+                .filterNotNull()
+                .flatMapLatest { uid -> groupUseCases.getStudentGroups(studentId, uid) }
+                .collect { groups ->
+                    val name = groups.firstOrNull()?.name
+                    _uiState.update { it.copy(groupName = name) }
+                }
+        }
+
+        viewModelScope.launch {
+            currentUserProvider.loggedInUserId
+                .filterNotNull()
+                .flatMapLatest { uid -> lessonUseCases.getAbsencesForStudent(studentId, uid) }
+                .collect { list ->
+                    _uiState.update { it.copy(absences = list) }
+                }
+        }
     }
 
-    private fun studentAndLessonsFlow(userId: Long): Flow<Pair<DomainStudent?, List<DomainLesson>>> {
-        return combine(
+    private fun studentAndLessonsFlow(userId: Long): Flow<Pair<DomainStudent?, List<DomainLesson>>> =
+        combine(
             studentUseCases.getStudentById(studentId, userId),
             lessonUseCases.getStudentLessons(studentId, userId)
         ) { student, lessons -> student to lessons }
-    }
+
+    // groupName and absences are exposed via uiState
 
     private fun mapToUiState(student: DomainStudent?, lessons: List<DomainLesson>) {
         val (week, month) = student?.let { EarningsCalculator.calculate(it, lessons) } ?: (0.0 to 0.0)
@@ -387,4 +411,7 @@ data class StudentUiState(
     val weekEarnings: Double = 0.0,
     val monthEarnings: Double = 0.0,
     val totalEarnings: Double = 0.0
+    ,
+    val groupName: String? = null,
+    val absences: List<DomainAbsence> = emptyList()
 )
