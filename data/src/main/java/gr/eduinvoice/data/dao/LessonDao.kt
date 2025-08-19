@@ -21,8 +21,23 @@ interface LessonDao {
     @Insert
     suspend fun insertGroupLessonMaster(master: gr.eduinvoice.data.model.GroupLessonMaster): Long
 
+    @Update
+    suspend fun updateGroupLessonMaster(master: gr.eduinvoice.data.model.GroupLessonMaster)
+
+    @Query("SELECT * FROM group_lesson_master WHERE id = :id AND ownerId = :userId")
+    fun getGroupLessonMasterById(id: Long, userId: Long): Flow<gr.eduinvoice.data.model.GroupLessonMaster?>
+
+    @Query("SELECT * FROM group_lesson_master WHERE groupId = :groupId AND ownerId = :userId ORDER BY date DESC, startTime DESC")
+    fun getGroupLessonMastersByGroup(groupId: Long, userId: Long): Flow<List<gr.eduinvoice.data.model.GroupLessonMaster>>
+
     @Insert
     suspend fun insertAbsences(absences: List<gr.eduinvoice.data.model.GroupLessonAbsence>): List<Long>
+
+    @Query("SELECT * FROM group_lesson_absences WHERE groupLessonId = :masterId AND ownerId = :userId")
+    fun getAbsencesByMaster(masterId: Long, userId: Long): Flow<List<gr.eduinvoice.data.model.GroupLessonAbsence>>
+
+    @Query("DELETE FROM group_lesson_absences WHERE groupLessonId = :masterId AND ownerId = :userId")
+    suspend fun deleteAbsencesForMaster(masterId: Long, userId: Long)
 
     @Query("SELECT * FROM group_lesson_absences WHERE ownerId = :userId")
     fun getAllAbsences(userId: Long): Flow<List<gr.eduinvoice.data.model.GroupLessonAbsence>>
@@ -50,6 +65,45 @@ interface LessonDao {
 
     @Query("DELETE FROM lessons WHERE id = :lessonId AND ownerId = :userId")
     suspend fun deleteById(lessonId: Long, userId: Long)
+
+    @Query(
+        "DELETE FROM lessons WHERE ownerId = :userId AND groupId = :groupId AND date = :date AND startTime = :startTime AND durationMinutes = :duration AND studentId IN (:studentIds)"
+    )
+    suspend fun deleteByGroupAndTimeForStudents(
+        userId: Long,
+        groupId: Long,
+        date: String,
+        startTime: String,
+        duration: Int,
+        studentIds: List<Long>
+    )
+
+    @Query(
+        "UPDATE lessons SET date = :newDate, startTime = :newStartTime, durationMinutes = :newDuration, notes = :newNotes WHERE ownerId = :userId AND groupId = :groupId AND date = :oldDate AND startTime = :oldStartTime AND durationMinutes = :oldDuration AND studentId IN (:studentIds)"
+    )
+    suspend fun updateByGroupAndTimeForStudents(
+        userId: Long,
+        groupId: Long,
+        oldDate: String,
+        oldStartTime: String,
+        oldDuration: Int,
+        newDate: String,
+        newStartTime: String,
+        newDuration: Int,
+        newNotes: String?,
+        studentIds: List<Long>
+    )
+
+    @Query(
+        "SELECT * FROM lessons WHERE ownerId = :userId AND groupId = :groupId AND date = :date AND startTime = :startTime AND durationMinutes = :duration"
+    )
+    suspend fun getLessonsByGroupAndTime(
+        userId: Long,
+        groupId: Long,
+        date: String,
+        startTime: String,
+        duration: Int
+    ): List<Lesson>
 
     @Query("DELETE FROM lessons WHERE ownerId = :userId")
     suspend fun deleteAllByOwner(userId: Long)

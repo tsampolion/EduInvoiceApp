@@ -127,7 +127,10 @@ class LessonViewModel @Inject constructor(
                                 isEditMode = false,
                                 isPaid = l.isPaid,
                                 selectedGroupId = l.groupId,
-                                isGroupLesson = l.groupId != null
+                                isGroupLesson = l.groupId != null,
+                                originalDate = LocalDate.parse(l.date).toString(),
+                                originalStartTime = l.startTime,
+                                originalDuration = l.durationMinutes
                             )
                         }
                     }
@@ -280,13 +283,30 @@ class LessonViewModel @Inject constructor(
                         members.filter { m -> state.absentStudents[m.id] != true }
                     } else members
                     if (presentMembers.isNotEmpty()) {
-                        // We call addGroupLesson which expands to all current members. To respect absences,
-                        // fall back to per-student adds when absences are marked.
-                        if (state.markAbsences) {
+                        if (lessonId != null && lessonId != 0L && state.originalDate != null && state.originalStartTime != null && state.originalDuration != null) {
+                            // Edit existing group lesson via master id = lessonId
                             val absentIds = members.filter { m -> state.absentStudents[m.id] == true }.map { it.id }
-                            lessonUseCases.addGroupLessonWithAbsences(state.selectedGroupId!!, base, absentIds, userId)
+                            lessonUseCases.editGroupLesson(
+                                masterId = lessonId,
+                                groupId = state.selectedGroupId!!,
+                                originalDate = state.originalDate!!,
+                                originalStartTime = state.originalStartTime!!,
+                                originalDuration = state.originalDuration!!,
+                                newDate = LocalDate.parse(state.date, dateFormatter).toString(),
+                                newStartTime = state.startTime,
+                                newDuration = duration,
+                                newNotes = state.notes.ifBlank { null },
+                                newAbsentStudentIds = absentIds,
+                                userId = userId
+                            )
                         } else {
-                            lessonUseCases.addGroupLesson(state.selectedGroupId!!, base, userId)
+                            // Create new group lesson
+                            if (state.markAbsences) {
+                                val absentIds = members.filter { m -> state.absentStudents[m.id] == true }.map { it.id }
+                                lessonUseCases.addGroupLessonWithAbsences(state.selectedGroupId!!, base, absentIds, userId)
+                            } else {
+                                lessonUseCases.addGroupLesson(state.selectedGroupId!!, base, userId)
+                            }
                         }
                     }
                 } else if (sId != null) {
@@ -388,5 +408,9 @@ data class LessonUiState(
     val isPaid: Boolean = false,
     val errorMessage: String? = null,
     val markAbsences: Boolean = false,
-    val absentStudents: Map<Long, Boolean> = emptyMap()
+    val absentStudents: Map<Long, Boolean> = emptyMap(),
+    // Fields to support retroactive edits of group lessons
+    val originalDate: String? = null,
+    val originalStartTime: String? = null,
+    val originalDuration: Int? = null
 )

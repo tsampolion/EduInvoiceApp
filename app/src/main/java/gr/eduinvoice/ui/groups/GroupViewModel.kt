@@ -11,6 +11,7 @@ import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.model.DomainStudent
 import gr.eduinvoice.domain.user.CurrentUserProvider
 import gr.eduinvoice.utils.ClassOptions
+import gr.eduinvoice.domain.lesson.LessonUseCases
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class GroupViewModel @Inject constructor(
     private val groupUseCases: GroupUseCases,
     private val studentUseCases: StudentUseCases,
+    private val lessonUseCases: LessonUseCases,
     savedStateHandle: SavedStateHandle,
     private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
@@ -28,6 +30,13 @@ class GroupViewModel @Inject constructor(
     val uiState: StateFlow<GroupUiState> = _uiState.asStateFlow()
 
     private var originalStudents: Set<Long> = emptySet()
+    private var originalClassName: String = ""
+    private var originalRateType: String = DomainRateTypes.HOURLY
+    private var originalRate: Double = 0.0
+    val lessonHistory: StateFlow<List<gr.eduinvoice.domain.model.DomainGroupLessonMaster>> =
+        currentUserProvider.loggedInUserId.filterNotNull().flatMapLatest { uid ->
+            if (groupId != 0L) lessonUseCases.getGroupLessonMasters(groupId, uid) else flowOf(emptyList())
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     init {
         viewModelScope.launch {
@@ -50,6 +59,9 @@ class GroupViewModel @Inject constructor(
             }
             val group = if (groupId != 0L) groupUseCases.getGroupById(groupId, userId).first() else null
             val existingClass = group?.className ?: ""
+            originalClassName = existingClass
+            originalRateType = group?.rateType ?: DomainRateTypes.HOURLY
+            originalRate = group?.rate ?: 0.0
             val (selectedClass, customClass) = if (
                 existingClass.isNotBlank() && existingClass !in ClassOptions.DEFAULT
             ) {
@@ -96,7 +108,11 @@ class GroupViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(rate = value)
     }
 
-    fun saveGroup(overrideClass: Boolean = false, overrideBilling: Boolean = false) {
+    fun saveGroup(
+        overrideClass: Boolean = false,
+        overrideBilling: Boolean = false,
+        overrideTargets: Set<Long>? = null
+    ) {
         viewModelScope.launch {
             val userId = currentUserProvider.loggedInUserId.first() ?: 0L
             val state = _uiState.value
@@ -125,7 +141,8 @@ class GroupViewModel @Inject constructor(
             toRemove.forEach { groupUseCases.removeStudentFromGroup(id, it, userId) }
 
             if (overrideClass || overrideBilling) {
-                selected.forEach { studentId ->
+                val targets: Set<Long> = overrideTargets ?: selected
+                targets.forEach { studentId ->
                     val current = studentUseCases.getStudentById(studentId, userId).first()
                     current?.let { s ->
                         val updated = s.copy(
@@ -139,6 +156,32 @@ class GroupViewModel @Inject constructor(
             }
         }
     }
+
+    fun isClassChanged(): Boolean {
+        val state = _uiState.value
+        val className = if (state.selectedClass == "Custom") state.customClass else state.selectedClass
+        return groupId != 0L && className != originalClassName
+    }
+
+    fun isBillingChanged(): Boolean {
+        val state = _uiState.value
+        val rate = state.rate.toDoubleOrNull() ?: 0.0
+        return groupId != 0L && (state.rateType != originalRateType || rate != originalRate)
+    }
+
+    fun getToAddSelections(): List<StudentSelection> {
+        val selected = _uiState.value.students.filter { it.selected }.map { it.id }.toSet()
+        val toAdd = selected - originalStudents
+        return _uiState.value.students.filter { it.id in toAdd }
+    }
+
+    fun getToAddIds(): Set<Long> = getToAddSelections().map { it.id }.toSet()
+
+    fun hasToAddClassMismatch(targetClass: String): Boolean =
+        getToAddSelections().any { it.className != targetClass }
+
+    fun hasToAddBillingMismatch(targetRateType: String): Boolean =
+        getToAddSelections().any { it.rateType != targetRateType }
 
     fun deleteGroup() {
         viewModelScope.launch {

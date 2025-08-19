@@ -30,4 +30,18 @@ interface DomainLessonRepository {
     ): List<DomainLesson>
     fun getGroupAbsences(userId: Long = 0): Flow<List<DomainAbsence>>
     fun getAbsencesForStudent(studentId: Long, userId: Long = 0): Flow<List<DomainAbsence>>
+    suspend fun editGroupLesson(
+        masterId: Long,
+        groupId: Long,
+        originalDate: String,
+        originalStartTime: String,
+        originalDuration: Int,
+        newDate: String,
+        newStartTime: String,
+        newDuration: Int,
+        newNotes: String?,
+        newAbsentStudentIds: List<Long>,
+        userId: Long = 0
+    )
+    fun getGroupLessonMasters(groupId: Long, userId: Long = 0): Flow<List<gr.eduinvoice.domain.model.DomainGroupLessonMaster>>
 }

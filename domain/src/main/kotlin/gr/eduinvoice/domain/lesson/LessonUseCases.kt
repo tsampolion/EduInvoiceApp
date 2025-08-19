@@ -11,11 +11,13 @@ data class LessonUseCases @Inject constructor(
     val addLesson: AddLesson,
     val addGroupLesson: AddGroupLesson,
     val addGroupLessonWithAbsences: AddGroupLessonWithAbsences,
+    val editGroupLesson: EditGroupLesson,
     val updateLesson: UpdateLesson,
     val deleteLesson: DeleteLesson,
     val updateLessonPaidStatus: UpdateLessonPaidStatus,
     val updateLessonInvoicedStatus: UpdateLessonInvoicedStatus,
     val isLessonInvoiced: IsLessonInvoiced,
     val getLessonsWithStudentsPaginated: GetLessonsWithStudentsPaginated,
-    val getAbsencesForStudent: GetAbsencesForStudent
+    val getAbsencesForStudent: GetAbsencesForStudent,
+    val getGroupLessonMasters: GetGroupLessonMasters
 )

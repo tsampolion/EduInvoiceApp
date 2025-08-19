@@ -192,6 +192,123 @@ class EduInvoiceRepository @Inject constructor(
     }
 
     /**
+     * Edit an existing group lesson by its masterId, updating master fields, absences, and individual lessons.
+     * - present->absent: delete individual lessons for those students
+     * - absent->present: insert individual lessons for those students
+     * - details changed: update individual lessons for present students
+     */
+    suspend fun editGroupLesson(
+        masterId: Long,
+        groupId: Long,
+        originalDate: String,
+        originalStartTime: String,
+        originalDuration: Int,
+        newDate: String,
+        newStartTime: String,
+        newDuration: Int,
+        newNotes: String?,
+        newAbsentStudentIds: List<Long>,
+        userId: Long
+    ) {
+        concurrencyController.executeSafeOperation(
+            operation = {
+                val master = lessonDao.getGroupLessonMasterById(masterId, userId).first()
+                checkNotNull(master) { "Group lesson master not found" }
+
+                // Update master
+                lessonDao.updateGroupLessonMaster(
+                    master.copy(
+                        date = newDate,
+                        startTime = newStartTime,
+                        durationMinutes = newDuration,
+                        notes = newNotes
+                    )
+                )
+
+                // Determine original absences
+                val originalAbsences = lessonDao.getAbsencesByMaster(masterId, userId).first()
+                val originalAbsentIds = originalAbsences.map { it.studentId }.toSet()
+
+                val students = groupDao.getStudentsForGroup(groupId, userId).first()
+                val allStudentIds = students.map { it.id }.toSet()
+                val newAbsent = newAbsentStudentIds.toSet()
+                val originalPresent = allStudentIds - originalAbsentIds
+                val newPresent = allStudentIds - newAbsent
+
+                val nowAbsent = originalPresent - newPresent // present->absent
+                val nowPresent = newPresent - originalPresent // absent->present
+                val stillPresent = originalPresent intersect newPresent
+
+                // present->absent: delete individual lessons for those students at original time
+                if (nowAbsent.isNotEmpty()) {
+                    lessonDao.deleteByGroupAndTimeForStudents(
+                        userId = userId,
+                        groupId = groupId,
+                        date = originalDate,
+                        startTime = originalStartTime,
+                        duration = originalDuration,
+                        studentIds = nowAbsent.toList()
+                    )
+                }
+
+                // absent->present: insert individual lessons at new time
+                if (nowPresent.isNotEmpty()) {
+                    val lessonsToInsert = students.filter { it.id in nowPresent }.map { student ->
+                        Lesson(
+                            ownerId = userId,
+                            studentId = student.id,
+                            groupId = groupId,
+                            date = newDate,
+                            startTime = newStartTime,
+                            durationMinutes = newDuration,
+                            notes = newNotes ?: master.notes,
+                            isPaid = false,
+                            isInvoiced = false
+                        )
+                    }
+                    lessonDao.insertGroupLessons(lessonsToInsert)
+                }
+
+                // details changed: update individual lessons for still-present students
+                if (stillPresent.isNotEmpty() && (
+                        originalDate != newDate || originalStartTime != newStartTime || originalDuration != newDuration || (newNotes ?: master.notes) != master.notes
+                    )
+                ) {
+                    lessonDao.updateByGroupAndTimeForStudents(
+                        userId = userId,
+                        groupId = groupId,
+                        oldDate = originalDate,
+                        oldStartTime = originalStartTime,
+                        oldDuration = originalDuration,
+                        newDate = newDate,
+                        newStartTime = newStartTime,
+                        newDuration = newDuration,
+                        newNotes = newNotes,
+                        studentIds = stillPresent.toList()
+                    )
+                }
+
+                // Update absences table to reflect newAbsent
+                lessonDao.deleteAbsencesForMaster(masterId, userId)
+                if (newAbsent.isNotEmpty()) {
+                    val rows = newAbsent.map { sid ->
+                        gr.eduinvoice.data.model.GroupLessonAbsence(
+                            ownerId = userId,
+                            groupLessonId = masterId,
+                            studentId = sid
+                        )
+                    }
+                    lessonDao.insertAbsences(rows)
+                }
+            },
+            operationType = OperationType.BATCH,
+            resourceId = "group_${groupId}_lesson_${masterId}",
+            priority = OperationPriority.NORMAL,
+            useTransaction = true
+        ).getOrThrow()
+    }
+
+    /**
      * Updates an existing lesson with concurrency safety
      */
     suspend fun updateLesson(lesson: Lesson) {

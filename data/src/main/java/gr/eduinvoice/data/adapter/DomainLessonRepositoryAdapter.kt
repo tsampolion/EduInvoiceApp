@@ -31,6 +31,32 @@ class DomainLessonRepositoryAdapter @Inject constructor(
         userId: Long
     ): List<Long> = eduInvoiceRepository.addGroupLessonWithAbsences(lesson.groupId ?: 0L, lesson.toDataModel(), absentStudentIds, userId)
 
+    override suspend fun editGroupLesson(
+        masterId: Long,
+        groupId: Long,
+        originalDate: String,
+        originalStartTime: String,
+        originalDuration: Int,
+        newDate: String,
+        newStartTime: String,
+        newDuration: Int,
+        newNotes: String?,
+        newAbsentStudentIds: List<Long>,
+        userId: Long
+    ) = eduInvoiceRepository.editGroupLesson(
+        masterId,
+        groupId,
+        originalDate,
+        originalStartTime,
+        originalDuration,
+        newDate,
+        newStartTime,
+        newDuration,
+        newNotes,
+        newAbsentStudentIds,
+        userId
+    )
+
     override suspend fun updateLesson(lesson: DomainLesson, userId: Long) =
         eduInvoiceRepository.updateLesson(lesson.toDataModel())
 
@@ -91,6 +117,11 @@ class DomainLessonRepositoryAdapter @Inject constructor(
     override fun getAbsencesForStudent(studentId: Long, userId: Long): Flow<List<gr.eduinvoice.domain.model.DomainAbsence>> =
         lessonDao.getAbsenceDetailsForStudent(studentId, userId).map { rows ->
             rows.map { r -> gr.eduinvoice.domain.model.DomainAbsence(r.id, r.groupLessonId, r.groupId, r.studentId, r.date, r.startTime) }
+        }
+
+    override fun getGroupLessonMasters(groupId: Long, userId: Long): Flow<List<gr.eduinvoice.domain.model.DomainGroupLessonMaster>> =
+        lessonDao.getGroupLessonMastersByGroup(groupId, userId).map { list ->
+            list.map { m -> gr.eduinvoice.domain.model.DomainGroupLessonMaster(m.id, m.ownerId, m.groupId, m.date, m.startTime, m.durationMinutes, m.notes) }
         }
 
     private fun DomainLesson.toDataModel(): Lesson = Lesson(

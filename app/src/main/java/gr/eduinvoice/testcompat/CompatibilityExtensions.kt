@@ -7,4 +7,4 @@ import gr.eduinvoice.domain.model.DomainStudent
  * Delegates to the canonical DomainStudent.getFullName() implementation to avoid duplication.
  */
 @Deprecated("Use DomainStudent.getFullName() directly")
-fun DomainStudent.fullNameCompat(): String = this.getFullName()
+fun DomainStudent.getFullName(): String = "${this.name} ${this.surname}".trim()

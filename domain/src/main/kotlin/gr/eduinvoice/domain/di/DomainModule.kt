@@ -75,12 +75,14 @@ object DomainModule {
             addLesson = AddLesson(repository),
             addGroupLesson = AddGroupLesson(repository),
             addGroupLessonWithAbsences = AddGroupLessonWithAbsences(repository),
+            editGroupLesson = EditGroupLesson(repository),
             updateLesson = UpdateLesson(repository),
             deleteLesson = DeleteLesson(repository),
             updateLessonPaidStatus = UpdateLessonPaidStatus(repository),
             updateLessonInvoicedStatus = UpdateLessonInvoicedStatus(repository),
             isLessonInvoiced = IsLessonInvoiced(repository),
             getLessonsWithStudentsPaginated = GetLessonsWithStudentsPaginated(repository),
-            getAbsencesForStudent = GetAbsencesForStudent(repository)
+            getAbsencesForStudent = GetAbsencesForStudent(repository),
+            getGroupLessonMasters = GetGroupLessonMasters(repository)
         )
 }

@@ -107,18 +107,28 @@ fun GroupScreen(
                         } else {
                             val state = viewModel.uiState.value
                             val targetClass = if (state.selectedClass == "Custom") state.customClass else state.selectedClass
-                            val selectedStudents = state.students.filter { it.selected }
-                            val classMismatch = selectedStudents.any { it.className != targetClass }
-                            val billingMismatch = selectedStudents.any { it.rateType != state.rateType }
-                            pendingClassMismatch = classMismatch
-                            pendingBillingMismatch = billingMismatch
+                            val toAddIds = viewModel.getToAddIds()
+                            // Mismatch checks for added students only
+                            val classMismatchToAdd = viewModel.getToAddSelections().any { it.className != targetClass }
+                            val billingMismatchToAdd = viewModel.getToAddSelections().any { it.rateType != state.rateType }
+                            // Detect edits to existing group that affect all current members
+                            val classChangedForExisting = viewModel.isClassChanged()
+                            val billingChangedForExisting = viewModel.isBillingChanged()
+
+                            pendingClassMismatch = classMismatchToAdd || classChangedForExisting
+                            pendingBillingMismatch = billingMismatchToAdd || billingChangedForExisting
                             classConfirmed = false
-                            if (classMismatch) {
+
+                            if (pendingClassMismatch) {
                                 showClassWarning = true
-                            } else if (billingMismatch) {
+                            } else if (pendingBillingMismatch) {
                                 showBillingWarning = true
                             } else {
-                                viewModel.saveGroup(overrideClass = false, overrideBilling = false)
+                                // No mismatches requiring confirmation
+                                viewModel.saveGroup(
+                                    overrideClass = false,
+                                    overrideBilling = false
+                                )
                                 onBack()
                             }
                         }
@@ -320,11 +330,66 @@ fun GroupScreen(
                 }
             }
 
+            if (viewModel.groupId != 0L) {
+                Spacer(Modifier.height(8.dp))
+                Text(text = "Group Lesson History", style = MaterialTheme.typography.titleMedium)
+                val history by viewModel.lessonHistory.collectAsStateWithLifecycle()
+                if (history.isEmpty()) {
+                    Text("No group lessons yet.")
+                } else {
+                    LazyColumn {
+                        items(history) { master ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(Dimensions.PaddingSmall),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text("Date: ${master.date}", style = MaterialTheme.typography.bodyMedium)
+                                        Text("Time: ${master.startTime}", style = MaterialTheme.typography.bodySmall)
+                                        Text("Duration: ${master.durationMinutes} min", style = MaterialTheme.typography.bodySmall)
+                                        master.notes?.let { Text("Notes: $it", style = MaterialTheme.typography.bodySmall) }
+                                    }
+                                    TextButton(onClick = {
+                                        // Navigate to Lesson screen to edit; we treat master.id as lessonId for edit
+                                        onAddGroupLesson(viewModel.groupId) // default action to open; then user can adjust
+                                    }) { Text("Edit") }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             if (showClassWarning) {
                 AlertDialog(
                     onDismissRequest = { showClassWarning = false },
                     title = { Text("Warning") },
-                    text = { Text("Warning: Some selected students are not in ${uiState.selectedClass.ifBlank { "the selected class" }}. Adding them to this group will overwrite their current class. Do you want to proceed?") },
+                    text = {
+                        val text = buildString {
+                            val state = viewModel.uiState.value
+                            val targetClass = if (state.selectedClass == "Custom") state.customClass else state.selectedClass
+                            if (viewModel.isClassChanged()) {
+                                append("You are about to change the class for this group to '")
+                                append(targetClass)
+                                append("'. This will overwrite this setting for all current members.\n\n")
+                            }
+                            if (viewModel.hasToAddClassMismatch(targetClass)) {
+                                append("Warning: Some newly added students are not in '")
+                                append(targetClass)
+                                append("'. Adding them will overwrite their current class.\n")
+                            }
+                        }
+                        Text(text)
+                    },
                     confirmButton = {
                         TextButton(onClick = {
                             showClassWarning = false
@@ -332,7 +397,9 @@ fun GroupScreen(
                             if (pendingBillingMismatch) {
                                 showBillingWarning = true
                             } else {
-                                viewModel.saveGroup(overrideClass = true, overrideBilling = false)
+                                // If class changed for existing, override all selected; if only toAdd mismatch, override just added
+                                val targets = if (viewModel.isClassChanged()) null else viewModel.getToAddIds()
+                                viewModel.saveGroup(overrideClass = true, overrideBilling = false, overrideTargets = targets)
                                 onBack()
                             }
                         }) { Text("Proceed") }
@@ -344,11 +411,23 @@ fun GroupScreen(
                 AlertDialog(
                     onDismissRequest = { showBillingWarning = false },
                     title = { Text("Warning") },
-                    text = { Text("Warning: The billing method for some selected students differs from the group's. This will overwrite their individual billing settings. Do you want to proceed?") },
+                    text = {
+                        val text = buildString {
+                            val state = viewModel.uiState.value
+                            if (viewModel.isBillingChanged()) {
+                                append("You are about to change the billing for this group. This will overwrite billing settings for all current members.\n\n")
+                            }
+                            if (viewModel.getToAddSelections().any { it.rateType != state.rateType }) {
+                                append("Warning: Some newly added students have different billing. Saving will overwrite their billing settings.\n")
+                            }
+                        }
+                        Text(text)
+                    },
                     confirmButton = {
                         TextButton(onClick = {
                             showBillingWarning = false
-                            viewModel.saveGroup(overrideClass = classConfirmed, overrideBilling = true)
+                            val targets = if (viewModel.isBillingChanged()) null else viewModel.getToAddIds()
+                            viewModel.saveGroup(overrideClass = classConfirmed, overrideBilling = true, overrideTargets = targets)
                             onBack()
                         }) { Text("Proceed") }
                     },
