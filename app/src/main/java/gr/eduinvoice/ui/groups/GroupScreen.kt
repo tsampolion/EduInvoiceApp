@@ -29,6 +29,7 @@ fun GroupScreen(
     onBack: () -> Unit,
     onAddGroupLesson: (Long) -> Unit,
     onMemberClick: (Long) -> Unit,
+    onEditGroupMaster: (Long, Long) -> Unit = { _, _ -> },
     viewModel: GroupViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -99,12 +100,8 @@ fun GroupScreen(
                             )
                         }
                     }
-                    val nameState = viewModel.uiState.collectAsStateWithLifecycle().value.name
-                    var nameErrorHeader by remember { mutableStateOf(false) }
                     TextButton(onClick = {
-                        if (nameState.isBlank()) {
-                            nameErrorHeader = true
-                        } else {
+                        if (!viewModel.isFormValid()) {
                             val state = viewModel.uiState.value
                             val targetClass = if (state.selectedClass == "Custom") state.customClass else state.selectedClass
                             val toAddIds = viewModel.getToAddIds()
@@ -132,7 +129,7 @@ fun GroupScreen(
                                 onBack()
                             }
                         }
-                    }) { Text("Save") }
+                    }, enabled = viewModel.isFormValid()) { Text("Save") }
                     IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
                 }
             }
@@ -185,6 +182,18 @@ fun GroupScreen(
                         }
                     )
                 }
+            }
+
+            val errorMessage = viewModel.uiState.collectAsStateWithLifecycle().value.errorMessage
+            if (!errorMessage.isNullOrBlank()) {
+                AlertDialog(
+                    onDismissRequest = { viewModel.clearError() },
+                    title = { Text("Action blocked") },
+                    text = { Text(errorMessage) },
+                    confirmButton = {
+                        TextButton(onClick = { viewModel.clearError() }) { Text("OK") }
+                    }
+                )
             }
 
             val customClassError = uiState.selectedClass == "Custom" && uiState.customClass.isBlank()
@@ -356,12 +365,31 @@ fun GroupScreen(
                                         Text("Date: ${master.date}", style = MaterialTheme.typography.bodyMedium)
                                         Text("Time: ${master.startTime}", style = MaterialTheme.typography.bodySmall)
                                         Text("Duration: ${master.durationMinutes} min", style = MaterialTheme.typography.bodySmall)
+                                        val absentCount by viewModel.getAbsentCount(master.id).collectAsState(initial = 0)
+                                        if (absentCount > 0) {
+                                            Text("Absences: $absentCount", style = MaterialTheme.typography.bodySmall)
+                                        }
                                         master.notes?.let { Text("Notes: $it", style = MaterialTheme.typography.bodySmall) }
                                     }
-                                    TextButton(onClick = {
-                                        // Navigate to Lesson screen to edit; we treat master.id as lessonId for edit
-                                        onAddGroupLesson(viewModel.groupId) // default action to open; then user can adjust
-                                    }) { Text("Edit") }
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                        TextButton(onClick = { onEditGroupMaster(viewModel.groupId, master.id) }) { Text("Edit") }
+                                        var showDelete by remember { mutableStateOf(false) }
+                                        TextButton(onClick = { showDelete = true }) { Text("Delete") }
+                                        if (showDelete) {
+                                            AlertDialog(
+                                                onDismissRequest = { showDelete = false },
+                                                title = { Text("Delete Group Lesson") },
+                                                text = { Text("Are you sure you want to delete this group lesson?") },
+                                                confirmButton = {
+                                                    TextButton(onClick = {
+                                                        viewModel.deleteGroupLesson(master.id)
+                                                        showDelete = false
+                                                    }) { Text("Delete") }
+                                                },
+                                                dismissButton = { TextButton(onClick = { showDelete = false }) { Text("Cancel") } }
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }

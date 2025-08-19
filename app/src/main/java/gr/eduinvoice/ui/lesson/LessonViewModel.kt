@@ -43,6 +43,7 @@ class LessonViewModel @Inject constructor(
     private val studentId: Long? = savedStateHandle.get<Long>("studentId")
     private val lessonId: Long? = savedStateHandle.get<Long>("lessonId")
     private val initialGroupId: Long? = savedStateHandle.get<Long>("groupId")
+    private val groupMasterId: Long? = savedStateHandle.get<Long>("groupMasterId")
 
     private fun initialState(): LessonUiState {
         val nowDate = LocalDate.now().format(dateFormatter)
@@ -77,6 +78,39 @@ class LessonViewModel @Inject constructor(
         initialGroupId?.takeIf { it != 0L }?.let { gid ->
             _uiState.update { it.copy(isGroupLesson = true) }
             updateSelectedGroup(gid)
+        }
+        // Prefill from group master if provided
+        groupMasterId?.takeIf { it != 0L }?.let { mid ->
+            viewModelScope.launch {
+                val uid = currentUserProvider.loggedInUserId.first() ?: 0L
+                // Load master
+                lessonUseCases.getGroupLessonMasterById(mid, uid).collect { master ->
+                    master?.let { m ->
+                        _uiState.update { st ->
+                            st.copy(
+                                isGroupLesson = true,
+                                selectedGroupId = m.groupId,
+                                date = LocalDate.parse(m.date).format(dateFormatter),
+                                startTime = m.startTime,
+                                durationMinutes = m.durationMinutes.toString(),
+                                notes = m.notes ?: st.notes,
+                                originalDate = m.date,
+                                originalStartTime = m.startTime,
+                                originalDuration = m.durationMinutes
+                            )
+                        }
+                    }
+                }
+                // Load absences and pre-check
+                lessonUseCases.getAbsentStudentIdsForMaster(mid, uid).collect { absentIds ->
+                    val gid = _uiState.value.selectedGroupId
+                    if (gid != null) {
+                        val members = getGroupMembers(gid)
+                        val map = members.associate { it.id to (it.id in absentIds) }
+                        _uiState.update { it.copy(markAbsences = true, absentStudents = map) }
+                    }
+                }
+            }
         }
     }
 
@@ -177,10 +211,20 @@ class LessonViewModel @Inject constructor(
     fun updateSelectedGroup(id: Long) {
         viewModelScope.launch {
             val userId = currentUserProvider.loggedInUserId.first() ?: 0L
-            groupUseCases.getGroupStudents(id, userId).collect { students ->
+            val groupFlow = groupUseCases.getGroupById(id, userId)
+            val studentsFlow = groupUseCases.getGroupStudents(id, userId)
+            combine(groupFlow, studentsFlow) { group, students -> Pair(group, students) }.collect { (group, students) ->
                 groupMembers[id] = students
                 val absentMap = students.associate { it.id to false }
-                _uiState.update { it.copy(selectedGroupId = id, selectedStudentId = null, isGroupLesson = true, markAbsences = false, absentStudents = absentMap) }
+                _uiState.update { it.copy(
+                    selectedGroupId = id,
+                    selectedStudentId = null,
+                    isGroupLesson = true,
+                    markAbsences = false,
+                    absentStudents = absentMap,
+                    // Load group's billing type for fee labels/calculation
+                    rateType = group?.rateType ?: it.rateType
+                ) }
             }
         }
     }
@@ -283,22 +327,30 @@ class LessonViewModel @Inject constructor(
                         members.filter { m -> state.absentStudents[m.id] != true }
                     } else members
                     if (presentMembers.isNotEmpty()) {
-                        if (lessonId != null && lessonId != 0L && state.originalDate != null && state.originalStartTime != null && state.originalDuration != null) {
-                            // Edit existing group lesson via master id = lessonId
+                        // If editing a group lesson, prefer groupMasterId when present
+                        val editingMasterId = groupMasterId?.takeIf { it != 0L } ?: lessonId
+                        if (editingMasterId != null && editingMasterId != 0L && state.originalDate != null && state.originalStartTime != null && state.originalDuration != null) {
+                            // Edit existing group lesson via master id
                             val absentIds = members.filter { m -> state.absentStudents[m.id] == true }.map { it.id }
-                            lessonUseCases.editGroupLesson(
-                                masterId = lessonId,
-                                groupId = state.selectedGroupId!!,
-                                originalDate = state.originalDate!!,
-                                originalStartTime = state.originalStartTime!!,
-                                originalDuration = state.originalDuration!!,
-                                newDate = LocalDate.parse(state.date, dateFormatter).toString(),
-                                newStartTime = state.startTime,
-                                newDuration = duration,
-                                newNotes = state.notes.ifBlank { null },
-                                newAbsentStudentIds = absentIds,
-                                userId = userId
-                            )
+                            val result = runCatching {
+                                lessonUseCases.editGroupLesson(
+                                    masterId = editingMasterId,
+                                    groupId = state.selectedGroupId!!,
+                                    originalDate = state.originalDate!!,
+                                    originalStartTime = state.originalStartTime!!,
+                                    originalDuration = state.originalDuration!!,
+                                    newDate = LocalDate.parse(state.date, dateFormatter).toString(),
+                                    newStartTime = state.startTime,
+                                    newDuration = duration,
+                                    newNotes = state.notes.ifBlank { null },
+                                    newAbsentStudentIds = absentIds,
+                                    userId = userId
+                                )
+                            }
+                            result.onFailure { e ->
+                                _uiState.update { it.copy(errorMessage = e.message ?: "Edit failed") }
+                                return@launch
+                            }
                         } else {
                             // Create new group lesson
                             if (state.markAbsences) {
@@ -389,6 +441,33 @@ class LessonViewModel @Inject constructor(
             (duration.coerceAtLeast(MIN_DURATION) / 60.0) * state.studentRate
         }
     }
+
+    fun attemptSaveLesson() {
+        viewModelScope.launch {
+            val state = _uiState.value
+            if (state.isGroupLesson) {
+                val editingMasterId = groupMasterId?.takeIf { it != 0L } ?: lessonId
+                if (editingMasterId != null && editingMasterId != 0L) {
+                    val uid = currentUserProvider.loggedInUserId.first() ?: 0L
+                    val locked = lessonUseCases.hasInvoicedOrPaidLessonsForMaster(editingMasterId, uid)
+                    if (locked) {
+                        _uiState.update { it.copy(showLockedWarning = true) }
+                        return@launch
+                    }
+                }
+            }
+            saveLesson()
+        }
+    }
+
+    fun confirmProceedAfterLockedWarning() {
+        _uiState.update { it.copy(showLockedWarning = false) }
+        saveLesson()
+    }
+
+    fun dismissLockedWarning() {
+        _uiState.update { it.copy(showLockedWarning = false) }
+    }
 }
 
 data class LessonUiState(
@@ -412,5 +491,6 @@ data class LessonUiState(
     // Fields to support retroactive edits of group lessons
     val originalDate: String? = null,
     val originalStartTime: String? = null,
-    val originalDuration: Int? = null
+    val originalDuration: Int? = null,
+    val showLockedWarning: Boolean = false
 )

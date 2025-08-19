@@ -111,18 +111,32 @@ class DomainLessonRepositoryAdapter @Inject constructor(
 
     override fun getGroupAbsences(userId: Long): Flow<List<gr.eduinvoice.domain.model.DomainAbsence>> =
         lessonDao.getAllAbsenceDetails(userId).map { rows ->
-            rows.map { r -> gr.eduinvoice.domain.model.DomainAbsence(r.id, r.groupLessonId, r.groupId, r.studentId, r.date, r.startTime) }
+            rows.map { r -> gr.eduinvoice.domain.model.DomainAbsence(r.id, r.groupLessonId, r.groupId, r.studentId, r.studentName, r.studentSurname, r.date, r.startTime) }
         }
 
     override fun getAbsencesForStudent(studentId: Long, userId: Long): Flow<List<gr.eduinvoice.domain.model.DomainAbsence>> =
         lessonDao.getAbsenceDetailsForStudent(studentId, userId).map { rows ->
-            rows.map { r -> gr.eduinvoice.domain.model.DomainAbsence(r.id, r.groupLessonId, r.groupId, r.studentId, r.date, r.startTime) }
+            rows.map { r -> gr.eduinvoice.domain.model.DomainAbsence(r.id, r.groupLessonId, r.groupId, r.studentId, r.studentName, r.studentSurname, r.date, r.startTime) }
         }
 
     override fun getGroupLessonMasters(groupId: Long, userId: Long): Flow<List<gr.eduinvoice.domain.model.DomainGroupLessonMaster>> =
         lessonDao.getGroupLessonMastersByGroup(groupId, userId).map { list ->
             list.map { m -> gr.eduinvoice.domain.model.DomainGroupLessonMaster(m.id, m.ownerId, m.groupId, m.date, m.startTime, m.durationMinutes, m.notes) }
         }
+
+    override fun getGroupLessonMasterById(masterId: Long, userId: Long): Flow<gr.eduinvoice.domain.model.DomainGroupLessonMaster?> =
+        lessonDao.getGroupLessonMasterById(masterId, userId).map { m ->
+            m?.let { gr.eduinvoice.domain.model.DomainGroupLessonMaster(it.id, it.ownerId, it.groupId, it.date, it.startTime, it.durationMinutes, it.notes) }
+        }
+
+    override fun getAbsentStudentIdsForMaster(masterId: Long, userId: Long): Flow<List<Long>> =
+        lessonDao.getAbsencesByMaster(masterId, userId).map { list -> list.map { it.studentId } }
+
+    override suspend fun deleteGroupLesson(masterId: Long, userId: Long) =
+        eduInvoiceRepository.deleteGroupLesson(masterId, userId)
+
+    override suspend fun hasInvoicedOrPaidLessonsForMaster(masterId: Long, userId: Long): Boolean =
+        lessonDao.countPaidOrInvoicedByMaster(masterId, userId) > 0
 
     private fun DomainLesson.toDataModel(): Lesson = Lesson(
         id = id,

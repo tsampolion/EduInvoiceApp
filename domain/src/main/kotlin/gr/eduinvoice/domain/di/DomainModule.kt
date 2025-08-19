@@ -83,6 +83,10 @@ object DomainModule {
             isLessonInvoiced = IsLessonInvoiced(repository),
             getLessonsWithStudentsPaginated = GetLessonsWithStudentsPaginated(repository),
             getAbsencesForStudent = GetAbsencesForStudent(repository),
-            getGroupLessonMasters = GetGroupLessonMasters(repository)
+            getGroupLessonMasters = GetGroupLessonMasters(repository),
+            getGroupLessonMasterById = GetGroupLessonMasterById(repository),
+            getAbsentStudentIdsForMaster = GetAbsentStudentIdsForMaster(repository),
+            deleteGroupLesson = DeleteGroupLesson(repository),
+            hasInvoicedOrPaidLessonsForMaster = HasInvoicedOrPaidLessonsForMaster(repository)
         )
 }

@@ -44,4 +44,8 @@ interface DomainLessonRepository {
         userId: Long = 0
     )
     fun getGroupLessonMasters(groupId: Long, userId: Long = 0): Flow<List<gr.eduinvoice.domain.model.DomainGroupLessonMaster>>
+    fun getGroupLessonMasterById(masterId: Long, userId: Long = 0): Flow<gr.eduinvoice.domain.model.DomainGroupLessonMaster?>
+    fun getAbsentStudentIdsForMaster(masterId: Long, userId: Long = 0): Flow<List<Long>>
+    suspend fun deleteGroupLesson(masterId: Long, userId: Long = 0)
+    suspend fun hasInvoicedOrPaidLessonsForMaster(masterId: Long, userId: Long = 0): Boolean
 }

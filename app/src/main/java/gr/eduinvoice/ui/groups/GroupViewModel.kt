@@ -83,7 +83,7 @@ class GroupViewModel @Inject constructor(
     }
 
     fun updateName(value: String) {
-        _uiState.value = _uiState.value.copy(name = value)
+        _uiState.value = _uiState.value.copy(name = value, errorMessage = null)
     }
 
     fun toggleStudent(id: Long) {
@@ -185,6 +185,33 @@ class GroupViewModel @Inject constructor(
     fun hasToAddBillingMismatch(targetRateType: String): Boolean =
         getToAddSelections().any { it.rateType != targetRateType }
 
+    fun getAbsentCount(masterId: Long): Flow<Int> {
+        return currentUserProvider.loggedInUserId.filterNotNull().flatMapLatest { uid ->
+            lessonUseCases.getAbsentStudentIdsForMaster(masterId, uid).map { it.size }
+        }
+    }
+
+    fun deleteGroupLesson(masterId: Long) {
+        viewModelScope.launch {
+            val userId = currentUserProvider.loggedInUserId.first() ?: 0L
+            try {
+                lessonUseCases.deleteGroupLesson(masterId, userId)
+            } catch (t: Throwable) {
+                _uiState.update { it.copy(errorMessage = t.message ?: "Delete failed") }
+            }
+        }
+    }
+
+    fun isFormValid(): Boolean {
+        val state = _uiState.value
+        if (state.name.isBlank()) return false
+        if (state.selectedClass.isBlank()) return false
+        if (state.selectedClass == "Custom" && state.customClass.isBlank()) return false
+        val rate = state.rate.toDoubleOrNull()
+        if (rate == null || rate <= 0.0) return false
+        return true
+    }
+
     fun deleteGroup() {
         viewModelScope.launch {
             val userId = currentUserProvider.loggedInUserId.first() ?: 0L
@@ -201,6 +228,10 @@ class GroupViewModel @Inject constructor(
                 groupUseCases.archiveGroup(groupId, userId)
             }
         }
+    }
+
+    fun clearError() {
+        _uiState.update { it.copy(errorMessage = null) }
     }
 }
 
@@ -220,5 +251,6 @@ data class GroupUiState(
     val selectedClass: String = "",
     val customClass: String = "",
     val rate: String = "",
-    val rateType: String = DomainRateTypes.HOURLY
+    val rateType: String = DomainRateTypes.HOURLY,
+    val errorMessage: String? = null
 )

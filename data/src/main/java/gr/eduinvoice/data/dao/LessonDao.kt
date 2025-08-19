@@ -46,14 +46,18 @@ interface LessonDao {
     fun getAbsencesForStudent(studentId: Long, userId: Long): Flow<List<gr.eduinvoice.data.model.GroupLessonAbsence>>
 
     @Query(
-        "SELECT a.id AS id, a.groupLessonId AS groupLessonId, m.groupId AS groupId, a.studentId AS studentId, m.date AS date, m.startTime AS startTime " +
-            "FROM group_lesson_absences a INNER JOIN group_lesson_master m ON a.groupLessonId = m.id WHERE a.ownerId = :userId ORDER BY m.date DESC, m.startTime DESC"
+        "SELECT a.id AS id, a.groupLessonId AS groupLessonId, m.groupId AS groupId, a.studentId AS studentId, s.name AS studentName, s.surname AS studentSurname, m.date AS date, m.startTime AS startTime " +
+            "FROM group_lesson_absences a INNER JOIN group_lesson_master m ON a.groupLessonId = m.id " +
+            "LEFT JOIN students s ON s.id = a.studentId AND s.ownerId = a.ownerId " +
+            "WHERE a.ownerId = :userId ORDER BY m.date DESC, m.startTime DESC"
     )
     fun getAllAbsenceDetails(userId: Long): Flow<List<gr.eduinvoice.data.database.AbsenceDetailRow>>
 
     @Query(
-        "SELECT a.id AS id, a.groupLessonId AS groupLessonId, m.groupId AS groupId, a.studentId AS studentId, m.date AS date, m.startTime AS startTime " +
-            "FROM group_lesson_absences a INNER JOIN group_lesson_master m ON a.groupLessonId = m.id WHERE a.studentId = :studentId AND a.ownerId = :userId ORDER BY m.date DESC, m.startTime DESC"
+        "SELECT a.id AS id, a.groupLessonId AS groupLessonId, m.groupId AS groupId, a.studentId AS studentId, s.name AS studentName, s.surname AS studentSurname, m.date AS date, m.startTime AS startTime " +
+            "FROM group_lesson_absences a INNER JOIN group_lesson_master m ON a.groupLessonId = m.id " +
+            "LEFT JOIN students s ON s.id = a.studentId AND s.ownerId = a.ownerId " +
+            "WHERE a.studentId = :studentId AND a.ownerId = :userId ORDER BY m.date DESC, m.startTime DESC"
     )
     fun getAbsenceDetailsForStudent(studentId: Long, userId: Long): Flow<List<gr.eduinvoice.data.database.AbsenceDetailRow>>
 
@@ -144,6 +148,7 @@ interface LessonDao {
        SELECT lessons.id AS lesson_id,
               lessons.studentId AS lesson_studentId,
               lessons.groupId AS lesson_groupId,
+              lessons.masterId AS lesson_masterId,
               lessons.ownerId AS lesson_ownerId,
               lessons.date AS lesson_date,
                lessons.startTime AS lesson_startTime,
@@ -176,6 +181,7 @@ interface LessonDao {
        SELECT lessons.id AS lesson_id,
               lessons.studentId AS lesson_studentId,
               lessons.groupId AS lesson_groupId,
+              lessons.masterId AS lesson_masterId,
               lessons.ownerId AS lesson_ownerId,
               lessons.date AS lesson_date,
                lessons.startTime AS lesson_startTime,
@@ -213,6 +219,7 @@ interface LessonDao {
        SELECT lessons.id AS lesson_id,
               lessons.studentId AS lesson_studentId,
               lessons.groupId AS lesson_groupId,
+              lessons.masterId AS lesson_masterId,
               lessons.ownerId AS lesson_ownerId,
               lessons.date AS lesson_date,
                lessons.startTime AS lesson_startTime,
@@ -245,6 +252,7 @@ interface LessonDao {
        SELECT lessons.id AS lesson_id,
               lessons.studentId AS lesson_studentId,
               lessons.groupId AS lesson_groupId,
+              lessons.masterId AS lesson_masterId,
               lessons.ownerId AS lesson_ownerId,
               lessons.date AS lesson_date,
                lessons.startTime AS lesson_startTime,
@@ -277,6 +285,7 @@ interface LessonDao {
        SELECT lessons.id AS lesson_id,
               lessons.studentId AS lesson_studentId,
               lessons.groupId AS lesson_groupId,
+              lessons.masterId AS lesson_masterId,
               lessons.ownerId AS lesson_ownerId,
               lessons.date AS lesson_date,
                lessons.startTime AS lesson_startTime,
@@ -302,4 +311,19 @@ interface LessonDao {
         """
     )
     fun getLessonsWithStudentsByStudentAndDateRange(studentId: Long, startDate: String, endDate: String, userId: Long): Flow<List<LessonWithStudent>>
+
+    @Query("SELECT * FROM lessons WHERE ownerId = :userId AND masterId = :masterId")
+    suspend fun getLessonsByMaster(masterId: Long, userId: Long): List<Lesson>
+
+    @Query("SELECT COUNT(*) FROM group_lesson_absences WHERE ownerId = :userId AND groupLessonId = :masterId")
+    fun getAbsenceCountForMaster(masterId: Long, userId: Long): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM lessons WHERE ownerId = :userId AND masterId = :masterId AND (isPaid = 1 OR isInvoiced = 1)")
+    suspend fun countPaidOrInvoicedByMaster(masterId: Long, userId: Long): Int
+
+    @Query("DELETE FROM lessons WHERE ownerId = :userId AND masterId = :masterId")
+    suspend fun deleteLessonsByMaster(masterId: Long, userId: Long)
+
+    @Query("DELETE FROM group_lesson_master WHERE ownerId = :userId AND id = :masterId")
+    suspend fun deleteGroupLessonMasterById(masterId: Long, userId: Long)
 }

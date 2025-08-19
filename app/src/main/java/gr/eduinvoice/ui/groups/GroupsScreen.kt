@@ -46,10 +46,8 @@ fun GroupsScreen(
     EdgeToEdgeScaffold(
         topBar = { },
         floatingActionButton = {
-            if (uiState.groups.isNotEmpty()) {
-                FloatingActionButton(onClick = onAddGroup) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Group")
-                }
+            FloatingActionButton(onClick = onAddGroup) {
+                Icon(Icons.Default.Add, contentDescription = "Add Group")
             }
         }
     ) { padding ->
@@ -74,10 +72,10 @@ fun GroupsScreen(
             if (showSheet) {
                 ModernSearchFilterSheet(
                     title = "Groups",
-                    query = "",
-                    onQueryChange = { /* TODO: implement query in GroupsViewModel */ },
-                    sortAscending = null,
-                    onToggleSort = null,
+                    query = viewModel.uiState.collectAsStateWithLifecycle().value.searchQuery,
+                    onQueryChange = { viewModel.updateQuery(it) },
+                    sortAscending = viewModel.uiState.collectAsStateWithLifecycle().value.sortAscending,
+                    onToggleSort = { viewModel.toggleSort() },
                     filters = null,
                     onFiltersChange = null,
                     onDismiss = { showSheet = false }
@@ -130,6 +128,7 @@ fun GroupsScreen(
 
 @Composable
 private fun GroupsAbsencesList(viewModel: GroupsViewModel) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val absences by viewModel.absences.collectAsStateWithLifecycle()
     if (absences.isEmpty()) {
         Box(
@@ -141,28 +140,46 @@ private fun GroupsAbsencesList(viewModel: GroupsViewModel) {
             Text(text = "No absences recorded", style = MaterialTheme.typography.bodyLarge)
         }
     } else {
+        val groupedByGroup = remember(absences) { absences.groupBy { it.groupId } }
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 80.dp)
         ) {
-            items(absences) { a ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(Dimensions.PaddingMedium),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(text = a.date, style = MaterialTheme.typography.titleSmall)
-                            Text(text = a.startTime, style = MaterialTheme.typography.bodyMedium)
+            groupedByGroup.forEach { (groupId, groupAbsences) ->
+                val groupName = uiState.groups.firstOrNull { it.id == groupId }?.name ?: "Group #$groupId"
+                item(key = "group_header_$groupId") {
+                    Text(
+                        text = groupName,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
+                    )
+                }
+                val groupedByStudent = groupAbsences.groupBy { it.studentId }
+                groupedByStudent.forEach { (studentId, studentAbsences) ->
+                    item(key = "student_header_${groupId}_${studentId}") {
+                        val first = studentAbsences.firstOrNull()
+                        val display = listOfNotNull(first?.studentName, first?.studentSurname).joinToString(" ").ifBlank { "Student #$studentId" }
+                        Text(text = display, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium))
+                    }
+                    items(studentAbsences, key = { it.id }) { a ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(Dimensions.PaddingMedium),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(text = a.date, style = MaterialTheme.typography.titleSmall)
+                                    Text(text = a.startTime, style = MaterialTheme.typography.bodyMedium)
+                                }
+                            }
                         }
-                        Text(text = "Group #${a.groupId} • Student #${a.studentId}", style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }

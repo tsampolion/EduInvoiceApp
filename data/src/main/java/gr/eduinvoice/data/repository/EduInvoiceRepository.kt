@@ -51,6 +51,21 @@ class EduInvoiceRepository @Inject constructor(
         ).getOrThrow()
     }
 
+    suspend fun deleteGroupLesson(masterId: Long, userId: Long) {
+        concurrencyController.executeSafeOperation(
+            operation = {
+                val lockedChildren = lessonDao.countPaidOrInvoicedByMaster(masterId, userId)
+                check(lockedChildren == 0) { "Some lessons are paid/invoiced. Delete is blocked." }
+                lessonDao.deleteLessonsByMaster(masterId, userId)
+                lessonDao.deleteGroupLessonMasterById(masterId, userId)
+            },
+            operationType = OperationType.DELETE,
+            resourceId = "group_lesson_master_$masterId",
+            priority = OperationPriority.HIGH,
+            useTransaction = true
+        ).getOrThrow()
+    }
+
     /**
      * Updates an existing student's information with concurrency safety
      */
@@ -212,6 +227,9 @@ class EduInvoiceRepository @Inject constructor(
     ) {
         concurrencyController.executeSafeOperation(
             operation = {
+                // Prevent silent edits if already paid/invoiced; the UI should confirm before proceeding
+                val lockedChildren = lessonDao.countPaidOrInvoicedByMaster(masterId, userId)
+                check(lockedChildren == 0) { "Some lessons are paid/invoiced. Editing is blocked." }
                 val master = lessonDao.getGroupLessonMasterById(masterId, userId).first()
                 checkNotNull(master) { "Group lesson master not found" }
 

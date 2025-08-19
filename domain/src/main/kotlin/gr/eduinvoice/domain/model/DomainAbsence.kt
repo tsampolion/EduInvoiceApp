@@ -5,6 +5,8 @@ data class DomainAbsence(
     val groupLessonId: Long,
     val groupId: Long,
     val studentId: Long,
+    val studentName: String? = null,
+    val studentSurname: String? = null,
     val date: String,
     val startTime: String
 )

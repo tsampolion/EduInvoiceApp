@@ -11,9 +11,9 @@ sealed class Screen(val route: String) {
         fun createRoute(studentId: Long) = "student/$studentId"
     }
     object Lessons : Screen("lessons")
-    object Lesson : Screen("lesson/{lessonId}?studentId={studentId}&groupId={groupId}") {
-        fun createRoute(lessonId: Long, studentId: Long = 0L, groupId: Long = 0L) =
-            "lesson/$lessonId?studentId=$studentId&groupId=$groupId"
+    object Lesson : Screen("lesson/{lessonId}?studentId={studentId}&groupId={groupId}&groupMasterId={groupMasterId}") {
+        fun createRoute(lessonId: Long, studentId: Long = 0L, groupId: Long = 0L, groupMasterId: Long = 0L) =
+            "lesson/$lessonId?studentId=$studentId&groupId=$groupId&groupMasterId=$groupMasterId"
     }
     object Classes : Screen("classes")
     object Revenue : Screen("revenue")

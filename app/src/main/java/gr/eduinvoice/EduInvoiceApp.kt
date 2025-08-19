@@ -147,6 +147,9 @@ fun EduInvoiceApp(
                 },
                 onMemberClick = { studentId ->
                     navController.navigate(Screen.Student.createRoute(studentId))
+                },
+                onEditGroupMaster = { groupId, masterId ->
+                    navController.navigate(Screen.Lesson.createRoute(0, 0, groupId, masterId))
                 }
             )
         }
@@ -255,6 +258,10 @@ fun EduInvoiceApp(
                 navArgument("groupId") {
                     type = NavType.LongType
                     defaultValue = 0L
+                },
+                navArgument("groupMasterId") {
+                    type = NavType.LongType
+                    defaultValue = 0L
                 }
             )
         ) { backStackEntry ->
@@ -264,6 +271,7 @@ fun EduInvoiceApp(
 
             val studentId = backStackEntry.arguments?.getLong("studentId") ?: 0L
             val groupId = backStackEntry.arguments?.getLong("groupId") ?: 0L
+            val groupMasterId = backStackEntry.arguments?.getLong("groupMasterId") ?: 0L
 
             LaunchedEffect(Unit) {
                 viewModel.setNavigationCallback {

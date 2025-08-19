@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
 
 @HiltViewModel
 class GroupsViewModel @Inject constructor(
@@ -26,13 +27,20 @@ class GroupsViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GroupsUiState())
     val uiState: StateFlow<GroupsUiState> = _uiState.asStateFlow()
+    private val _query = MutableStateFlow("")
+    private val _sortAscending = MutableStateFlow(true)
+    fun updateQuery(q: String) { _query.value = q }
+    fun toggleSort() { _sortAscending.value = !_sortAscending.value }
 
     init {
         viewModelScope.launch {
             val userId = currentUserProvider.loggedInUserId.first() ?: 0L
-            groupUseCases.getAllGroups(userId).collect { groups ->
-                _uiState.value = GroupsUiState(groups)
-            }
+            combine(groupUseCases.getAllGroups(userId), _query, _sortAscending) { groups, q, asc ->
+                val filtered = if (q.isBlank()) groups else groups.filter { it.name.contains(q, ignoreCase = true) }
+                val sorted = filtered.sortedWith(compareBy { it.name.lowercase() })
+                val ordered = if (asc) sorted else sorted.asReversed()
+                GroupsUiState(groups = ordered, searchQuery = q, sortAscending = asc)
+            }.collect { state -> _uiState.value = state }
         }
         viewModelScope.launch {
             val userId = currentUserProvider.loggedInUserId.first() ?: 0L
@@ -47,5 +55,7 @@ class GroupsViewModel @Inject constructor(
 }
 
 data class GroupsUiState(
-    val groups: List<gr.eduinvoice.domain.model.DomainStudentGroup> = emptyList()
+    val groups: List<gr.eduinvoice.domain.model.DomainStudentGroup> = emptyList(),
+    val searchQuery: String = "",
+    val sortAscending: Boolean = true
 )

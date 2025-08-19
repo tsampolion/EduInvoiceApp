@@ -48,6 +48,7 @@ fun LessonScreen(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showLockedWarning by remember { mutableStateOf(false) }
 
     Scaffold(topBar = { }) { paddingValues ->
         Column(
@@ -358,13 +359,25 @@ fun LessonScreen(
                     modifier = Modifier.weight(1f)
                 ) { Text(stringResource(R.string.cancel)) }
                 Button(
-                    onClick = {
-                        viewModel.saveLesson()
-                    },
+                    onClick = { viewModel.attemptSaveLesson() },
                     modifier = Modifier.weight(1f),
                     enabled = viewModel.isFormValid()
                 ) { Text(stringResource(R.string.save)) }
             }
         }
+    }
+
+    if (uiState.showLockedWarning) {
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissLockedWarning() },
+            title = { Text("Warning: Invoiced/Paid Lessons") },
+            text = { Text("Some individual lessons for this group lesson are already marked as invoiced or paid. Editing this lesson might affect financial records. Do you want to proceed?") },
+            confirmButton = {
+                TextButton(onClick = { viewModel.confirmProceedAfterLockedWarning() }) { Text("Proceed Anyway") }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.dismissLockedWarning() }) { Text(stringResource(R.string.cancel)) }
+            }
+        )
     }
 }
