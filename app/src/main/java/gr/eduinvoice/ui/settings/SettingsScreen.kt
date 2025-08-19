@@ -87,186 +87,186 @@ fun SettingsScreen(
         topBar = { }
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .imePadding()
-                .padding(Dimensions.PaddingMedium),
-            verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
-        ) {
-            SlimHeader(title = stringResource(R.string.settings))
-            HorizontalDivider()
-            Text(stringResource(R.string.general), style = MaterialTheme.typography.titleMedium)
-            state.settings?.let { settings ->
-                SettingCard(containerColor = AppColors.primaryContainer) {
-                    var expanded by remember { mutableStateOf(false) }
-                    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
-                        OutlinedTextField(
-                            value = settings.currencySymbol,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text(stringResource(R.string.currency)) },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
-                        )
-                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        currencies.forEach { (symbol, label) ->
-                            DropdownMenuItem(text = { Text("$symbol - $label") }, onClick = {
-                                viewModel.updateCurrencySymbol(symbol)
-                                expanded = false
-                            })
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .imePadding()
+                    .padding(Dimensions.PaddingMedium),
+                verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
+            ) {
+                SlimHeader(title = stringResource(R.string.settings))
+                HorizontalDivider()
+                Text(stringResource(R.string.general), style = MaterialTheme.typography.titleMedium)
+                state.settings?.let { settings ->
+                    SettingCard(containerColor = AppColors.primaryContainer) {
+                        var expanded by remember { mutableStateOf(false) }
+                        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+                            OutlinedTextField(
+                                value = settings.currencySymbol,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text(stringResource(R.string.currency)) },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
+                            )
+                            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                                currencies.forEach { (symbol, label) ->
+                                    DropdownMenuItem(text = { Text("$symbol - $label") }, onClick = {
+                                        viewModel.updateCurrencySymbol(symbol)
+                                        expanded = false
+                                    })
+                                }
+                            }
+                        }
+                    }
+                    SettingCard(containerColor = AppColors.secondaryContainer) {
+                        var expanded by remember { mutableStateOf(false) }
+                        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+                            OutlinedTextField(
+                                value = settings.roundingDecimals.toString(),
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text(stringResource(R.string.decimal_places)) },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
+                            )
+                            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                                listOf(0, 1, 2).forEach { option ->
+                                    DropdownMenuItem(text = { Text(option.toString()) }, onClick = {
+                                        viewModel.updateRounding(option)
+                                        expanded = false
+                                    })
+                                }
+                            }
                         }
                     }
                 }
-                }
-                }
-                SettingCard(containerColor = AppColors.secondaryContainer) {
-                    var expanded by remember { mutableStateOf(false) }
-                    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
-                        OutlinedTextField(
-                            value = settings.roundingDecimals.toString(),
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text(stringResource(R.string.decimal_places)) },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
-                        )
-                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        listOf(0, 1, 2).forEach { option ->
-                            DropdownMenuItem(text = { Text(option.toString()) }, onClick = {
-                                viewModel.updateRounding(option)
-                                expanded = false
-                            })
-                        }
-                    }
-                }
-                }
-            }
 
-            Text(stringResource(R.string.appearance), style = MaterialTheme.typography.titleMedium)
-            SettingCard(containerColor = AppColors.tertiaryContainer) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.dark_theme))
-                    Switch(
-                        checked = state.settings?.darkTheme == true,
-                        onCheckedChange = viewModel::updateDarkTheme
-                    )
-                }
-            }
-            state.settings?.let { settings ->
+                Text(stringResource(R.string.appearance), style = MaterialTheme.typography.titleMedium)
                 SettingCard(containerColor = AppColors.tertiaryContainer) {
-                    var expanded by remember { mutableStateOf(false) }
-                    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
-                        OutlinedTextField(
-                            value = settings.pdfThemeKey,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("PDF Theme") },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.dark_theme))
+                        Switch(
+                            checked = state.settings?.darkTheme == true,
+                            onCheckedChange = viewModel::updateDarkTheme
                         )
-                    ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                        listOf("default").forEach { key ->
-                            DropdownMenuItem(text = { Text(key) }, onClick = {
-                                viewModel.updatePdfTheme(key)
-                                expanded = false
-                            })
+                    }
+                }
+                state.settings?.let { settings ->
+                    SettingCard(containerColor = AppColors.tertiaryContainer) {
+                        var expanded by remember { mutableStateOf(false) }
+                        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+                            OutlinedTextField(
+                                value = settings.pdfThemeKey,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("PDF Theme") },
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                                modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled = true).fillMaxWidth()
+                            )
+                            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                                listOf("default").forEach { key ->
+                                    DropdownMenuItem(text = { Text(key) }, onClick = {
+                                        viewModel.updatePdfTheme(key)
+                                        expanded = false
+                                    })
+                                }
+                            }
+                        }
+                    }
+                } // <-- THIS WAS THE MISSING BRACE
+                Text(stringResource(R.string.account), style = MaterialTheme.typography.titleMedium)
+                val loggedIn = state.user != null
+                if (BuildConfig.DEBUG) {
+                    Log.d("SettingsScreen", "Account section loggedIn -> $loggedIn")
+                }
+                state.user?.let { user ->
+                    Text(user.fullName.ifBlank { user.username }, style = MaterialTheme.typography.bodyLarge)
+                    Button(
+                        onClick = onProfile,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.edit_profile))
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(onClick = onLogout, modifier = Modifier.weight(1f)) {
+                            Text(stringResource(R.string.logout))
+                        }
+                        Button(onClick = onSwitchAccount, modifier = Modifier.weight(1f)) {
+                            Text(stringResource(R.string.switch_account))
+                        }
+                    }
+
+                    var showConfirm by remember { mutableStateOf(false) }
+                    if (showConfirm) {
+                        AlertDialog(
+                            onDismissRequest = { showConfirm = false },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    showConfirm = false
+                                    viewModel.deleteAccount { onLogout() }
+                                }) { Text(stringResource(R.string.delete)) }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { showConfirm = false }) { Text(stringResource(R.string.cancel)) }
+                            },
+                            text = { Text(stringResource(R.string.delete_account_confirmation)) }
+                        )
+                    }
+                    Button(
+                        onClick = { showConfirm = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red.copy(alpha = 0.15f)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(stringResource(R.string.delete_account), color = Color.Red) }
+                } ?: run {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(onClick = onLogin, modifier = Modifier.weight(1f)) {
+                            Text(stringResource(R.string.sign_in))
+                        }
+                        Button(onClick = onRegister, modifier = Modifier.weight(1f)) {
+                            Text(stringResource(R.string.sign_up))
                         }
                     }
                 }
-            }
-            Text(stringResource(R.string.account), style = MaterialTheme.typography.titleMedium)
-            val loggedIn = state.user != null
-            if (BuildConfig.DEBUG) {
-                Log.d("SettingsScreen", "Account section loggedIn -> $loggedIn")
-            }
-            state.user?.let { user ->
-                Text(user.fullName.ifBlank { user.username }, style = MaterialTheme.typography.bodyLarge)
-                Button(
-                    onClick = onProfile,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.edit_profile))
-                }
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Button(onClick = onLogout, modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.logout))
+                    Button(onClick = { exportLauncher.launch("eduinvoice-backup.json") }, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.backup_export))
                     }
-                    Button(onClick = onSwitchAccount, modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.switch_account))
+                    Button(onClick = { importLauncher.launch(arrayOf("application/json")) }, modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.backup_restore))
                     }
                 }
 
-                var showConfirm by remember { mutableStateOf(false) }
-                if (showConfirm) {
-                    AlertDialog(
-                        onDismissRequest = { showConfirm = false },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                showConfirm = false
-                                viewModel.deleteAccount { onLogout() }
-                            }) { Text(stringResource(R.string.delete)) }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { showConfirm = false }) { Text(stringResource(R.string.cancel)) }
-                        },
-                        text = { Text(stringResource(R.string.delete_account_confirmation)) }
-                    )
-                }
                 Button(
-                    onClick = { showConfirm = true },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red.copy(alpha = 0.15f)),
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text(stringResource(R.string.delete_account), color = Color.Red) }
-            } ?: run {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium),
-                    modifier = Modifier.fillMaxWidth()
+                    onClick = onPrivacyPolicy,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.errorContainer)
                 ) {
-                    Button(onClick = onLogin, modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.sign_in))
-                    }
-                    Button(onClick = onRegister, modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.sign_up))
-                    }
+                    Text(stringResource(R.string.privacy_policy))
                 }
             }
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Button(onClick = { exportLauncher.launch("eduinvoice-backup.json") }, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.backup_export))
-                }
-                Button(onClick = { importLauncher.launch(arrayOf("application/json")) }, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.backup_restore))
-                }
-            }
-
-            Button(
-                onClick = onPrivacyPolicy,
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = AppColors.errorContainer)
-            ) {
-                Text(stringResource(R.string.privacy_policy))
-            }
-        }
-        NavigationMenuButton(
-            onClick = openDrawer,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .statusBarsPadding()
-                .padding(8.dp)
-        )
+            NavigationMenuButton(
+                onClick = openDrawer,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .statusBarsPadding()
+                    .padding(8.dp)
+            )
         }
     }
 }
