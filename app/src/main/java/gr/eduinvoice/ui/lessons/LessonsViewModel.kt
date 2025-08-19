@@ -220,3 +220,5 @@ sealed interface LessonDialog {
     data class AlreadyInvoiced(val lessonId: Long, val paid: Boolean) : LessonDialog
     data class GenerateInvoice(val lessonId: Long, val studentId: Long) : LessonDialog
 }
+
+// Financial guard-aware delete action can be implemented from UI by catching repository errors

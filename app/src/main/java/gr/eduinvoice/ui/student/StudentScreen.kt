@@ -100,6 +100,10 @@ fun StudentScreen(
         } else {
             var selectedTab by remember { mutableStateOf(0) }
             Column(modifier = modifier.padding(paddingValues)) {
+                uiState.errorMessage?.let { msg ->
+                    Text(text = msg, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium))
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
                 TabRow(selectedTabIndex = selectedTab) {
                     Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }, text = { Text("Lessons") })
                     if (!uiState.groupName.isNullOrBlank()) {

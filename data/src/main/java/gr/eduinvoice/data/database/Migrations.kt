@@ -164,3 +164,23 @@ val MIGRATION_18_19 = object : Migration(18, 19) {
         db.execSQL("CREATE INDEX IF NOT EXISTS index_lessons_masterId ON lessons(masterId)")
     }
 }
+
+// Introduce invoice_master table for batch invoice runs
+val MIGRATION_19_20 = object : Migration(19, 20) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS invoice_master (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "ownerId INTEGER NOT NULL DEFAULT 0, " +
+                "studentId INTEGER NOT NULL, " +
+                "invoiceNumber TEXT NOT NULL, " +
+                "invoiceDate TEXT NOT NULL, " +
+                "notes TEXT, " +
+                "isArchived INTEGER NOT NULL DEFAULT 0, " +
+                "lastModified INTEGER NOT NULL DEFAULT 0)"
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_invoice_master_studentId ON invoice_master(studentId)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_invoice_master_invoiceDate ON invoice_master(invoiceDate)")
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_invoice_master_invoiceNumber ON invoice_master(invoiceNumber)")
+    }
+}

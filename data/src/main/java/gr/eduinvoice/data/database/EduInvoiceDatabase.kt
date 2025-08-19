@@ -14,6 +14,8 @@ import gr.eduinvoice.data.database.MIGRATION_12_13
 import gr.eduinvoice.data.database.MIGRATION_13_15
 import gr.eduinvoice.data.database.MIGRATION_14_15
 import gr.eduinvoice.data.database.MIGRATION_15_16
+import gr.eduinvoice.data.database.MIGRATION_18_19
+import gr.eduinvoice.data.database.MIGRATION_19_20
 import gr.eduinvoice.data.model.GroupStudentCrossRef
 import gr.eduinvoice.data.model.Lesson
 import gr.eduinvoice.data.model.Student
@@ -21,11 +23,12 @@ import gr.eduinvoice.data.model.StudentGroup
 import gr.eduinvoice.data.model.User
 import gr.eduinvoice.data.model.GroupLessonMaster
 import gr.eduinvoice.data.model.GroupLessonAbsence
+import gr.eduinvoice.data.model.InvoiceMaster
 import net.sqlcipher.database.SupportFactory
 
 @Database(
-    entities = [Student::class, Lesson::class, StudentGroup::class, GroupStudentCrossRef::class, User::class, GroupLessonMaster::class, GroupLessonAbsence::class],
-    version = 19,
+    entities = [Student::class, Lesson::class, StudentGroup::class, GroupStudentCrossRef::class, User::class, GroupLessonMaster::class, GroupLessonAbsence::class, InvoiceMaster::class],
+    version = 20,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6, spec = AutoMigration5To6::class),
@@ -75,7 +78,8 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
                         MIGRATION_15_16,
                         MIGRATION_16_17,
                         MIGRATION_17_18,
-                        MIGRATION_18_19
+                        MIGRATION_18_19,
+                        MIGRATION_19_20
                     )
                     .build()
                 INSTANCE = instance

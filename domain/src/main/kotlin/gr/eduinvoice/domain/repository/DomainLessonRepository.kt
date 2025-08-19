@@ -48,4 +48,21 @@ interface DomainLessonRepository {
     fun getAbsentStudentIdsForMaster(masterId: Long, userId: Long = 0): Flow<List<Long>>
     suspend fun deleteGroupLesson(masterId: Long, userId: Long = 0)
     suspend fun hasInvoicedOrPaidLessonsForMaster(masterId: Long, userId: Long = 0): Boolean
+
+    // Invoice master operations
+    suspend fun createInvoiceMasterAndMarkLessons(
+        studentId: Long,
+        invoiceNumber: String,
+        invoiceDate: String,
+        notes: String?,
+        lessonIds: List<Long>,
+        userId: Long
+    ): Long
+
+    suspend fun archiveInvoiceMaster(id: Long, userId: Long)
+    suspend fun deleteInvoiceMaster(id: Long, userId: Long)
+
+    fun getInvoiceMastersByStudent(studentId: Long, userId: Long): kotlinx.coroutines.flow.Flow<List<gr.eduinvoice.domain.model.DomainInvoiceMaster>>
+    fun getInvoiceMasterById(id: Long, userId: Long): kotlinx.coroutines.flow.Flow<gr.eduinvoice.domain.model.DomainInvoiceMaster?>
+    suspend fun updateInvoiceMaster(master: gr.eduinvoice.domain.model.DomainInvoiceMaster, userId: Long)
 }

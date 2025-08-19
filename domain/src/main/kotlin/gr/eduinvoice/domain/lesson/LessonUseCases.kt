@@ -23,5 +23,12 @@ data class LessonUseCases @Inject constructor(
     val getGroupLessonMasterById: GetGroupLessonMasterById,
     val getAbsentStudentIdsForMaster: GetAbsentStudentIdsForMaster,
     val deleteGroupLesson: DeleteGroupLesson,
-    val hasInvoicedOrPaidLessonsForMaster: HasInvoicedOrPaidLessonsForMaster
+    val hasInvoicedOrPaidLessonsForMaster: HasInvoicedOrPaidLessonsForMaster,
+    val createInvoiceMasterAndMarkLessons: CreateInvoiceMasterAndMarkLessons,
+    val archiveInvoiceMaster: ArchiveInvoiceMaster,
+    val deleteInvoiceMaster: DeleteInvoiceMaster
+    ,
+    val getInvoiceMastersByStudent: GetInvoiceMastersByStudent,
+    val getInvoiceMasterById: GetInvoiceMasterById,
+    val updateInvoiceMaster: UpdateInvoiceMaster
 )

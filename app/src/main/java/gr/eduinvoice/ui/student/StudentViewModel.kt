@@ -340,6 +340,10 @@ class StudentViewModel @Inject constructor(
                     operation = {
                         _uiState.value.student?.let { student ->
                             val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+                            // Financial edit guard: prevent archive/delete when the student has any paid/invoiced lessons
+                            val lessons = lessonUseCases.getStudentLessons(student.id, uid).first()
+                            val hasLocked = lessons.any { it.isPaid || it.isInvoiced }
+                            if (hasLocked) throw IllegalStateException("Cannot archive student with paid or invoiced lessons")
                             studentUseCases.softDeleteStudent(student.id, uid)
                             student
                         } ?: throw IllegalArgumentException("No student to delete")

@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.hilt.navigation.compose.hiltViewModel
 import gr.eduinvoice.utils.archiveInvoice
 import gr.eduinvoice.utils.deleteInvoice
 import androidx.compose.runtime.rememberCoroutineScope
@@ -30,7 +31,7 @@ import java.io.IOException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PastInvoicesScreen(onBack: () -> Unit) {
+fun PastInvoicesScreen(onBack: () -> Unit, viewModel: InvoiceViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val invoicesDir = remember { File(context.filesDir, "invoices") }
     var invoices by remember { mutableStateOf<List<File>>(emptyList()) }
@@ -90,6 +91,12 @@ fun PastInvoicesScreen(onBack: () -> Unit) {
                                         }
                                     }
                                 )
+                                // Logical archive: also archive the invoice master if exists with same number
+                                // Note: filenames are invoiceNumber.pdf
+                                val invoiceNumber = file.name.removeSuffix(".pdf")
+                                LaunchedEffect(invoiceNumber) {
+                                    // No direct lookup by number; left as visual archive only for now
+                                }
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.delete_invoice)) },
                                     onClick = {

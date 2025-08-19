@@ -35,6 +35,8 @@ import gr.eduinvoice.R
 import gr.eduinvoice.domain.model.DomainStudent
 import gr.eduinvoice.ui.model.UiInvoiceLesson
 import gr.eduinvoice.ui.components.ClickableReadOnlyField
+import gr.eduinvoice.ui.components.ModernSearchFilterSheet
+import gr.eduinvoice.ui.components.FilterOptions
 import gr.eduinvoice.testcompat.getFullName
 import gr.eduinvoice.ui.settings.SettingsViewModel
 import gr.eduinvoice.ui.profile.ProfileViewModel
@@ -75,6 +77,10 @@ fun InvoiceScreen(
     var generatedInvoiceFile by remember { mutableStateOf<File?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var showSheet by remember { mutableStateOf(false) }
+    var localQuery by remember { mutableStateOf("") }
+    var sortAscending by remember { mutableStateOf(true) }
+    var filters by remember { mutableStateOf(FilterOptions()) }
 
     LaunchedEffect(errorMessage) {
         errorMessage?.let { msg ->
@@ -103,7 +109,9 @@ fun InvoiceScreen(
         }
     ) { padding ->
         Column(Modifier.padding(padding).padding(Dimensions.PaddingMedium)) {
-            SlimHeader(title = "Invoice", onBack = onBack)
+            SlimHeader(title = "Invoice", onBack = onBack, actions = {
+                AssistChip(onClick = { showSheet = true }, label = { Text("Search & Filter") })
+            })
             StudentDropdown(students, selectedStudentId, onSelect = viewModel::selectStudent)
             DateField("Start", startDate) { date -> viewModel.updateStartDate(date) }
             DateField("End", endDate) { date -> viewModel.updateEndDate(date) }
@@ -113,13 +121,39 @@ fun InvoiceScreen(
                     Text("Select All") }
             }
 
-            if (lessons.isEmpty()) {
+            val filteredLessons = remember(lessons, localQuery, sortAscending, filters) {
+                val dateRange = filters.dateRange
+                lessons.filter { item ->
+                    val matchesQuery = if (localQuery.isBlank()) true else {
+                        val hay = "${item.student.name} ${item.student.surname} ${item.date} ${item.startTime} ${item.lesson.notes ?: ""}".lowercase()
+                        hay.contains(localQuery.lowercase())
+                    }
+                    val inRange = if (dateRange.first != null && dateRange.second != null) {
+                        val millis = java.time.LocalDate.parse(item.date).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                        val start = dateRange.first!!
+                        val end = dateRange.second!!
+                        millis in start..end
+                    } else true
+                    val statusOk = if (filters.status.isEmpty()) true else {
+                        val paid = item.lesson.isPaid
+                        val invoiced = item.lesson.isInvoiced
+                        val active = !paid && !invoiced
+                        (filters.status.contains("active") && active) || (filters.status.contains("inactive") && (paid || invoiced))
+                    }
+                    matchesQuery && inRange && statusOk
+                }.let { list ->
+                    if (sortAscending) list.sortedWith(compareBy<UiInvoiceLesson> { it.date }.thenBy { it.startTime })
+                    else list.sortedWith(compareByDescending<UiInvoiceLesson> { it.date }.thenByDescending { it.startTime })
+                }
+            }
+
+            if (filteredLessons.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(stringResource(R.string.no_lessons_short))
                 }
             } else {
                 LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(lessons) { item ->
+                    items(filteredLessons) { item ->
                         LessonRow(
                             item = item,
                             checked = selectedLessons.contains(item.lesson.id),
@@ -129,6 +163,18 @@ fun InvoiceScreen(
                     }
                 }
             }
+        }
+        if (showSheet) {
+            ModernSearchFilterSheet(
+                title = "Invoice",
+                query = localQuery,
+                onQueryChange = { localQuery = it },
+                sortAscending = sortAscending,
+                onToggleSort = { sortAscending = !sortAscending },
+                filters = filters,
+                onFiltersChange = { filters = it },
+                onDismiss = { showSheet = false }
+            )
         }
         if (showConfirm) {
             AlertDialog(
@@ -160,7 +206,7 @@ fun InvoiceScreen(
                                     file
                                 )
                                 generatedInvoiceFile = file
-                                viewModel.markAsPaid(selected.map { it.lesson.id })
+                                viewModel.createInvoiceAndMark(selected.map { it.lesson.id }, invoiceNumber, invoiceData.invoiceDate.toString(), null)
                                 showConfirm = false
                             },
                             onFailure = {

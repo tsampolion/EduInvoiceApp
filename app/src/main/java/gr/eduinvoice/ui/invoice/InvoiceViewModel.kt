@@ -113,11 +113,15 @@ class InvoiceViewModel @Inject constructor(
         _selectedLessons.value = _lessons.value.map { it.id }.toSet()
     }
 
-    fun markAsPaid(ids: List<Long>) {
+    fun createInvoiceAndMark(ids: List<Long>, invoiceNumber: String, invoiceDate: String, notes: String?) {
         viewModelScope.launch {
             val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
-            lessonUseCases.updateLessonPaidStatus(ids, true, uid)
-            lessonUseCases.updateLessonInvoicedStatus(ids, true, uid)
+            val studentId = _selectedStudentId.value ?: return@launch
+            try {
+                lessonUseCases.createInvoiceMasterAndMarkLessons(studentId, invoiceNumber, invoiceDate, notes, ids, uid)
+            } catch (e: Exception) {
+                _errorMessage.value = e.message ?: "Failed to finalize invoice"
+            }
         }
     }
 }

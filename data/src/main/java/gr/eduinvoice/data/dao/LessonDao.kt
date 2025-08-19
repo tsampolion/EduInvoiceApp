@@ -21,6 +21,25 @@ interface LessonDao {
     @Insert
     suspend fun insertGroupLessonMaster(master: gr.eduinvoice.data.model.GroupLessonMaster): Long
 
+    // Invoice master
+    @Insert
+    suspend fun insertInvoiceMaster(master: gr.eduinvoice.data.model.InvoiceMaster): Long
+
+    @Update
+    suspend fun updateInvoiceMaster(master: gr.eduinvoice.data.model.InvoiceMaster)
+
+    @Query("SELECT * FROM invoice_master WHERE id = :id AND ownerId = :userId")
+    fun getInvoiceMasterById(id: Long, userId: Long): Flow<gr.eduinvoice.data.model.InvoiceMaster?>
+
+    @Query("SELECT * FROM invoice_master WHERE studentId = :studentId AND ownerId = :userId ORDER BY invoiceDate DESC, id DESC")
+    fun getInvoiceMastersByStudent(studentId: Long, userId: Long): Flow<List<gr.eduinvoice.data.model.InvoiceMaster>>
+
+    @Query("UPDATE invoice_master SET isArchived = 1 WHERE id = :id AND ownerId = :userId")
+    suspend fun archiveInvoiceMaster(id: Long, userId: Long)
+
+    @Query("DELETE FROM invoice_master WHERE id = :id AND ownerId = :userId")
+    suspend fun deleteInvoiceMaster(id: Long, userId: Long)
+
     @Update
     suspend fun updateGroupLessonMaster(master: gr.eduinvoice.data.model.GroupLessonMaster)
 
@@ -326,4 +345,8 @@ interface LessonDao {
 
     @Query("DELETE FROM group_lesson_master WHERE ownerId = :userId AND id = :masterId")
     suspend fun deleteGroupLessonMasterById(masterId: Long, userId: Long)
+
+    // Financial edit guards helpers
+    @Query("SELECT COUNT(*) FROM lessons WHERE id IN (:ids) AND ownerId = :userId AND (isPaid = 1 OR isInvoiced = 1)")
+    suspend fun countLockedLessons(ids: List<Long>, userId: Long): Int
 }

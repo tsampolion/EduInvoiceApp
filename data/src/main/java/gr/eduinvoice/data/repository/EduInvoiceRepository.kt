@@ -369,7 +369,12 @@ class EduInvoiceRepository @Inject constructor(
      */
     suspend fun deleteLesson(lessonId: Long, userId: Long) {
         concurrencyController.executeSafeOperation(
-            operation = { lessonDao.deleteById(lessonId, userId) },
+            operation = {
+                // Guard: prevent deletion when invoiced or paid
+                val locked = lessonDao.countLockedLessons(listOf(lessonId), userId)
+                check(locked == 0) { "Cannot delete a paid or invoiced lesson" }
+                lessonDao.deleteById(lessonId, userId)
+            },
             operationType = OperationType.DELETE,
             resourceId = "lesson_$lessonId",
             priority = OperationPriority.HIGH,
@@ -433,6 +438,72 @@ class EduInvoiceRepository @Inject constructor(
         }.getOrElse {
             lessons.map { Result.failure(Exception("Batch operation failed")) }
         }
+    }
+
+    /**
+     * Create an invoice master and mark selected lessons invoiced/paid in a single guarded transaction.
+     * - Prevents invoicing if any lesson is already invoiced by another master.
+     */
+    suspend fun createInvoiceMasterAndMarkLessons(
+        studentId: Long,
+        invoiceNumber: String,
+        invoiceDate: String,
+        notes: String?,
+        lessonIds: List<Long>,
+        userId: Long
+    ): Long {
+        require(lessonIds.isNotEmpty()) { "No lessons selected" }
+        return concurrencyController.executeSafeOperation(
+            operation = {
+                // Guard: do not double-invoice already invoiced lessons
+                val alreadyInvoiced = lessonIds.filter { id ->
+                    (lessonDao.isLessonInvoiced(id, userId).first() ?: false)
+                }
+                check(alreadyInvoiced.isEmpty()) { "Some lessons are already invoiced" }
+
+                val masterId = lessonDao.insertInvoiceMaster(
+                    gr.eduinvoice.data.model.InvoiceMaster(
+                        ownerId = userId,
+                        studentId = studentId,
+                        invoiceNumber = invoiceNumber,
+                        invoiceDate = invoiceDate,
+                        notes = notes
+                    )
+                )
+                // Mark lessons invoiced and paid
+                lessonDao.updateInvoicedStatus(lessonIds, true, userId)
+                lessonDao.updatePaidStatus(lessonIds, true, userId)
+                masterId
+            },
+            operationType = OperationType.BATCH,
+            resourceId = "invoice_${studentId}_$invoiceNumber",
+            priority = OperationPriority.HIGH,
+            useTransaction = true,
+            isolationLevel = TransactionIsolationLevel.SERIALIZABLE
+        ).getOrThrow()
+    }
+
+    suspend fun archiveInvoiceMaster(id: Long, userId: Long) {
+        concurrencyController.executeSafeOperation(
+            operation = { lessonDao.archiveInvoiceMaster(id, userId) },
+            operationType = OperationType.UPDATE,
+            resourceId = "invoice_master_$id",
+            priority = OperationPriority.NORMAL,
+            useTransaction = true
+        ).getOrThrow()
+    }
+
+    suspend fun deleteInvoiceMaster(id: Long, userId: Long) {
+        concurrencyController.executeSafeOperation(
+            operation = {
+                // Deleting a master should NOT delete lessons; it's only a record of issuance
+                lessonDao.deleteInvoiceMaster(id, userId)
+            },
+            operationType = OperationType.DELETE,
+            resourceId = "invoice_master_$id",
+            priority = OperationPriority.HIGH,
+            useTransaction = true
+        ).getOrThrow()
     }
 
     // ===== Health Check =====

@@ -138,6 +138,45 @@ class DomainLessonRepositoryAdapter @Inject constructor(
     override suspend fun hasInvoicedOrPaidLessonsForMaster(masterId: Long, userId: Long): Boolean =
         lessonDao.countPaidOrInvoicedByMaster(masterId, userId) > 0
 
+    override suspend fun createInvoiceMasterAndMarkLessons(
+        studentId: Long,
+        invoiceNumber: String,
+        invoiceDate: String,
+        notes: String?,
+        lessonIds: List<Long>,
+        userId: Long
+    ): Long = eduInvoiceRepository.createInvoiceMasterAndMarkLessons(studentId, invoiceNumber, invoiceDate, notes, lessonIds, userId)
+
+    override suspend fun archiveInvoiceMaster(id: Long, userId: Long) =
+        eduInvoiceRepository.archiveInvoiceMaster(id, userId)
+
+    override suspend fun deleteInvoiceMaster(id: Long, userId: Long) =
+        eduInvoiceRepository.deleteInvoiceMaster(id, userId)
+
+    override fun getInvoiceMastersByStudent(studentId: Long, userId: Long): kotlinx.coroutines.flow.Flow<List<gr.eduinvoice.domain.model.DomainInvoiceMaster>> =
+        lessonDao.getInvoiceMastersByStudent(studentId, userId).map { list ->
+            list.map { m -> gr.eduinvoice.domain.model.DomainInvoiceMaster(m.id, m.ownerId, m.studentId, m.invoiceNumber, m.invoiceDate, m.notes, m.isArchived, m.lastModified) }
+        }
+
+    override fun getInvoiceMasterById(id: Long, userId: Long): kotlinx.coroutines.flow.Flow<gr.eduinvoice.domain.model.DomainInvoiceMaster?> =
+        lessonDao.getInvoiceMasterById(id, userId).map { m ->
+            m?.let { gr.eduinvoice.domain.model.DomainInvoiceMaster(it.id, it.ownerId, it.studentId, it.invoiceNumber, it.invoiceDate, it.notes, it.isArchived, it.lastModified) }
+        }
+
+    override suspend fun updateInvoiceMaster(master: gr.eduinvoice.domain.model.DomainInvoiceMaster, userId: Long) =
+        lessonDao.updateInvoiceMaster(
+            gr.eduinvoice.data.model.InvoiceMaster(
+                id = master.id,
+                ownerId = userId,
+                studentId = master.studentId,
+                invoiceNumber = master.invoiceNumber,
+                invoiceDate = master.invoiceDate,
+                notes = master.notes,
+                isArchived = master.isArchived,
+                lastModified = master.lastModified
+            )
+        )
+
     private fun DomainLesson.toDataModel(): Lesson = Lesson(
         id = id,
         ownerId = ownerId,
