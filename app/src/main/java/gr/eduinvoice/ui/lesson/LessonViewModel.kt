@@ -63,6 +63,8 @@ class LessonViewModel @Inject constructor(
         onNavigateBack = callback
     }
 
+    fun getGroupMembers(groupId: Long): List<DomainStudent> = groupMembers[groupId] ?: emptyList()
+
     init {
         loadStudentInfo()
         loadGroups()
@@ -167,7 +169,8 @@ class LessonViewModel @Inject constructor(
             val userId = currentUserProvider.loggedInUserId.first() ?: 0L
             groupUseCases.getGroupStudents(id, userId).collect { students ->
                 groupMembers[id] = students
-                _uiState.update { it.copy(selectedGroupId = id, selectedStudentId = null, isGroupLesson = true) }
+                val absentMap = students.associate { it.id to false }
+                _uiState.update { it.copy(selectedGroupId = id, selectedStudentId = null, isGroupLesson = true, markAbsences = false, absentStudents = absentMap) }
             }
         }
     }
@@ -177,8 +180,30 @@ class LessonViewModel @Inject constructor(
             it.copy(
                 isGroupLesson = value,
                 selectedGroupId = if (value) it.selectedGroupId else null,
-                selectedStudentId = if (value) null else it.selectedStudentId
+                selectedStudentId = if (value) null else it.selectedStudentId,
+                markAbsences = false,
+                absentStudents = emptyMap()
             )
+        }
+    }
+
+    fun toggleMarkAbsences(value: Boolean) {
+        _uiState.update { state ->
+            val currentGroupId = state.selectedGroupId
+            if (value && currentGroupId != null) {
+                val members = groupMembers[currentGroupId] ?: emptyList()
+                val map = members.associate { it.id to false }
+                state.copy(markAbsences = true, absentStudents = map)
+            } else {
+                state.copy(markAbsences = false, absentStudents = emptyMap())
+            }
+        }
+    }
+
+    fun toggleStudentAbsent(studentId: Long) {
+        _uiState.update { state ->
+            val current = state.absentStudents[studentId] ?: false
+            state.copy(absentStudents = state.absentStudents + (studentId to !current))
         }
     }
 
@@ -242,7 +267,22 @@ class LessonViewModel @Inject constructor(
                         isPaid = state.isPaid
                     )
                     val userId = currentUserProvider.loggedInUserId.first() ?: 0L
-                    lessonUseCases.addGroupLesson(state.selectedGroupId!!, lesson, userId)
+                    val base = lesson.copy(groupId = state.selectedGroupId)
+                    val members = groupMembers[state.selectedGroupId!!] ?: emptyList()
+                    val presentMembers = if (state.markAbsences) {
+                        members.filter { m -> state.absentStudents[m.id] != true }
+                    } else members
+                    if (presentMembers.isNotEmpty()) {
+                        // We call addGroupLesson which expands to all current members. To respect absences,
+                        // fall back to per-student adds when absences are marked.
+                        if (state.markAbsences) {
+                            presentMembers.forEach { s ->
+                                lessonUseCases.addLesson(base.copy(studentId = s.id), userId)
+                            }
+                        } else {
+                            lessonUseCases.addGroupLesson(state.selectedGroupId!!, base, userId)
+                        }
+                    }
                 } else if (sId != null) {
                     if (lessonId == null || lessonId == 0L) {
                         val lesson = DomainLesson(
@@ -308,7 +348,8 @@ class LessonViewModel @Inject constructor(
         val state = _uiState.value
         val duration = state.durationMinutes.toIntOrNull() ?: 0
         return if (state.selectedGroupId != null) {
-            val students = groupMembers[state.selectedGroupId!!] ?: emptyList()
+            val studentsAll = groupMembers[state.selectedGroupId!!] ?: emptyList()
+            val students = if (state.markAbsences) studentsAll.filter { st -> state.absentStudents[st.id] != true } else studentsAll
             students.sumOf { student ->
                 if (state.rateType == DomainRateTypes.PER_LESSON) {
                     student.rate
@@ -339,5 +380,7 @@ data class LessonUiState(
     val isGroupLesson: Boolean = false,
     val isEditMode: Boolean = true,
     val isPaid: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val markAbsences: Boolean = false,
+    val absentStudents: Map<Long, Boolean> = emptyMap()
 )

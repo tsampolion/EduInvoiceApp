@@ -3,6 +3,7 @@ package gr.eduinvoice.ui.groups
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -27,6 +28,7 @@ import gr.eduinvoice.utils.ClassOptions
 fun GroupScreen(
     onBack: () -> Unit,
     onAddGroupLesson: (Long) -> Unit,
+    onMemberClick: (Long) -> Unit,
     viewModel: GroupViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -228,7 +230,23 @@ fun GroupScreen(
             )
 
             val members = remember(uiState.students) { uiState.students.filter { it.selected } }
-            Text(text = "Group Members", style = MaterialTheme.typography.titleMedium)
+            val memberCount = members.size
+            val groupRate = uiState.rate.toDoubleOrNull() ?: 0.0
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Group Members ($memberCount)", style = MaterialTheme.typography.titleMedium)
+                if (groupRate > 0.0 && memberCount > 0) {
+                    val total = groupRate * memberCount
+                    val suffix = if (uiState.rateType == DomainRateTypes.HOURLY) "/h" else " per lesson"
+                    Text(
+                        text = "€" + String.format("%.2f", groupRate) + " × $memberCount = €" + String.format("%.2f", total) + suffix,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
             if (members.isEmpty()) {
                 Text(text = "No members selected")
             } else {
@@ -247,7 +265,11 @@ fun GroupScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Column(modifier = Modifier.weight(1f)) {
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clickable { onMemberClick(m.id) }
+                                ) {
                                     Text(text = "${m.name} ${m.surname}", style = MaterialTheme.typography.bodyLarge)
                                     Spacer(Modifier.height(4.dp))
                                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

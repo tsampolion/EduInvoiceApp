@@ -36,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import gr.eduinvoice.domain.model.DomainStudent
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -147,6 +148,32 @@ fun LessonScreen(
                                     expanded = false
                                 }
                             )
+                        }
+                    }
+                }
+            }
+
+            // Absences toggle for group lessons
+            if (uiState.isGroupLesson) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "Mark Absences?")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Switch(checked = uiState.markAbsences, onCheckedChange = viewModel::toggleMarkAbsences)
+                }
+                if (uiState.markAbsences && uiState.selectedGroupId != null) {
+                    val members = remember(uiState.selectedGroupId, uiState.absentStudents) {
+                        viewModel.getGroupMembers(uiState.selectedGroupId!!)
+                    }
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        members.forEach { member ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Checkbox(
+                                    checked = uiState.absentStudents[member.id] == true,
+                                    onCheckedChange = { viewModel.toggleStudentAbsent(member.id) }
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(text = member.name + " " + member.surname)
+                            }
                         }
                     }
                 }

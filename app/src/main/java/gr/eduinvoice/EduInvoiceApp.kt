@@ -144,6 +144,9 @@ fun EduInvoiceApp(
                 onBack = { navController.popBackStack() },
                 onAddGroupLesson = { groupId ->
                     navController.navigate(Screen.Lesson.createRoute(0, 0, groupId))
+                },
+                onMemberClick = { studentId ->
+                    navController.navigate(Screen.Student.createRoute(studentId))
                 }
             )
         }
