@@ -139,7 +139,7 @@ class EduInvoiceRepository @Inject constructor(
                     )
                 )
                 val lessons = students.map { student ->
-                    lesson.copy(studentId = student.id, groupId = groupId)
+                    lesson.copy(studentId = student.id, groupId = groupId, masterId = masterId)
                 }
                 lessonDao.insertGroupLessons(lessons)
             },
@@ -172,7 +172,7 @@ class EduInvoiceRepository @Inject constructor(
                 )
                 val present = students.filter { it.id !in absentStudentIds }
                 val lessons = present.map { student ->
-                    lesson.copy(studentId = student.id, groupId = groupId)
+                    lesson.copy(studentId = student.id, groupId = groupId, masterId = masterId)
                 }
                 val absenceRows = absentStudentIds.map { sid ->
                     gr.eduinvoice.data.model.GroupLessonAbsence(
@@ -258,6 +258,7 @@ class EduInvoiceRepository @Inject constructor(
                             ownerId = userId,
                             studentId = student.id,
                             groupId = groupId,
+                            masterId = masterId,
                             date = newDate,
                             startTime = newStartTime,
                             durationMinutes = newDuration,
@@ -274,18 +275,42 @@ class EduInvoiceRepository @Inject constructor(
                         originalDate != newDate || originalStartTime != newStartTime || originalDuration != newDuration || (newNotes ?: master.notes) != master.notes
                     )
                 ) {
-                    lessonDao.updateByGroupAndTimeForStudents(
-                        userId = userId,
-                        groupId = groupId,
-                        oldDate = originalDate,
-                        oldStartTime = originalStartTime,
-                        oldDuration = originalDuration,
-                        newDate = newDate,
-                        newStartTime = newStartTime,
-                        newDuration = newDuration,
-                        newNotes = newNotes,
-                        studentIds = stillPresent.toList()
-                    )
+                    // Prefer masterId linkage if available, else fallback by group/time
+                    val existing = lessonDao.getLessonsByGroupAndTime(userId, groupId, originalDate, originalStartTime, originalDuration)
+                    val candidates = existing.filter { it.masterId == masterId }
+                    val idsToUpdate = if (candidates.isNotEmpty()) candidates.filter { it.studentId in stillPresent }.map { it.id } else emptyList()
+                    if (idsToUpdate.isNotEmpty()) {
+                        idsToUpdate.forEach { lid ->
+                            lessonDao.update(
+                                Lesson(
+                                    id = lid,
+                                    ownerId = userId,
+                                    studentId = existing.first { it.id == lid }.studentId,
+                                    groupId = groupId,
+                                    masterId = masterId,
+                                    date = newDate,
+                                    startTime = newStartTime,
+                                    durationMinutes = newDuration,
+                                    notes = newNotes ?: master.notes,
+                                    isPaid = existing.first { it.id == lid }.isPaid,
+                                    isInvoiced = existing.first { it.id == lid }.isInvoiced
+                                )
+                            )
+                        }
+                    } else {
+                        lessonDao.updateByGroupAndTimeForStudents(
+                            userId = userId,
+                            groupId = groupId,
+                            oldDate = originalDate,
+                            oldStartTime = originalStartTime,
+                            oldDuration = originalDuration,
+                            newDate = newDate,
+                            newStartTime = newStartTime,
+                            newDuration = newDuration,
+                            newNotes = newNotes,
+                            studentIds = stillPresent.toList()
+                        )
+                    }
                 }
 
                 // Update absences table to reflect newAbsent

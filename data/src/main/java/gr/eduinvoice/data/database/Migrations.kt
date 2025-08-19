@@ -156,3 +156,11 @@ val MIGRATION_17_18 = object : Migration(17, 18) {
         db.execSQL("CREATE INDEX IF NOT EXISTS index_group_lesson_absences_studentId ON group_lesson_absences(studentId)")
     }
 }
+
+// Add masterId to lessons for robust linkage to group lesson master
+val MIGRATION_18_19 = object : Migration(18, 19) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE lessons ADD COLUMN masterId INTEGER")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_lessons_masterId ON lessons(masterId)")
+    }
+}

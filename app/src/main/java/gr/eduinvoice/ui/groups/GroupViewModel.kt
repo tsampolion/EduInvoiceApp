@@ -13,10 +13,12 @@ import gr.eduinvoice.domain.user.CurrentUserProvider
 import gr.eduinvoice.utils.ClassOptions
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
+@OptIn(ExperimentalCoroutinesApi::class)
 class GroupViewModel @Inject constructor(
     private val groupUseCases: GroupUseCases,
     private val studentUseCases: StudentUseCases,
