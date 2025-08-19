@@ -1,6 +1,8 @@
 package gr.eduinvoice.ui.lessons
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -40,12 +42,24 @@ fun LessonsScreen(
     onAddLesson: () -> Unit,
     onInvoice: (Long?) -> Unit,
     onPastInvoices: () -> Unit,
+    onReschedules: () -> Unit,
+    batchStudentId: Long? = null,
+    openPayOnStart: Boolean = false,
     viewModel: LessonsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    androidx.compose.runtime.LaunchedEffect(uiState.snackbarMessage) {
+        uiState.snackbarMessage?.let { msg ->
+            snackbarHostState.showSnackbar(msg)
+            viewModel.clearSnackbar()
+        }
+    }
+
     EdgeToEdgeScaffold(
         topBar = { },
+        bottomBar = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
             if (uiState.lessons.isNotEmpty()) {
                 FloatingActionButton(
@@ -59,7 +73,46 @@ fun LessonsScreen(
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
             Column(Modifier.fillMaxSize()) {
-                SlimHeader(title = stringResource(R.string.lessons))
+                SlimHeader(
+                    title = stringResource(R.string.lessons),
+                    actions = {
+                        TextButton(onClick = { onPastInvoices() }) { Text("Past Invoices") }
+                        TextButton(onClick = onReschedules) { Text("Reschedules") }
+                    }
+                )
+                // Batch actions
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimensions.PaddingMedium, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    var showPaySheet by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(openPayOnStart) }
+                    var showRescheduleSheet by remember { mutableStateOf(false) }
+                    AssistChip(onClick = { showPaySheet = true }, label = { Text("Mark Paid (Batch)") })
+                    AssistChip(onClick = { showRescheduleSheet = true }, label = { Text("Bulk Reschedule") })
+                    if (showPaySheet) {
+                        val scopedLessons = batchStudentId?.let { id -> uiState.lessons.filter { it.lesson.studentId == id } } ?: uiState.lessons
+                        BatchPaySheet(
+                            lessons = scopedLessons,
+                            onDismiss = { showPaySheet = false },
+                            onConfirm = { ids, date, notes ->
+                                viewModel.createPaymentBatch(ids, date, notes)
+                                showPaySheet = false
+                            }
+                        )
+                    }
+                    if (showRescheduleSheet) {
+                        BulkRescheduleSheet(
+                            lessons = uiState.lessons,
+                            onDismiss = { showRescheduleSheet = false },
+                            onConfirm = { ids, newDate, newTime, newDuration, notes ->
+                                viewModel.bulkReschedule(ids, newDate, newTime, newDuration, notes)
+                                showRescheduleSheet = false
+                            }
+                        )
+                    }
+                }
                 // Bottom-sheet search & filter
                 val query by viewModel.searchQuery.collectAsStateWithLifecycle()
                 var showSheet by remember { mutableStateOf(false) }
@@ -201,6 +254,103 @@ fun LessonItem(
                     Spacer(Modifier.width(4.dp))
                     Checkbox(checked = lesson.isPaid, onCheckedChange = onPaidChange)
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BatchPaySheet(
+    lessons: List<UiLessonWithStudent>,
+    onDismiss: () -> Unit,
+    onConfirm: (ids: List<Long>, batchDate: String, notes: String?) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var selected by remember { mutableStateOf(setOf<Long>()) }
+    var notes by remember { mutableStateOf("") }
+    val today = LocalDate.now().toString()
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(text = "Mark Paid (Batch)", style = MaterialTheme.typography.titleLarge)
+            val alreadyPaid = lessons.count { it.lesson.isPaid }
+            val alreadyInvoiced = lessons.count { it.lesson.isInvoiced }
+            if (alreadyPaid > 0 || alreadyInvoiced > 0) {
+                Text(text = "Info: ${alreadyPaid} paid, ${alreadyInvoiced} invoiced in list", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            LazyColumn(Modifier.heightIn(max = 300.dp)) {
+                items(lessons) { item ->
+                    val id = item.lesson.id
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(text = "${item.student.name} ${item.student.surname} • ${item.lesson.date}")
+                        Checkbox(checked = selected.contains(id), onCheckedChange = {
+                            selected = selected.toMutableSet().apply { if (contains(id)) remove(id) else add(id) }
+                        })
+                    }
+                }
+            }
+            OutlinedTextField(value = notes, onValueChange = { notes = it }, label = { Text("Notes (optional)") }, modifier = Modifier.fillMaxWidth())
+            val selectedPaid = lessons.count { selected.contains(it.lesson.id) && it.lesson.isPaid }
+            val selectedInvoiced = lessons.count { selected.contains(it.lesson.id) && it.lesson.isInvoiced }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(text = "Selected: ${selected.size}")
+                if (selectedPaid > 0 || selectedInvoiced > 0) {
+                    Text(text = "${selectedPaid} already paid, ${selectedInvoiced} invoiced", color = MaterialTheme.colorScheme.error)
+                }
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
+                Button(onClick = { onConfirm(selected.toList(), today, notes.ifBlank { null }) }, enabled = selected.isNotEmpty(), modifier = Modifier.weight(1f)) { Text("Confirm") }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BulkRescheduleSheet(
+    lessons: List<UiLessonWithStudent>,
+    onDismiss: () -> Unit,
+    onConfirm: (ids: List<Long>, newDate: String, newTime: String, newDuration: Int, notes: String?) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var selected by remember { mutableStateOf(setOf<Long>()) }
+    var notes by remember { mutableStateOf("") }
+    var date by remember { mutableStateOf(LocalDate.now()) }
+    var time by remember { mutableStateOf("18:00") }
+    var duration by remember { mutableStateOf("60") }
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(text = "Bulk Reschedule", style = MaterialTheme.typography.titleLarge)
+            val lockedCount = lessons.count { it.lesson.isPaid || it.lesson.isInvoiced }
+            if (lockedCount > 0) {
+                Text(text = "Warning: ${lockedCount} lesson(s) are paid/invoiced and will be blocked", color = MaterialTheme.colorScheme.error)
+            }
+            LazyColumn(Modifier.heightIn(max = 300.dp)) {
+                items(lessons) { item ->
+                    val id = item.lesson.id
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(text = "${item.student.name} ${item.student.surname} • ${item.lesson.date} ${item.lesson.startTime}")
+                        Checkbox(checked = selected.contains(id), onCheckedChange = {
+                            selected = selected.toMutableSet().apply { if (contains(id)) remove(id) else add(id) }
+                        })
+                    }
+                }
+            }
+            OutlinedTextField(value = date.toString(), onValueChange = { runCatching { date = LocalDate.parse(it) } }, label = { Text("New date (yyyy-MM-dd)") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = time, onValueChange = { time = it }, label = { Text("New time (HH:mm)") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = duration, onValueChange = { duration = it.filter { ch -> ch.isDigit() }.take(3) }, label = { Text("Duration (minutes)") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = notes, onValueChange = { notes = it }, label = { Text("Notes (optional)") }, modifier = Modifier.fillMaxWidth())
+            val selectedLocked = lessons.count { selected.contains(it.lesson.id) && (it.lesson.isPaid || it.lesson.isInvoiced) }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(text = "Selected: ${selected.size}")
+                if (selectedLocked > 0) {
+                    Text(text = "${selectedLocked} locked", color = MaterialTheme.colorScheme.error)
+                }
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
+                Button(onClick = { onConfirm(selected.toList(), date.toString(), time, duration.toIntOrNull() ?: 60, notes.ifBlank { null }) }, enabled = selected.isNotEmpty(), modifier = Modifier.weight(1f)) { Text("Apply") }
             }
         }
     }

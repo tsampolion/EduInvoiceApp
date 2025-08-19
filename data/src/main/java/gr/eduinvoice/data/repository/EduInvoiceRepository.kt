@@ -473,6 +473,15 @@ class EduInvoiceRepository @Inject constructor(
                 // Mark lessons invoiced and paid
                 lessonDao.updateInvoicedStatus(lessonIds, true, userId)
                 lessonDao.updatePaidStatus(lessonIds, true, userId)
+                // Link lessons to invoice master
+                lessonIds.forEach { id ->
+                    val lesson = lessonDao.getLessonById(id, userId).first()
+                    if (lesson != null) {
+                        lessonDao.update(
+                            lesson.copy(invoiceMasterId = masterId)
+                        )
+                    }
+                }
                 masterId
             },
             operationType = OperationType.BATCH,
@@ -490,6 +499,92 @@ class EduInvoiceRepository @Inject constructor(
             resourceId = "invoice_master_$id",
             priority = OperationPriority.NORMAL,
             useTransaction = true
+        ).getOrThrow()
+    }
+
+    suspend fun createPaymentBatchAndMarkLessons(
+        studentId: Long?,
+        batchDate: String,
+        notes: String?,
+        lessonIds: List<Long>,
+        userId: Long
+    ): Long {
+        require(lessonIds.isNotEmpty()) { "No lessons selected" }
+        return concurrencyController.executeSafeOperation(
+            operation = {
+                // Guard: avoid marking invoiced but unpaid only when policy forbids; for now allow paid=true even if invoiced
+                val masterId = lessonDao.insertPaymentBatchMaster(
+                    gr.eduinvoice.data.model.PaymentBatchMaster(
+                        ownerId = userId,
+                        studentId = studentId,
+                        batchDate = batchDate,
+                        notes = notes
+                    )
+                )
+                lessonDao.updatePaidStatus(lessonIds, true, userId)
+                lessonIds.forEach { id ->
+                    val lesson = lessonDao.getLessonById(id, userId).first()
+                    if (lesson != null) {
+                        lessonDao.update(
+                            lesson.copy(paymentBatchId = masterId)
+                        )
+                    }
+                }
+                masterId
+            },
+            operationType = OperationType.BATCH,
+            resourceId = "payment_batch_${studentId ?: 0}_$batchDate",
+            priority = OperationPriority.NORMAL,
+            useTransaction = true,
+            isolationLevel = TransactionIsolationLevel.SERIALIZABLE
+        ).getOrThrow()
+    }
+
+    suspend fun createRescheduleMasterAndApply(
+        lessonIds: List<Long>,
+        newDate: String,
+        newStartTime: String,
+        newDurationMinutes: Int,
+        notes: String?,
+        userId: Long
+    ): Long {
+        require(lessonIds.isNotEmpty()) { "No lessons selected" }
+        return concurrencyController.executeSafeOperation(
+            operation = {
+                // Guard: block if any lesson is paid or invoiced
+                val locked = lessonDao.countLockedLessons(lessonIds, userId)
+                check(locked == 0) { "Some lessons are paid/invoiced. Reschedule is blocked." }
+                val masterId = lessonDao.insertRescheduleMaster(
+                    gr.eduinvoice.data.model.RescheduleMaster(
+                        ownerId = userId,
+                        newDate = newDate,
+                        newStartTime = newStartTime,
+                        newDurationMinutes = newDurationMinutes,
+                        notes = notes
+                    )
+                )
+                // Link and update lessons
+                lessonIds.forEach { id ->
+                    lessonDao.attachLessonToReschedule(masterId, id)
+                    val lesson = lessonDao.getLessonById(id, userId).first()
+                    if (lesson != null) {
+                        lessonDao.update(
+                            lesson.copy(
+                                date = newDate,
+                                startTime = newStartTime,
+                                durationMinutes = newDurationMinutes,
+                                notes = notes ?: lesson.notes
+                            )
+                        )
+                    }
+                }
+                masterId
+            },
+            operationType = OperationType.BATCH,
+            resourceId = "reschedule_batch_${newDate}_${newStartTime}",
+            priority = OperationPriority.NORMAL,
+            useTransaction = true,
+            isolationLevel = TransactionIsolationLevel.SERIALIZABLE
         ).getOrThrow()
     }
 

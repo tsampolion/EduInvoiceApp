@@ -59,6 +59,9 @@ fun NavGraphBuilder.studentGraph(navController: NavHostController, openDrawer: (
                 onAddLesson = {
                     navController.navigate(Screen.Lesson.createRoute(0L, studentIdArg))
                 },
+                onBatchPayForStudent = { sid ->
+                    navController.navigate(Screen.Lessons.createRoute(batchStudentId = sid, openPay = true))
+                },
                 viewModel = viewModel
             )
         }

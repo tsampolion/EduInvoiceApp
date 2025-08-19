@@ -184,3 +184,51 @@ val MIGRATION_19_20 = object : Migration(19, 20) {
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_invoice_master_invoiceNumber ON invoice_master(invoiceNumber)")
     }
 }
+
+// Consolidated migration for payment batches, reschedules, and lesson links
+val MIGRATION_20_21 = object : Migration(20, 21) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // lessons: add invoiceMasterId, paymentBatchId
+        db.execSQL("ALTER TABLE lessons ADD COLUMN invoiceMasterId INTEGER")
+        db.execSQL("ALTER TABLE lessons ADD COLUMN paymentBatchId INTEGER")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_lessons_invoiceMasterId ON lessons(invoiceMasterId)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_lessons_paymentBatchId ON lessons(paymentBatchId)")
+
+        // payment_batch_master
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS payment_batch_master (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "ownerId INTEGER NOT NULL DEFAULT 0, " +
+                "studentId INTEGER, " +
+                "batchDate TEXT NOT NULL, " +
+                "notes TEXT, " +
+                "isArchived INTEGER NOT NULL DEFAULT 0, " +
+                "lastModified INTEGER NOT NULL DEFAULT 0)"
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_payment_batch_master_studentId ON payment_batch_master(studentId)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_payment_batch_master_batchDate ON payment_batch_master(batchDate)")
+
+        // reschedule_master
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS reschedule_master (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "ownerId INTEGER NOT NULL DEFAULT 0, " +
+                "title TEXT, " +
+                "newDate TEXT NOT NULL, " +
+                "newStartTime TEXT NOT NULL, " +
+                "newDurationMinutes INTEGER NOT NULL, " +
+                "notes TEXT, " +
+                "lastModified INTEGER NOT NULL DEFAULT 0)"
+        )
+
+        // reschedule_master_lessons junction
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS reschedule_master_lessons (" +
+                "masterId INTEGER NOT NULL, " +
+                "lessonId INTEGER NOT NULL, " +
+                "PRIMARY KEY(masterId, lessonId))"
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_reschedule_master_lessons_masterId ON reschedule_master_lessons(masterId)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_reschedule_master_lessons_lessonId ON reschedule_master_lessons(lessonId)")
+    }
+}

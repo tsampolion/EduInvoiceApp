@@ -47,6 +47,7 @@ fun StudentScreen(
     onNavigateBack: () -> Unit,
     onNavigateToLesson: (Long, Long) -> Unit,
     onAddLesson: () -> Unit,
+    onBatchPayForStudent: (Long) -> Unit,
     viewModel: StudentViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -115,6 +116,7 @@ fun StudentScreen(
                         uiState = uiState,
                         viewModel = viewModel,
                         onLessonClick = onNavigateToLesson,
+                        onBatchPayForStudent = onBatchPayForStudent,
                         modifier = Modifier.fillMaxSize()
                     )
                     1 -> if (!uiState.groupName.isNullOrBlank()) {
@@ -182,6 +184,7 @@ private fun StudentDetailView(
     uiState: StudentUiState,
     viewModel: StudentViewModel,
     onLessonClick: (Long, Long) -> Unit,
+    onBatchPayForStudent: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -217,6 +220,10 @@ private fun StudentDetailView(
                             text = "Group: $groupName",
                             style = MaterialTheme.typography.bodyMedium
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedButton(onClick = { onBatchPayForStudent(viewModel.studentId) }) {
+                            Text("Batch Pay for this student")
+                        }
                     }
                 }
             }

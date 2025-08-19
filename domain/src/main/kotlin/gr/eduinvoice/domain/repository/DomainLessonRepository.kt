@@ -65,4 +65,10 @@ interface DomainLessonRepository {
     fun getInvoiceMastersByStudent(studentId: Long, userId: Long): kotlinx.coroutines.flow.Flow<List<gr.eduinvoice.domain.model.DomainInvoiceMaster>>
     fun getInvoiceMasterById(id: Long, userId: Long): kotlinx.coroutines.flow.Flow<gr.eduinvoice.domain.model.DomainInvoiceMaster?>
     suspend fun updateInvoiceMaster(master: gr.eduinvoice.domain.model.DomainInvoiceMaster, userId: Long)
+
+    // Payment batches and reschedules
+    suspend fun createPaymentBatchAndMarkLessons(studentId: Long?, batchDate: String, notes: String?, lessonIds: List<Long>, userId: Long): Long
+    suspend fun createRescheduleMasterAndApply(lessonIds: List<Long>, newDate: String, newStartTime: String, newDurationMinutes: Int, notes: String?, userId: Long): Long
+
+    fun getRescheduleMasters(userId: Long = 0): Flow<List<gr.eduinvoice.domain.model.DomainRescheduleMaster>>
 }

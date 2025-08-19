@@ -165,7 +165,15 @@ fun EduInvoiceApp(
         }
 
         // Lessons list screen
-        composable(Screen.Lessons.route) {
+        composable(
+            route = Screen.Lessons.route,
+            arguments = listOf(
+                navArgument("batchStudentId") { type = NavType.LongType; defaultValue = 0L },
+                navArgument("openPay") { type = NavType.BoolType; defaultValue = false }
+            )
+        ) { backStackEntry ->
+            val batchStudentId = backStackEntry.arguments?.getLong("batchStudentId")?.takeIf { it != 0L }
+            val openPay = backStackEntry.arguments?.getBoolean("openPay") ?: false
             LessonsScreen(
                 openDrawer = openDrawer,
                 onLessonClick = { studentId, lessonId, groupId ->
@@ -175,7 +183,10 @@ fun EduInvoiceApp(
                 },
                 onAddLesson = { navController.navigate(Screen.Lesson.createRoute(0)) },
                 onInvoice = { id -> navController.navigate(Screen.Invoice.createRoute(id)) },
-                onPastInvoices = { navController.navigate(Screen.PastInvoices.route) }
+                onPastInvoices = { navController.navigate(Screen.PastInvoices.route) },
+                onReschedules = { navController.navigate(Screen.Reschedules.route) },
+                batchStudentId = batchStudentId,
+                openPayOnStart = openPay
             )
         }
 
@@ -211,6 +222,11 @@ fun EduInvoiceApp(
         // Past invoices screen
         composable(Screen.PastInvoices.route) {
             PastInvoicesScreen(onBack = { navController.popBackStack() })
+        }
+
+        // Reschedules screen
+        composable(Screen.Reschedules.route) {
+            gr.eduinvoice.ui.lessons.ReschedulesScreen(onBack = { navController.popBackStack() })
         }
 
         // Settings screen

@@ -10,7 +10,12 @@ sealed class Screen(val route: String) {
     object Student : Screen("student/{studentId}") {
         fun createRoute(studentId: Long) = "student/$studentId"
     }
-    object Lessons : Screen("lessons")
+    object Lessons : Screen("lessons?batchStudentId={batchStudentId}&openPay={openPay}") {
+        fun createRoute(batchStudentId: Long? = null, openPay: Boolean = false): String {
+            val idPart = batchStudentId?.toString() ?: "0"
+            return "lessons?batchStudentId=$idPart&openPay=$openPay"
+        }
+    }
     object Lesson : Screen("lesson/{lessonId}?studentId={studentId}&groupId={groupId}&groupMasterId={groupMasterId}") {
         fun createRoute(lessonId: Long, studentId: Long = 0L, groupId: Long = 0L, groupMasterId: Long = 0L) =
             "lesson/$lessonId?studentId=$studentId&groupId=$groupId&groupMasterId=$groupMasterId"
@@ -22,6 +27,7 @@ sealed class Screen(val route: String) {
             studentId?.let { "invoice?studentId=$it" } ?: "invoice"
     }
     object PastInvoices : Screen("pastInvoices")
+    object Reschedules : Screen("reschedules")
     object Settings : Screen("settings")
     object PrivacyPolicy : Screen("privacyPolicy")
     object Profile : Screen("profile")

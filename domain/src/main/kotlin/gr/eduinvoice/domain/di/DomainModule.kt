@@ -94,5 +94,9 @@ object DomainModule {
             getInvoiceMastersByStudent = GetInvoiceMastersByStudent(repository),
             getInvoiceMasterById = GetInvoiceMasterById(repository),
             updateInvoiceMaster = UpdateInvoiceMaster(repository)
+            ,
+            createPaymentBatchAndMarkLessons = CreatePaymentBatchAndMarkLessons(repository),
+            createRescheduleMasterAndApply = CreateRescheduleMasterAndApply(repository),
+            getRescheduleMasters = GetRescheduleMasters(repository)
         )
 }

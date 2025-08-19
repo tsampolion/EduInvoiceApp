@@ -35,6 +35,10 @@ data class Lesson(
     val groupId: Long? = null,
     @ColumnInfo(defaultValue = "NULL")
     val masterId: Long? = null,
+    @ColumnInfo(defaultValue = "NULL")
+    val invoiceMasterId: Long? = null,
+    @ColumnInfo(defaultValue = "NULL")
+    val paymentBatchId: Long? = null,
     val date: String, // Store as ISO date string (yyyy-MM-dd)
     val startTime: String, // Store as time string (HH:mm)
     val durationMinutes: Int,

@@ -40,6 +40,41 @@ interface LessonDao {
     @Query("DELETE FROM invoice_master WHERE id = :id AND ownerId = :userId")
     suspend fun deleteInvoiceMaster(id: Long, userId: Long)
 
+    // Payment batch master
+    @Insert
+    suspend fun insertPaymentBatchMaster(master: gr.eduinvoice.data.model.PaymentBatchMaster): Long
+
+    @Update
+    suspend fun updatePaymentBatchMaster(master: gr.eduinvoice.data.model.PaymentBatchMaster)
+
+    @Query("SELECT * FROM payment_batch_master WHERE id = :id AND ownerId = :userId")
+    fun getPaymentBatchMasterById(id: Long, userId: Long): Flow<gr.eduinvoice.data.model.PaymentBatchMaster?>
+
+    @Query("SELECT * FROM payment_batch_master WHERE (studentId = :studentId OR :studentId IS NULL) AND ownerId = :userId ORDER BY batchDate DESC, id DESC")
+    fun getPaymentBatchMasters(studentId: Long?, userId: Long): Flow<List<gr.eduinvoice.data.model.PaymentBatchMaster>>
+
+    @Query("UPDATE payment_batch_master SET isArchived = 1 WHERE id = :id AND ownerId = :userId")
+    suspend fun archivePaymentBatchMaster(id: Long, userId: Long)
+
+    @Query("DELETE FROM payment_batch_master WHERE id = :id AND ownerId = :userId")
+    suspend fun deletePaymentBatchMaster(id: Long, userId: Long)
+
+    // Reschedule master
+    @Insert
+    suspend fun insertRescheduleMaster(master: gr.eduinvoice.data.model.RescheduleMaster): Long
+
+    @Query("SELECT * FROM reschedule_master WHERE ownerId = :userId ORDER BY newDate DESC, newStartTime DESC")
+    fun getRescheduleMasters(userId: Long): Flow<List<gr.eduinvoice.data.model.RescheduleMaster>>
+
+    @Query("INSERT OR REPLACE INTO reschedule_master_lessons(masterId, lessonId) VALUES(:masterId, :lessonId)")
+    suspend fun attachLessonToReschedule(masterId: Long, lessonId: Long)
+
+    @Query("SELECT lessonId FROM reschedule_master_lessons WHERE masterId = :masterId")
+    suspend fun getRescheduledLessonIds(masterId: Long): List<Long>
+
+    @Query("DELETE FROM reschedule_master_lessons WHERE masterId = :masterId")
+    suspend fun clearRescheduleLinks(masterId: Long)
+
     @Update
     suspend fun updateGroupLessonMaster(master: gr.eduinvoice.data.model.GroupLessonMaster)
 

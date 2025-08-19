@@ -205,11 +205,42 @@ class LessonsViewModel @Inject constructor(
     fun dismissDialog() {
         _uiState.update { it.copy(dialog = null) }
     }
+
+    fun createPaymentBatch(ids: List<Long>, batchDate: String, notes: String?) {
+        viewModelScope.launch {
+            val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+            try {
+                lessonUseCases.createPaymentBatchAndMarkLessons(null, batchDate, notes, ids, uid)
+                _uiState.update { it.copy(snackbarMessage = "Marked ${ids.size} lesson(s) paid") }
+            } catch (e: Exception) {
+                // surface minimal error; could be improved with UiEvents
+                _uiState.update { it.copy(dialog = null, snackbarMessage = e.message ?: "Failed to mark paid") }
+            }
+        }
+    }
+
+    fun bulkReschedule(ids: List<Long>, newDate: String, newTime: String, newDuration: Int, notes: String?) {
+        viewModelScope.launch {
+            val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+            try {
+                lessonUseCases.createRescheduleMasterAndApply(ids, newDate, newTime, newDuration, notes, uid)
+                _uiState.update { it.copy(snackbarMessage = "Rescheduled ${ids.size} lesson(s)") }
+            } catch (e: Exception) {
+                // surface minimal error; could be improved with UiEvents
+                _uiState.update { it.copy(dialog = null, snackbarMessage = e.message ?: "Reschedule blocked") }
+            }
+        }
+    }
+
+    fun clearSnackbar() {
+        _uiState.update { it.copy(snackbarMessage = null) }
+    }
 }
 
 data class LessonsUiState(
     val lessons: List<UiLessonWithStudent> = emptyList(),
     val dialog: LessonDialog? = null,
+    val snackbarMessage: String? = null,
     val isLoadingMore: Boolean = false,
     val hasMoreData: Boolean = true,
     val currentPage: Int = 0,

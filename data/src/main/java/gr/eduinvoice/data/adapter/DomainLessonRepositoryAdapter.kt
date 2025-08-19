@@ -177,6 +177,19 @@ class DomainLessonRepositoryAdapter @Inject constructor(
             )
         )
 
+    // Payment batches
+    override suspend fun createPaymentBatchAndMarkLessons(studentId: Long?, batchDate: String, notes: String?, lessonIds: List<Long>, userId: Long): Long =
+        eduInvoiceRepository.createPaymentBatchAndMarkLessons(studentId, batchDate, notes, lessonIds, userId)
+
+    override suspend fun createRescheduleMasterAndApply(lessonIds: List<Long>, newDate: String, newStartTime: String, newDurationMinutes: Int, notes: String?, userId: Long): Long =
+        eduInvoiceRepository.createRescheduleMasterAndApply(lessonIds, newDate, newStartTime, newDurationMinutes, notes, userId)
+
+    // Reschedule history
+    override fun getRescheduleMasters(userId: Long): kotlinx.coroutines.flow.Flow<List<gr.eduinvoice.domain.model.DomainRescheduleMaster>> =
+        lessonDao.getRescheduleMasters(userId).map { list ->
+            list.map { m -> gr.eduinvoice.domain.model.DomainRescheduleMaster(m.id, m.ownerId, m.title, m.newDate, m.newStartTime, m.newDurationMinutes, m.notes, m.lastModified) }
+        }
+
     private fun DomainLesson.toDataModel(): Lesson = Lesson(
         id = id,
         ownerId = ownerId,
