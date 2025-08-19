@@ -140,7 +140,12 @@ fun EduInvoiceApp(
             route = Screen.Group.route,
             arguments = listOf(navArgument("groupId") { type = NavType.LongType })
         ) { backStackEntry ->
-            GroupScreen(onBack = { navController.popBackStack() })
+            GroupScreen(
+                onBack = { navController.popBackStack() },
+                onAddGroupLesson = { groupId ->
+                    navController.navigate(Screen.Lesson.createRoute(0, 0, groupId))
+                }
+            )
         }
 
         // Classes list screen

@@ -5,6 +5,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
@@ -24,6 +26,7 @@ import gr.eduinvoice.utils.ClassOptions
 @Composable
 fun GroupScreen(
     onBack: () -> Unit,
+    onAddGroupLesson: (Long) -> Unit,
     viewModel: GroupViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -33,7 +36,16 @@ fun GroupScreen(
     var pendingBillingMismatch by remember { mutableStateOf(false) }
     var classConfirmed by remember { mutableStateOf(false) }
 
-    Scaffold(topBar = { }) { padding ->
+    Scaffold(
+        topBar = { },
+        floatingActionButton = {
+            if (viewModel.groupId != 0L) {
+                FloatingActionButton(onClick = { onAddGroupLesson(viewModel.groupId) }) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add Group Lesson")
+                }
+            }
+        }
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -214,6 +226,48 @@ fun GroupScreen(
                 singleLine = true,
                 prefix = { Text("€") }
             )
+
+            val members = remember(uiState.students) { uiState.students.filter { it.selected } }
+            Text(text = "Group Members", style = MaterialTheme.typography.titleMedium)
+            if (members.isEmpty()) {
+                Text(text = "No members selected")
+            } else {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    members.forEach { m ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(Dimensions.PaddingSmall),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(text = "${m.name} ${m.surname}", style = MaterialTheme.typography.bodyLarge)
+                                    Spacer(Modifier.height(4.dp))
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        AssistChip(onClick = {}, label = { Text(m.className.ifBlank { "No class" }) })
+                                        val billingText = if (m.rateType == DomainRateTypes.HOURLY) {
+                                            "Hourly €" + String.format("%.2f", m.rate)
+                                        } else {
+                                            "Per Lesson €" + String.format("%.2f", m.rate)
+                                        }
+                                        AssistChip(onClick = {}, label = { Text(billingText) })
+                                    }
+                                }
+                                IconButton(onClick = { viewModel.toggleStudent(m.id) }) {
+                                    Icon(Icons.Filled.Close, contentDescription = "Remove from group")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             Text(text = "Students", style = MaterialTheme.typography.titleMedium)
             LazyColumn {
