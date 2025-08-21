@@ -40,178 +40,213 @@ import android.util.Log
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.Alignment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import gr.eduinvoice.ui.components.ErrorScreen
+import gr.eduinvoice.data.database.EduInvoiceDatabase
+import javax.inject.Inject
+import javax.inject.Provider
+import gr.eduinvoice.analytics.PerformanceMonitor
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-	private lateinit var errorReporter: ErrorReporter
+    private lateinit var errorReporter: ErrorReporter
+    @Inject lateinit var dbProvider: Provider<EduInvoiceDatabase>
 
-	@OptIn(ExperimentalMaterial3Api::class)
-	override fun onCreate(savedInstanceState: Bundle?) {
-		super.onCreate(savedInstanceState)
+    @OptIn(ExperimentalMaterial3Api::class)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-		configureStrictMode()
+        configureStrictMode()
 
-		errorReporter = ErrorReporter(this)
+        errorReporter = ErrorReporter(this)
 
-		setContent {
-			val navController = rememberNavController()
-			val backStackEntry by navController.currentBackStackEntryAsState()
-			val currentRoute = backStackEntry?.destination?.route
-			val isWelcome = currentRoute == Screen.Welcome.route
-			val settingsViewModel: SettingsViewModel = hiltViewModel()
-			val uiState = settingsViewModel.uiState.collectAsStateWithLifecycle().value
-			var drawerOpen by remember { mutableStateOf(false) }
+        setContent {
+            var initState by remember { mutableStateOf<InitState>(InitState.Loading) }
+            LaunchedEffect(Unit) {
+                val trace = PerformanceMonitor(this@MainActivity).startTrace("db_init")
+                trace.start()
+                initState = try {
+                    withContext(Dispatchers.IO) {
+                        // Trigger Hilt-provided DB creation off the main thread
+                        dbProvider.get()
+                        InitState.Success
+                    }
+                } catch (t: Throwable) {
+                    Log.e("MainActivity", "Initialization failed", t)
+                    InitState.Failure(t)
+                } finally {
+                    trace.stop()
+                }
+            }
 
-			EduInvoiceTheme(darkTheme = uiState.settings?.darkTheme ?: false) {
-				val drawerState = rememberDrawerState(initialValue = if (drawerOpen) DrawerValue.Open else DrawerValue.Closed)
-				LaunchedEffect(drawerOpen) {
-					if (drawerOpen) drawerState.open() else drawerState.close()
-				}
-				LaunchedEffect(isWelcome) {
-					if (isWelcome) {
-						drawerOpen = false
-					}
-				}
-				ModalNavigationDrawer(
-					drawerState = drawerState,
-					drawerContent = {
-						ModalDrawerSheet {
-							NavigationDrawerItem(
-								label = { Text(stringResource(id = R.string.home)) },
-								selected = false,
-								onClick = {
-									if (!isWelcome) navController.navigate(Screen.Home.route)
-									drawerOpen = false
-								},
-								modifier = Modifier,
-								colors = NavigationDrawerItemDefaults.colors()
-							)
-							NavigationDrawerItem(
-								label = { Text(stringResource(id = R.string.students)) },
-								selected = false,
-								onClick = {
-									if (!isWelcome) navController.navigate(Screen.Students.route)
-									drawerOpen = false
-								},
-								modifier = Modifier,
-								colors = NavigationDrawerItemDefaults.colors()
-							)
-							NavigationDrawerItem(
-								label = { Text(stringResource(id = R.string.lessons)) },
-								selected = false,
-								onClick = {
-									if (!isWelcome) navController.navigate(Screen.Lessons.route)
-									drawerOpen = false
-								},
-								modifier = Modifier,
-								colors = NavigationDrawerItemDefaults.colors()
-							)
-							NavigationDrawerItem(
-								label = { Text(stringResource(id = R.string.groups)) },
-								selected = false,
-								onClick = {
-									if (!isWelcome) navController.navigate(Screen.Groups.route)
-									drawerOpen = false
-								},
-								modifier = Modifier,
-								colors = NavigationDrawerItemDefaults.colors()
-							)
-							NavigationDrawerItem(
-								label = { Text(stringResource(id = R.string.classes)) },
-								selected = false,
-								onClick = {
-									if (!isWelcome) navController.navigate(Screen.Classes.route)
-									drawerOpen = false
-								},
-								modifier = Modifier,
-								colors = NavigationDrawerItemDefaults.colors()
-							)
-							NavigationDrawerItem(
-								label = { Text(stringResource(id = R.string.revenue)) },
-								selected = false,
-								onClick = {
-									if (!isWelcome) navController.navigate(Screen.Revenue.route)
-									drawerOpen = false
-								},
-								modifier = Modifier,
-								colors = NavigationDrawerItemDefaults.colors()
-							)
-							NavigationDrawerItem(
-								label = { Text(stringResource(id = R.string.settings)) },
-								selected = false,
-								onClick = {
-									if (!isWelcome) navController.navigate(Screen.Settings.route)
-									drawerOpen = false
-								},
-								modifier = Modifier,
-								colors = NavigationDrawerItemDefaults.colors()
-							)
-						}
-					}
-				) {
-					Scaffold(
-						topBar = { }
-					) { padding ->
-						Surface(
-							modifier = Modifier
-								.fillMaxSize()
-								.padding(padding),
-							color = MaterialTheme.colorScheme.background
-						) {
-							ErrorBoundary(
-								onError = { error ->
-									Log.e("MainActivity", "Compose error", error)
-									errorReporter.reportError(error)
-								}
-							) {
-								EduInvoiceApp(
-									navController = navController,
-									openDrawer = { if (!isWelcome) drawerOpen = true }
-								)
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+            val navController = rememberNavController()
+            val backStackEntry by navController.currentBackStackEntryAsState()
+            val currentRoute = backStackEntry?.destination?.route
+            val isWelcome = currentRoute == Screen.Welcome.route
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
+            val uiState = settingsViewModel.uiState.collectAsStateWithLifecycle().value
+            var drawerOpen by remember { mutableStateOf(false) }
 
-	private fun configureStrictMode() {
-		if (BuildConfig.DEBUG) {
-			StrictMode.setThreadPolicy(
-				StrictMode.ThreadPolicy.Builder()
-					.detectDiskReads()
-					.detectDiskWrites()
-					.detectNetwork()
-					.penaltyLog()
-					.build()
-			)
-			StrictMode.setVmPolicy(
-				StrictMode.VmPolicy.Builder()
-					.detectLeakedSqlLiteObjects()
-					.detectLeakedClosableObjects()
-					.detectActivityLeaks()
-					.penaltyLog()
-					.build()
-			)
-		} else {
-			StrictMode.setThreadPolicy(
-				StrictMode.ThreadPolicy.Builder()
-					.detectDiskReads()
-					.detectDiskWrites()
-					.detectNetwork()
-					.penaltyLog()
-					.build()
-			)
-			StrictMode.setVmPolicy(
-				StrictMode.VmPolicy.Builder()
-					.detectLeakedSqlLiteObjects()
-					.detectLeakedClosableObjects()
-					.detectActivityLeaks()
-					.penaltyLog()
-					.build()
-			)
-		}
-	}
+            EduInvoiceTheme(darkTheme = uiState.settings?.darkTheme ?: false) {
+                val drawerState = rememberDrawerState(initialValue = if (drawerOpen) DrawerValue.Open else DrawerValue.Closed)
+                LaunchedEffect(drawerOpen) {
+                    if (drawerOpen) drawerState.open() else drawerState.close()
+                }
+                LaunchedEffect(isWelcome) {
+                    if (isWelcome) {
+                        drawerOpen = false
+                    }
+                }
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet {
+                            NavigationDrawerItem(
+                                label = { Text(stringResource(id = R.string.home)) },
+                                selected = false,
+                                onClick = {
+                                    if (!isWelcome) navController.navigate(Screen.Home.route)
+                                    drawerOpen = false
+                                },
+                                modifier = Modifier,
+                                colors = NavigationDrawerItemDefaults.colors()
+                            )
+                            NavigationDrawerItem(
+                                label = { Text(stringResource(id = R.string.students)) },
+                                selected = false,
+                                onClick = {
+                                    if (!isWelcome) navController.navigate(Screen.Students.route)
+                                    drawerOpen = false
+                                },
+                                modifier = Modifier,
+                                colors = NavigationDrawerItemDefaults.colors()
+                            )
+                            NavigationDrawerItem(
+                                label = { Text(stringResource(id = R.string.lessons)) },
+                                selected = false,
+                                onClick = {
+                                    if (!isWelcome) navController.navigate(Screen.Lessons.route)
+                                    drawerOpen = false
+                                },
+                                modifier = Modifier,
+                                colors = NavigationDrawerItemDefaults.colors()
+                            )
+                            NavigationDrawerItem(
+                                label = { Text(stringResource(id = R.string.groups)) },
+                                selected = false,
+                                onClick = {
+                                    if (!isWelcome) navController.navigate(Screen.Groups.route)
+                                    drawerOpen = false
+                                },
+                                modifier = Modifier,
+                                colors = NavigationDrawerItemDefaults.colors()
+                            )
+                            NavigationDrawerItem(
+                                label = { Text(stringResource(id = R.string.classes)) },
+                                selected = false,
+                                onClick = {
+                                    if (!isWelcome) navController.navigate(Screen.Classes.route)
+                                    drawerOpen = false
+                                },
+                                modifier = Modifier,
+                                colors = NavigationDrawerItemDefaults.colors()
+                            )
+                            NavigationDrawerItem(
+                                label = { Text(stringResource(id = R.string.revenue)) },
+                                selected = false,
+                                onClick = {
+                                    if (!isWelcome) navController.navigate(Screen.Revenue.route)
+                                    drawerOpen = false
+                                },
+                                modifier = Modifier,
+                                colors = NavigationDrawerItemDefaults.colors()
+                            )
+                            NavigationDrawerItem(
+                                label = { Text(stringResource(id = R.string.settings)) },
+                                selected = false,
+                                onClick = {
+                                    if (!isWelcome) navController.navigate(Screen.Settings.route)
+                                    drawerOpen = false
+                                },
+                                modifier = Modifier,
+                                colors = NavigationDrawerItemDefaults.colors()
+                            )
+                        }
+                    }
+                ) {
+                    Scaffold(
+                        topBar = { }
+                    ) { padding ->
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(padding),
+                            color = MaterialTheme.colorScheme.background
+                        ) {
+                            when (val state = initState) {
+                                is InitState.Loading -> LoadingScreen()
+                                is InitState.Failure -> ErrorScreen(
+                                    error = state.error,
+                                    onRetry = { initState = InitState.Loading; },
+                                    onDismiss = { }
+                                )
+                                is InitState.Success -> {
+                                    ErrorBoundary(
+                                        onError = { error ->
+                                            Log.e("MainActivity", "Compose error", error)
+                                            errorReporter.reportError(error)
+                                        }
+                                    ) {
+                                        EduInvoiceApp(
+                                            navController = navController,
+                                            openDrawer = { if (!isWelcome) drawerOpen = true }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun configureStrictMode() {
+        if (BuildConfig.DEBUG) {
+            StrictMode.setThreadPolicy(
+                StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork()
+                    .penaltyLog()
+                    .build()
+            )
+            StrictMode.setVmPolicy(
+                StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .detectActivityLeaks()
+                    .penaltyLog()
+                    .build()
+            )
+        }
+    }
+}
+
+private sealed class InitState {
+    data object Loading : InitState()
+    data class Failure(val error: Throwable) : InitState()
+    data object Success : InitState()
+}
+
+@Composable
+private fun LoadingScreen() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+    }
 }

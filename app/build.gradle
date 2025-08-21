@@ -50,6 +50,7 @@ android {
             firebaseCrashlyticsEnabled: "true",
             firebaseAnalyticsEnabled: "false"
         ]
+
     }
 
     signingConfigs {
@@ -128,9 +129,17 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
-        jniLibs {
-            // Prefer project-provided libsqlcipher.so when present in jniLibs
-            pickFirsts += ["**/libsqlcipher.so"]
+        // Do not force-pick native libraries; rely on dependency resolution per-ABI
+        // This avoids mismatched variants that can trigger CPU variant warnings
+    }
+
+    // Generate per-ABI APKs so emulators/devices get the exact native libs they need
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'arm64-v8a', 'armeabi-v7a', 'x86_64'
+            universalApk false
         }
     }
 }
@@ -238,8 +247,7 @@ configurations.configureEach { cfg ->
     // Firebase Performance Monitoring
     implementation libs.firebase.perf.ktx
     
-    // Add SQLCipher for database encryption
-    implementation libs.sqlcipher
+    // SQLCipher is provided by the data module; avoid duplicate inclusion here
 
     // LeakCanary (debug only)
     debugImplementation libs.leakcanary

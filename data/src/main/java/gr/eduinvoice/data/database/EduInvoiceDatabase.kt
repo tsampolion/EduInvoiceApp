@@ -29,6 +29,7 @@ import gr.eduinvoice.data.model.PaymentBatchMaster
 import gr.eduinvoice.data.model.RescheduleMaster
 import gr.eduinvoice.data.model.RescheduleMasterLessonLink
 import net.sqlcipher.database.SupportFactory
+import java.util.concurrent.Executors
 
 @Database(
     entities = [Student::class, Lesson::class, StudentGroup::class, GroupStudentCrossRef::class, User::class, GroupLessonMaster::class, GroupLessonAbsence::class, InvoiceMaster::class, PaymentBatchMaster::class, RescheduleMaster::class, RescheduleMasterLessonLink::class],
@@ -68,12 +69,16 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
             }
             return INSTANCE ?: synchronized(this) {
                 val factory = SupportFactory(passphrase)
+                val queryExecutor = Executors.newFixedThreadPool(4)
+                val transactionExecutor = Executors.newSingleThreadExecutor()
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     EduInvoiceDatabase::class.java,
                     DatabaseConstants.DATABASE_NAME
                 )
                     .openHelperFactory(factory)
+                    .setQueryExecutor(queryExecutor)
+                    .setTransactionExecutor(transactionExecutor)
                     .fallbackToDestructiveMigration(false)
                     .addMigrations(
                         MIGRATION_12_13,

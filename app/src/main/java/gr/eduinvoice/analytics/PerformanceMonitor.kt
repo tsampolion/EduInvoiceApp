@@ -6,6 +6,8 @@ import gr.eduinvoice.BuildConfig
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.google.firebase.perf.FirebasePerformance
+import com.google.firebase.perf.metrics.Trace as FirebaseTrace
 
 @Singleton
 class PerformanceMonitor @Inject constructor(
@@ -14,6 +16,10 @@ class PerformanceMonitor @Inject constructor(
 
     fun startTrace(traceName: String): Trace {
         return Trace(traceName)
+    }
+
+    fun startAppStartupTrace(): Trace {
+        return startTrace("app_startup")
     }
 
     fun monitorScreenLoad(screenName: String) {
@@ -60,9 +66,15 @@ class PerformanceMonitor @Inject constructor(
     class Trace(private val name: String) {
         private var startTime: Long = 0
         private var endTime: Long = 0
+        private var firebaseTrace: FirebaseTrace? = null
 
         fun start() {
             startTime = System.currentTimeMillis()
+            try {
+                firebaseTrace = FirebasePerformance.getInstance().newTrace(name).also { it.start() }
+            } catch (t: Throwable) {
+                // Ignore Firebase failures in production path
+            }
             if (BuildConfig.DEBUG) {
                 Log.d("PerformanceMonitor", "Started trace: $name")
             }
@@ -71,6 +83,12 @@ class PerformanceMonitor @Inject constructor(
         fun stop() {
             endTime = System.currentTimeMillis()
             val duration = endTime - startTime
+            try {
+                firebaseTrace?.putMetric("duration_ms", duration)
+                firebaseTrace?.stop()
+            } catch (t: Throwable) {
+                // Ignore Firebase failures in production path
+            }
             if (BuildConfig.DEBUG) {
                 Log.d("PerformanceMonitor", "Trace $name completed in ${duration}ms")
             }
@@ -78,6 +96,7 @@ class PerformanceMonitor @Inject constructor(
         }
 
         fun putMetric(key: String, value: Long) {
+            try { firebaseTrace?.putMetric(key, value) } catch (_: Throwable) {}
             if (BuildConfig.DEBUG) {
                 Log.d("PerformanceMonitor", "Metric for $name: $key = $value")
             }

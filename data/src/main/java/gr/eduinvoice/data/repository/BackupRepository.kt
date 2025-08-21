@@ -42,87 +42,89 @@ class BackupRepository @Inject constructor(
     private val json = Json { ignoreUnknownKeys = true }
 
     suspend fun exportJson(): String {
-        val readable = db.openHelper.readableDatabase
-        val students = readable.query("SELECT * FROM ${DatabaseConstants.STUDENTS_TABLE}").use { cursor ->
-            generateSequence { if (cursor.moveToNext()) cursor else null }
-                .map { Student(
-                    id = it.getLong(0),
-                    ownerId = it.getLong(1),
-                    name = it.getString(2),
-                    surname = it.getString(3),
-                    parentMobile = it.getString(4),
-                    parentEmail = it.getString(5),
-                    className = it.getString(6),
-                    rate = it.getDouble(7),
-                    rateType = it.getString(8),
-                    isActive = it.getInt(9) == 1
-                ) }.toList()
+        return withContext(Dispatchers.IO) {
+            val readable = db.openHelper.readableDatabase
+            val students = readable.query("SELECT * FROM ${DatabaseConstants.STUDENTS_TABLE}").use { cursor ->
+                generateSequence { if (cursor.moveToNext()) cursor else null }
+                    .map { Student(
+                        id = it.getLong(0),
+                        ownerId = it.getLong(1),
+                        name = it.getString(2),
+                        surname = it.getString(3),
+                        parentMobile = it.getString(4),
+                        parentEmail = it.getString(5),
+                        className = it.getString(6),
+                        rate = it.getDouble(7),
+                        rateType = it.getString(8),
+                        isActive = it.getInt(9) == 1
+                    ) }.toList()
+            }
+            val lessons = readable.query("SELECT * FROM ${DatabaseConstants.LESSONS_TABLE}").use { c ->
+                generateSequence { if (c.moveToNext()) c else null }
+                    .map { Lesson(
+                        id = it.getLong(0),
+                        ownerId = it.getLong(1),
+                        studentId = it.getLong(2),
+                        groupId = if (it.isNull(3)) null else it.getLong(3),
+                        date = it.getString(4),
+                        startTime = it.getString(5),
+                        durationMinutes = it.getInt(6),
+                        notes = it.getString(7),
+                        isPaid = it.getInt(8) == 1,
+                        isInvoiced = it.getInt(9) == 1
+                    ) }.toList()
+            }
+            val groups = readable.query("SELECT * FROM ${DatabaseConstants.GROUPS_TABLE}").use { c ->
+                generateSequence { if (c.moveToNext()) c else null }
+                    .map { StudentGroup(
+                        id = it.getLong(0),
+                        ownerId = it.getLong(1),
+                        name = it.getString(2)
+                    ) }.toList()
+            }
+            val crossRefs = readable.query("SELECT * FROM ${DatabaseConstants.GROUP_STUDENT_CROSS_REF_TABLE}").use { c ->
+                generateSequence { if (c.moveToNext()) c else null }
+                    .map { GroupStudentCrossRef(
+                        groupId = it.getLong(0),
+                        studentId = it.getLong(1),
+                        ownerId = it.getLong(2)
+                    ) }.toList()
+            }
+            val users = readable.query("SELECT * FROM ${DatabaseConstants.USERS_TABLE}").use { c ->
+                generateSequence { if (c.moveToNext()) c else null }
+                    .map { User(
+                        id = it.getLong(0),
+                        username = it.getString(1),
+                        passwordHash = it.getString(2),
+                        fullName = it.getString(3),
+                        subjectSpecialty = it.getString(4),
+                        yearsExperience = it.getInt(5)
+                    ) }.toList()
+            }
+            val dump = BackupDump(students, lessons, groups, crossRefs, users)
+            json.encodeToString(BackupDump.serializer(), dump)
         }
-        val lessons = readable.query("SELECT * FROM ${DatabaseConstants.LESSONS_TABLE}").use { c ->
-            generateSequence { if (c.moveToNext()) c else null }
-                .map { Lesson(
-                    id = it.getLong(0),
-                    ownerId = it.getLong(1),
-                    studentId = it.getLong(2),
-                    groupId = if (it.isNull(3)) null else it.getLong(3),
-                    date = it.getString(4),
-                    startTime = it.getString(5),
-                    durationMinutes = it.getInt(6),
-                    notes = it.getString(7),
-                    isPaid = it.getInt(8) == 1,
-                    isInvoiced = it.getInt(9) == 1
-                ) }.toList()
-        }
-        val groups = readable.query("SELECT * FROM ${DatabaseConstants.GROUPS_TABLE}").use { c ->
-            generateSequence { if (c.moveToNext()) c else null }
-                .map { StudentGroup(
-                    id = it.getLong(0),
-                    ownerId = it.getLong(1),
-                    name = it.getString(2)
-                ) }.toList()
-        }
-        val crossRefs = readable.query("SELECT * FROM ${DatabaseConstants.GROUP_STUDENT_CROSS_REF_TABLE}").use { c ->
-            generateSequence { if (c.moveToNext()) c else null }
-                .map { GroupStudentCrossRef(
-                    groupId = it.getLong(0),
-                    studentId = it.getLong(1),
-                    ownerId = it.getLong(2)
-                ) }.toList()
-        }
-        val users = readable.query("SELECT * FROM ${DatabaseConstants.USERS_TABLE}").use { c ->
-            generateSequence { if (c.moveToNext()) c else null }
-                .map { User(
-                    id = it.getLong(0),
-                    username = it.getString(1),
-                    passwordHash = it.getString(2),
-                    fullName = it.getString(3),
-                    subjectSpecialty = it.getString(4),
-                    yearsExperience = it.getInt(5)
-                ) }.toList()
-        }
-        val dump = BackupDump(students, lessons, groups, crossRefs, users)
-        return json.encodeToString(BackupDump.serializer(), dump)
     }
 
-    suspend fun restoreFromJson(json: String): Result<Unit> {
-        return try {
-            val element = this.json.parseToJsonElement(json).jsonObject
+    suspend fun restoreFromJson(json: String): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val element = this@BackupRepository.json.parseToJsonElement(json).jsonObject
             val required = listOf("students", "lessons", "groups", "crossRefs", "users")
             if (!required.all { element.containsKey(it) }) {
-                return Result.failure(IllegalArgumentException("Backup JSON missing required fields"))
+                return@withContext Result.failure(IllegalArgumentException("Backup JSON missing required fields"))
             }
-            val dump = this.json.decodeFromString(BackupDump.serializer(), json)
+            val dump = this@BackupRepository.json.decodeFromString(BackupDump.serializer(), json)
             db.withTransaction {
                 db.clearAllTables()
                 val studentDao = db.studentDao()
                 val lessonDao = db.lessonDao()
                 val groupDao = db.groupDao()
                 val userDao = db.userDao()
-                dump.users.forEach { userDao.insert(it) }
-                dump.students.forEach { studentDao.insert(it) }
-                dump.groups.forEach { groupDao.insertGroup(it) }
-                dump.crossRefs.forEach { groupDao.insertCrossRef(it) }
-                dump.lessons.forEach { lessonDao.insert(it) }
+                for (u in dump.users) { userDao.insert(u) }
+                for (s in dump.students) { studentDao.insert(s) }
+                for (g in dump.groups) { groupDao.insertGroup(g) }
+                for (cr in dump.crossRefs) { groupDao.insertCrossRef(cr) }
+                for (l in dump.lessons) { lessonDao.insert(l) }
             }
             Result.success(Unit)
         } catch (e: Exception) {

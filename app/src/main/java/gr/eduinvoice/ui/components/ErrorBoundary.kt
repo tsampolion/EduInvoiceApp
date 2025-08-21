@@ -88,6 +88,19 @@ fun ErrorBoundary(
     }
 }
 
+@Composable
+fun ErrorScreen(
+    error: Throwable,
+    onRetry: () -> Unit,
+    onDismiss: () -> Unit = {}
+) {
+    ErrorFallbackUI(
+        error = error,
+        onRetry = onRetry,
+        onDismiss = onDismiss
+    )
+}
+
 /**
  * Fallback UI shown when an error occurs in the ErrorBoundary
  */

@@ -1,17 +1,24 @@
 package gr.eduinvoice
 
 import android.app.Application
+import android.os.StrictMode
 import android.util.Log
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
 // import com.google.firebase.sessions.FirebaseSessions
 import dagger.hilt.android.HiltAndroidApp
+import gr.eduinvoice.analytics.PerformanceMonitor
 
 @HiltAndroidApp
 class EduInvoiceApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+
+        configureStrictMode()
+
+        val startupTrace = PerformanceMonitor(this).startAppStartupTrace()
+        startupTrace.start()
 
         try {
             // Initialize Firebase
@@ -34,6 +41,32 @@ class EduInvoiceApplication : Application() {
         } catch (t: Throwable) {
             Log.w("EduInvoiceApplication", "Failed to initialize Firebase", t)
             // Don't crash the app if Firebase initialization fails
+        }
+
+        // Stop startup trace after initialization
+        try {
+            startupTrace.stop()
+        } catch (_: Throwable) {}
+    }
+
+    private fun configureStrictMode() {
+        if (BuildConfig.DEBUG) {
+            StrictMode.setThreadPolicy(
+                StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork()
+                    .penaltyLog()
+                    .build()
+            )
+            StrictMode.setVmPolicy(
+                StrictMode.VmPolicy.Builder()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .detectActivityLeaks()
+                    .penaltyLog()
+                    .build()
+            )
         }
     }
 }
