@@ -137,6 +137,16 @@ fun ModernEmptyGroupsState(
 }
 
 @Composable
+fun ModernEmptyClassesState() {
+    ModernEmptyState(
+        icon = Icons.Default.Class,
+        title = "No Classes Yet",
+        message = "Students will appear here once they are assigned to classes. Classes are automatically created when you assign students to them.",
+        actionText = null
+    )
+}
+
+@Composable
 fun ModernEmptySearchState(
     query: String
 ) {
