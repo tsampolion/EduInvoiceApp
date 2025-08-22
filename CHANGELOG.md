@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.5] - 2025-08-22
+
+### Added
+- **Admin User Management**: Comprehensive user management system exclusively for admin users
+  - **Users Screen**: New admin-only screen for viewing, editing, and deleting user accounts
+  - **Admin Access Control**: Conditional visibility of admin features based on user role
+  - **User CRUD Operations**: Full user profile management with inline editing capabilities
+  - **Admin Navigation**: Users button added to home screen and sliding menu (admin only)
+
+### Enhanced
+- **Password Reset Simplification**: Streamlined password reset process
+  - Removed unnecessary full name and verification code fields
+  - Updated field labels to "New Password" and "Confirm New Password"
+  - Simplified backend logic for better user experience
+
+### Fixed
+- **Critical App Crash**: Fixed `IllegalStateException: Cannot add lesson for a non-existent student`
+  - Enhanced student validation in lesson creation
+  - Added `getStudentByIdAny` method for comprehensive student checking
+  - Improved error handling and user feedback
+
+### Technical
+- **Repository Layer**: Enhanced user repository with `getAllUsers()` method
+- **Domain Layer**: New `GetAllUsers` use case for admin functionality
+- **Navigation**: Added Users screen route and conditional admin access
+- **ViewModels**: Enhanced with admin role detection and user management capabilities
+
+### UX
+- **Admin Interface**: Professional user management interface with card-based design
+- **Conditional UI**: Admin features only appear for users with admin role
+- **Enhanced Navigation**: Improved sliding menu with admin-specific items
+
+### DevOps
+- Version bumped to 0.28.5.
+
 ## [0.28.4] - 2025-08-22
 
 ### Fixed

@@ -198,7 +198,7 @@ class MainActivity : ComponentActivity() {
                             // Admin-only Users management
                             if (isLoggedIn && uiState.user?.username == "admin") {
                                 NavigationDrawerItem(
-                                    icon = { Icon(androidx.compose.material.icons.Icons.Default.People, contentDescription = null) },
+                                    icon = { Icon(androidx.compose.material.icons.Icons.Default.Group, contentDescription = null) },
                                     label = { Text("User Management") },
                                     selected = currentRoute == Screen.Users.route,
                                     onClick = { handleNavigation(Screen.Users.route) },
