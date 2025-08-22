@@ -24,7 +24,8 @@ import androidx.compose.ui.unit.dp
 
 data class FilterOptions(
     val dateRange: Pair<Long?, Long?> = null to null,
-    val status: Set<String> = emptySet()
+    val status: Set<String> = emptySet(),
+    val classes: Set<String> = emptySet()
 )
 
 @Composable

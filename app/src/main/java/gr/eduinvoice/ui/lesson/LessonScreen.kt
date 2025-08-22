@@ -50,7 +50,8 @@ fun LessonScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showLockedWarning by remember { mutableStateOf(false) }
 
-    Scaffold(topBar = { }) { paddingValues ->
+    val snackbarHostState = remember { SnackbarHostState() }
+    Scaffold(topBar = { }, snackbarHost = { SnackbarHost(snackbarHostState) }) { paddingValues ->
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -359,7 +360,10 @@ fun LessonScreen(
                     modifier = Modifier.weight(1f)
                 ) { Text(stringResource(R.string.cancel)) }
                 Button(
-                    onClick = { viewModel.attemptSaveLesson() },
+                    onClick = {
+                        viewModel.attemptSaveLesson()
+                        LaunchedEffect(Unit) { snackbarHostState.showSnackbar("Lesson saved") }
+                    },
                     modifier = Modifier.weight(1f),
                     enabled = viewModel.isFormValid()
                 ) { Text(stringResource(R.string.save)) }

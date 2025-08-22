@@ -70,14 +70,15 @@ fun GroupsScreen(
                 AssistChip(onClick = { showSheet = true }, label = { Text("Search & Filter") })
             }
             if (showSheet) {
+                val state = viewModel.uiState.collectAsStateWithLifecycle().value
                 ModernSearchFilterSheet(
                     title = "Groups",
-                    query = viewModel.uiState.collectAsStateWithLifecycle().value.searchQuery,
+                    query = state.searchQuery,
                     onQueryChange = { viewModel.updateQuery(it) },
-                    sortAscending = viewModel.uiState.collectAsStateWithLifecycle().value.sortAscending,
+                    sortAscending = state.sortAscending,
                     onToggleSort = { viewModel.toggleSort() },
-                    filters = null,
-                    onFiltersChange = null,
+                    filters = gr.eduinvoice.ui.components.FilterOptions(),
+                    onFiltersChange = { f -> viewModel.updateFilters(f) },
                     onDismiss = { showSheet = false }
                 )
             }

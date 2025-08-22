@@ -39,8 +39,10 @@ fun GroupScreen(
     var pendingBillingMismatch by remember { mutableStateOf(false) }
     var classConfirmed by remember { mutableStateOf(false) }
 
+    val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         topBar = { },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             if (viewModel.groupId != 0L) {
                 FloatingActionButton(onClick = { onAddGroupLesson(viewModel.groupId) }) {
@@ -77,6 +79,9 @@ fun GroupScreen(
                                 confirmButton = {
                                     TextButton(onClick = {
                                         viewModel.archiveGroup()
+                                        LaunchedEffect(Unit) {
+                                            snackbarHostState.showSnackbar("Group archived")
+                                        }
                                         showArchive = false
                                         onBack()
                                     }) { Text("Archive") }
@@ -92,6 +97,9 @@ fun GroupScreen(
                                 confirmButton = {
                                     TextButton(onClick = {
                                         viewModel.deleteGroup()
+                                        LaunchedEffect(Unit) {
+                                            snackbarHostState.showSnackbar("Group deleted")
+                                        }
                                         showDelete = false
                                         onBack()
                                     }) { Text("Delete") }
@@ -126,6 +134,7 @@ fun GroupScreen(
                                     overrideClass = false,
                                     overrideBilling = false
                                 )
+                                LaunchedEffect(Unit) { snackbarHostState.showSnackbar("Group saved") }
                                 onBack()
                             }
                         }

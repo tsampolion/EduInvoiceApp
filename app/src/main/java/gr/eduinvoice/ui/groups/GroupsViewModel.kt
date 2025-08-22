@@ -29,15 +29,23 @@ class GroupsViewModel @Inject constructor(
     val uiState: StateFlow<GroupsUiState> = _uiState.asStateFlow()
     private val _query = MutableStateFlow("")
     private val _sortAscending = MutableStateFlow(true)
+    private val _filters = MutableStateFlow(gr.eduinvoice.ui.components.FilterOptions())
     fun updateQuery(q: String) { _query.value = q }
     fun toggleSort() { _sortAscending.value = !_sortAscending.value }
+    fun updateFilters(f: gr.eduinvoice.ui.components.FilterOptions) { _filters.value = f }
 
     init {
         viewModelScope.launch {
             val userId = currentUserProvider.loggedInUserId.first() ?: 0L
-            combine(groupUseCases.getAllGroups(userId), _query, _sortAscending) { groups, q, asc ->
-                val filtered = if (q.isBlank()) groups else groups.filter { it.name.contains(q, ignoreCase = true) }
-                val sorted = filtered.sortedWith(compareBy { it.name.lowercase() })
+            combine(groupUseCases.getAllGroups(userId), _query, _sortAscending, _filters) { groups, q, asc, filters ->
+                val byQuery = if (q.isBlank()) groups else groups.filter { it.name.contains(q, ignoreCase = true) }
+                val byStatus = when {
+                    filters.status.contains("active") && !filters.status.contains("inactive") -> byQuery.filter { it.isActive }
+                    !filters.status.contains("active") && filters.status.contains("inactive") -> byQuery.filter { !it.isActive }
+                    else -> byQuery
+                }
+                val byClass = if (filters.classes.isEmpty()) byStatus else byStatus.filter { it.className in filters.classes }
+                val sorted = byClass.sortedWith(compareBy { it.name.lowercase() })
                 val ordered = if (asc) sorted else sorted.asReversed()
                 GroupsUiState(groups = ordered, searchQuery = q, sortAscending = asc)
             }.collect { state -> _uiState.value = state }

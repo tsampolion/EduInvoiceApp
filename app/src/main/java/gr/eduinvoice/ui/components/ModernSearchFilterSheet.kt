@@ -107,6 +107,20 @@ fun ModernSearchFilterSheet(
                 LaunchedEffect(startState.selectedDateMillis, endState.selectedDateMillis) {
                     onFiltersChange(filters.copy(dateRange = (startState.selectedDateMillis to endState.selectedDateMillis)))
                 }
+
+                Spacer(Modifier.height(8.dp))
+                Text(text = "Class", style = MaterialTheme.typography.titleMedium)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    val options = listOf("A1","A2","B1","B2","C1","C2","Custom")
+                    options.forEach { cls ->
+                        val selected = filters.classes.contains(cls)
+                        ModernChip(text = cls, selected = selected) {
+                            val new = filters.classes.toMutableSet()
+                            if (selected) new.remove(cls) else new.add(cls)
+                            onFiltersChange(filters.copy(classes = new))
+                        }
+                    }
+                }
             }
 
             Row(
