@@ -6,6 +6,7 @@ data class StudentUseCases @Inject constructor(
     val getActiveStudents: GetActiveStudents,
     val getArchivedStudents: GetArchivedStudents,
     val getStudentById: GetStudentById,
+    val getStudentByIdAny: GetStudentByIdAny,
     val insertStudent: InsertStudent,
     val updateStudent: UpdateStudent,
     val softDeleteStudent: SoftDeleteStudent,

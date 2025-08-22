@@ -121,8 +121,12 @@ class EduInvoiceRepository @Inject constructor(
             operation = {
                 // Validate student exists and is active within transaction
                 val student = studentDao.getStudentByIdAny(lesson.studentId, userId).first()
-                checkNotNull(student) { "Cannot add lesson for a non-existent student" }
-                check(student.isActive) { "Cannot add lesson for an inactive student" }
+                checkNotNull(student) { 
+                    "Cannot add lesson for a non-existent student. StudentId: ${lesson.studentId}, UserId: $userId" 
+                }
+                check(student.isActive) { 
+                    "Cannot add lesson for an inactive student: ${student.name} (ID: ${student.id})" 
+                }
 
                 lessonDao.insert(lesson)
             },

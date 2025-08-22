@@ -119,20 +119,45 @@ class LessonViewModel @Inject constructor(
         viewModelScope.launch {
             currentUserProvider.loggedInUserId
                 .filterNotNull()
-                .flatMapLatest { uid -> studentUseCases.getActiveStudents(uid) }
-                .collect { list ->
-                val selectedId = studentId?.takeIf { it != 0L } ?: _uiState.value.selectedStudentId
-                val selectedStudent = list.firstOrNull { it.id == selectedId }
-                _uiState.update { state ->
-                    state.copy(
-                        availableStudents = list,
-                        selectedStudentId = selectedStudent?.id,
-                        studentName = selectedStudent?.name ?: state.studentName,
-                        studentRate = selectedStudent?.rate ?: state.studentRate,
-                        rateType = selectedStudent?.rateType ?: state.rateType
-                    )
+                .flatMapLatest { uid -> 
+                    combine(
+                        studentUseCases.getActiveStudents(uid),
+                        flow { emit(uid) }
+                    ) { activeStudents, userId ->
+                        val selectedId = studentId?.takeIf { it != 0L } ?: _uiState.value.selectedStudentId
+                        var selectedStudent = activeStudents.firstOrNull { it.id == selectedId }
+                        
+                        // If we have a selectedId but can't find it in active students, check if it exists but is inactive
+                        if (selectedStudent == null && selectedId != null && selectedId > 0) {
+                            try {
+                                val inactiveStudent = studentUseCases.getStudentByIdAny(selectedId, userId).first()
+                                if (inactiveStudent != null && !inactiveStudent.isActive) {
+                                    _uiState.update { 
+                                        it.copy(errorMessage = "Student '${inactiveStudent.name}' is archived and cannot be used for new lessons.")
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                // Student doesn't exist at all
+                                _uiState.update { 
+                                    it.copy(errorMessage = "Selected student not found.")
+                                }
+                            }
+                        }
+                        
+                        Triple(activeStudents, selectedStudent, userId)
+                    }
                 }
-            }
+                .collect { (list, selectedStudent, userId) ->
+                    _uiState.update { state ->
+                        state.copy(
+                            availableStudents = list,
+                            selectedStudentId = selectedStudent?.id,
+                            studentName = selectedStudent?.name ?: state.studentName,
+                            studentRate = selectedStudent?.rate ?: state.studentRate,
+                            rateType = selectedStudent?.rateType ?: state.rateType
+                        )
+                    }
+                }
         }
     }
 
@@ -362,7 +387,7 @@ class LessonViewModel @Inject constructor(
                             }
                         }
                     }
-                } else if (sId != null) {
+                } else if (sId != null && sId > 0) {
                     if (lessonId == null || lessonId == 0L) {
                         val lesson = DomainLesson(
                             studentId = sId,
@@ -385,6 +410,12 @@ class LessonViewModel @Inject constructor(
                         )
                         lessonUseCases.updateLesson(lesson)
                     }
+                } else {
+                    // Invalid student selection
+                    _uiState.update { 
+                        it.copy(errorMessage = "Please select a valid student before saving the lesson.") 
+                    }
+                    return@launch
                 }
 
                 _uiState.update { it.copy(isEditMode = false) }
@@ -392,6 +423,10 @@ class LessonViewModel @Inject constructor(
                 // Navigate back on main thread
                 withContext(Dispatchers.Main) {
                     onNavigateBack?.invoke()
+                }
+            } catch (e: IllegalStateException) {
+                withContext(Dispatchers.Main) {
+                    _uiState.update { it.copy(errorMessage = e.message ?: "Cannot save lesson") }
                 }
             } catch (e: SQLiteException) {
                 withContext(Dispatchers.Main) {

@@ -25,6 +25,7 @@ object DomainModule {
             getActiveStudents = GetActiveStudents(repository),
             getArchivedStudents = GetArchivedStudents(repository),
             getStudentById = GetStudentById(repository),
+            getStudentByIdAny = GetStudentByIdAny(repository),
             insertStudent = InsertStudent(repository),
             updateStudent = UpdateStudent(repository),
             softDeleteStudent = SoftDeleteStudent(repository),
