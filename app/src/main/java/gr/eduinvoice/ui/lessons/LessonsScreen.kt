@@ -89,8 +89,10 @@ fun LessonsScreen(
                 ) {
                     var showPaySheet by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(openPayOnStart) }
                     var showRescheduleSheet by remember { mutableStateOf(false) }
+                    var showInvoiceSheet by remember { mutableStateOf(false) }
                     AssistChip(onClick = { showPaySheet = true }, label = { Text("Mark Paid (Batch)") })
                     AssistChip(onClick = { showRescheduleSheet = true }, label = { Text("Bulk Reschedule") })
+                    AssistChip(onClick = { showInvoiceSheet = true }, label = { Text("Batch Invoice") })
                     if (showPaySheet) {
                         val scopedLessons = batchStudentId?.let { id -> uiState.lessons.filter { it.lesson.studentId == id } } ?: uiState.lessons
                         BatchPaySheet(
@@ -109,6 +111,16 @@ fun LessonsScreen(
                             onConfirm = { ids, newDate, newTime, newDuration, notes ->
                                 viewModel.bulkReschedule(ids, newDate, newTime, newDuration, notes)
                                 showRescheduleSheet = false
+                            }
+                        )
+                    }
+                    if (showInvoiceSheet) {
+                        BatchInvoiceSheet(
+                            lessons = uiState.lessons,
+                            onDismiss = { showInvoiceSheet = false },
+                            onConfirm = { ids, invoiceDate, notes ->
+                                viewModel.createInvoiceForSelected(ids, invoiceDate, notes)
+                                showInvoiceSheet = false
                             }
                         )
                     }
@@ -351,6 +363,52 @@ private fun BulkRescheduleSheet(
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
                 Button(onClick = { onConfirm(selected.toList(), date.toString(), time, duration.toIntOrNull() ?: 60, notes.ifBlank { null }) }, enabled = selected.isNotEmpty(), modifier = Modifier.weight(1f)) { Text("Apply") }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BatchInvoiceSheet(
+    lessons: List<UiLessonWithStudent>,
+    onDismiss: () -> Unit,
+    onConfirm: (ids: List<Long>, invoiceDate: String, notes: String?) -> Unit
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var selected by remember { mutableStateOf(setOf<Long>()) }
+    var notes by remember { mutableStateOf("") }
+    var invoiceDate by remember { mutableStateOf(LocalDate.now().toString()) }
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(text = "Batch Invoice", style = MaterialTheme.typography.titleLarge)
+            val alreadyInvoiced = lessons.count { it.lesson.isInvoiced }
+            if (alreadyInvoiced > 0) {
+                Text(text = "Info: ${alreadyInvoiced} already invoiced in list", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            LazyColumn(Modifier.heightIn(max = 300.dp)) {
+                items(lessons) { item ->
+                    val id = item.lesson.id
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(text = "${item.student.name} ${item.student.surname} • ${item.lesson.date}")
+                        Checkbox(checked = selected.contains(id), onCheckedChange = {
+                            selected = selected.toMutableSet().apply { if (contains(id)) remove(id) else add(id) }
+                        })
+                    }
+                }
+            }
+            OutlinedTextField(value = invoiceDate, onValueChange = { invoiceDate = it }, label = { Text("Invoice date (yyyy-MM-dd)") }, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = notes, onValueChange = { notes = it }, label = { Text("Notes (optional)") }, modifier = Modifier.fillMaxWidth())
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(text = "Selected: ${selected.size}")
+                val selectedInvoiced = lessons.count { selected.contains(it.lesson.id) && it.lesson.isInvoiced }
+                if (selectedInvoiced > 0) {
+                    Text(text = "${selectedInvoiced} already invoiced", color = MaterialTheme.colorScheme.error)
+                }
+            }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
+                Button(onClick = { onConfirm(selected.toList(), invoiceDate, notes.ifBlank { null }) }, enabled = selected.isNotEmpty(), modifier = Modifier.weight(1f)) { Text("Create") }
             }
         }
     }

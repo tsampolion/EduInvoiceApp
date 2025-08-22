@@ -40,6 +40,7 @@ fun GroupScreen(
     var classConfirmed by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val globalBus = gr.eduinvoice.ui.components.LocalSnackbarBus.current
     Scaffold(
         topBar = { },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -79,9 +80,7 @@ fun GroupScreen(
                                 confirmButton = {
                                     TextButton(onClick = {
                                         viewModel.archiveGroup()
-                                        LaunchedEffect(Unit) {
-                                            snackbarHostState.showSnackbar("Group archived")
-                                        }
+                                        LaunchedEffect(Unit) { globalBus.show("Group archived") }
                                         showArchive = false
                                         onBack()
                                     }) { Text("Archive") }
@@ -97,9 +96,7 @@ fun GroupScreen(
                                 confirmButton = {
                                     TextButton(onClick = {
                                         viewModel.deleteGroup()
-                                        LaunchedEffect(Unit) {
-                                            snackbarHostState.showSnackbar("Group deleted")
-                                        }
+                                        LaunchedEffect(Unit) { globalBus.show("Group deleted") }
                                         showDelete = false
                                         onBack()
                                     }) { Text("Delete") }
@@ -134,7 +131,7 @@ fun GroupScreen(
                                     overrideClass = false,
                                     overrideBilling = false
                                 )
-                                LaunchedEffect(Unit) { snackbarHostState.showSnackbar("Group saved") }
+                                LaunchedEffect(Unit) { globalBus.show("Group saved") }
                                 onBack()
                             }
                         }
@@ -195,14 +192,10 @@ fun GroupScreen(
 
             val errorMessage = viewModel.uiState.collectAsStateWithLifecycle().value.errorMessage
             if (!errorMessage.isNullOrBlank()) {
-                AlertDialog(
-                    onDismissRequest = { viewModel.clearError() },
-                    title = { Text("Action blocked") },
-                    text = { Text(errorMessage) },
-                    confirmButton = {
-                        TextButton(onClick = { viewModel.clearError() }) { Text("OK") }
-                    }
-                )
+                LaunchedEffect(errorMessage) {
+                    snackbarHostState.showSnackbar(errorMessage)
+                    viewModel.clearError()
+                }
             }
 
             val customClassError = uiState.selectedClass == "Custom" && uiState.customClass.isBlank()

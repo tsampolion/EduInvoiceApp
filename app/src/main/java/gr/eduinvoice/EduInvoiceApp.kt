@@ -4,6 +4,12 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Scaffold
+import gr.eduinvoice.ui.components.LocalSnackbarBus
+import gr.eduinvoice.ui.components.SnackbarBus
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -65,6 +71,16 @@ fun EduInvoiceApp(
             }
         }
     ) {
+        val snackbarHostState = SnackbarHostState()
+        val bus = SnackbarBus()
+        LaunchedEffect(bus.message) {
+            bus.message?.let { msg ->
+                snackbarHostState.showSnackbar(msg)
+                bus.consume()
+            }
+        }
+        CompositionLocalProvider(LocalSnackbarBus provides bus) {
+        Scaffold(bottomBar = { SnackbarHost(hostState = snackbarHostState) }) { paddingIgnored ->
         NavHost(
             navController = navController,
             startDestination = startDestination
@@ -224,6 +240,18 @@ fun EduInvoiceApp(
             PastInvoicesScreen(onBack = { navController.popBackStack() })
         }
 
+        // Edit Invoice Master
+        composable(
+            route = Screen.EditInvoiceMaster.route,
+            arguments = listOf(navArgument("masterId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getLong("masterId") ?: 0L
+            gr.eduinvoice.ui.invoice.EditInvoiceMasterScreen(
+                masterId = id,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
         // Reschedules screen
         composable(Screen.Reschedules.route) {
             gr.eduinvoice.ui.lessons.ReschedulesScreen(onBack = { navController.popBackStack() })
@@ -301,6 +329,8 @@ fun EduInvoiceApp(
                 onNavigateBack = { navController.popBackStack() },
                 viewModel = viewModel
             )
+        }
+        }
         }
         }
     }

@@ -27,6 +27,9 @@ sealed class Screen(val route: String) {
             studentId?.let { "invoice?studentId=$it" } ?: "invoice"
     }
     object PastInvoices : Screen("pastInvoices")
+    object EditInvoiceMaster : Screen("editInvoiceMaster/{masterId}") {
+        fun createRoute(masterId: Long) = "editInvoiceMaster/$masterId"
+    }
     object Reschedules : Screen("reschedules")
     object Settings : Screen("settings")
     object PrivacyPolicy : Screen("privacyPolicy")

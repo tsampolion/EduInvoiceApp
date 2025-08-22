@@ -51,6 +51,7 @@ fun LessonScreen(
     var showLockedWarning by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val globalBus = gr.eduinvoice.ui.components.LocalSnackbarBus.current
     Scaffold(topBar = { }, snackbarHost = { SnackbarHost(snackbarHostState) }) { paddingValues ->
         Column(
             modifier = modifier
@@ -362,7 +363,7 @@ fun LessonScreen(
                 Button(
                     onClick = {
                         viewModel.attemptSaveLesson()
-                        LaunchedEffect(Unit) { snackbarHostState.showSnackbar("Lesson saved") }
+                        LaunchedEffect(Unit) { globalBus.show("Lesson saved") }
                     },
                     modifier = Modifier.weight(1f),
                     enabled = viewModel.isFormValid()
@@ -383,5 +384,12 @@ fun LessonScreen(
                 TextButton(onClick = { viewModel.dismissLockedWarning() }) { Text(stringResource(R.string.cancel)) }
             }
         )
+    }
+
+    uiState.errorMessage?.let { message ->
+        LaunchedEffect(message) {
+            globalBus.show(message)
+            viewModel.dismissError()
+        }
     }
 }

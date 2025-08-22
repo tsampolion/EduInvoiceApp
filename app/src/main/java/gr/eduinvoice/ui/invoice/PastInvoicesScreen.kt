@@ -91,6 +91,17 @@ fun PastInvoicesScreen(onBack: () -> Unit, viewModel: InvoiceViewModel = hiltVie
                                         }
                                     }
                                 )
+                                DropdownMenuItem(
+                                    text = { Text("Edit master (if exists)") },
+                                    onClick = {
+                                        val number = file.name.removeSuffix(".pdf")
+                                        // We don't have a direct lookup here; provide guidance via snackbar
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar("Open invoice from student to edit master #$number")
+                                        }
+                                        expanded = false
+                                    }
+                                )
                                 // Logical archive: also archive the invoice master if exists with same number
                                 // Note: filenames are invoiceNumber.pdf
                                 val invoiceNumber = file.name.removeSuffix(".pdf")

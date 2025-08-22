@@ -235,6 +235,21 @@ class LessonsViewModel @Inject constructor(
     fun clearSnackbar() {
         _uiState.update { it.copy(snackbarMessage = null) }
     }
+
+    fun createInvoiceForSelected(ids: List<Long>, invoiceDate: String, notes: String?) {
+        viewModelScope.launch {
+            val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: 0L
+            try {
+                // Create a simple invoice number based on timestamp
+                val invoiceNumber = System.currentTimeMillis().toString()
+                // Use studentId null; repository will associate per-lesson students
+                lessonUseCases.createInvoiceMasterAndMarkLessons(null, invoiceNumber, invoiceDate, notes, ids, uid)
+                _uiState.update { it.copy(snackbarMessage = "Created invoice for ${ids.size} lesson(s)") }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(snackbarMessage = e.message ?: "Failed to create invoice") }
+            }
+        }
+    }
 }
 
 data class LessonsUiState(
