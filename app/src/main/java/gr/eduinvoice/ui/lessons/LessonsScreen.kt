@@ -75,6 +75,7 @@ fun LessonsScreen(
             Column(Modifier.fillMaxSize()) {
                 SlimHeader(
                     title = stringResource(R.string.lessons),
+                    onMenuClick = openDrawer,
                     actions = {
                         TextButton(onClick = { onPastInvoices() }) { Text("Past Invoices") }
                         TextButton(onClick = onReschedules) { Text("Reschedules") }

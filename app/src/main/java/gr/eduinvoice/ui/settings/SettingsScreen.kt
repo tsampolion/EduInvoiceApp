@@ -95,7 +95,10 @@ fun SettingsScreen(
                     .padding(Dimensions.PaddingMedium),
                 verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
             ) {
-                SlimHeader(title = stringResource(R.string.settings))
+                SlimHeader(
+                    title = stringResource(R.string.settings),
+                    onMenuClick = openDrawer
+                )
                 HorizontalDivider()
                 Text(stringResource(R.string.general), style = MaterialTheme.typography.titleMedium)
                 state.settings?.let { settings ->

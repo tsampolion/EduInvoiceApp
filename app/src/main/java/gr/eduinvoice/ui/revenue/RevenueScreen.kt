@@ -50,7 +50,10 @@ fun RevenueScreen(
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
         ) {
-            SlimHeader(title = "Revenue")
+            SlimHeader(
+                title = "Revenue",
+                onMenuClick = openDrawer
+            )
             Spacer(Modifier.height(4.dp))
             settings?.let { safeSettings ->
             Row(

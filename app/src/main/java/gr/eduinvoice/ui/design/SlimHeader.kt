@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 fun SlimHeader(
     title: String,
     onBack: (() -> Unit)? = null,
+    onMenuClick: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -30,14 +32,25 @@ fun SlimHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-        Row {
-            actions()
-            if (onBack != null) {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            if (onMenuClick != null) {
+                IconButton(onClick = onMenuClick) {
+                    Icon(Icons.Default.Menu, contentDescription = "Menu")
                 }
             }
+            if (onBack != null) {
+                IconButton(onClick = onBack) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                }
+            }
+            Text(text = title, style = MaterialTheme.typography.titleLarge)
+        }
+        Row {
+            actions()
         }
     }
 }
+

@@ -4,51 +4,38 @@ import android.os.Bundle
 import android.os.StrictMode
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Class
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.navigation.compose.currentBackStackEntryAsState
 import dagger.hilt.android.AndroidEntryPoint
 import gr.eduinvoice.analytics.ErrorReporter
 import gr.eduinvoice.ui.components.ErrorBoundary
 import gr.eduinvoice.ui.settings.SettingsViewModel
 import gr.eduinvoice.ui.theme.EduInvoiceTheme
+import gr.eduinvoice.data.database.EduInvoiceDatabase
+import gr.eduinvoice.analytics.PerformanceMonitor
+import gr.eduinvoice.ui.components.ErrorScreen
 import android.util.Log
-import androidx.compose.runtime.LaunchedEffect
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.ui.Alignment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import gr.eduinvoice.ui.components.ErrorScreen
-import gr.eduinvoice.data.database.EduInvoiceDatabase
 import javax.inject.Inject
-import gr.eduinvoice.analytics.PerformanceMonitor
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -104,75 +91,117 @@ class MainActivity : ComponentActivity() {
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
-                        ModalDrawerSheet {
+                        ModalDrawerSheet(
+                            modifier = Modifier.width(320.dp)
+                        ) {
+                            // App Header with Logo and Name
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                androidx.compose.foundation.Image(
+                                    painter = androidx.compose.ui.res.painterResource(R.drawable.tutorbilling_logo),
+                                    contentDescription = stringResource(R.string.app_logo_desc),
+                                    modifier = Modifier.size(64.dp)
+                                )
+                                androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = stringResource(R.string.app_name),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Educational Invoicing",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            
+                            androidx.compose.material3.HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = 16.dp)
+                            )
+                            
+                            androidx.compose.foundation.layout.Spacer(modifier = Modifier.height(16.dp))
+                            
+                            // Navigation Items with Icons
                             NavigationDrawerItem(
+                                icon = { Icon(androidx.compose.material.icons.Icons.Default.Home, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.home)) },
-                                selected = false,
+                                selected = currentRoute == Screen.Home.route,
                                 onClick = {
                                     if (!isWelcome) navController.navigate(Screen.Home.route)
                                     drawerOpen = false
                                 },
-                                modifier = Modifier,
+                                modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
                             )
                             NavigationDrawerItem(
+                                icon = { Icon(androidx.compose.material.icons.Icons.Default.Person, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.students)) },
-                                selected = false,
+                                selected = currentRoute == Screen.Students.route,
                                 onClick = {
                                     if (!isWelcome) navController.navigate(Screen.Students.route)
                                     drawerOpen = false
                                 },
-                                modifier = Modifier,
+                                modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
                             )
                             NavigationDrawerItem(
+                                icon = { Icon(androidx.compose.material.icons.Icons.Default.Schedule, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.lessons)) },
-                                selected = false,
+                                selected = currentRoute == Screen.Lessons.route,
                                 onClick = {
                                     if (!isWelcome) navController.navigate(Screen.Lessons.route)
                                     drawerOpen = false
                                 },
-                                modifier = Modifier,
+                                modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
                             )
                             NavigationDrawerItem(
+                                icon = { Icon(androidx.compose.material.icons.Icons.Default.Group, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.groups)) },
-                                selected = false,
+                                selected = currentRoute == Screen.Groups.route,
                                 onClick = {
                                     if (!isWelcome) navController.navigate(Screen.Groups.route)
                                     drawerOpen = false
                                 },
-                                modifier = Modifier,
+                                modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
                             )
                             NavigationDrawerItem(
+                                icon = { Icon(androidx.compose.material.icons.Icons.Default.Class, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.classes)) },
-                                selected = false,
+                                selected = currentRoute == Screen.Classes.route,
                                 onClick = {
                                     if (!isWelcome) navController.navigate(Screen.Classes.route)
                                     drawerOpen = false
                                 },
-                                modifier = Modifier,
+                                modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
                             )
                             NavigationDrawerItem(
+                                icon = { Icon(androidx.compose.material.icons.Icons.Default.BarChart, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.revenue)) },
-                                selected = false,
+                                selected = currentRoute == Screen.Revenue.route,
                                 onClick = {
                                     if (!isWelcome) navController.navigate(Screen.Revenue.route)
                                     drawerOpen = false
                                 },
-                                modifier = Modifier,
+                                modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
                             )
                             NavigationDrawerItem(
+                                icon = { Icon(androidx.compose.material.icons.Icons.Default.Settings, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.settings)) },
-                                selected = false,
+                                selected = currentRoute == Screen.Settings.route,
                                 onClick = {
                                     if (!isWelcome) navController.navigate(Screen.Settings.route)
                                     drawerOpen = false
                                 },
-                                modifier = Modifier,
+                                modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
                             )
                         }

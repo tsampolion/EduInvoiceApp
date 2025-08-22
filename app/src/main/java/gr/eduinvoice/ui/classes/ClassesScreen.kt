@@ -51,9 +51,7 @@ fun ClassesScreen(
     EdgeToEdgeScaffold(
         topBar = { },
         bottomBar = { SnackbarHost(hostState = snackbarHostState) },
-        floatingActionButton = {
-            NavigationMenuButton(openDrawer)
-        }
+
     ) { padding ->
         Box(
             modifier = Modifier
@@ -100,6 +98,7 @@ fun ClassesScreen(
                         
                         SlimHeader(
                             title = "Classes",
+                            onMenuClick = openDrawer,
                             actions = {
                                 IconButton(
                                     onClick = { showInfoDialog = true },
@@ -110,10 +109,10 @@ fun ClassesScreen(
                                             role = Role.Button
                                         }
                                 ) {
-                                    Icon(
-                                        Icons.Default.Info, 
-                                        contentDescription = "Classes info"
-                                    )
+                                                                    Icon(
+                                    Icons.Default.Info, 
+                                    contentDescription = "Classes info"
+                                )
                                 }
                                 IconButton(
                                     onClick = { viewModel.toggleSortOrder() },

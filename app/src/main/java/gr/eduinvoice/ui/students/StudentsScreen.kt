@@ -59,6 +59,7 @@ fun StudentsScreen(
             ) {
                 SlimHeader(
                     title = stringResource(R.string.students),
+                    onMenuClick = openDrawer,
                     actions = {
                         IconButton(onClick = onViewArchived) {
                             Icon(Icons.Default.Unarchive, contentDescription = stringResource(R.string.archived_students))
@@ -103,13 +104,7 @@ fun StudentsScreen(
                     )
                 }
             }
-            NavigationMenuButton(
-                onClick = openDrawer,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .statusBarsPadding()
-                    .padding(8.dp)
-            )
+
         }
     }
 }

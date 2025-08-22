@@ -54,7 +54,10 @@ fun GroupsScreen(
         Box(Modifier.fillMaxSize().padding(padding)) {
             var selectedTab by remember { mutableStateOf(0) }
             Column(Modifier.fillMaxSize()) {
-            SlimHeader(title = "Groups")
+            SlimHeader(
+                title = "Groups",
+                onMenuClick = openDrawer
+            )
             TabRow(selectedTabIndex = selectedTab) {
                 Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }, text = { Text("Groups") })
                 Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }, text = { Text("Absences") })
