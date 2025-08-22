@@ -19,6 +19,7 @@ class UserRepository @Inject constructor(
     }
     fun getUserById(id: Long): Flow<User?> = dao.getUserById(id)
     suspend fun getByUsername(username: String): User? = withContext(Dispatchers.IO) { dao.getByUsername(username) }
+    suspend fun getAllUsers(): List<User> = withContext(Dispatchers.IO) { dao.getAllUsers() }
     suspend fun updateUser(user: User) = withContext(Dispatchers.IO) { dao.update(user) }
     suspend fun deleteUser(user: User) = withContext(Dispatchers.IO) { dao.delete(user) }
     suspend fun deleteUserById(userId: Long) = withContext(Dispatchers.IO) { dao.deleteById(userId) }

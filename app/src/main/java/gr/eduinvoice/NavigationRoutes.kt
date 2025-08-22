@@ -32,6 +32,7 @@ sealed class Screen(val route: String) {
     }
     object Reschedules : Screen("reschedules")
     object Settings : Screen("settings")
+    object Users : Screen("users")
     object PrivacyPolicy : Screen("privacyPolicy")
     object Profile : Screen("profile")
     object ArchivedStudents : Screen("archivedStudents")

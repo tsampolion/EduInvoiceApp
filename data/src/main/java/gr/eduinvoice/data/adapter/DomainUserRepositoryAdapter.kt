@@ -24,6 +24,9 @@ class DomainUserRepositoryAdapter @Inject constructor(
     override fun getUserProfile(userId: Long): Flow<DomainUser?> =
         userRepository.getUserById(userId).map { it?.toDomainModel() }
 
+    override suspend fun getAllUsers(): List<DomainUser> =
+        userRepository.getAllUsers().map { it.toDomainModel() }
+
     override suspend fun updateUser(user: DomainUser) =
         userRepository.updateUser(user.toDataModel())
 

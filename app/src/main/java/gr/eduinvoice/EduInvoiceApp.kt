@@ -138,7 +138,8 @@ fun EduInvoiceApp(
                 onNavigateToNewStudent = { navController.navigate(Screen.Student.createRoute(0)) },
                 onNavigateToNewLesson = { navController.navigate(Screen.Lesson.createRoute(0)) },
                 onRevenue = { navController.navigate(Screen.Revenue.route) },
-                onSettings = { navController.navigate(Screen.Settings.route) }
+                onSettings = { navController.navigate(Screen.Settings.route) },
+                onUsers = { navController.navigate(Screen.Users.route) }
             )
         }
 
@@ -292,6 +293,17 @@ fun EduInvoiceApp(
         // Reschedules screen
         composable(Screen.Reschedules.route) {
             gr.eduinvoice.ui.lessons.ReschedulesScreen(onBack = { navController.popBackStack() })
+        }
+
+        // Users screen (Admin only)
+        composable(Screen.Users.route) {
+            gr.eduinvoice.ui.user.UsersScreen(
+                openDrawer = openDrawer,
+                onUserClick = { userId ->
+                    // For now, just navigate to profile. Could be enhanced later
+                    navController.navigate(Screen.Profile.route)
+                }
+            )
         }
 
         // Settings screen

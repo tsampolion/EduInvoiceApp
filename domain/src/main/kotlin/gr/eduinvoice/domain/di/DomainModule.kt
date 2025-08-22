@@ -59,6 +59,7 @@ object DomainModule {
             createUser = CreateUser(repository),
             authenticateUser = AuthenticateUser(repository),
             getUserProfile = GetUserProfile(repository),
+            getAllUsers = GetAllUsers(repository),
             updateUser = UpdateUser(repository),
             resetPassword = ResetPassword(repository),
             deleteAccount = DeleteAccount(repository),

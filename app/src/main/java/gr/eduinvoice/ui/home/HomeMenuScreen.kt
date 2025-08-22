@@ -35,6 +35,7 @@ fun HomeMenuScreen(
     onNavigateToNewLesson: () -> Unit,
     onRevenue: () -> Unit,
     onSettings: () -> Unit,
+    onUsers: () -> Unit,
     onOpenDrawer: () -> Unit,
     viewModel: HomeMenuViewModel = hiltViewModel()
 ) {
@@ -158,6 +159,20 @@ fun HomeMenuScreen(
                     modifier = Modifier.fillMaxWidth(),
                     colors = lessonsButtonColors
                 ) { Text("Lessons") }
+                
+                // Admin-only Users management button
+                if (uiState.isAdmin) {
+                    Button(
+                        onClick = onUsers,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    ) { 
+                        Text("User Management") 
+                    }
+                }
 
             }
             Spacer(modifier = Modifier.weight(1f))

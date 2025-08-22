@@ -194,6 +194,19 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
                             )
+                            
+                            // Admin-only Users management
+                            if (isLoggedIn && uiState.user?.username == "admin") {
+                                NavigationDrawerItem(
+                                    icon = { Icon(androidx.compose.material.icons.Icons.Default.People, contentDescription = null) },
+                                    label = { Text("User Management") },
+                                    selected = currentRoute == Screen.Users.route,
+                                    onClick = { handleNavigation(Screen.Users.route) },
+                                    modifier = Modifier.padding(horizontal = 12.dp),
+                                    colors = NavigationDrawerItemDefaults.colors()
+                                )
+                            }
+                            
                             NavigationDrawerItem(
                                 icon = { Icon(androidx.compose.material.icons.Icons.Default.Settings, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.settings)) },

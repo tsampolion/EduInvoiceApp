@@ -25,6 +25,7 @@ import javax.inject.Inject
 class HomeMenuViewModel @Inject constructor(
     private val studentUseCases: StudentUseCases,
     private val lessonUseCases: LessonUseCases,
+    private val userUseCases: gr.eduinvoice.domain.user.UserUseCases,
     private val currentUserProvider: CurrentUserProvider
 ) : ViewModel() {
 
@@ -39,8 +40,9 @@ class HomeMenuViewModel @Inject constructor(
                 }
                 combine(
                     studentUseCases.getActiveStudents(uid),
-                    lessonUseCases.getAllLessons(uid)
-                ) { students, lessons ->
+                    lessonUseCases.getAllLessons(uid),
+                    userUseCases.getUserProfile(uid)
+                ) { students, lessons, user ->
                     if (BuildConfig.DEBUG) {
                         Log.d(
                             "HomeMenuViewModel",
@@ -53,11 +55,11 @@ class HomeMenuViewModel @Inject constructor(
                         .distinct()
                         .size
 
-
                     HomeMenuUiState(
                         studentCount = students.size,
                         classCount = classCount,
-                        lessonCount = lessons.size
+                        lessonCount = lessons.size,
+                        isAdmin = user?.username == "admin"
                     )
                 }
             }.collect { state ->
@@ -73,5 +75,6 @@ class HomeMenuViewModel @Inject constructor(
 data class HomeMenuUiState(
     val studentCount: Int = 0,
     val classCount: Int = 0,
-    val lessonCount: Int = 0
+    val lessonCount: Int = 0,
+    val isAdmin: Boolean = false
 )
