@@ -44,14 +44,25 @@ fun HomeMenuScreen(
         Log.d("HomeMenuScreen", "Collected uiState -> $uiState")
     }
 
-    val successContainer = AppColors.successContainer
-    val errorContainer = AppColors.errorContainer
-    val studentContainerColor = if (uiState.studentCount > 0) successContainer else errorContainer
-    if (BuildConfig.DEBUG) {
-        Log.d("HomeMenuScreen", "Student button color recalculated for count ${uiState.studentCount}")
-    }
+    // Create button colors with proper transparency handling
     val studentButtonColors = ButtonDefaults.buttonColors(
-        containerColor = studentContainerColor
+        containerColor = if (uiState.studentCount > 0) AppColors.successContainer else AppColors.errorContainer.copy(alpha = 0.3f),
+        contentColor = if (uiState.studentCount > 0) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+    )
+    
+    val classesButtonColors = ButtonDefaults.buttonColors(
+        containerColor = if (uiState.classCount > 0) AppColors.secondaryContainer else AppColors.secondaryContainer.copy(alpha = 0.3f),
+        contentColor = if (uiState.classCount > 0) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f)
+    )
+    
+    val groupsButtonColors = ButtonDefaults.buttonColors(
+        containerColor = if (uiState.classCount > 0) AppColors.secondaryContainer else AppColors.secondaryContainer.copy(alpha = 0.3f),
+        contentColor = if (uiState.classCount > 0) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f)
+    )
+    
+    val lessonsButtonColors = ButtonDefaults.buttonColors(
+        containerColor = if (uiState.lessonCount > 0) AppColors.tertiaryContainer else AppColors.tertiaryContainer.copy(alpha = 0.3f),
+        contentColor = if (uiState.lessonCount > 0) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.6f)
     )
 
 
@@ -135,25 +146,19 @@ fun HomeMenuScreen(
                 Button(
                     onClick = onClassesClick,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.secondaryContainer)
+                    colors = classesButtonColors
                 ) { Text("Classes") }
                 Button(
                     onClick = onNavigateToGroups,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.secondaryContainer)
+                    colors = groupsButtonColors
                 ) { Text("Groups") }
                 Button(
                     onClick = onNavigateToLesson,
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = AppColors.tertiaryContainer)
+                    colors = lessonsButtonColors
                 ) { Text("Lessons") }
-                // Quick summary cards
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(Dimensions.PaddingMedium)) {
-                        Text("This week: €%.2f".format(uiState.weekRevenue), style = MaterialTheme.typography.bodyLarge)
-                        Text("This month: €%.2f".format(uiState.monthRevenue), style = MaterialTheme.typography.bodyLarge)
-                    }
-                }
+
             }
             Spacer(modifier = Modifier.weight(1f))
         }
