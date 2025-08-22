@@ -22,6 +22,22 @@ class UserRepository @Inject constructor(
     suspend fun updateUser(user: User) = withContext(Dispatchers.IO) { dao.update(user) }
     suspend fun deleteUser(user: User) = withContext(Dispatchers.IO) { dao.delete(user) }
     suspend fun deleteUserById(userId: Long) = withContext(Dispatchers.IO) { dao.deleteById(userId) }
+    
+    suspend fun createAdminUserIfNotExists() {
+        withContext(Dispatchers.IO) {
+            val existingAdmin = dao.getByUsername("admin")
+            if (existingAdmin == null) {
+                val adminUser = User(
+                    username = "admin",
+                    passwordHash = PasswordHasher.hash("admin1!"),
+                    fullName = "Administrator",
+                    subjectSpecialty = "System Administration",
+                    yearsExperience = 0
+                )
+                dao.insert(adminUser)
+            }
+        }
+    }
 
     suspend fun authenticate(username: String, password: String): User? {
         val user = withContext(Dispatchers.IO) { dao.getByUsername(username) } ?: return null
@@ -37,12 +53,9 @@ class UserRepository @Inject constructor(
 
     suspend fun resetPassword(
         username: String,
-        fullName: String,
-        code: String,
         newPassword: String
     ): Boolean {
         val user = withContext(Dispatchers.IO) { dao.getByUsername(username) } ?: return false
-        if (user.fullName != fullName || code != "123456") return false
         val updated = user.copy(passwordHash = PasswordHasher.hash(newPassword))
         withContext(Dispatchers.IO) { dao.update(updated) }
         return true

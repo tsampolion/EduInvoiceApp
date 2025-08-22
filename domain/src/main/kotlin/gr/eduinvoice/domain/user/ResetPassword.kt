@@ -8,9 +8,7 @@ class ResetPassword @Inject constructor(
 ) {
     suspend operator fun invoke(
         username: String,
-        fullName: String,
-        code: String,
         newPassword: String
     ): Boolean =
-        repository.resetPassword(username, fullName, code, newPassword)
+        repository.resetPassword(username, newPassword)
 }

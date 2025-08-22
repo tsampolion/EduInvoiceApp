@@ -81,28 +81,16 @@ fun ResetPasswordScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = uiState.fullName,
-                    onValueChange = viewModel::updateFullName,
-                    label = { Text(stringResource(R.string.full_name)) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
-                    value = uiState.code,
-                    onValueChange = viewModel::updateCode,
-                    label = { Text(stringResource(R.string.verification_code)) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OutlinedTextField(
                     value = uiState.password,
                     onValueChange = viewModel::updatePassword,
-                    label = { Text(stringResource(R.string.password)) },
+                    label = { Text("New Password") },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
                     value = uiState.confirmPassword,
                     onValueChange = viewModel::updateConfirmPassword,
-                    label = { Text(stringResource(R.string.confirm_password)) },
+                    label = { Text("Confirm New Password") },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth()
                 )

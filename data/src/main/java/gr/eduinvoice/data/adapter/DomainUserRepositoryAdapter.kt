@@ -29,13 +29,15 @@ class DomainUserRepositoryAdapter @Inject constructor(
 
     override suspend fun resetPassword(
         username: String,
-        fullName: String,
-        code: String,
         newPassword: String
-    ): Boolean = userRepository.resetPassword(username, fullName, code, newPassword)
+    ): Boolean = userRepository.resetPassword(username, newPassword)
 
     override suspend fun deleteAccount(userId: Long) {
         eduInvoiceRepository.deleteAccount(userId)
+    }
+    
+    override suspend fun createAdminUserIfNotExists() {
+        userRepository.createAdminUserIfNotExists()
     }
 
     private fun DomainUser.toDataModel(): User = User(

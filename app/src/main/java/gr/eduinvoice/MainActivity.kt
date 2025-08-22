@@ -54,23 +54,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             var initState by remember { mutableStateOf<InitState>(InitState.Loading) }
-            LaunchedEffect(Unit) {
-                val trace = PerformanceMonitor(this@MainActivity).startTrace("db_init")
-                trace.start()
-                initState = try {
-                    withContext(Dispatchers.IO) {
-                        // Access database to ensure open happens off the main thread
-                        db.openHelper.writableDatabase.version
-                        InitState.Success
-                    }
-                } catch (t: Throwable) {
-                    Log.e("MainActivity", "Initialization failed", t)
-                    InitState.Failure(t)
-                } finally {
-                    trace.stop()
-                }
-            }
-
             val navController = rememberNavController()
             val backStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = backStackEntry?.destination?.route
@@ -78,6 +61,7 @@ class MainActivity : ComponentActivity() {
             
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             val sessionViewModel: SessionViewModel = hiltViewModel()
+            val userUseCases: gr.eduinvoice.domain.user.UserUseCases = hiltViewModel()
             val uiState = settingsViewModel.uiState.collectAsStateWithLifecycle().value
             val isLoggedIn = sessionViewModel.isLoggedIn.collectAsStateWithLifecycle().value
             var drawerOpen by remember { mutableStateOf(false) }
@@ -93,7 +77,26 @@ class MainActivity : ComponentActivity() {
                     showLoginWarning = true
                 }
             }
-
+            
+            LaunchedEffect(Unit) {
+                val trace = PerformanceMonitor(this@MainActivity).startTrace("db_init")
+                trace.start()
+                initState = try {
+                    withContext(Dispatchers.IO) {
+                        // Access database to ensure open happens off the main thread
+                        db.openHelper.writableDatabase.version
+                        // Create admin user if it doesn't exist
+                        userUseCases.createAdminUserIfNotExists()
+                        InitState.Success
+                    }
+                } catch (t: Throwable) {
+                    Log.e("MainActivity", "Initialization failed", t)
+                    InitState.Failure(t)
+                } finally {
+                    trace.stop()
+                }
+            }
+            
             EduInvoiceTheme(darkTheme = uiState.settings?.darkTheme ?: false) {
                 val drawerState = rememberDrawerState(initialValue = if (drawerOpen) DrawerValue.Open else DrawerValue.Closed)
                 LaunchedEffect(drawerOpen) {

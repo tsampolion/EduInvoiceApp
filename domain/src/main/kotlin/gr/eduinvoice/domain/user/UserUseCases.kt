@@ -8,5 +8,6 @@ data class UserUseCases @Inject constructor(
     val getUserProfile: GetUserProfile,
     val updateUser: UpdateUser,
     val resetPassword: ResetPassword,
-    val deleteAccount: DeleteAccount
+    val deleteAccount: DeleteAccount,
+    val createAdminUserIfNotExists: CreateAdminUserIfNotExists
 )

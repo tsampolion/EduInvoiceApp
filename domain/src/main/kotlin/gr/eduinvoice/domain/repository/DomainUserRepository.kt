@@ -10,9 +10,8 @@ interface DomainUserRepository {
     suspend fun updateUser(user: DomainUser)
     suspend fun resetPassword(
         username: String,
-        fullName: String,
-        code: String,
         newPassword: String
     ): Boolean
     suspend fun deleteAccount(userId: Long)
+    suspend fun createAdminUserIfNotExists()
 }

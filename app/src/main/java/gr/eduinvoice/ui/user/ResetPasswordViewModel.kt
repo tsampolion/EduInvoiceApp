@@ -19,10 +19,8 @@ class ResetPasswordViewModel @Inject constructor(
     val uiState: StateFlow<ResetPasswordUiState> = _uiState.asStateFlow()
 
     fun updateUsername(value: String) { _uiState.value = _uiState.value.copy(username = value) }
-    fun updateFullName(value: String) { _uiState.value = _uiState.value.copy(fullName = value) }
     fun updatePassword(value: String) { _uiState.value = _uiState.value.copy(password = value) }
     fun updateConfirmPassword(value: String) { _uiState.value = _uiState.value.copy(confirmPassword = value) }
-    fun updateCode(value: String) { _uiState.value = _uiState.value.copy(code = value) }
 
     fun resetPassword(onDone: () -> Unit) {
         val state = _uiState.value
@@ -31,7 +29,7 @@ class ResetPasswordViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
-            val success = useCases.resetPassword(state.username, state.fullName, state.code, state.password)
+            val success = useCases.resetPassword(state.username, state.password)
             if (success) {
                 onDone()
             } else {
@@ -45,8 +43,6 @@ class ResetPasswordViewModel @Inject constructor(
 
 data class ResetPasswordUiState(
     val username: String = "",
-    val fullName: String = "",
-    val code: String = "",
     val password: String = "",
     val confirmPassword: String = "",
     val error: String? = null

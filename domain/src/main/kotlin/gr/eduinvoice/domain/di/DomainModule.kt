@@ -61,7 +61,8 @@ object DomainModule {
             getUserProfile = GetUserProfile(repository),
             updateUser = UpdateUser(repository),
             resetPassword = ResetPassword(repository),
-            deleteAccount = DeleteAccount(repository)
+            deleteAccount = DeleteAccount(repository),
+            createAdminUserIfNotExists = CreateAdminUserIfNotExists(repository)
         )
 
     @Provides
