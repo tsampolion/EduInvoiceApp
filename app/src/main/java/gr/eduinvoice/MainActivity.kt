@@ -48,14 +48,13 @@ import kotlinx.coroutines.withContext
 import gr.eduinvoice.ui.components.ErrorScreen
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import javax.inject.Inject
-import javax.inject.Provider
 import gr.eduinvoice.analytics.PerformanceMonitor
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private lateinit var errorReporter: ErrorReporter
-    @Inject lateinit var dbProvider: Provider<EduInvoiceDatabase>
+    @Inject lateinit var db: EduInvoiceDatabase
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,8 +71,8 @@ class MainActivity : ComponentActivity() {
                 trace.start()
                 initState = try {
                     withContext(Dispatchers.IO) {
-                        // Trigger Hilt-provided DB creation off the main thread
-                        dbProvider.get()
+                        // Access database to ensure open happens off the main thread
+                        db.openHelper.writableDatabase.version
                         InitState.Success
                     }
                 } catch (t: Throwable) {

@@ -32,7 +32,6 @@ import net.sqlcipher.database.SQLiteDatabase
 import javax.inject.Singleton
 import androidx.room.Room
 import net.sqlcipher.database.SupportFactory
-import javax.inject.Provider
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -43,9 +42,8 @@ object DatabaseModule {
     fun provideEduInvoiceDatabase(
         @ApplicationContext context: Context,
         prefs: UserPreferencesRepository
-    ): Provider<EduInvoiceDatabase> {
-        return Provider {
-            runBlocking(Dispatchers.IO) {
+    ): EduInvoiceDatabase {
+        return runBlocking(Dispatchers.IO) {
                 val encryptionEnabled = BuildConfig.DB_ENCRYPTION_ENABLED
                 var sqlCipherAvailable = false
                 if (encryptionEnabled) {
@@ -117,7 +115,6 @@ object DatabaseModule {
                         .fallbackToDestructiveMigration(true)
                         .build()
                 }
-            }
         }
     }
 
@@ -149,15 +146,6 @@ object DatabaseModule {
         integrityValidator: DatabaseIntegrityValidator
     ): DatabaseFallbackManager {
         return DatabaseFallbackManager(context, database, healthMonitor, integrityValidator)
-    }
-
-    @Provides
-    @Singleton
-    fun provideBackupRepository(
-        @ApplicationContext context: Context,
-        database: EduInvoiceDatabase
-    ): BackupRepository {
-        return BackupRepository(context, database)
     }
 
     @Provides
