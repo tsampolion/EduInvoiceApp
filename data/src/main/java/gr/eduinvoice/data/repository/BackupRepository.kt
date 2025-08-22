@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -20,7 +21,7 @@ import javax.inject.Singleton
 
 @Singleton
 class BackupRepository @Inject constructor(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
     private val db: EduInvoiceDatabase
 ) {
 
