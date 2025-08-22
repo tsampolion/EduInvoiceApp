@@ -356,6 +356,8 @@ interface LessonDao {
                lessons.isPaid AS lesson_isPaid,
                lessons.isInvoiced AS lesson_isInvoiced,
                lessons.lastModified AS lesson_lastModified,
+               lessons.invoiceMasterId AS lesson_invoiceMasterId,
+               lessons.paymentBatchId AS lesson_paymentBatchId,
                students.id AS student_id,
                students.name AS student_name,
                students.surname AS student_surname,

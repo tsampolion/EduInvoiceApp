@@ -1,3 +1,5 @@
+@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER")
+
 package gr.eduinvoice.testcompat
 
 import gr.eduinvoice.domain.model.DomainStudent
