@@ -394,4 +394,18 @@ interface LessonDao {
     // Financial edit guards helpers
     @Query("SELECT COUNT(*) FROM lessons WHERE id IN (:ids) AND ownerId = :userId AND (isPaid = 1 OR isInvoiced = 1)")
     suspend fun countLockedLessons(ids: List<Long>, userId: Long): Int
+
+    // Denormalized aggregates for dashboards
+    @Query(
+        """
+        SELECT s.className AS className,
+               SUM(CASE WHEN st.rateType = 'per_lesson' THEN st.rate ELSE (l.durationMinutes / 60.0) * st.rate END) AS revenue
+        FROM lessons l
+        JOIN students st ON st.id = l.studentId AND st.ownerId = l.ownerId
+        LEFT JOIN students s ON s.id = l.studentId AND s.ownerId = l.ownerId
+        WHERE l.ownerId = :userId AND l.date BETWEEN :startDate AND :endDate
+        GROUP BY s.className
+        """
+    )
+    fun getEarningsByClass(startDate: String, endDate: String, userId: Long): Flow<List<gr.eduinvoice.data.database.EarningsByClassRow>>
 }

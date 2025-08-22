@@ -33,7 +33,9 @@ class InvoiceViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val defaultStudentId: Long? =
-        (savedStateHandle["id"] as? Long ?: -1L).takeIf { it != -1L }
+        ((savedStateHandle["id"] as? Long ?: -1L)
+            .takeIf { it != -1L }
+            ?: (savedStateHandle["studentId"] as? Long)?.takeIf { it > 0L })
 
     private val _startDate = MutableStateFlow(LocalDate.now().withDayOfMonth(1))
     private val _endDate = MutableStateFlow(LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()))

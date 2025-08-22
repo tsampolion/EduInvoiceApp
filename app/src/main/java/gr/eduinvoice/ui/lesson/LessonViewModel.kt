@@ -40,7 +40,8 @@ class LessonViewModel @Inject constructor(
     private val dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
-    private val studentId: Long? = savedStateHandle.get<Long>("studentId")
+    // Dual-read old/new arg keys for non-breaking deep-link transition
+    private val studentId: Long? = savedStateHandle.get<Long>("studentId") ?: savedStateHandle.get<Long>("id")
     private val lessonId: Long? = savedStateHandle.get<Long>("lessonId")
     private val initialGroupId: Long? = savedStateHandle.get<Long>("groupId")
     private val groupMasterId: Long? = savedStateHandle.get<Long>("groupMasterId")

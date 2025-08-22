@@ -190,6 +190,9 @@ class DomainLessonRepositoryAdapter @Inject constructor(
             list.map { m -> gr.eduinvoice.domain.model.DomainRescheduleMaster(m.id, m.ownerId, m.title, m.newDate, m.newStartTime, m.newDurationMinutes, m.notes, m.lastModified) }
         }
 
+    override fun getEarningsByClass(startDate: String, endDate: String, userId: Long): Flow<List<Pair<String, Double>>> =
+        lessonDao.getEarningsByClass(startDate, endDate, userId).map { rows -> rows.map { it.className to it.revenue } }
+
     private fun DomainLesson.toDataModel(): Lesson = Lesson(
         id = id,
         ownerId = ownerId,

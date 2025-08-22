@@ -147,6 +147,13 @@ fun HomeMenuScreen(
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = AppColors.tertiaryContainer)
                 ) { Text("Lessons") }
+                // Quick summary cards
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(Dimensions.PaddingMedium)) {
+                        Text("This week: €%.2f".format(uiState.weekRevenue), style = MaterialTheme.typography.bodyLarge)
+                        Text("This month: €%.2f".format(uiState.monthRevenue), style = MaterialTheme.typography.bodyLarge)
+                    }
+                }
             }
             Spacer(modifier = Modifier.weight(1f))
         }

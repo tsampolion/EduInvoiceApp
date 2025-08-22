@@ -180,7 +180,7 @@ fun EduInvoiceApp(
             )
         }
 
-        // Lessons list screen
+        // Lessons list screen (new standardized route retained)
         composable(
             route = Screen.Lessons.route,
             arguments = listOf(
@@ -206,6 +206,26 @@ fun EduInvoiceApp(
             )
         }
 
+        // Alias: legacy lessons route without query params
+        composable("lessons") {
+            // Log: legacy route hit
+            androidx.compose.runtime.LaunchedEffect(Unit) {
+                android.util.Log.w("DeepLinks", "Legacy route 'lessons' used")
+            }
+            LessonsScreen(
+                openDrawer = openDrawer,
+                onLessonClick = { studentId, lessonId, groupId ->
+                    navController.navigate(
+                        Screen.Lesson.createRoute(lessonId, studentId, groupId)
+                    )
+                },
+                onAddLesson = { navController.navigate(Screen.Lesson.createRoute(0)) },
+                onInvoice = { id -> navController.navigate(Screen.Invoice.createRoute(id)) },
+                onPastInvoices = { navController.navigate(Screen.PastInvoices.route) },
+                onReschedules = { navController.navigate(Screen.Reschedules.route) }
+            )
+        }
+
         // Revenue screen
         composable(Screen.Revenue.route) {
             RevenueScreen(
@@ -215,7 +235,7 @@ fun EduInvoiceApp(
             )
         }
 
-        // Invoice screen
+        // Invoice screen (standardized)
         composable(
             route = Screen.Invoice.route,
             arguments = listOf(
@@ -228,6 +248,23 @@ fun EduInvoiceApp(
             val viewModel: InvoiceViewModel = hiltViewModel()
             val studentIdArg = backStackEntry.arguments?.getLong("id") ?: -1L
             val id = studentIdArg.takeIf { it != -1L }
+            InvoiceScreen(
+                onBack = { navController.popBackStack() },
+                defaultStudentId = id,
+                viewModel = viewModel
+            )
+        }
+
+        // Alias: legacy invoice route 'invoice/{id}'
+        composable(
+            route = "invoice/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val viewModel: InvoiceViewModel = hiltViewModel()
+            val id = backStackEntry.arguments?.getLong("id")?.takeIf { it > 0 }
+            androidx.compose.runtime.LaunchedEffect(Unit) {
+                android.util.Log.w("DeepLinks", "Legacy route 'invoice/{id}' used")
+            }
             InvoiceScreen(
                 onBack = { navController.popBackStack() },
                 defaultStudentId = id,

@@ -34,5 +34,6 @@ data class LessonUseCases @Inject constructor(
     ,
     val createPaymentBatchAndMarkLessons: CreatePaymentBatchAndMarkLessons,
     val createRescheduleMasterAndApply: CreateRescheduleMasterAndApply,
-    val getRescheduleMasters: GetRescheduleMasters
+    val getRescheduleMasters: GetRescheduleMasters,
+    val getEarningsByClass: GetEarningsByClass
 )

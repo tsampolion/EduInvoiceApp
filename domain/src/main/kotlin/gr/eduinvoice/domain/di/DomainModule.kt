@@ -97,6 +97,7 @@ object DomainModule {
             ,
             createPaymentBatchAndMarkLessons = CreatePaymentBatchAndMarkLessons(repository),
             createRescheduleMasterAndApply = CreateRescheduleMasterAndApply(repository),
-            getRescheduleMasters = GetRescheduleMasters(repository)
+            getRescheduleMasters = GetRescheduleMasters(repository),
+            getEarningsByClass = GetEarningsByClass(repository)
         )
 }

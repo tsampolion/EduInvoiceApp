@@ -71,4 +71,6 @@ interface DomainLessonRepository {
     suspend fun createRescheduleMasterAndApply(lessonIds: List<Long>, newDate: String, newStartTime: String, newDurationMinutes: Int, notes: String?, userId: Long): Long
 
     fun getRescheduleMasters(userId: Long = 0): Flow<List<gr.eduinvoice.domain.model.DomainRescheduleMaster>>
+
+    fun getEarningsByClass(startDate: String, endDate: String, userId: Long = 0): Flow<List<Pair<String, Double>>>
 }
