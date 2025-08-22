@@ -363,7 +363,7 @@ fun LessonScreen(
                 Button(
                     onClick = {
                         viewModel.attemptSaveLesson()
-                        LaunchedEffect(Unit) { globalBus.show("Lesson saved") }
+                        globalBus.show("Lesson saved")
                     },
                     modifier = Modifier.weight(1f),
                     enabled = viewModel.isFormValid()
@@ -387,9 +387,7 @@ fun LessonScreen(
     }
 
     uiState.errorMessage?.let { message ->
-        LaunchedEffect(message) {
-            globalBus.show(message)
-            viewModel.dismissError()
-        }
+        globalBus.show(message)
+        viewModel.dismissError()
     }
 }

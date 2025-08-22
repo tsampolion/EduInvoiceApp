@@ -44,6 +44,7 @@ android {
         versionName "0.28.4"  // Increment version name
         testInstrumentationRunner "com.google.dagger.hilt.android.testing.HiltTestRunner"
         buildConfigField "String", "FIREBASE_API_KEY", "\"${firebaseKey}\""
+        buildConfigField "boolean", "LEGACY_ROUTES_ENABLED", "true"
         
         // Add Firebase configuration
         manifestPlaceholders = [

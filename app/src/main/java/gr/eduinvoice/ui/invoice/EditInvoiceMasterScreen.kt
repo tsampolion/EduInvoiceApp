@@ -6,6 +6,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.ui.design.SlimHeader
 import java.time.LocalDate
@@ -80,7 +83,7 @@ class EditInvoiceMasterViewModel @javax.inject.Inject constructor(
     fun updateNotes(value: String) { _uiState.value = _uiState.value.copy(notes = value) }
 
     fun load(id: Long) {
-        androidx.lifecycle.viewModelScope.launch {
+        viewModelScope.launch {
             val uid = currentUserProvider.loggedInUserId.first() ?: 0L
             lessonUseCases.getInvoiceMasterById(id, uid).collect { master ->
                 master?.let {
@@ -96,12 +99,13 @@ class EditInvoiceMasterViewModel @javax.inject.Inject constructor(
     }
 
     fun save(onSuccess: () -> Unit, onError: (String) -> Unit) {
-        androidx.lifecycle.viewModelScope.launch {
+        viewModelScope.launch {
             val uid = currentUserProvider.loggedInUserId.first() ?: 0L
             val st = _uiState.value
             try {
                 val updated = gr.eduinvoice.domain.model.DomainInvoiceMaster(
                     id = st.id,
+                    studentId = 0,
                     invoiceNumber = st.invoiceNumber,
                     invoiceDate = st.invoiceDate,
                     notes = st.notes

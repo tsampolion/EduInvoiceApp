@@ -80,7 +80,7 @@ fun GroupScreen(
                                 confirmButton = {
                                     TextButton(onClick = {
                                         viewModel.archiveGroup()
-                                        LaunchedEffect(Unit) { globalBus.show("Group archived") }
+                                        globalBus.show("Group archived")
                                         showArchive = false
                                         onBack()
                                     }) { Text("Archive") }
@@ -96,7 +96,7 @@ fun GroupScreen(
                                 confirmButton = {
                                     TextButton(onClick = {
                                         viewModel.deleteGroup()
-                                        LaunchedEffect(Unit) { globalBus.show("Group deleted") }
+                                        globalBus.show("Group deleted")
                                         showDelete = false
                                         onBack()
                                     }) { Text("Delete") }
@@ -131,7 +131,7 @@ fun GroupScreen(
                                     overrideClass = false,
                                     overrideBilling = false
                                 )
-                                LaunchedEffect(Unit) { globalBus.show("Group saved") }
+                                globalBus.show("Group saved")
                                 onBack()
                             }
                         }

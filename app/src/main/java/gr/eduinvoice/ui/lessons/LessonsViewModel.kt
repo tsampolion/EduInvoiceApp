@@ -242,8 +242,8 @@ class LessonsViewModel @Inject constructor(
             try {
                 // Create a simple invoice number based on timestamp
                 val invoiceNumber = System.currentTimeMillis().toString()
-                // Use studentId null; repository will associate per-lesson students
-                lessonUseCases.createInvoiceMasterAndMarkLessons(null, invoiceNumber, invoiceDate, notes, ids, uid)
+                // For simplicity, use studentId = 0 for mixed-student batches; repository layer expects a Long
+                lessonUseCases.createInvoiceMasterAndMarkLessons(0, invoiceNumber, invoiceDate, notes, ids, uid)
                 _uiState.update { it.copy(snackbarMessage = "Created invoice for ${ids.size} lesson(s)") }
             } catch (e: Exception) {
                 _uiState.update { it.copy(snackbarMessage = e.message ?: "Failed to create invoice") }
