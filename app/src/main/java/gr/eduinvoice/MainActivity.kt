@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var errorReporter: ErrorReporter
     @Inject lateinit var db: EduInvoiceDatabase
+    @Inject lateinit var userUseCases: gr.eduinvoice.domain.user.UserUseCases
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +62,6 @@ class MainActivity : ComponentActivity() {
             
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             val sessionViewModel: SessionViewModel = hiltViewModel()
-            val userUseCases: gr.eduinvoice.domain.user.UserUseCases = hiltViewModel()
             val uiState = settingsViewModel.uiState.collectAsStateWithLifecycle().value
             val isLoggedIn = sessionViewModel.isLoggedIn.collectAsStateWithLifecycle().value
             var drawerOpen by remember { mutableStateOf(false) }

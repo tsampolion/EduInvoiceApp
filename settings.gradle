@@ -10,12 +10,18 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://www.zetetic.net/maven" }  
     }
 }
 
-rootProject.name = 'EduInvoice'
+// Enable build cache
+buildCache {
+    local {
+        directory = new File(rootDir, 'build-cache')
+        removeUnusedEntriesAfterDays = 30
+    }
+}
+
+rootProject.name = "EduInvoiceApp"
 include ':app'
-include ':domain'
 include ':data'
-include ':test-support'
+include ':domain'

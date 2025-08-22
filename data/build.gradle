@@ -37,7 +37,13 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+        freeCompilerArgs += [
+            "-opt-in=kotlin.RequiresOptIn",
+            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+        ]
     }
+
+
 
     buildFeatures {
         buildConfig true

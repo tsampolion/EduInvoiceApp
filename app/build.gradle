@@ -118,7 +118,13 @@ android {
 
     kotlinOptions {
         jvmTarget = "17"
+        freeCompilerArgs += [
+            "-opt-in=kotlin.RequiresOptIn",
+            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+        ]
     }
+
+
 
     testOptions {
         unitTests {
@@ -155,111 +161,114 @@ configurations.configureEach { cfg ->
     dependencies {
         implementation project(':domain')
         implementation project(':data')
+        
         // Core Android
-    implementation libs.androidx.core.ktx
-    implementation libs.lifecycle.runtime.compose
-    implementation libs.activity.compose
-    implementation libs.androidx.appcompat
-    implementation libs.androidx.drawerlayout
-    // Material Components (for XML themes)
-    implementation libs.google.material
-    // Jetpack Compose
-    implementation platform(libs.compose.bom)
-    implementation libs.compose.material3
-    implementation libs.compose.ui
-    implementation libs.compose.ui.tooling.preview
-    implementation libs.compose.ui.graphics
-    implementation libs.compose.material.icons.core
-    implementation libs.compose.material.icons.ext
-    implementation libs.compose.foundation
-    implementation libs.accompanist.systemuicontroller
-    debugImplementation libs.compose.ui
-    debugImplementation libs.compose.ui.tooling.preview
+        implementation libs.androidx.core.ktx
+        implementation libs.lifecycle.runtime.compose
+        implementation libs.activity.compose
+        implementation libs.androidx.appcompat
+        implementation libs.androidx.drawerlayout
+        
+        // Material Components (for XML themes)
+        implementation libs.google.material
+        
+        // Jetpack Compose
+        implementation platform(libs.compose.bom)
+        implementation libs.compose.material3
+        implementation libs.compose.ui
+        implementation libs.compose.ui.tooling.preview
+        implementation libs.compose.ui.graphics
+        implementation libs.compose.material.icons.core
+        implementation libs.compose.material.icons.ext
+        implementation libs.compose.foundation
+        implementation libs.accompanist.systemuicontroller
+        debugImplementation libs.compose.ui
+        debugImplementation libs.compose.ui.tooling.preview
 
-    // Lifecycle
-    implementation libs.lifecycle.runtime.compose
-    implementation libs.lifecycle.viewmodel.compose
+        // Lifecycle
+        implementation libs.lifecycle.runtime.compose
+        implementation libs.lifecycle.viewmodel.compose
 
-    // Navigation
-    implementation libs.navigation.compose
-    implementation libs.hilt.navigation.compose
+        // Navigation
+        implementation libs.navigation.compose
+        implementation libs.hilt.navigation.compose
 
-    // Room
-    implementation libs.room.runtime
-    implementation libs.room.ktx
-    ksp libs.room.compiler
+        // Room
+        implementation libs.room.runtime
+        implementation libs.room.ktx
+        ksp libs.room.compiler
 
-    // DataStore for app settings
-    implementation libs.datastore.prefs
+        // DataStore for app settings
+        implementation libs.datastore.prefs
 
+        // Hilt - Updated to compatible version
+        implementation libs.dagger.hilt.android
+        ksp libs.dagger.hilt.compiler
 
-    // Hilt - Updated to compatible version
-    implementation libs.dagger.hilt.android
-    ksp libs.dagger.hilt.compiler
+        // Coroutines
+        implementation libs.coroutines.core
+        implementation libs.coroutines.android
+        implementation libs.serialization.json
+        
+        // Firebase
+        implementation platform(libs.firebase.bom)
+        implementation libs.firebase.crashlytics.ktx
+        implementation libs.firebase.sessions
+        implementation libs.firebase.analytics.ktx
+        implementation libs.firebase.perf.ktx
 
-    // Testing (unit tests)
-    testImplementation libs.junit4
-    testImplementation libs.room.testing
-    testImplementation libs.coroutines.test
-    testImplementation libs.serialization.json
-    testImplementation libs.bouncycastle
-    testImplementation libs.mockk
-    testImplementation libs.arch.core.testing
-    testImplementation libs.coroutines.core
-    testImplementation libs.konsist
-    testImplementation libs.turbine
-    
-    // Test fixtures
-    testImplementation(testFixtures(project(":domain")))
-    testImplementation(testFixtures(project(":data")))
-    // TODO: Move to module-local fixtures (Option A)
-    // testImplementation(testFixtures(project(":test-support")))
-    
-    // Android Testing (instrumentation)
-    androidTestImplementation libs.androidx.test.ext.junit
-    androidTestImplementation libs.androidx.test.espresso.core
-    androidTestImplementation libs.androidx.test.runner
-    androidTestImplementation libs.androidx.test.rules
-    androidTestImplementation platform(libs.compose.bom)
-    androidTestImplementation libs.compose.ui.test.junit4
-    androidTestImplementation libs.androidx.test.uiautomator
-    androidTestImplementation libs.coroutines.test
-    
-    // Hilt Testing
-    androidTestImplementation libs.dagger.hilt.android.testing
-    kspAndroidTest libs.dagger.hilt.compiler
-    
-    // Test fixtures for Android tests
-    androidTestImplementation(testFixtures(project(":domain")))
-    androidTestImplementation(testFixtures(project(":data")))
-    // TODO: Move to module-local fixtures (Option A)
-    // androidTestImplementation(testFixtures(project(":test-support")))
-    
-    // Unit Test Dependencies
+        // Testing (unit tests)
+        testImplementation libs.junit4
+        testImplementation libs.room.testing
+        testImplementation libs.coroutines.test
+        testImplementation libs.serialization.json
+        testImplementation libs.bouncycastle
+        testImplementation libs.mockk
+        testImplementation libs.arch.core.testing
+        testImplementation libs.coroutines.core
+        testImplementation libs.konsist
+        testImplementation libs.turbine
+        
+        // Test fixtures
+        testImplementation(testFixtures(project(":domain")))
+        testImplementation(testFixtures(project(":data")))
+        
+        // Android Testing (instrumentation)
+        androidTestImplementation libs.androidx.test.ext.junit
+        androidTestImplementation libs.androidx.test.espresso.core
+        androidTestImplementation libs.androidx.test.runner
+        androidTestImplementation libs.androidx.test.rules
+        androidTestImplementation platform(libs.compose.bom)
+        androidTestImplementation libs.compose.ui.test.junit4
+        androidTestImplementation libs.androidx.test.uiautomator
+        androidTestImplementation libs.coroutines.test
+        
+        // Hilt Testing
+        androidTestImplementation libs.dagger.hilt.android.testing
+        kspAndroidTest libs.dagger.hilt.compiler
+        
+        // Test fixtures for Android tests
+        androidTestImplementation(testFixtures(project(":domain")))
+        androidTestImplementation(testFixtures(project(":data")))
+        
+        // LeakCanary (debug only)
+        debugImplementation libs.leakcanary
 
-    implementation libs.coroutines.core
-    implementation libs.coroutines.android
-    implementation libs.serialization.json
-    implementation platform(libs.firebase.bom)
-    implementation libs.firebase.crashlytics.ktx
-    // Crashlytics runtime comes via BoM; use KTX above
-    implementation libs.firebase.sessions
-    implementation libs.firebase.analytics.ktx
-    // Firebase Performance Monitoring
-    implementation libs.firebase.perf.ktx
-    
-    // SQLCipher is provided by the data module; avoid duplicate inclusion here
-
-    // LeakCanary (debug only)
-    debugImplementation libs.leakcanary
-
-    // Paparazzi for snapshot tests
-    testImplementation libs.paparazzi
-}
+        // Paparazzi for snapshot tests
+        testImplementation libs.paparazzi
+    }
 
 // Room schema location for ksp
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.incremental", "true")
+    arg("room.expandProjection", "true")
+    arg("room.generateKotlin", "true")
+    arg("room.useK2", "true")
+    
+    // Hilt optimizations
+    arg("dagger.hilt.disableModulesHaveInstallInCheck", "true")
+    arg("dagger.hilt.android.internal.disableAndroidSuperclassValidation", "true")
 }
 
 // Detekt configuration (only if plugin applied)
