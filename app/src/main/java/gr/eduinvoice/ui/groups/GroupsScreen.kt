@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
-import gr.eduinvoice.ui.design.NavigationMenuButton
+
 import gr.eduinvoice.ui.design.SlimHeader
 import gr.eduinvoice.ui.components.ModernSearchFilterSheet
 import gr.eduinvoice.ui.components.FilterOptions
@@ -119,13 +119,7 @@ fun GroupsScreen(
 
             }
 
-            NavigationMenuButton(
-                onClick = openDrawer,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .statusBarsPadding()
-                    .padding(8.dp)
-            )
+
         }
     }
 }

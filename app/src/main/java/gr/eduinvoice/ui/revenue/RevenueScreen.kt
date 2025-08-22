@@ -9,7 +9,7 @@ import gr.eduinvoice.ui.design.AppColors
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
 import gr.eduinvoice.ui.design.MetricCard
-import gr.eduinvoice.ui.design.NavigationMenuButton
+
 import gr.eduinvoice.ui.design.SlimHeader
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -146,13 +146,7 @@ fun RevenueScreen(
             }
         }
 
-        NavigationMenuButton(
-            onClick = openDrawer,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .statusBarsPadding()
-                .padding(8.dp)
-        )
+
         }
     }
 }

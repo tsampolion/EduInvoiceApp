@@ -28,6 +28,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import gr.eduinvoice.analytics.ErrorReporter
 import gr.eduinvoice.ui.components.ErrorBoundary
 import gr.eduinvoice.ui.settings.SettingsViewModel
+import gr.eduinvoice.ui.user.SessionViewModel
 import gr.eduinvoice.ui.theme.EduInvoiceTheme
 import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.analytics.PerformanceMonitor
@@ -74,9 +75,24 @@ class MainActivity : ComponentActivity() {
             val backStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = backStackEntry?.destination?.route
             val isWelcome = currentRoute == Screen.Welcome.route
+            
             val settingsViewModel: SettingsViewModel = hiltViewModel()
+            val sessionViewModel: SessionViewModel = hiltViewModel()
             val uiState = settingsViewModel.uiState.collectAsStateWithLifecycle().value
+            val isLoggedIn = sessionViewModel.isLoggedIn.collectAsStateWithLifecycle().value
             var drawerOpen by remember { mutableStateOf(false) }
+            var showLoginWarning by remember { mutableStateOf(false) }
+            
+            // Helper function to handle navigation with login validation
+            fun handleNavigation(route: String) {
+                if (isWelcome) return
+                if (isLoggedIn) {
+                    navController.navigate(route)
+                    drawerOpen = false
+                } else {
+                    showLoginWarning = true
+                }
+            }
 
             EduInvoiceTheme(darkTheme = uiState.settings?.darkTheme ?: false) {
                 val drawerState = rememberDrawerState(initialValue = if (drawerOpen) DrawerValue.Open else DrawerValue.Closed)
@@ -131,10 +147,7 @@ class MainActivity : ComponentActivity() {
                                 icon = { Icon(androidx.compose.material.icons.Icons.Default.Home, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.home)) },
                                 selected = currentRoute == Screen.Home.route,
-                                onClick = {
-                                    if (!isWelcome) navController.navigate(Screen.Home.route)
-                                    drawerOpen = false
-                                },
+                                onClick = { handleNavigation(Screen.Home.route) },
                                 modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
                             )
@@ -142,10 +155,7 @@ class MainActivity : ComponentActivity() {
                                 icon = { Icon(androidx.compose.material.icons.Icons.Default.Person, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.students)) },
                                 selected = currentRoute == Screen.Students.route,
-                                onClick = {
-                                    if (!isWelcome) navController.navigate(Screen.Students.route)
-                                    drawerOpen = false
-                                },
+                                onClick = { handleNavigation(Screen.Students.route) },
                                 modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
                             )
@@ -153,10 +163,7 @@ class MainActivity : ComponentActivity() {
                                 icon = { Icon(androidx.compose.material.icons.Icons.Default.Schedule, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.lessons)) },
                                 selected = currentRoute == Screen.Lessons.route,
-                                onClick = {
-                                    if (!isWelcome) navController.navigate(Screen.Lessons.route)
-                                    drawerOpen = false
-                                },
+                                onClick = { handleNavigation(Screen.Lessons.route) },
                                 modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
                             )
@@ -164,10 +171,7 @@ class MainActivity : ComponentActivity() {
                                 icon = { Icon(androidx.compose.material.icons.Icons.Default.Group, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.groups)) },
                                 selected = currentRoute == Screen.Groups.route,
-                                onClick = {
-                                    if (!isWelcome) navController.navigate(Screen.Groups.route)
-                                    drawerOpen = false
-                                },
+                                onClick = { handleNavigation(Screen.Groups.route) },
                                 modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
                             )
@@ -175,10 +179,7 @@ class MainActivity : ComponentActivity() {
                                 icon = { Icon(androidx.compose.material.icons.Icons.Default.Class, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.classes)) },
                                 selected = currentRoute == Screen.Classes.route,
-                                onClick = {
-                                    if (!isWelcome) navController.navigate(Screen.Classes.route)
-                                    drawerOpen = false
-                                },
+                                onClick = { handleNavigation(Screen.Classes.route) },
                                 modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
                             )
@@ -186,10 +187,7 @@ class MainActivity : ComponentActivity() {
                                 icon = { Icon(androidx.compose.material.icons.Icons.Default.BarChart, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.revenue)) },
                                 selected = currentRoute == Screen.Revenue.route,
-                                onClick = {
-                                    if (!isWelcome) navController.navigate(Screen.Revenue.route)
-                                    drawerOpen = false
-                                },
+                                onClick = { handleNavigation(Screen.Revenue.route) },
                                 modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
                             )
@@ -197,12 +195,34 @@ class MainActivity : ComponentActivity() {
                                 icon = { Icon(androidx.compose.material.icons.Icons.Default.Settings, contentDescription = null) },
                                 label = { Text(stringResource(id = R.string.settings)) },
                                 selected = currentRoute == Screen.Settings.route,
-                                onClick = {
-                                    if (!isWelcome) navController.navigate(Screen.Settings.route)
-                                    drawerOpen = false
-                                },
+                                onClick = { handleNavigation(Screen.Settings.route) },
                                 modifier = Modifier.padding(horizontal = 12.dp),
                                 colors = NavigationDrawerItemDefaults.colors()
+                            )
+                        }
+                        
+                        // Login Warning Dialog
+                        if (showLoginWarning) {
+                            AlertDialog(
+                                onDismissRequest = { showLoginWarning = false },
+                                title = { Text("Login Required") },
+                                text = { Text("Please log in to access this feature.") },
+                                confirmButton = {
+                                    TextButton(
+                                        onClick = { 
+                                            showLoginWarning = false
+                                            navController.navigate(Screen.Settings.route)
+                                            drawerOpen = false
+                                        }
+                                    ) {
+                                        Text("Go to Login")
+                                    }
+                                },
+                                dismissButton = {
+                                    TextButton(onClick = { showLoginWarning = false }) {
+                                        Text("Cancel")
+                                    }
+                                }
                             )
                         }
                     }

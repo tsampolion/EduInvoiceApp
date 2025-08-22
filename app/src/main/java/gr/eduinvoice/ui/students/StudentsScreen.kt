@@ -11,7 +11,7 @@ import androidx.compose.material.icons.filled.Unarchive
 import androidx.compose.material3.*
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
-import gr.eduinvoice.ui.design.NavigationMenuButton
+
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment

@@ -11,7 +11,7 @@ import gr.eduinvoice.BuildConfig
 import gr.eduinvoice.ui.design.AppColors
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
-import gr.eduinvoice.ui.design.NavigationMenuButton
+
 import gr.eduinvoice.ui.design.SlimHeader
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -263,13 +263,7 @@ fun SettingsScreen(
                     Text(stringResource(R.string.privacy_policy))
                 }
             }
-            NavigationMenuButton(
-                onClick = openDrawer,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .statusBarsPadding()
-                    .padding(8.dp)
-            )
+
         }
     }
 }

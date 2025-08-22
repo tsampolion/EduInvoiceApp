@@ -25,7 +25,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.testcompat.getFullName
-import gr.eduinvoice.ui.design.NavigationMenuButton
+
 import gr.eduinvoice.ui.design.SlimHeader
 import gr.eduinvoice.ui.components.EdgeToEdgeScaffold
 import gr.eduinvoice.ui.components.ModernEmptyClassesState
@@ -338,17 +338,7 @@ fun ClassesScreen(
                 }
             }
 
-            NavigationMenuButton(
-                onClick = openDrawer,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(8.dp)
-                    .testTag("navigation_menu_button")
-                    .semantics {
-                        contentDescription = "Open navigation menu"
-                        role = Role.Button
-                    }
-            )
+
         }
     }
 }

@@ -10,7 +10,7 @@ import gr.eduinvoice.ui.components.EdgeToEdgeScaffold
 import gr.eduinvoice.ui.components.ModernEmptyLessonsState
 import gr.eduinvoice.ui.design.AppTopBar
 import gr.eduinvoice.ui.design.Dimensions
-import gr.eduinvoice.ui.design.NavigationMenuButton
+
 import gr.eduinvoice.ui.design.SlimHeader
 import androidx.compose.material3.HorizontalDivider
 import gr.eduinvoice.ui.components.ModernSearchFilterSheet
@@ -172,13 +172,7 @@ fun LessonsScreen(
                     )
                 }
             }
-            NavigationMenuButton(
-                onClick = openDrawer,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .statusBarsPadding()
-                    .padding(8.dp)
-            )
+
         }
     }
 
