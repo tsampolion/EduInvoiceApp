@@ -15,6 +15,10 @@ import gr.eduinvoice.ui.design.SlimHeader
 import androidx.compose.material3.HorizontalDivider
 import gr.eduinvoice.ui.components.ModernSearchFilterSheet
 import gr.eduinvoice.ui.components.FilterOptions
+import gr.eduinvoice.ui.components.MasterActionBox
+import gr.eduinvoice.ui.components.ActionButton
+import gr.eduinvoice.ui.components.ContextAwareSearchFilterSheet
+import gr.eduinvoice.ui.components.FilterContext
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
@@ -33,6 +37,10 @@ import gr.eduinvoice.ui.model.UiLessonWithStudent
 import gr.eduinvoice.ui.components.VirtualLessonList
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import androidx.compose.material.icons.filled.Payment
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Tune
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,72 +89,94 @@ fun LessonsScreen(
                         TextButton(onClick = onReschedules) { Text("Reschedules") }
                     }
                 )
-                // Batch actions
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = Dimensions.PaddingMedium, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    var showPaySheet by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(openPayOnStart) }
-                    var showRescheduleSheet by remember { mutableStateOf(false) }
-                    var showInvoiceSheet by remember { mutableStateOf(false) }
-                    AssistChip(onClick = { showPaySheet = true }, label = { Text("Mark Paid (Batch)") })
-                    AssistChip(onClick = { showRescheduleSheet = true }, label = { Text("Bulk Reschedule") })
-                    AssistChip(onClick = { showInvoiceSheet = true }, label = { Text("Batch Invoice") })
-                    if (showPaySheet) {
-                        val scopedLessons = batchStudentId?.let { id -> uiState.lessons.filter { it.lesson.studentId == id } } ?: uiState.lessons
-                        BatchPaySheet(
-                            lessons = scopedLessons,
-                            onDismiss = { showPaySheet = false },
-                            onConfirm = { ids, date, notes ->
-                                viewModel.createPaymentBatch(ids, date, notes)
-                                showPaySheet = false
-                            }
-                        )
-                    }
-                    if (showRescheduleSheet) {
-                        BulkRescheduleSheet(
-                            lessons = uiState.lessons,
-                            onDismiss = { showRescheduleSheet = false },
-                            onConfirm = { ids, newDate, newTime, newDuration, notes ->
-                                viewModel.bulkReschedule(ids, newDate, newTime, newDuration, notes)
-                                showRescheduleSheet = false
-                            }
-                        )
-                    }
-                    if (showInvoiceSheet) {
-                        BatchInvoiceSheet(
-                            lessons = uiState.lessons,
-                            onDismiss = { showInvoiceSheet = false },
-                            onConfirm = { ids, invoiceDate, notes ->
-                                viewModel.createInvoiceForSelected(ids, invoiceDate, notes)
-                                showInvoiceSheet = false
-                            }
-                        )
-                    }
-                }
-                // Bottom-sheet search & filter
+                
+                // Master Action Box with consolidated functionality
+                var isActionBoxExpanded by remember { mutableStateOf(false) }
+                var showSearchFilterSheet by remember { mutableStateOf(false) }
+                var showPaySheet by remember { mutableStateOf(openPayOnStart) }
+                var showRescheduleSheet by remember { mutableStateOf(false) }
+                var showInvoiceSheet by remember { mutableStateOf(false) }
                 val query by viewModel.searchQuery.collectAsStateWithLifecycle()
-                var showSheet by remember { mutableStateOf(false) }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = Dimensions.PaddingMedium),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    AssistChip(onClick = { showSheet = true }, label = { Text("Search & Filter") })
-                }
-                if (showSheet) {
-                    ModernSearchFilterSheet(
+                
+                MasterActionBox(
+                    title = "Lesson Management",
+                    isExpanded = isActionBoxExpanded,
+                    onToggle = { isActionBoxExpanded = !isActionBoxExpanded },
+                    searchQuery = query,
+                    onSearchQueryChange = viewModel::updateSearchQuery,
+                    onSearchFilterClick = { showSearchFilterSheet = true },
+                    actions = listOf(
+                        ActionButton(
+                            label = "Mark Paid (Batch)",
+                            icon = Icons.Default.Payment,
+                            onClick = { showPaySheet = true },
+                            backgroundColor = MaterialTheme.colorScheme.primary
+                        ),
+                        ActionButton(
+                            label = "Bulk Reschedule",
+                            icon = Icons.Default.Schedule,
+                            onClick = { showRescheduleSheet = true },
+                            backgroundColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        ActionButton(
+                            label = "Batch Invoice",
+                            icon = Icons.Default.Receipt,
+                            onClick = { showInvoiceSheet = true },
+                            backgroundColor = MaterialTheme.colorScheme.tertiary
+                        ),
+                        ActionButton(
+                            label = "Advanced Filters",
+                            icon = Icons.Default.Tune,
+                            onClick = { showSearchFilterSheet = true },
+                            backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ),
+                    modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
+                )
+                
+                // Context-aware search and filter sheet
+                if (showSearchFilterSheet) {
+                    ContextAwareSearchFilterSheet(
+                        context = FilterContext.Lessons,
                         title = stringResource(R.string.lessons),
                         query = query,
                         onQueryChange = viewModel::updateSearchQuery,
-                        sortAscending = null,
-                        onToggleSort = null,
-                        filters = viewModel.filters.collectAsStateWithLifecycle().value,
-                        onFiltersChange = viewModel::updateFilters,
-                        onDismiss = { showSheet = false }
+                        onDismiss = { showSearchFilterSheet = false }
+                    )
+                }
+                
+                // Batch operation sheets
+                if (showPaySheet) {
+                    val scopedLessons = batchStudentId?.let { id -> uiState.lessons.filter { it.lesson.studentId == id } } ?: uiState.lessons
+                    BatchPaySheet(
+                        lessons = scopedLessons,
+                        onDismiss = { showPaySheet = false },
+                        onConfirm = { ids, date, notes ->
+                            viewModel.createPaymentBatch(ids, date, notes)
+                            showPaySheet = false
+                        }
+                    )
+                }
+                
+                if (showRescheduleSheet) {
+                    BulkRescheduleSheet(
+                        lessons = uiState.lessons,
+                        onDismiss = { showRescheduleSheet = false },
+                        onConfirm = { ids, newDate, newTime, newDuration, notes ->
+                            viewModel.bulkReschedule(ids, newDate, newTime, newDuration, notes)
+                            showRescheduleSheet = false
+                        }
+                    )
+                }
+                
+                if (showInvoiceSheet) {
+                    BatchInvoiceSheet(
+                        lessons = uiState.lessons,
+                        onDismiss = { showInvoiceSheet = false },
+                        onConfirm = { ids, invoiceDate, notes ->
+                            viewModel.createInvoiceForSelected(ids, invoiceDate, notes)
+                            showInvoiceSheet = false
+                        }
                     )
                 }
                 if (uiState.lessons.isEmpty()) {

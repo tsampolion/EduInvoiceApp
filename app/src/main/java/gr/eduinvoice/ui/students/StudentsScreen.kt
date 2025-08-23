@@ -25,8 +25,15 @@ import gr.eduinvoice.ui.components.VirtualStudentList
 import gr.eduinvoice.ui.components.ModernSearchFilterSheet
 import gr.eduinvoice.ui.components.FilterOptions
 import gr.eduinvoice.ui.components.ModernEmptyStudentsState
+import gr.eduinvoice.ui.components.MasterActionBox
+import gr.eduinvoice.ui.components.ActionButton
+import gr.eduinvoice.ui.components.ContextAwareSearchFilterSheet
+import gr.eduinvoice.ui.components.FilterContext
 import androidx.compose.foundation.layout.statusBarsPadding
 import gr.eduinvoice.ui.design.SlimHeader
+import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Archive
+import androidx.compose.material.icons.filled.Tune
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,27 +73,52 @@ fun StudentsScreen(
                         }
                     }
                 )
-                // Bottom-sheet search & filter
+                
+                // Master Action Box with consolidated functionality
+                var isActionBoxExpanded by remember { mutableStateOf(false) }
+                var showSearchFilterSheet by remember { mutableStateOf(false) }
                 val sortAscending by viewModel.sortAscending.collectAsStateWithLifecycle()
-                var showSheet by remember { mutableStateOf(false) }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = Dimensions.PaddingMedium),
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    AssistChip(onClick = { showSheet = true }, label = { Text("Search & Filter") })
-                }
-                if (showSheet) {
-                    ModernSearchFilterSheet(
+                
+                MasterActionBox(
+                    title = "Student Management",
+                    isExpanded = isActionBoxExpanded,
+                    onToggle = { isActionBoxExpanded = !isActionBoxExpanded },
+                    searchQuery = uiState.searchQuery,
+                    onSearchQueryChange = viewModel::updateSearchQuery,
+                    onSearchFilterClick = { showSearchFilterSheet = true },
+                    actions = listOf(
+                        ActionButton(
+                            label = "Add Student",
+                            icon = Icons.Default.PersonAdd,
+                            onClick = onAddStudent,
+                            backgroundColor = MaterialTheme.colorScheme.primary
+                        ),
+                        ActionButton(
+                            label = "View Archived",
+                            icon = Icons.Default.Archive,
+                            onClick = onViewArchived,
+                            backgroundColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        ActionButton(
+                            label = "Advanced Filters",
+                            icon = Icons.Default.Tune,
+                            onClick = { showSearchFilterSheet = true },
+                            backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ),
+                    modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
+                )
+                
+                // Context-aware search and filter sheet
+                if (showSearchFilterSheet) {
+                    ContextAwareSearchFilterSheet(
+                        context = FilterContext.Students,
                         title = stringResource(R.string.students),
                         query = uiState.searchQuery,
                         onQueryChange = viewModel::updateSearchQuery,
                         sortAscending = sortAscending,
                         onToggleSort = viewModel::toggleSortOrder,
-                        filters = viewModel.filters.collectAsStateWithLifecycle().value,
-                        onFiltersChange = viewModel::updateFilters,
-                        onDismiss = { showSheet = false }
+                        onDismiss = { showSearchFilterSheet = false }
                     )
                 }
 

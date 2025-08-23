@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -110,28 +111,44 @@ fun UsersScreen(
 
         // Delete confirmation dialog
         showDeleteDialog?.let { user ->
-            AlertDialog(
-                onDismissRequest = { showDeleteDialog = null },
-                title = { Text("Delete User") },
-                text = { 
-                    Text("Are you sure you want to delete user '${user.username}'? This action cannot be undone.")
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            viewModel.deleteUser(user.id)
-                            showDeleteDialog = null
+            // Prevent admin deletion
+            if (user.username == "admin") {
+                AlertDialog(
+                    onDismissRequest = { showDeleteDialog = null },
+                    title = { Text("Admin Profile Protected") },
+                    text = { 
+                        Text("The admin profile cannot be deleted. This is a system-critical account that must remain active.")
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showDeleteDialog = null }) {
+                            Text("OK")
                         }
-                    ) {
-                        Text("Delete", color = MaterialTheme.colorScheme.error)
                     }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDeleteDialog = null }) {
-                        Text("Cancel")
+                )
+            } else {
+                AlertDialog(
+                    onDismissRequest = { showDeleteDialog = null },
+                    title = { Text("Delete User") },
+                    text = { 
+                        Text("Are you sure you want to delete user '${user.username}'? This action cannot be undone.")
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                viewModel.deleteUser(user.id)
+                                showDeleteDialog = null
+                            }
+                        ) {
+                            Text("Delete", color = MaterialTheme.colorScheme.error)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteDialog = null }) {
+                            Text("Cancel")
+                        }
                     }
-                }
-            )
+                )
+            }
         }
 
         // Edit user dialog
@@ -172,11 +189,30 @@ private fun UserCard(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = user.username,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = user.username,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    // Show admin badge
+                    if (user.username == "admin") {
+                        Surface(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                text = "ADMIN",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                }
                 Text(
                     text = user.fullName,
                     style = MaterialTheme.typography.bodyMedium,
@@ -208,11 +244,23 @@ private fun UserCard(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
-                IconButton(onClick = onDeleteClick) {
+                
+                // Only show delete button for non-admin users
+                if (user.username != "admin") {
+                    IconButton(onClick = onDeleteClick) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete user",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                } else {
+                    // Show protected indicator for admin
                     Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Delete user",
-                        tint = MaterialTheme.colorScheme.error
+                        imageVector = Icons.Default.Shield,
+                        contentDescription = "Admin profile protected",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(8.dp)
                     )
                 }
             }
@@ -231,6 +279,8 @@ private fun EditUserDialog(
     var fullName by remember { mutableStateOf(user.fullName) }
     var subjectSpecialty by remember { mutableStateOf(user.subjectSpecialty) }
     var yearsExperience by remember { mutableStateOf(user.yearsExperience.toString()) }
+    
+    val isAdmin = user.username == "admin"
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -243,7 +293,11 @@ private fun EditUserDialog(
                     value = username,
                     onValueChange = { username = it },
                     label = { Text("Username") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isAdmin, // Disable username editing for admin
+                    supportingText = if (isAdmin) { 
+                        { Text("Admin username cannot be changed") } 
+                    } else null
                 )
                 OutlinedTextField(
                     value = fullName,

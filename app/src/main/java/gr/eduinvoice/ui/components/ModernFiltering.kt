@@ -1,31 +1,61 @@
 package gr.eduinvoice.ui.components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.ui.text.input.TextFieldValue
 
+// Base filter options with common fields
 data class FilterOptions(
     val dateRange: Pair<Long?, Long?> = null to null,
     val status: Set<String> = emptySet(),
-    val classes: Set<String> = emptySet()
+    val classes: Set<String> = emptySet(),
+    val customFilters: Map<String, Set<String>> = emptyMap()
+)
+
+// Context-specific filter models
+data class StudentFilterOptions(
+    val dateRange: Pair<Long?, Long?> = null to null,
+    val status: Set<String> = emptySet(), // active, inactive, archived
+    val classes: Set<String> = emptySet(), // A1, A2, B1, B2, C1, C2, Custom
+    val subjectSpecialty: Set<String> = emptySet(),
+    val yearsExperience: Set<Int> = emptySet()
+)
+
+data class LessonFilterOptions(
+    val dateRange: Pair<Long?, Long?> = null to null,
+    val paymentStatus: Set<String> = emptySet(), // paid, unpaid, invoiced
+    val studentId: Set<Long> = emptySet(),
+    val groupId: Set<Long> = emptySet(),
+    val duration: Set<Int> = emptySet() // 30, 45, 60, 90, 120 minutes
+)
+
+data class GroupFilterOptions(
+    val dateRange: Pair<Long?, Long?> = null to null,
+    val status: Set<String> = emptySet(), // active, inactive
+    val maxStudents: Set<Int> = emptySet(), // 1-10, 10+, unlimited
+    val subjectSpecialty: Set<String> = emptySet()
+)
+
+data class ClassFilterOptions(
+    val dateRange: Pair<Long?, Long?> = null to null,
+    val level: Set<String> = emptySet(), // A1, A2, B1, B2, C1, C2
+    val status: Set<String> = emptySet(), // active, inactive
+    val maxCapacity: Set<Int> = emptySet()
+)
+
+data class InvoiceFilterOptions(
+    val dateRange: Pair<Long?, Long?> = null to null,
+    val status: Set<String> = emptySet(), // paid, unpaid, overdue
+    val studentId: Set<Long> = emptySet(),
+    val amountRange: Pair<Double?, Double?> = null to null
 )
 
 @Composable

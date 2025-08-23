@@ -620,10 +620,19 @@ class EduInvoiceRepository @Inject constructor(
     /**
      * Permanently deletes a user account and all of their data (students, lessons, groups, cross-refs).
      * This operation is executed transactionally.
+     * Admin accounts are protected from deletion.
      */
     suspend fun deleteAccount(userId: Long) {
         concurrencyController.executeSafeOperation(
             operation = {
+                // Check if this is an admin user and prevent deletion
+                // We need to check by username since we can't easily get the user by ID in this context
+                // The admin user should have ID 1, but let's be safe and check the actual username
+                val adminUser = userDao.getByUsername("admin")
+                if (adminUser?.id == userId) {
+                    throw IllegalStateException("Cannot delete admin profile. This is a system-critical account that must remain active.")
+                }
+                
                 // Order: delete lessons -> cross-refs -> groups -> students -> user
                 lessonDao.deleteAllByOwner(userId)
                 groupDao.deleteAllCrossRefsByOwner(userId)
