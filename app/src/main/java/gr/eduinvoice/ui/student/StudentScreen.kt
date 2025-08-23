@@ -36,6 +36,7 @@ import gr.eduinvoice.ui.design.Dimensions
 import gr.eduinvoice.ui.design.SlimHeader
 import gr.eduinvoice.ui.design.AppColors
 import gr.eduinvoice.ui.design.MetricCard
+import gr.eduinvoice.ui.components.EdgeToEdgeScaffold
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import gr.eduinvoice.domain.model.DomainAbsence
@@ -54,7 +55,7 @@ fun StudentScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showArchiveDialog by remember { mutableStateOf(false) }
 
-    Scaffold(
+    EdgeToEdgeScaffold(
         topBar = { },
         floatingActionButton = {
             if (!uiState.isEditMode && viewModel.studentId != 0L) {
@@ -64,63 +65,70 @@ fun StudentScreen(
             }
         }
     ) { paddingValues ->
-        SlimHeader(
-            title = when {
-                uiState.isEditMode && viewModel.studentId == 0L -> stringResource(R.string.add_student)
-                uiState.isEditMode -> stringResource(R.string.edit_student)
-                else -> "${uiState.name} ${uiState.surname}".trim()
-            },
-            onBack = onNavigateBack,
-            actions = {
-                if (!uiState.isEditMode && viewModel.studentId != 0L) {
-                    IconButton(onClick = { viewModel.toggleEditMode() }) {
-                        Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
-                    }
-                    IconButton(onClick = { showArchiveDialog = true }) {
-                        Icon(Icons.Default.Archive, contentDescription = stringResource(R.string.archive))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            SlimHeader(
+                title = when {
+                    uiState.isEditMode && viewModel.studentId == 0L -> stringResource(R.string.add_student)
+                    uiState.isEditMode -> stringResource(R.string.edit_student)
+                    else -> "${uiState.name} ${uiState.surname}".trim()
+                },
+                onBack = onNavigateBack,
+                actions = {
+                    if (!uiState.isEditMode && viewModel.studentId != 0L) {
+                        IconButton(onClick = { viewModel.toggleEditMode() }) {
+                            Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.edit))
+                        }
+                        IconButton(onClick = { showArchiveDialog = true }) {
+                            Icon(Icons.Default.Archive, contentDescription = stringResource(R.string.archive))
+                        }
                     }
                 }
-            }
-        )
-        if (uiState.isEditMode) {
-            StudentEditForm(
-                uiState = uiState,
-                viewModel = viewModel,
-                onSave = {
-                    viewModel.saveStudent()
-                },
-                onCancel = {
-                    if (viewModel.studentId == 0L) {
-                        onNavigateBack()
-                    } else {
-                        viewModel.toggleEditMode()
-                    }
-                },
-                modifier = modifier.padding(paddingValues)
             )
-        } else {
-            var selectedTab by remember { mutableStateOf(0) }
-            Column(modifier = modifier.padding(paddingValues)) {
-                uiState.errorMessage?.let { msg ->
-                    Text(text = msg, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium))
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-                TabRow(selectedTabIndex = selectedTab) {
-                    Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }, text = { Text("Lessons") })
-                    if (!uiState.groupName.isNullOrBlank()) {
-                        Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }, text = { Text("Absences") })
+            
+            if (uiState.isEditMode) {
+                StudentEditForm(
+                    uiState = uiState,
+                    viewModel = viewModel,
+                    onSave = {
+                        viewModel.saveStudent()
+                    },
+                    onCancel = {
+                        if (viewModel.studentId == 0L) {
+                            onNavigateBack()
+                        } else {
+                            viewModel.toggleEditMode()
+                        }
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                var selectedTab by remember { mutableStateOf(0) }
+                Column(modifier = Modifier.fillMaxSize()) {
+                    uiState.errorMessage?.let { msg ->
+                        Text(text = msg, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium))
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
-                }
-                when (selectedTab) {
-                    0 -> StudentDetailView(
-                        uiState = uiState,
-                        viewModel = viewModel,
-                        onLessonClick = onNavigateToLesson,
-                        onBatchPayForStudent = onBatchPayForStudent,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    1 -> if (!uiState.groupName.isNullOrBlank()) {
-                        AbsencesList(uiState = uiState)
+                    TabRow(selectedTabIndex = selectedTab) {
+                        Tab(selected = selectedTab == 0, onClick = { selectedTab = 0 }, text = { Text("Lessons") })
+                        if (!uiState.groupName.isNullOrBlank()) {
+                            Tab(selected = selectedTab == 1, onClick = { selectedTab = 1 }, text = { Text("Absences") })
+                        }
+                    }
+                    when (selectedTab) {
+                        0 -> StudentDetailView(
+                            uiState = uiState,
+                            viewModel = viewModel,
+                            onLessonClick = onNavigateToLesson,
+                            onBatchPayForStudent = onBatchPayForStudent,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                        1 -> if (!uiState.groupName.isNullOrBlank()) {
+                            AbsencesList(uiState = uiState)
+                        }
                     }
                 }
             }
