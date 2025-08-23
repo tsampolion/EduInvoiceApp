@@ -43,9 +43,19 @@ object DatabaseModule {
         @ApplicationContext context: Context,
         prefs: UserPreferencesRepository
     ): EduInvoiceDatabase {
+        // IMPORTANT: This provider uses `runBlocking` to bridge the async `getDbPassphrase()`
+        // call into the synchronous Hilt dependency graph construction. This is an
+        // architectural trade-off.
+        //
+        // CRITICAL USAGE NOTE: The first time this database is injected and accessed,
+        // it MUST be done from a background thread (e.g., inside `withContext(Dispatchers.IO)`).
+        // Failure to do so will block the main UI thread and cause the application to freeze.
+        // The `MainActivity` demonstrates the correct usage pattern for initialization.
         return runBlocking(Dispatchers.IO) {
+            try {
                 val encryptionEnabled = BuildConfig.DB_ENCRYPTION_ENABLED
                 var sqlCipherAvailable = false
+                
                 if (encryptionEnabled) {
                     try {
                         SQLiteDatabase.loadLibs(context)
@@ -115,6 +125,10 @@ object DatabaseModule {
                         .fallbackToDestructiveMigration(true)
                         .build()
                 }
+            } catch (e: Exception) {
+                Log.e("DatabaseModule", "Critical database initialization error", e)
+                throw DatabaseInitException("Database initialization failed", e)
+            }
         }
     }
 
