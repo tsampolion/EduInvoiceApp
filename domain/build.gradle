@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
     id 'java-library'
     id 'java-test-fixtures'
     alias(libs.plugins.spotless)
@@ -23,24 +25,33 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
 }
 
 dependencies {
-    implementation libs.javax.inject
-    implementation libs.dagger.hilt.core
-    implementation libs.coroutines.core
-    implementation libs.serialization.json
+    // Core
+    implementation(libs.coroutines.core)
+    implementation(libs.javax.inject)
+    implementation(libs.dagger.hilt.core)
+    implementation(libs.serialization.json)
 
-    // Test fixtures dependencies
-    testFixturesImplementation libs.coroutines.core
 
-    testImplementation libs.junit4
-    testImplementation libs.coroutines.test
-    testImplementation libs.bouncycastle
-    testImplementation libs.mockk
-    testImplementation libs.konsist
-    testImplementation libs.turbine
+    // Testing
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation(libs.mockk)
+    testImplementation(libs.mockk.agent.jvm)
+    testImplementation(libs.turbine)
+    testImplementation(libs.coroutines.test)
+    testImplementation(libs.bouncycastle)
+}
 
-    // Test fixtures
-    // TODO: Move to module-local fixtures (Option A)
-    // testImplementation(testFixtures(project(":test-support")))
+// JUnit Platform + test logging
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStackTraces = true
+        showExceptions = true
+        showCauses = true
+    }
 }
 
 // Spotless configuration

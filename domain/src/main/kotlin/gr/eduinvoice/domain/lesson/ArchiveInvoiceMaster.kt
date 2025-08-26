@@ -8,5 +8,3 @@ class ArchiveInvoiceMaster @Inject constructor(
 ) {
     suspend operator fun invoke(id: Long, userId: Long) = repository.archiveInvoiceMaster(id, userId)
 }
-
-

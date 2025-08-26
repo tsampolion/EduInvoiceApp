@@ -23,5 +23,3 @@ data class PaymentBatchMaster(
 	@ColumnInfo(defaultValue = "0")
 	val lastModified: Long = System.currentTimeMillis()
 )
-
-

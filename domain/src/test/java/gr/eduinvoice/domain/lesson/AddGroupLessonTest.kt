@@ -1,22 +1,21 @@
 package gr.eduinvoice.domain.lesson
 
 import gr.eduinvoice.domain.billing.Fixtures
-import gr.eduinvoice.domain.model.DomainLesson
 import gr.eduinvoice.domain.repository.DomainLessonRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class AddGroupLessonTest {
 
     private lateinit var mockRepository: DomainLessonRepository
     private lateinit var addGroupLesson: AddGroupLesson
 
-    @Before
+    @BeforeEach
     fun setup() {
         mockRepository = mockk()
         addGroupLesson = AddGroupLesson(mockRepository)

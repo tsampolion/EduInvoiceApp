@@ -15,5 +15,3 @@ class CreateRescheduleMasterAndApply @Inject constructor(
         userId: Long
     ): Long = repository.createRescheduleMasterAndApply(lessonIds, newDate, newStartTime, newDurationMinutes, notes, userId)
 }
-
-

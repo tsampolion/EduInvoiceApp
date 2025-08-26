@@ -10,10 +10,10 @@ import javax.inject.Singleton
 class StrictModeManager @Inject constructor(
     private val performanceMonitor: StartupPerformanceMonitor
 ) {
-    
+
     fun configureStrictMode(isDebug: Boolean) {
         if (!isDebug) return
-        
+
         try {
             // Configure thread policy to detect main thread violations
             StrictMode.setThreadPolicy(
@@ -26,7 +26,7 @@ class StrictModeManager @Inject constructor(
                     .penaltyDeathOnNetwork()
                     .build()
             )
-            
+
             // Configure VM policy for memory leaks and other issues
             StrictMode.setVmPolicy(
                 StrictMode.VmPolicy.Builder()
@@ -38,25 +38,25 @@ class StrictModeManager @Inject constructor(
                     .penaltyLog()
                     .build()
             )
-            
+
             Log.d(TAG, "StrictMode configured for debug build")
         } catch (e: Exception) {
             Log.w(TAG, "Failed to configure StrictMode", e)
         }
     }
-    
+
     fun logViolation(violation: String, duration: Long) {
         Log.w(TAG, "StrictMode violation: $violation (${duration}ms)")
-        
+
         // Report to performance monitor
         performanceMonitor.logMainThreadBlocking(duration, violation)
-        
+
         // Additional logging for critical violations
         if (duration > 100) {
             Log.e(TAG, "CRITICAL: Main thread blocked for ${duration}ms during $violation")
         }
     }
-    
+
     companion object {
         private const val TAG = "StrictModeManager"
     }

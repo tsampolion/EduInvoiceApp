@@ -4,5 +4,3 @@ data class EarningsByClassRow(
     val className: String,
     val revenue: Double
 )
-
-

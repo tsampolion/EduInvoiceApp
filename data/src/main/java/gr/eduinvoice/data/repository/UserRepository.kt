@@ -20,7 +20,7 @@ class UserRepository @Inject constructor(
     fun getUserById(id: Long): Flow<User?> = dao.getUserById(id)
     suspend fun getByUsername(username: String): User? = withContext(Dispatchers.IO) { dao.getByUsername(username) }
     suspend fun getAllUsers(): List<User> = withContext(Dispatchers.IO) { dao.getAllUsers() }
-    suspend fun updateUser(user: User) = withContext(Dispatchers.IO) { 
+    suspend fun updateUser(user: User) = withContext(Dispatchers.IO) {
         // Prevent admin username from being changed
         // We need to check if this is an admin user by username
         if (user.username != "admin") {
@@ -30,11 +30,11 @@ class UserRepository @Inject constructor(
                 throw IllegalStateException("Cannot change admin username. This is a system-critical account.")
             }
         }
-        dao.update(user) 
+        dao.update(user)
     }
     suspend fun deleteUser(user: User) = withContext(Dispatchers.IO) { dao.delete(user) }
     suspend fun deleteUserById(userId: Long) = withContext(Dispatchers.IO) { dao.deleteById(userId) }
-    
+
     suspend fun createAdminUserIfNotExists() {
         withContext(Dispatchers.IO) {
             val existingAdmin = dao.getByUsername("admin")

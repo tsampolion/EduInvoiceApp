@@ -121,11 +121,11 @@ class EduInvoiceRepository @Inject constructor(
             operation = {
                 // Validate student exists and is active within transaction
                 val student = studentDao.getStudentByIdAny(lesson.studentId, userId).first()
-                checkNotNull(student) { 
-                    "Cannot add lesson for a non-existent student. StudentId: ${lesson.studentId}, UserId: $userId" 
+                checkNotNull(student) {
+                    "Cannot add lesson for a non-existent student. StudentId: ${lesson.studentId}, UserId: $userId"
                 }
-                check(student.isActive) { 
-                    "Cannot add lesson for an inactive student: ${student.name} (ID: ${student.id})" 
+                check(student.isActive) {
+                    "Cannot add lesson for an inactive student: ${student.name} (ID: ${student.id})"
                 }
 
                 lessonDao.insert(lesson)
@@ -632,7 +632,7 @@ class EduInvoiceRepository @Inject constructor(
                 if (adminUser?.id == userId) {
                     throw IllegalStateException("Cannot delete admin profile. This is a system-critical account that must remain active.")
                 }
-                
+
                 // Order: delete lessons -> cross-refs -> groups -> students -> user
                 lessonDao.deleteAllByOwner(userId)
                 groupDao.deleteAllCrossRefsByOwner(userId)

@@ -17,12 +17,12 @@ import javax.inject.Inject
 
 @HiltAndroidApp
 class EduInvoiceApplication : Application() {
-    
+
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    
+
     @Inject lateinit var strictModeManager: StrictModeManager
     @Inject lateinit var startupPerformanceMonitor: StartupPerformanceMonitor
-    
+
     override fun onCreate() {
         super.onCreate()
 

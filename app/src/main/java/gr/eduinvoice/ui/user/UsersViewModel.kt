@@ -59,13 +59,13 @@ class UsersViewModel @Inject constructor(
             try {
                 // Find the user to check if it's admin
                 val userToDelete = uiState.value.users.find { it.id == userId }
-                
+
                 // Prevent admin deletion
                 if (userToDelete?.username == "admin") {
                     _uiState.value = _uiState.value.copy(error = "Cannot delete admin profile. This is a system-critical account.")
                     return@launch
                 }
-                
+
                 useCases.deleteAccount(userId)
                 loadUsers() // Refresh the list
             } catch (e: Exception) {

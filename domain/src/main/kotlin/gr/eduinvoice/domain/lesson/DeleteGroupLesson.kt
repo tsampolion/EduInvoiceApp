@@ -9,5 +9,3 @@ class DeleteGroupLesson @Inject constructor(
     suspend operator fun invoke(masterId: Long, userId: Long = 0) =
         repository.deleteGroupLesson(masterId, userId)
 }
-
-

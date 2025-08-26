@@ -9,5 +9,3 @@ class HasInvoicedOrPaidLessonsForMaster @Inject constructor(
     suspend operator fun invoke(masterId: Long, userId: Long = 0): Boolean =
         repository.hasInvoicedOrPaidLessonsForMaster(masterId, userId)
 }
-
-

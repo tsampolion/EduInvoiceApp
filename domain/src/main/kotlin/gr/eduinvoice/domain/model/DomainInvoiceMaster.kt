@@ -10,5 +10,3 @@ data class DomainInvoiceMaster(
     val isArchived: Boolean = false,
     val lastModified: Long = System.currentTimeMillis()
 )
-
-

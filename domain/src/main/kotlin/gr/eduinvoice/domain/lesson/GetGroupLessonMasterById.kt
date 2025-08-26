@@ -11,5 +11,3 @@ class GetGroupLessonMasterById @Inject constructor(
     operator fun invoke(masterId: Long, userId: Long = 0): Flow<DomainGroupLessonMaster?> =
         repository.getGroupLessonMasterById(masterId, userId)
 }
-
-

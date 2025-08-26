@@ -10,5 +10,3 @@ class GetAbsentStudentIdsForMaster @Inject constructor(
     operator fun invoke(masterId: Long, userId: Long = 0): Flow<List<Long>> =
         repository.getAbsentStudentIdsForMaster(masterId, userId)
 }
-
-

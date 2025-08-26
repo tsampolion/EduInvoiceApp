@@ -8,5 +8,3 @@ class DeleteInvoiceMaster @Inject constructor(
 ) {
     suspend operator fun invoke(id: Long, userId: Long) = repository.deleteInvoiceMaster(id, userId)
 }
-
-

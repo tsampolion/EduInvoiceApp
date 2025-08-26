@@ -89,7 +89,7 @@ fun LessonsScreen(
                         TextButton(onClick = onReschedules) { Text("Reschedules") }
                     }
                 )
-                
+
                 // Master Action Box with consolidated functionality
                 var isActionBoxExpanded by remember { mutableStateOf(false) }
                 var showSearchFilterSheet by remember { mutableStateOf(false) }
@@ -97,7 +97,7 @@ fun LessonsScreen(
                 var showRescheduleSheet by remember { mutableStateOf(false) }
                 var showInvoiceSheet by remember { mutableStateOf(false) }
                 val query by viewModel.searchQuery.collectAsStateWithLifecycle()
-                
+
                 MasterActionBox(
                     title = "Lesson Management",
                     isExpanded = isActionBoxExpanded,
@@ -133,7 +133,7 @@ fun LessonsScreen(
                     ),
                     modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
                 )
-                
+
                 // Context-aware search and filter sheet
                 if (showSearchFilterSheet) {
                     ContextAwareSearchFilterSheet(
@@ -144,7 +144,7 @@ fun LessonsScreen(
                         onDismiss = { showSearchFilterSheet = false }
                     )
                 }
-                
+
                 // Batch operation sheets
                 if (showPaySheet) {
                     val scopedLessons = batchStudentId?.let { id -> uiState.lessons.filter { it.lesson.studentId == id } } ?: uiState.lessons
@@ -157,7 +157,7 @@ fun LessonsScreen(
                         }
                     )
                 }
-                
+
                 if (showRescheduleSheet) {
                     BulkRescheduleSheet(
                         lessons = uiState.lessons,
@@ -168,7 +168,7 @@ fun LessonsScreen(
                         }
                     )
                 }
-                
+
                 if (showInvoiceSheet) {
                     BatchInvoiceSheet(
                         lessons = uiState.lessons,

@@ -55,7 +55,7 @@ object DatabaseModule {
             try {
                 val encryptionEnabled = BuildConfig.DB_ENCRYPTION_ENABLED
                 var sqlCipherAvailable = false
-                
+
                 if (encryptionEnabled) {
                     try {
                         SQLiteDatabase.loadLibs(context)

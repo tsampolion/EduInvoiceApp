@@ -38,7 +38,7 @@ class DomainUserRepositoryAdapter @Inject constructor(
     override suspend fun deleteAccount(userId: Long) {
         eduInvoiceRepository.deleteAccount(userId)
     }
-    
+
     override suspend fun createAdminUserIfNotExists() {
         userRepository.createAdminUserIfNotExists()
     }

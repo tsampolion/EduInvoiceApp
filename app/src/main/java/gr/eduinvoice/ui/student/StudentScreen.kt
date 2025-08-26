@@ -88,7 +88,7 @@ fun StudentScreen(
                     }
                 }
             )
-            
+
             if (uiState.isEditMode) {
                 StudentEditForm(
                     uiState = uiState,

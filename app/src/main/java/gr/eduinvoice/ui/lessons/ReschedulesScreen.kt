@@ -68,5 +68,3 @@ class ReschedulesViewModel @javax.inject.Inject constructor(
 data class ReschedulesUiState(
     val masters: List<gr.eduinvoice.domain.model.DomainRescheduleMaster> = emptyList()
 )
-
-

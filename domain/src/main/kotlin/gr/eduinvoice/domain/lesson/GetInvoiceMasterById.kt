@@ -11,5 +11,3 @@ class GetInvoiceMasterById @Inject constructor(
     operator fun invoke(id: Long, userId: Long): Flow<DomainInvoiceMaster?> =
         repository.getInvoiceMasterById(id, userId)
 }
-
-

@@ -119,31 +119,31 @@ class LessonViewModel @Inject constructor(
         viewModelScope.launch {
             currentUserProvider.loggedInUserId
                 .filterNotNull()
-                .flatMapLatest { uid -> 
+                .flatMapLatest { uid ->
                     combine(
                         studentUseCases.getActiveStudents(uid),
                         flow { emit(uid) }
                     ) { activeStudents, userId ->
                         val selectedId = studentId?.takeIf { it != 0L } ?: _uiState.value.selectedStudentId
                         var selectedStudent = activeStudents.firstOrNull { it.id == selectedId }
-                        
+
                         // If we have a selectedId but can't find it in active students, check if it exists but is inactive
                         if (selectedStudent == null && selectedId != null && selectedId > 0) {
                             try {
                                 val inactiveStudent = studentUseCases.getStudentByIdAny(selectedId, userId).first()
                                 if (inactiveStudent != null && !inactiveStudent.isActive) {
-                                    _uiState.update { 
+                                    _uiState.update {
                                         it.copy(errorMessage = "Student '${inactiveStudent.name}' is archived and cannot be used for new lessons.")
                                     }
                                 }
                             } catch (e: Exception) {
                                 // Student doesn't exist at all
-                                _uiState.update { 
+                                _uiState.update {
                                     it.copy(errorMessage = "Selected student not found.")
                                 }
                             }
                         }
-                        
+
                         Triple(activeStudents, selectedStudent, userId)
                     }
                 }
@@ -412,8 +412,8 @@ class LessonViewModel @Inject constructor(
                     }
                 } else {
                     // Invalid student selection
-                    _uiState.update { 
-                        it.copy(errorMessage = "Please select a valid student before saving the lesson.") 
+                    _uiState.update {
+                        it.copy(errorMessage = "Please select a valid student before saving the lesson.")
                     }
                     return@launch
                 }

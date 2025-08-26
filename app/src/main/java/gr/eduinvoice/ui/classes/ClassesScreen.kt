@@ -75,7 +75,7 @@ fun ClassesScreen(
             ) {
                 ModernEmptyClassesState()
             }
-            
+
             AnimatedVisibility(
                 visible = uiState.studentsByClass.isNotEmpty(),
                 enter = fadeIn(animationSpec = tween(300, delayMillis = 100)) + slideInVertically(
@@ -92,10 +92,10 @@ fun ClassesScreen(
                             contentDescription = "List of classes and students"
                         }
                 ) {
-                    item { 
+                    item {
                         var showInfoDialog by remember { mutableStateOf(false) }
                         val sortAscending by viewModel.sortAscending.collectAsStateWithLifecycle()
-                        
+
                         SlimHeader(
                             title = "Classes",
                             onMenuClick = openDrawer,
@@ -110,7 +110,7 @@ fun ClassesScreen(
                                         }
                                 ) {
                                                                     Icon(
-                                    Icons.Default.Info, 
+                                    Icons.Default.Info,
                                     contentDescription = "Classes info"
                                 )
                                 }
@@ -119,26 +119,26 @@ fun ClassesScreen(
                                     modifier = Modifier
                                         .testTag("classes_sort_button")
                                         .semantics {
-                                            contentDescription = if (sortAscending) 
-                                                "Sort classes descending" 
-                                            else 
+                                            contentDescription = if (sortAscending)
+                                                "Sort classes descending"
+                                            else
                                                 "Sort classes ascending"
                                             role = Role.Button
                                         }
                                 ) {
                                     Icon(
-                                        Icons.AutoMirrored.Filled.Sort, 
+                                        Icons.AutoMirrored.Filled.Sort,
                                         contentDescription = "Sort classes"
                                     )
                                 }
                             }
                         )
-                        
+
                         if (showInfoDialog) {
                             val totalClasses = uiState.studentsByClass.keys.filterNot { it == "Unassigned" }.size
                             val totalStudents = uiState.studentsByClass.values.flatten().size
                             val unassignedCount = uiState.studentsByClass["Unassigned"]?.size ?: 0
-                            
+
                             AlertDialog(
                                 onDismissRequest = { showInfoDialog = false },
                                 title = { Text("Classes Information") },
@@ -160,7 +160,7 @@ fun ClassesScreen(
                             )
                         }
                     }
-                    
+
                     // Search & Filter
                     item {
                         var showSheet by remember { mutableStateOf(false) }
@@ -180,7 +180,7 @@ fun ClassesScreen(
                             horizontalArrangement = Arrangement.Start
                         ) {
                             AssistChip(
-                                onClick = { showSheet = true }, 
+                                onClick = { showSheet = true },
                                 label = { Text("Search & Filter") },
                                 modifier = Modifier
                                     .testTag("search_filter_chip")
@@ -204,7 +204,7 @@ fun ClassesScreen(
                             )
                         }
                     }
-                    
+
                     uiState.studentsByClass
                         .filterKeys { it != "Unassigned" }
                         .toSortedMap()
@@ -278,7 +278,7 @@ fun ClassesScreen(
                                             .padding(Dimensions.PaddingMedium)
                                     ) {
                                         Text(
-                                            text = student.getFullName(), 
+                                            text = student.getFullName(),
                                             style = MaterialTheme.typography.bodyLarge
                                         )
                                     }
@@ -327,7 +327,7 @@ fun ClassesScreen(
                                             .padding(Dimensions.PaddingMedium)
                                     ) {
                                         Text(
-                                            text = student.getFullName(), 
+                                            text = student.getFullName(),
                                             style = MaterialTheme.typography.bodyLarge
                                         )
                                     }

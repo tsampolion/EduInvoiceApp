@@ -10,5 +10,3 @@ class GetRescheduleMasters @Inject constructor(
 ) {
     operator fun invoke(userId: Long): Flow<List<DomainRescheduleMaster>> = repository.getRescheduleMasters(userId)
 }
-
-

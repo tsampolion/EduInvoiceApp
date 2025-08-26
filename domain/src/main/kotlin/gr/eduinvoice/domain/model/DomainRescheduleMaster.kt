@@ -10,5 +10,3 @@ data class DomainRescheduleMaster(
     val notes: String? = null,
     val lastModified: Long = System.currentTimeMillis()
 )
-
-

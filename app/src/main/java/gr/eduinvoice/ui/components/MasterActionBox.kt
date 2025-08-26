@@ -37,7 +37,7 @@ fun MasterActionBox(
         animationSpec = tween(durationMillis = 300),
         label = "rotation"
     )
-    
+
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -60,7 +60,7 @@ fun MasterActionBox(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                
+
                 IconButton(
                     onClick = onToggle,
                     modifier = Modifier.size(40.dp)
@@ -72,7 +72,7 @@ fun MasterActionBox(
                     )
                 }
             }
-            
+
             // Search bar (always visible)
             OutlinedTextField(
                 value = searchQuery,
@@ -90,7 +90,7 @@ fun MasterActionBox(
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp)
             )
-            
+
             // Expandable actions section
             AnimatedVisibility(
                 visible = isExpanded,

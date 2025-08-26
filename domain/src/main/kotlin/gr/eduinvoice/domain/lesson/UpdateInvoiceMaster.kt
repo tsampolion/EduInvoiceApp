@@ -9,5 +9,3 @@ class UpdateInvoiceMaster @Inject constructor(
 ) {
     suspend operator fun invoke(master: DomainInvoiceMaster, userId: Long) = repository.updateInvoiceMaster(master, userId)
 }
-
-

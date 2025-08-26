@@ -50,17 +50,17 @@ fun HomeMenuScreen(
         containerColor = if (uiState.studentCount > 0) AppColors.successContainer else AppColors.errorContainer.copy(alpha = 0.3f),
         contentColor = if (uiState.studentCount > 0) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
     )
-    
+
     val classesButtonColors = ButtonDefaults.buttonColors(
         containerColor = if (uiState.classCount > 0) AppColors.secondaryContainer else AppColors.secondaryContainer.copy(alpha = 0.3f),
         contentColor = if (uiState.classCount > 0) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f)
     )
-    
+
     val groupsButtonColors = ButtonDefaults.buttonColors(
         containerColor = if (uiState.classCount > 0) AppColors.secondaryContainer else AppColors.secondaryContainer.copy(alpha = 0.3f),
         contentColor = if (uiState.classCount > 0) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f)
     )
-    
+
     val lessonsButtonColors = ButtonDefaults.buttonColors(
         containerColor = if (uiState.lessonCount > 0) AppColors.tertiaryContainer else AppColors.tertiaryContainer.copy(alpha = 0.3f),
         contentColor = if (uiState.lessonCount > 0) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.6f)
@@ -159,7 +159,7 @@ fun HomeMenuScreen(
                     modifier = Modifier.fillMaxWidth(),
                     colors = lessonsButtonColors
                 ) { Text("Lessons") }
-                
+
                 // Admin-only Users management button
                 if (uiState.isAdmin) {
                     Button(
@@ -169,8 +169,8 @@ fun HomeMenuScreen(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                         )
-                    ) { 
-                        Text("User Management") 
+                    ) {
+                        Text("User Management")
                     }
                 }
 

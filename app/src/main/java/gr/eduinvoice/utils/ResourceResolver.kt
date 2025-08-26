@@ -10,7 +10,7 @@ import javax.inject.Singleton
 class ResourceResolver @Inject constructor(
     private val context: Context
 ) {
-    
+
     /**
      * Safely resolve a resource ID, returning null if the resource doesn't exist
      */
@@ -27,7 +27,7 @@ class ResourceResolver @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Check if a resource exists before using it
      */
@@ -39,7 +39,7 @@ class ResourceResolver @Inject constructor(
             false
         }
     }
-    
+
     /**
      * Get resource name safely
      */
@@ -51,7 +51,7 @@ class ResourceResolver @Inject constructor(
             null
         }
     }
-    
+
     /**
      * Log all resource resolution issues for debugging
      */
@@ -59,7 +59,7 @@ class ResourceResolver @Inject constructor(
         try {
             val packageId = context.packageManager.getPackageInfo(context.packageName, 0).applicationInfo.uid
             Log.d(TAG, "Current package ID: $packageId")
-            
+
             // Check for common resource issues
             val commonResources = listOf(
                 android.R.string.ok,
@@ -67,7 +67,7 @@ class ResourceResolver @Inject constructor(
                 android.R.string.yes,
                 android.R.string.no
             )
-            
+
             commonResources.forEach { resourceId ->
                 if (resourceExists(resourceId)) {
                     Log.d(TAG, "System resource exists: 0x${resourceId.toString(16)}")
@@ -79,7 +79,7 @@ class ResourceResolver @Inject constructor(
             Log.e(TAG, "Failed to log resource issues", e)
         }
     }
-    
+
     companion object {
         private const val TAG = "ResourceResolver"
     }

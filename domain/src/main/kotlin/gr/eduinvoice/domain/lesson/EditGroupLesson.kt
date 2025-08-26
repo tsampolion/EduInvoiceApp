@@ -32,5 +32,3 @@ class EditGroupLesson @Inject constructor(
         userId
     )
 }
-
-

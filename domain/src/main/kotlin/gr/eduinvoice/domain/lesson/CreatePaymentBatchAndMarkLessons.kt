@@ -14,5 +14,3 @@ class CreatePaymentBatchAndMarkLessons @Inject constructor(
         userId: Long
     ): Long = repository.createPaymentBatchAndMarkLessons(studentId, batchDate, notes, lessonIds, userId)
 }
-
-

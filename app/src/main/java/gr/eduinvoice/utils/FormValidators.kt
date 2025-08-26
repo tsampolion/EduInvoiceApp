@@ -27,5 +27,3 @@ object FormValidators {
     fun validDurationMinutes(value: String, min: Int, max: Int): Boolean =
         value.toIntOrNull()?.let { it in min..max } ?: false
 }
-
-

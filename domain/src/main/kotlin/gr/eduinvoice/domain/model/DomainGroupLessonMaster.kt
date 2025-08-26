@@ -12,5 +12,3 @@ data class DomainGroupLessonMaster(
     val durationMinutes: Int,
     val notes: String? = null
 )
-
-

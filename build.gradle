@@ -1,6 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
-    alias(libs.plugins.dependencycheck)
+    alias(libs.plugins.dependencyVersions)
+    alias(libs.plugins.dependencycheck) apply false
     alias(libs.plugins.detekt)
     alias(libs.plugins.spotless) apply false
     alias(libs.plugins.kover)
@@ -38,6 +39,17 @@ if (plugins.hasPlugin("io.gitlab.arturbosch.detekt")) {
         config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
         buildUponDefaultConfig = true
         baseline = file("$rootDir/config/detekt/detekt-baseline.xml")
+    }
+}
+
+// Unified test logging across all modules
+tasks.withType(Test).configureEach {
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStackTraces = true
+        showExceptions = true
+        showCauses = true
     }
 }
 

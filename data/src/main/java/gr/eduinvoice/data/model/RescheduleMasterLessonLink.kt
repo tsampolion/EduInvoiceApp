@@ -12,5 +12,3 @@ data class RescheduleMasterLessonLink(
 	val masterId: Long,
 	val lessonId: Long
 )
-
-

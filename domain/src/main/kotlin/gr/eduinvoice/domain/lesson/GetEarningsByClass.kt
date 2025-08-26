@@ -10,5 +10,3 @@ class GetEarningsByClass @Inject constructor(
     operator fun invoke(startDate: String, endDate: String, userId: Long): Flow<List<Pair<String, Double>>> =
         repository.getEarningsByClass(startDate, endDate, userId)
 }
-
-

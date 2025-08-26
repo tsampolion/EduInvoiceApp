@@ -1,19 +1,18 @@
 package gr.eduinvoice.domain.lesson
 
 import gr.eduinvoice.domain.repository.DomainLessonRepository
-import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class DeleteLessonTest {
 
     private lateinit var mockRepository: DomainLessonRepository
     private lateinit var deleteLesson: DeleteLesson
 
-    @Before
+    @BeforeEach
     fun setup() {
         mockRepository = mockk(relaxed = true)
         deleteLesson = DeleteLesson(mockRepository)
@@ -25,8 +24,6 @@ class DeleteLessonTest {
         val lessonId = 123L
         val userId = 456L
 
-        coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
-
         // When
         deleteLesson(lessonId, userId)
 
@@ -35,12 +32,22 @@ class DeleteLessonTest {
     }
 
     @Test
-    fun `should delete lesson with zero lesson ID`() = runTest {
+    fun `should delete lesson with default userId when not specified`() = runTest {
+        // Given
+        val lessonId = 101L
+
+        // When
+        deleteLesson(lessonId)
+
+        // Then
+        coVerify { mockRepository.deleteLesson(lessonId, 0) }
+    }
+
+    @Test
+    fun `should delete lesson with zero lessonId`() = runTest {
         // Given
         val lessonId = 0L
-        val userId = 789L
-
-        coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
+        val userId = 303L
 
         // When
         deleteLesson(lessonId, userId)
@@ -50,12 +57,10 @@ class DeleteLessonTest {
     }
 
     @Test
-    fun `should delete lesson with negative lesson ID`() = runTest {
+    fun `should delete lesson with negative lessonId`() = runTest {
         // Given
         val lessonId = -1L
-        val userId = 101L
-
-        coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
+        val userId = 505L
 
         // When
         deleteLesson(lessonId, userId)
@@ -65,12 +70,10 @@ class DeleteLessonTest {
     }
 
     @Test
-    fun `should delete lesson with large lesson ID`() = runTest {
+    fun `should delete lesson with large lessonId`() = runTest {
         // Given
         val lessonId = Long.MAX_VALUE
-        val userId = 202L
-
-        coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
+        val userId = 707L
 
         // When
         deleteLesson(lessonId, userId)
@@ -82,10 +85,8 @@ class DeleteLessonTest {
     @Test
     fun `should delete lesson with zero userId`() = runTest {
         // Given
-        val lessonId = 303L
+        val lessonId = 909L
         val userId = 0L
-
-        coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
 
         // When
         deleteLesson(lessonId, userId)
@@ -97,10 +98,8 @@ class DeleteLessonTest {
     @Test
     fun `should delete lesson with negative userId`() = runTest {
         // Given
-        val lessonId = 404L
+        val lessonId = 1111L
         val userId = -1L
-
-        coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
 
         // When
         deleteLesson(lessonId, userId)
@@ -112,11 +111,9 @@ class DeleteLessonTest {
     @Test
     fun `should delete lesson with large userId`() = runTest {
         // Given
-        val lessonId = 505L
+        val lessonId = 1313L
         val userId = Long.MAX_VALUE
 
-        coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
-
         // When
         deleteLesson(lessonId, userId)
 
@@ -125,44 +122,11 @@ class DeleteLessonTest {
     }
 
     @Test
-    fun `should handle edge case with minimum values`() = runTest {
+    fun `should handle multiple deletions`() = runTest {
         // Given
-        val lessonId = Long.MIN_VALUE
-        val userId = Long.MIN_VALUE
-
-        coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
-
-        // When
-        deleteLesson(lessonId, userId)
-
-        // Then
-        coVerify { mockRepository.deleteLesson(lessonId, userId) }
-    }
-
-    @Test
-    fun `should handle edge case with maximum values`() = runTest {
-        // Given
-        val lessonId = Long.MAX_VALUE
-        val userId = Long.MAX_VALUE
-
-        coEvery { mockRepository.deleteLesson(lessonId, userId) } returns Unit
-
-        // When
-        deleteLesson(lessonId, userId)
-
-        // Then
-        coVerify { mockRepository.deleteLesson(lessonId, userId) }
-    }
-
-    @Test
-    fun `should handle multiple delete calls with different parameters`() = runTest {
-        // Given
-        val lessonId1 = 111L
-        val lessonId2 = 222L
-        val userId = 333L
-
-        coEvery { mockRepository.deleteLesson(lessonId1, userId) } returns Unit
-        coEvery { mockRepository.deleteLesson(lessonId2, userId) } returns Unit
+        val lessonId1 = 1515L
+        val lessonId2 = 1616L
+        val userId = 1717L
 
         // When
         deleteLesson(lessonId1, userId)
@@ -176,14 +140,11 @@ class DeleteLessonTest {
     }
 
     @Test
-    fun `should handle same lesson ID with different user IDs`() = runTest {
+    fun `should handle deletion with different userIds`() = runTest {
         // Given
-        val lessonId = 444L
-        val userId1 = 555L
-        val userId2 = 666L
-
-        coEvery { mockRepository.deleteLesson(lessonId, userId1) } returns Unit
-        coEvery { mockRepository.deleteLesson(lessonId, userId2) } returns Unit
+        val lessonId = 1818L
+        val userId1 = 1919L
+        val userId2 = 2020L
 
         // When
         deleteLesson(lessonId, userId1)

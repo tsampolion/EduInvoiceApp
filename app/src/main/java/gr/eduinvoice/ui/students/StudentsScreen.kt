@@ -73,12 +73,12 @@ fun StudentsScreen(
                         }
                     }
                 )
-                
+
                 // Master Action Box with consolidated functionality
                 var isActionBoxExpanded by remember { mutableStateOf(false) }
                 var showSearchFilterSheet by remember { mutableStateOf(false) }
                 val sortAscending by viewModel.sortAscending.collectAsStateWithLifecycle()
-                
+
                 MasterActionBox(
                     title = "Student Management",
                     isExpanded = isActionBoxExpanded,
@@ -108,7 +108,7 @@ fun StudentsScreen(
                     ),
                     modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium, vertical = 8.dp)
                 )
-                
+
                 // Context-aware search and filter sheet
                 if (showSearchFilterSheet) {
                     ContextAwareSearchFilterSheet(

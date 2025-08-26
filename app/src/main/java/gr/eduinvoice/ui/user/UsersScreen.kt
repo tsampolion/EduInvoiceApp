@@ -116,7 +116,7 @@ fun UsersScreen(
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = null },
                     title = { Text("Admin Profile Protected") },
-                    text = { 
+                    text = {
                         Text("The admin profile cannot be deleted. This is a system-critical account that must remain active.")
                     },
                     confirmButton = {
@@ -129,7 +129,7 @@ fun UsersScreen(
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = null },
                     title = { Text("Delete User") },
-                    text = { 
+                    text = {
                         Text("Are you sure you want to delete user '${user.username}'? This action cannot be undone.")
                     },
                     confirmButton = {
@@ -233,7 +233,7 @@ private fun UserCard(
                     )
                 }
             }
-            
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -244,7 +244,7 @@ private fun UserCard(
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
-                
+
                 // Only show delete button for non-admin users
                 if (user.username != "admin") {
                     IconButton(onClick = onDeleteClick) {
@@ -279,7 +279,7 @@ private fun EditUserDialog(
     var fullName by remember { mutableStateOf(user.fullName) }
     var subjectSpecialty by remember { mutableStateOf(user.subjectSpecialty) }
     var yearsExperience by remember { mutableStateOf(user.yearsExperience.toString()) }
-    
+
     val isAdmin = user.username == "admin"
 
     AlertDialog(
@@ -295,8 +295,8 @@ private fun EditUserDialog(
                     label = { Text("Username") },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isAdmin, // Disable username editing for admin
-                    supportingText = if (isAdmin) { 
-                        { Text("Admin username cannot be changed") } 
+                    supportingText = if (isAdmin) {
+                        { Text("Admin username cannot be changed") }
                     } else null
                 )
                 OutlinedTextField(

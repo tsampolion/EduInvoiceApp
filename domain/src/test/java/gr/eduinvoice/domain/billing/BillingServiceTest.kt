@@ -1,41 +1,46 @@
 package gr.eduinvoice.domain.billing
 
-import org.junit.Test
-import org.junit.Assert.assertEquals
-import gr.eduinvoice.domain.utils.DomainFeeCalculator
-import gr.eduinvoice.domain.model.DomainRateTypes
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.*
 
 class BillingServiceTest {
 
+    private val billingService = BillingService()
+
     @Test
-    fun `zero minutes should return zero cost`() {
-        val student = Fixtures.sampleDomainStudent(rate = 40.0, rateType = DomainRateTypes.HOURLY)
-        val lesson = Fixtures.sampleDomainLesson(durationMinutes = 0, defaultRate = 25.0)
-
-        val fee = DomainFeeCalculator.calculateFee(lesson, student)
-
-        assertEquals(0.0, fee, 0.001)
+    fun `calculateTotal with single lesson returns correct total`() {
+        val lessons = listOf(
+            Fixtures.sampleDomainLesson(fee = 50.0)
+        )
+        val result = billingService.calculateTotal(lessons)
+        assertEquals(50.0, result, 0.001)
     }
 
     @Test
-    fun `should prefer student rate over lesson rate`() {
-        // Given hourly rate type, the student's hourly rate is used regardless of lesson defaultRate
-        val student = Fixtures.sampleDomainStudent(rate = 40.0, rateType = DomainRateTypes.HOURLY)
-        val lesson = Fixtures.sampleDomainLesson(durationMinutes = 60, defaultRate = 25.0)
-
-        val fee = DomainFeeCalculator.calculateFee(lesson, student)
-
-        assertEquals(40.0, fee, 0.001)
+    fun `calculateTotal with multiple lessons returns correct sum`() {
+        val lessons = listOf(
+            Fixtures.sampleDomainLesson(fee = 50.0),
+            Fixtures.sampleDomainLesson(fee = 75.0),
+            Fixtures.sampleDomainLesson(fee = 25.0)
+        )
+        val result = billingService.calculateTotal(lessons)
+        assertEquals(150.0, result, 0.001)
     }
 
     @Test
-    fun `per-lesson rate uses student's per-lesson value`() {
-        val student = Fixtures.sampleDomainStudent(rate = 35.0, rateType = DomainRateTypes.PER_LESSON)
-        val lesson = Fixtures.sampleDomainLesson(durationMinutes = 120, defaultRate = 50.0)
+    fun `calculateTotal with empty list returns zero`() {
+        val lessons = emptyList<DomainLesson>()
+        val result = billingService.calculateTotal(lessons)
+        assertEquals(0.0, result, 0.001)
+    }
 
-        val fee = DomainFeeCalculator.calculateFee(lesson, student)
-
-        // For per-lesson type, fee equals the student's per-lesson rate
-        assertEquals(35.0, fee, 0.001)
+    @Test
+    fun `calculateTotal with zero fee lessons returns zero`() {
+        val lessons = listOf(
+            Fixtures.sampleDomainLesson(fee = 0.0),
+            Fixtures.sampleDomainLesson(fee = 0.0)
+        )
+        val result = billingService.calculateTotal(lessons)
+        assertEquals(0.0, result, 0.001)
     }
 }

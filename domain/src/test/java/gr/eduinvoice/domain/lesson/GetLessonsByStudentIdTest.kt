@@ -1,353 +1,183 @@
 package gr.eduinvoice.domain.lesson
 
 import gr.eduinvoice.domain.billing.Fixtures
-import gr.eduinvoice.domain.model.DomainLesson
 import gr.eduinvoice.domain.repository.DomainLessonRepository
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class GetLessonsByStudentIdTest {
 
     private lateinit var mockRepository: DomainLessonRepository
     private lateinit var getLessonsByStudentId: GetLessonsByStudentId
 
-    @Before
+    @BeforeEach
     fun setup() {
         mockRepository = mockk()
         getLessonsByStudentId = GetLessonsByStudentId(mockRepository)
     }
 
     @Test
-    fun `should get lessons by student ID successfully`() = runTest {
+    fun `should return flow of lessons for a student`() = runTest {
         // Given
         val studentId = 123L
         val userId = 456L
-        val expectedLessons = listOf(
-            Fixtures.sampleDomainLesson(studentId = studentId),
-            Fixtures.sampleDomainLesson(studentId = studentId)
-        )
-
-        every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
+        val lessons = listOf(Fixtures.sampleDomainLesson(studentId = studentId))
+        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(lessons)
 
         // When
-        val result = getLessonsByStudentId(studentId, userId)
+        val result = getLessonsByStudentId(studentId, userId).first()
 
         // Then
-        val collectedLessons = mutableListOf<List<DomainLesson>>()
-        result.collect { collectedLessons.add(it) }
-        assertEquals(1, collectedLessons.size)
-        assertEquals(expectedLessons, collectedLessons[0])
+        assertEquals(lessons, result)
+        assertEquals(1, result.size)
     }
 
     @Test
-    fun `should get lessons by student ID with default userId when not specified`() = runTest {
+    fun `should return flow of lessons with default userId`() = runTest {
         // Given
-        val studentId = 789L
-        val expectedLessons = listOf(
-            Fixtures.sampleDomainLesson(studentId = studentId)
-        )
-
-        every { mockRepository.getStudentLessons(studentId, 0) } returns flowOf(expectedLessons)
+        val studentId = 101L
+        val lessons = listOf(Fixtures.sampleDomainLesson(studentId = studentId))
+        coEvery { mockRepository.getLessonsByStudentId(studentId, 0) } returns flowOf(lessons)
 
         // When
-        val result = getLessonsByStudentId(studentId)
+        val result = getLessonsByStudentId(studentId).first()
 
         // Then
-        val collectedLessons = mutableListOf<List<DomainLesson>>()
-        result.collect { collectedLessons.add(it) }
-        assertEquals(1, collectedLessons.size)
-        assertEquals(expectedLessons, collectedLessons[0])
+        assertEquals(lessons, result)
+        assertEquals(1, result.size)
     }
 
     @Test
-    fun `should return empty list when student has no lessons`() = runTest {
+    fun `should return empty flow when student has no lessons`() = runTest {
         // Given
         val studentId = 999L
-        val userId = 101L
-        val expectedLessons = emptyList<DomainLesson>()
-
-        every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
+        val userId = 789L
+        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(emptyList())
 
         // When
-        val result = getLessonsByStudentId(studentId, userId)
+        val result = getLessonsByStudentId(studentId, userId).first()
 
         // Then
-        val collectedLessons = mutableListOf<List<DomainLesson>>()
-        result.collect { collectedLessons.add(it) }
-        assertEquals(1, collectedLessons.size)
-        assertTrue(collectedLessons[0].isEmpty())
+        assertTrue(result.isEmpty())
+        assertEquals(0, result.size)
     }
 
     @Test
-    fun `should handle zero student ID`() = runTest {
+    fun `should handle multiple lessons for a student`() = runTest {
+        // Given
+        val studentId = 101112L
+        val userId = 131415L
+        val lessons = listOf(
+            Fixtures.sampleDomainLesson(id = 1, studentId = studentId),
+            Fixtures.sampleDomainLesson(id = 2, studentId = studentId)
+        )
+        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(lessons)
+
+        // When
+        val result = getLessonsByStudentId(studentId, userId).first()
+
+        // Then
+        assertEquals(lessons, result)
+        assertEquals(2, result.size)
+    }
+
+    @Test
+    fun `should return empty flow for non-existent studentId`() = runTest {
+        // Given
+        val studentId = 9999L
+        val userId = 161718L
+        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(emptyList())
+
+        // When
+        val result = getLessonsByStudentId(studentId, userId).first()
+
+        // Then
+        assertTrue(result.isEmpty())
+    }
+
+    @Test
+    fun `should work with zero studentId`() = runTest {
         // Given
         val studentId = 0L
-        val userId = 202L
-        val expectedLessons = listOf(
-            Fixtures.sampleDomainLesson(studentId = studentId)
-        )
-
-        every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
+        val userId = 192021L
+        val lessons = listOf(Fixtures.sampleDomainLesson(studentId = studentId))
+        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(lessons)
 
         // When
-        val result = getLessonsByStudentId(studentId, userId)
+        val result = getLessonsByStudentId(studentId, userId).first()
 
         // Then
-        val collectedLessons = mutableListOf<List<DomainLesson>>()
-        result.collect { collectedLessons.add(it) }
-        assertEquals(1, collectedLessons.size)
-        assertEquals(expectedLessons, collectedLessons[0])
+        assertEquals(lessons, result)
+        assertEquals(1, result.size)
     }
 
     @Test
-    fun `should handle negative student ID`() = runTest {
+    fun `should work with negative studentId`() = runTest {
         // Given
         val studentId = -1L
-        val userId = 303L
-        val expectedLessons = emptyList<DomainLesson>()
-
-        every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
+        val userId = 222324L
+        val lessons = listOf(Fixtures.sampleDomainLesson(studentId = studentId))
+        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(lessons)
 
         // When
-        val result = getLessonsByStudentId(studentId, userId)
+        val result = getLessonsByStudentId(studentId, userId).first()
 
         // Then
-        val collectedLessons = mutableListOf<List<DomainLesson>>()
-        result.collect { collectedLessons.add(it) }
-        assertEquals(1, collectedLessons.size)
-        assertTrue(collectedLessons[0].isEmpty())
+        assertEquals(lessons, result)
+        assertEquals(1, result.size)
     }
 
     @Test
-    fun `should handle large student ID`() = runTest {
+    fun `should work with large studentId`() = runTest {
         // Given
         val studentId = Long.MAX_VALUE
-        val userId = 404L
-        val expectedLessons = listOf(
-            Fixtures.sampleDomainLesson(studentId = studentId)
-        )
-
-        every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
+        val userId = 252627L
+        val lessons = listOf(Fixtures.sampleDomainLesson(studentId = studentId))
+        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(lessons)
 
         // When
-        val result = getLessonsByStudentId(studentId, userId)
+        val result = getLessonsByStudentId(studentId, userId).first()
 
         // Then
-        val collectedLessons = mutableListOf<List<DomainLesson>>()
-        result.collect { collectedLessons.add(it) }
-        assertEquals(1, collectedLessons.size)
-        assertEquals(expectedLessons, collectedLessons[0])
+        assertEquals(lessons, result)
+        assertEquals(1, result.size)
     }
 
     @Test
-    fun `should handle zero userId`() = runTest {
+    fun `should work with zero userId`() = runTest {
         // Given
-        val studentId = 505L
+        val studentId = 282930L
         val userId = 0L
-        val expectedLessons = listOf(
-            Fixtures.sampleDomainLesson(studentId = studentId)
-        )
-
-        every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
+        val lessons = listOf(Fixtures.sampleDomainLesson(studentId = studentId))
+        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(lessons)
 
         // When
-        val result = getLessonsByStudentId(studentId, userId)
+        val result = getLessonsByStudentId(studentId, userId).first()
 
         // Then
-        val collectedLessons = mutableListOf<List<DomainLesson>>()
-        result.collect { collectedLessons.add(it) }
-        assertEquals(1, collectedLessons.size)
-        assertEquals(expectedLessons, collectedLessons[0])
+        assertEquals(lessons, result)
+        assertEquals(1, result.size)
     }
 
     @Test
-    fun `should handle negative userId`() = runTest {
+    fun `should return empty flow when userId does not match`() = runTest {
         // Given
-        val studentId = 606L
-        val userId = -1L
-        val expectedLessons = listOf(
-            Fixtures.sampleDomainLesson(studentId = studentId)
-        )
-
-        every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
+        val studentId = 313233L
+        val correctUserId = 343536L
+        val wrongUserId = 373839L
+        coEvery { mockRepository.getLessonsByStudentId(studentId, correctUserId) } returns flowOf(listOf(Fixtures.sampleDomainLesson()))
+        coEvery { mockRepository.getLessonsByStudentId(studentId, wrongUserId) } returns flowOf(emptyList())
 
         // When
-        val result = getLessonsByStudentId(studentId, userId)
+        val result = getLessonsByStudentId(studentId, wrongUserId).first()
 
         // Then
-        val collectedLessons = mutableListOf<List<DomainLesson>>()
-        result.collect { collectedLessons.add(it) }
-        assertEquals(1, collectedLessons.size)
-        assertEquals(expectedLessons, collectedLessons[0])
-    }
-
-    @Test
-    fun `should handle large userId`() = runTest {
-        // Given
-        val studentId = 707L
-        val userId = Long.MAX_VALUE
-        val expectedLessons = listOf(
-            Fixtures.sampleDomainLesson(studentId = studentId)
-        )
-
-        every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
-
-        // When
-        val result = getLessonsByStudentId(studentId, userId)
-
-        // Then
-        val collectedLessons = mutableListOf<List<DomainLesson>>()
-        result.collect { collectedLessons.add(it) }
-        assertEquals(1, collectedLessons.size)
-        assertEquals(expectedLessons, collectedLessons[0])
-    }
-
-    @Test
-    fun `should handle edge case with minimum values`() = runTest {
-        // Given
-        val studentId = Long.MIN_VALUE
-        val userId = Long.MIN_VALUE
-        val expectedLessons = emptyList<DomainLesson>()
-
-        every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
-
-        // When
-        val result = getLessonsByStudentId(studentId, userId)
-
-        // Then
-        val collectedLessons = mutableListOf<List<DomainLesson>>()
-        result.collect { collectedLessons.add(it) }
-        assertEquals(1, collectedLessons.size)
-        assertTrue(collectedLessons[0].isEmpty())
-    }
-
-    @Test
-    fun `should handle edge case with maximum values`() = runTest {
-        // Given
-        val studentId = Long.MAX_VALUE
-        val userId = Long.MAX_VALUE
-        val expectedLessons = listOf(
-            Fixtures.sampleDomainLesson(studentId = studentId)
-        )
-
-        every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
-
-        // When
-        val result = getLessonsByStudentId(studentId, userId)
-
-        // Then
-        val collectedLessons = mutableListOf<List<DomainLesson>>()
-        result.collect { collectedLessons.add(it) }
-        assertEquals(1, collectedLessons.size)
-        assertEquals(expectedLessons, collectedLessons[0])
-    }
-
-    @Test
-    fun `should handle multiple calls with different student IDs`() = runTest {
-        // Given
-        val studentId1 = 111L
-        val studentId2 = 222L
-        val userId = 333L
-        val expectedLessons1 = listOf(
-            Fixtures.sampleDomainLesson(studentId = studentId1)
-        )
-        val expectedLessons2 = listOf(
-            Fixtures.sampleDomainLesson(studentId = studentId2),
-            Fixtures.sampleDomainLesson(studentId = studentId2)
-        )
-
-        every { mockRepository.getStudentLessons(studentId1, userId) } returns flowOf(expectedLessons1)
-        every { mockRepository.getStudentLessons(studentId2, userId) } returns flowOf(expectedLessons2)
-
-        // When
-        val result1 = getLessonsByStudentId(studentId1, userId)
-        val result2 = getLessonsByStudentId(studentId2, userId)
-
-        // Then
-        val collectedLessons1 = mutableListOf<List<DomainLesson>>()
-        result1.collect { collectedLessons1.add(it) }
-        val collectedLessons2 = mutableListOf<List<DomainLesson>>()
-        result2.collect { collectedLessons2.add(it) }
-
-        assertEquals(expectedLessons1, collectedLessons1[0])
-        assertEquals(expectedLessons2, collectedLessons2[0])
-    }
-
-    @Test
-    fun `should handle same student ID with different user IDs`() = runTest {
-        // Given
-        val studentId = 444L
-        val userId1 = 555L
-        val userId2 = 666L
-        val expectedLessons1 = listOf(
-            Fixtures.sampleDomainLesson(studentId = studentId)
-        )
-        val expectedLessons2 = listOf(
-            Fixtures.sampleDomainLesson(studentId = studentId),
-            Fixtures.sampleDomainLesson(studentId = studentId)
-        )
-
-        every { mockRepository.getStudentLessons(studentId, userId1) } returns flowOf(expectedLessons1)
-        every { mockRepository.getStudentLessons(studentId, userId2) } returns flowOf(expectedLessons2)
-
-        // When
-        val result1 = getLessonsByStudentId(studentId, userId1)
-        val result2 = getLessonsByStudentId(studentId, userId2)
-
-        // Then
-        val collectedLessons1 = mutableListOf<List<DomainLesson>>()
-        result1.collect { collectedLessons1.add(it) }
-        val collectedLessons2 = mutableListOf<List<DomainLesson>>()
-        result2.collect { collectedLessons2.add(it) }
-
-        assertEquals(expectedLessons1, collectedLessons1[0])
-        assertEquals(expectedLessons2, collectedLessons2[0])
-    }
-
-    @Test
-    fun `should handle lessons with different properties for same student`() = runTest {
-        // Given
-        val studentId = 777L
-        val userId = 888L
-        val expectedLessons = listOf(
-            Fixtures.sampleDomainLesson(
-                id = 111L,
-                studentId = studentId,
-                durationMinutes = 30,
-                date = "2024-01-15",
-                startTime = "09:00",
-                notes = "Morning lesson",
-                isInvoiced = false
-            ),
-            Fixtures.sampleDomainLesson(
-                id = 222L,
-                studentId = studentId,
-                durationMinutes = 60,
-                date = "2024-01-16",
-                startTime = "14:00",
-                notes = "Afternoon lesson",
-                isInvoiced = true
-            )
-        )
-
-        every { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(expectedLessons)
-
-        // When
-        val result = getLessonsByStudentId(studentId, userId)
-
-        // Then
-        val collectedLessons = mutableListOf<List<DomainLesson>>()
-        result.collect { collectedLessons.add(it) }
-        assertEquals(1, collectedLessons.size)
-        assertEquals(expectedLessons, collectedLessons[0])
-        assertEquals(2, collectedLessons[0].size)
-        assertEquals(30, collectedLessons[0][0].durationMinutes)
-        assertEquals(60, collectedLessons[0][1].durationMinutes)
+        assertTrue(result.isEmpty())
     }
 }

@@ -96,7 +96,7 @@ fun ContextAwareSearchFilterSheet(
 
             // Context-specific filters
             var appliedFilters by remember { mutableStateOf(mapOf<String, Set<String>>()) }
-            
+
             when (context) {
                 is FilterContext.Students -> StudentsFilters { filters ->
                     appliedFilters = filters
@@ -149,20 +149,20 @@ private fun StudentsFilters(onFiltersChange: (Map<String, Set<String>>) -> Unit)
     var inactiveSelected by remember { mutableStateOf(false) }
     var archivedSelected by remember { mutableStateOf(false) }
     var selectedClasses by remember { mutableStateOf(setOf<String>()) }
-    
+
     // Update filters whenever selections change
     LaunchedEffect(activeSelected, inactiveSelected, archivedSelected, selectedClasses) {
         val statusFilters = mutableSetOf<String>()
         if (activeSelected) statusFilters.add("active")
         if (inactiveSelected) statusFilters.add("inactive")
         if (archivedSelected) statusFilters.add("archived")
-        
+
         onFiltersChange(mapOf(
             "status" to statusFilters,
             "classes" to selectedClasses
         ))
     }
-    
+
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Status", style = MaterialTheme.typography.titleMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -182,7 +182,7 @@ private fun StudentsFilters(onFiltersChange: (Map<String, Set<String>>) -> Unit)
                 label = { Text("Archived") }
             )
         }
-        
+
         Text("Class Level", style = MaterialTheme.typography.titleMedium)
         val classOptions = listOf("A1", "A2", "B1", "B2", "C1", "C2", "Custom")
         LazyColumn(
@@ -216,7 +216,7 @@ private fun LessonsFilters(onFiltersChange: (Map<String, Set<String>>) -> Unit) 
     var unpaidSelected by remember { mutableStateOf(true) }
     var invoicedSelected by remember { mutableStateOf(false) }
     var selectedDuration by remember { mutableStateOf(setOf<Int>()) }
-    
+
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Payment Status", style = MaterialTheme.typography.titleMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -236,7 +236,7 @@ private fun LessonsFilters(onFiltersChange: (Map<String, Set<String>>) -> Unit) 
                 label = { Text("Invoiced") }
             )
         }
-        
+
         Text("Duration", style = MaterialTheme.typography.titleMedium)
         val durations = listOf(30, 45, 60, 90, 120)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -262,7 +262,7 @@ private fun GroupsFilters(onFiltersChange: (Map<String, Set<String>>) -> Unit) {
     var activeSelected by remember { mutableStateOf(true) }
     var inactiveSelected by remember { mutableStateOf(false) }
     var maxStudents by remember { mutableStateOf(setOf<String>()) }
-    
+
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Status", style = MaterialTheme.typography.titleMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -277,7 +277,7 @@ private fun GroupsFilters(onFiltersChange: (Map<String, Set<String>>) -> Unit) {
                 label = { Text("Inactive") }
             )
         }
-        
+
         Text("Max Students", style = MaterialTheme.typography.titleMedium)
         val maxOptions = listOf("1-5", "6-10", "10+", "Unlimited")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -303,7 +303,7 @@ private fun ClassesFilters(onFiltersChange: (Map<String, Set<String>>) -> Unit) 
     var activeSelected by remember { mutableStateOf(true) }
     var inactiveSelected by remember { mutableStateOf(false) }
     var selectedLevels by remember { mutableStateOf(setOf<String>()) }
-    
+
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Status", style = MaterialTheme.typography.titleMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -318,7 +318,7 @@ private fun ClassesFilters(onFiltersChange: (Map<String, Set<String>>) -> Unit) 
                 label = { Text("Inactive") }
             )
         }
-        
+
         Text("Level", style = MaterialTheme.typography.titleMedium)
         val levels = listOf("A1", "A2", "B1", "B2", "C1", "C2")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -344,7 +344,7 @@ private fun InvoicesFilters(onFiltersChange: (Map<String, Set<String>>) -> Unit)
     var paidSelected by remember { mutableStateOf(false) }
     var unpaidSelected by remember { mutableStateOf(true) }
     var overdueSelected by remember { mutableStateOf(false) }
-    
+
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Status", style = MaterialTheme.typography.titleMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

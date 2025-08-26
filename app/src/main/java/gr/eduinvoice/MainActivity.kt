@@ -80,23 +80,23 @@ class MainActivity : ComponentActivity() {
                         drawerState.close()
                     }
                 }
-                
+
                 LaunchedEffect(Unit) {
                     val dbInitTrace = startupPerformanceMonitor.startPhase("database_initialization")
-                    
+
                     // Show loading state immediately
                     initState = InitState.Loading
-                    
+
                     try {
                         // Move all database operations to background thread
                         withContext(Dispatchers.IO) {
                             // Pre-warm database connection
                             db.openHelper.writableDatabase.version
-                            
+
                             // Create admin user if needed
                             userUseCases.createAdminUserIfNotExists()
                         }
-                        
+
                         // Update UI on main thread
                         withContext(Dispatchers.Main) {
                             initState = InitState.Success
@@ -161,7 +161,7 @@ class MainActivity : ComponentActivity() {
                                     },
                                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                                 )
-                                
+
                                 NavigationDrawerItem(
                                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
                                     label = { Text(stringResource(R.string.students)) },
@@ -176,7 +176,7 @@ class MainActivity : ComponentActivity() {
                                     },
                                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                                 )
-                                
+
                                 NavigationDrawerItem(
                                     icon = { Icon(Icons.Default.Schedule, contentDescription = null) },
                                     label = { Text(stringResource(R.string.lessons)) },
@@ -191,7 +191,7 @@ class MainActivity : ComponentActivity() {
                                     },
                                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                                 )
-                                
+
                                 NavigationDrawerItem(
                                     icon = { Icon(Icons.Default.Group, contentDescription = null) },
                                     label = { Text(stringResource(R.string.groups)) },
@@ -206,7 +206,7 @@ class MainActivity : ComponentActivity() {
                                     },
                                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                                 )
-                                
+
                                 NavigationDrawerItem(
                                     icon = { Icon(Icons.Default.Class, contentDescription = null) },
                                     label = { Text(stringResource(R.string.classes)) },
@@ -221,7 +221,7 @@ class MainActivity : ComponentActivity() {
                                     },
                                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                                 )
-                                
+
                                 NavigationDrawerItem(
                                     icon = { Icon(Icons.Default.BarChart, contentDescription = null) },
                                     label = { Text(stringResource(R.string.revenue)) },
@@ -236,7 +236,7 @@ class MainActivity : ComponentActivity() {
                                     },
                                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                                 )
-                                
+
                                  // Admin-only Users management
                                 if (isLoggedIn && uiState.user?.username == "admin") {
                                     NavigationDrawerItem(

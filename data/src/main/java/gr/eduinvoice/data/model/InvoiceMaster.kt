@@ -24,5 +24,3 @@ data class InvoiceMaster(
 	@ColumnInfo(defaultValue = "0")
 	val lastModified: Long = System.currentTimeMillis()
 )
-
-

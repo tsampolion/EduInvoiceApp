@@ -67,7 +67,7 @@ class ClassesViewModel @Inject constructor(
         val filteredStudents = allStudents.filter { student ->
             val matchesSearch = student.getFullName().contains(_searchQuery.value, ignoreCase = true) ||
                     student.className.contains(_searchQuery.value, ignoreCase = true)
-            
+
             // Apply additional filters if needed
             matchesSearch
         }

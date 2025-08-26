@@ -15,5 +15,3 @@ class CreateInvoiceMasterAndMarkLessons @Inject constructor(
         userId: Long
     ): Long = repository.createInvoiceMasterAndMarkLessons(studentId, invoiceNumber, invoiceDate, notes, lessonIds, userId)
 }
-
-

@@ -11,5 +11,3 @@ class GetInvoiceMastersByStudent @Inject constructor(
     operator fun invoke(studentId: Long, userId: Long): Flow<List<DomainInvoiceMaster>> =
         repository.getInvoiceMastersByStudent(studentId, userId)
 }
-
-

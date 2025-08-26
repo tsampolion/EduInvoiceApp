@@ -11,5 +11,3 @@ class GetGroupLessonMasters @Inject constructor(
     operator fun invoke(groupId: Long, userId: Long = 0): Flow<List<DomainGroupLessonMaster>> =
         repository.getGroupLessonMasters(groupId, userId)
 }
-
-
