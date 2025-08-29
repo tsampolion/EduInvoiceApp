@@ -6,6 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 import gr.eduinvoice.data.database.DatabaseConstants
+import gr.eduinvoice.domain.model.UserRole
 
 @Serializable
 @Entity(
@@ -21,5 +22,7 @@ data class User(
     @ColumnInfo(defaultValue = "''")
     val subjectSpecialty: String = "",
     @ColumnInfo(defaultValue = "0")
-    val yearsExperience: Int = 0
+    val yearsExperience: Int = 0,
+    @ColumnInfo(defaultValue = "'TEACHER'")
+    val role: String = UserRole.TEACHER.name
 )

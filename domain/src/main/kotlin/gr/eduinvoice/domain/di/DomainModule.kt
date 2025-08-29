@@ -13,6 +13,7 @@ import gr.eduinvoice.domain.student.*
 import gr.eduinvoice.domain.group.*
 import gr.eduinvoice.domain.user.*
 import gr.eduinvoice.domain.user.DeleteAccount
+import gr.eduinvoice.domain.user.PermissionChecker
 import javax.inject.Singleton
 
 @Module
@@ -103,4 +104,8 @@ object DomainModule {
             getRescheduleMasters = GetRescheduleMasters(repository),
             getEarningsByClass = GetEarningsByClass(repository)
         )
+
+    @Provides
+    @Singleton
+    fun providePermissionChecker(): PermissionChecker = PermissionChecker()
 }

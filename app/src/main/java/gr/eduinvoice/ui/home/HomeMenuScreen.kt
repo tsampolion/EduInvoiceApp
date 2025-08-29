@@ -160,8 +160,8 @@ fun HomeMenuScreen(
                     colors = lessonsButtonColors
                 ) { Text("Lessons") }
 
-                // Admin-only Users management button
-                if (uiState.isAdmin) {
+                // Role-based buttons
+                if (uiState.canManageUsers) {
                     Button(
                         onClick = onUsers,
                         modifier = Modifier.fillMaxWidth(),
@@ -171,6 +171,19 @@ fun HomeMenuScreen(
                         )
                     ) {
                         Text("User Management")
+                    }
+                }
+                
+                if (uiState.canAccessRevenue) {
+                    Button(
+                        onClick = onRevenue,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    ) {
+                        Text("Revenue Analytics")
                     }
                 }
 

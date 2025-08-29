@@ -18,6 +18,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import gr.eduinvoice.ui.design.SlimHeader
 import gr.eduinvoice.ui.design.Dimensions
 import gr.eduinvoice.domain.model.DomainUser
+import gr.eduinvoice.domain.model.UserRole
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -112,7 +113,7 @@ fun UsersScreen(
         // Delete confirmation dialog
         showDeleteDialog?.let { user ->
             // Prevent admin deletion
-            if (user.username == "admin") {
+            if (user.role == UserRole.ADMIN) {
                 AlertDialog(
                     onDismissRequest = { showDeleteDialog = null },
                     title = { Text("Admin Profile Protected") },
@@ -198,8 +199,8 @@ private fun UserCard(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
-                    // Show admin badge
-                    if (user.username == "admin") {
+                    // Show role badge
+                    if (user.role == UserRole.ADMIN) {
                         Surface(
                             color = MaterialTheme.colorScheme.primaryContainer,
                             shape = RoundedCornerShape(12.dp)
@@ -246,7 +247,7 @@ private fun UserCard(
                 }
 
                 // Only show delete button for non-admin users
-                if (user.username != "admin") {
+                if (user.role != UserRole.ADMIN) {
                     IconButton(onClick = onDeleteClick) {
                         Icon(
                             Icons.Default.Delete,
@@ -280,7 +281,7 @@ private fun EditUserDialog(
     var subjectSpecialty by remember { mutableStateOf(user.subjectSpecialty) }
     var yearsExperience by remember { mutableStateOf(user.yearsExperience.toString()) }
 
-    val isAdmin = user.username == "admin"
+    val isAdmin = user.role == UserRole.ADMIN
 
     AlertDialog(
         onDismissRequest = onDismiss,
