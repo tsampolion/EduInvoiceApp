@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 22,
-    "identityHash": "b2c5d0c9e9ce7d024fadeacb18c61374",
+    "identityHash": "48e3ad7b105f920dcafbe2ac49dd17e9",
     "entities": [
       {
         "tableName": "students",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `name` TEXT NOT NULL, `surname` TEXT NOT NULL DEFAULT '', `parentMobile` TEXT NOT NULL DEFAULT '', `parentEmail` TEXT DEFAULT NULL, `className` TEXT NOT NULL DEFAULT '', `rate` REAL NOT NULL, `rateType` TEXT NOT NULL DEFAULT 'hourly', `isActive` INTEGER NOT NULL DEFAULT 1, `lastModified` INTEGER NOT NULL DEFAULT 0)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL DEFAULT 0, `name` TEXT NOT NULL, `surname` TEXT NOT NULL DEFAULT '', `parentMobile` TEXT NOT NULL DEFAULT '', `parentEmail` TEXT DEFAULT NULL, `className` TEXT NOT NULL DEFAULT '', `rate` REAL NOT NULL, `rateType` TEXT NOT NULL DEFAULT 'hourly', `isActive` INTEGER NOT NULL DEFAULT 1, `lastModified` INTEGER NOT NULL DEFAULT 0)",
         "fields": [
           {
             "fieldPath": "id",
@@ -18,7 +18,8 @@
             "fieldPath": "ownerId",
             "columnName": "ownerId",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
             "fieldPath": "name",
@@ -90,7 +91,7 @@
       },
       {
         "tableName": "lessons",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `studentId` INTEGER NOT NULL, `groupId` INTEGER, `masterId` INTEGER, `invoiceMasterId` INTEGER, `paymentBatchId` INTEGER, `date` TEXT NOT NULL, `startTime` TEXT NOT NULL, `durationMinutes` INTEGER NOT NULL, `notes` TEXT, `isPaid` INTEGER NOT NULL DEFAULT 0, `isInvoiced` INTEGER NOT NULL DEFAULT 0, `lastModified` INTEGER NOT NULL DEFAULT 0, FOREIGN KEY(`studentId`) REFERENCES `students`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL DEFAULT 0, `studentId` INTEGER NOT NULL, `groupId` INTEGER, `masterId` INTEGER, `invoiceMasterId` INTEGER, `paymentBatchId` INTEGER, `date` TEXT NOT NULL, `startTime` TEXT NOT NULL, `durationMinutes` INTEGER NOT NULL, `notes` TEXT, `isPaid` INTEGER NOT NULL DEFAULT 0, `isInvoiced` INTEGER NOT NULL DEFAULT 0, `lastModified` INTEGER NOT NULL DEFAULT 0, FOREIGN KEY(`studentId`) REFERENCES `students`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -102,7 +103,8 @@
             "fieldPath": "ownerId",
             "columnName": "ownerId",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
             "fieldPath": "studentId",
@@ -244,7 +246,7 @@
       },
       {
         "tableName": "student_groups",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `name` TEXT NOT NULL, `className` TEXT NOT NULL, `rate` REAL NOT NULL, `rateType` TEXT NOT NULL, `isActive` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL DEFAULT 0, `name` TEXT NOT NULL, `className` TEXT NOT NULL DEFAULT '', `rate` REAL NOT NULL DEFAULT 0.0, `rateType` TEXT NOT NULL DEFAULT 'hourly', `isActive` INTEGER NOT NULL DEFAULT 1, `lastModified` INTEGER NOT NULL DEFAULT 0)",
         "fields": [
           {
             "fieldPath": "id",
@@ -256,7 +258,8 @@
             "fieldPath": "ownerId",
             "columnName": "ownerId",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
             "fieldPath": "name",
@@ -268,25 +271,36 @@
             "fieldPath": "className",
             "columnName": "className",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "''"
           },
           {
             "fieldPath": "rate",
             "columnName": "rate",
             "affinity": "REAL",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0.0"
           },
           {
             "fieldPath": "rateType",
             "columnName": "rateType",
             "affinity": "TEXT",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "'hourly'"
           },
           {
             "fieldPath": "isActive",
             "columnName": "isActive",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "lastModified",
+            "columnName": "lastModified",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
           }
         ],
         "primaryKey": {
@@ -298,7 +312,7 @@
       },
       {
         "tableName": "group_student_cross_ref",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`groupId` INTEGER NOT NULL, `studentId` INTEGER NOT NULL, `ownerId` INTEGER NOT NULL, PRIMARY KEY(`groupId`, `studentId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`groupId` INTEGER NOT NULL, `studentId` INTEGER NOT NULL, `ownerId` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`groupId`, `studentId`))",
         "fields": [
           {
             "fieldPath": "groupId",
@@ -316,7 +330,8 @@
             "fieldPath": "ownerId",
             "columnName": "ownerId",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0"
           }
         ],
         "primaryKey": {
@@ -417,7 +432,7 @@
       },
       {
         "tableName": "group_lesson_master",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `groupId` INTEGER NOT NULL, `date` TEXT NOT NULL, `startTime` TEXT NOT NULL, `durationMinutes` INTEGER NOT NULL, `notes` TEXT, `lastModified` INTEGER NOT NULL DEFAULT 0)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL DEFAULT 0, `groupId` INTEGER NOT NULL, `date` TEXT NOT NULL, `startTime` TEXT NOT NULL, `durationMinutes` INTEGER NOT NULL, `notes` TEXT, `lastModified` INTEGER NOT NULL DEFAULT 0)",
         "fields": [
           {
             "fieldPath": "id",
@@ -429,7 +444,8 @@
             "fieldPath": "ownerId",
             "columnName": "ownerId",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
             "fieldPath": "groupId",
@@ -473,31 +489,11 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [
-          {
-            "name": "index_group_lesson_master_groupId",
-            "unique": false,
-            "columnNames": [
-              "groupId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_group_lesson_master_groupId` ON `${TABLE_NAME}` (`groupId`)"
-          },
-          {
-            "name": "index_group_lesson_master_date",
-            "unique": false,
-            "columnNames": [
-              "date"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_group_lesson_master_date` ON `${TABLE_NAME}` (`date`)"
-          }
-        ]
+        }
       },
       {
         "tableName": "group_lesson_absences",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `groupLessonId` INTEGER NOT NULL, `studentId` INTEGER NOT NULL, FOREIGN KEY(`groupLessonId`) REFERENCES `group_lesson_master`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL DEFAULT 0, `groupLessonId` INTEGER NOT NULL, `studentId` INTEGER NOT NULL, FOREIGN KEY(`groupLessonId`) REFERENCES `group_lesson_master`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -509,7 +505,8 @@
             "fieldPath": "ownerId",
             "columnName": "ownerId",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
             "fieldPath": "groupLessonId",
@@ -566,7 +563,7 @@
       },
       {
         "tableName": "invoice_master",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `studentId` INTEGER NOT NULL, `invoiceNumber` TEXT NOT NULL, `invoiceDate` TEXT NOT NULL, `notes` TEXT, `isArchived` INTEGER NOT NULL DEFAULT 0, `lastModified` INTEGER NOT NULL DEFAULT 0)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL DEFAULT 0, `studentId` INTEGER NOT NULL, `invoiceNumber` TEXT NOT NULL, `invoiceDate` TEXT NOT NULL, `notes` TEXT, `isArchived` INTEGER NOT NULL DEFAULT 0, `lastModified` INTEGER NOT NULL DEFAULT 0)",
         "fields": [
           {
             "fieldPath": "id",
@@ -578,7 +575,8 @@
             "fieldPath": "ownerId",
             "columnName": "ownerId",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
             "fieldPath": "studentId",
@@ -623,40 +621,11 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [
-          {
-            "name": "index_invoice_master_studentId",
-            "unique": false,
-            "columnNames": [
-              "studentId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_invoice_master_studentId` ON `${TABLE_NAME}` (`studentId`)"
-          },
-          {
-            "name": "index_invoice_master_invoiceDate",
-            "unique": false,
-            "columnNames": [
-              "invoiceDate"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_invoice_master_invoiceDate` ON `${TABLE_NAME}` (`invoiceDate`)"
-          },
-          {
-            "name": "index_invoice_master_invoiceNumber",
-            "unique": true,
-            "columnNames": [
-              "invoiceNumber"
-            ],
-            "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_invoice_master_invoiceNumber` ON `${TABLE_NAME}` (`invoiceNumber`)"
-          }
-        ]
+        }
       },
       {
         "tableName": "payment_batch_master",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `studentId` INTEGER, `batchDate` TEXT NOT NULL, `notes` TEXT, `isArchived` INTEGER NOT NULL DEFAULT 0, `lastModified` INTEGER NOT NULL DEFAULT 0)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL DEFAULT 0, `studentId` INTEGER, `batchDate` TEXT NOT NULL, `notes` TEXT, `isArchived` INTEGER NOT NULL DEFAULT 0, `lastModified` INTEGER NOT NULL DEFAULT 0)",
         "fields": [
           {
             "fieldPath": "id",
@@ -668,7 +637,8 @@
             "fieldPath": "ownerId",
             "columnName": "ownerId",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
             "fieldPath": "studentId",
@@ -706,31 +676,11 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [
-          {
-            "name": "index_payment_batch_master_studentId",
-            "unique": false,
-            "columnNames": [
-              "studentId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_payment_batch_master_studentId` ON `${TABLE_NAME}` (`studentId`)"
-          },
-          {
-            "name": "index_payment_batch_master_batchDate",
-            "unique": false,
-            "columnNames": [
-              "batchDate"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_payment_batch_master_batchDate` ON `${TABLE_NAME}` (`batchDate`)"
-          }
-        ]
+        }
       },
       {
         "tableName": "reschedule_master",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `title` TEXT, `newDate` TEXT NOT NULL, `newStartTime` TEXT NOT NULL, `newDurationMinutes` INTEGER NOT NULL, `notes` TEXT, `lastModified` INTEGER NOT NULL DEFAULT 0)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL DEFAULT 0, `title` TEXT, `newDate` TEXT NOT NULL, `newStartTime` TEXT NOT NULL, `newDurationMinutes` INTEGER NOT NULL, `notes` TEXT, `lastModified` INTEGER NOT NULL DEFAULT 0)",
         "fields": [
           {
             "fieldPath": "id",
@@ -742,7 +692,8 @@
             "fieldPath": "ownerId",
             "columnName": "ownerId",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
             "fieldPath": "title",
@@ -810,32 +761,12 @@
             "masterId",
             "lessonId"
           ]
-        },
-        "indices": [
-          {
-            "name": "index_reschedule_master_lessons_masterId",
-            "unique": false,
-            "columnNames": [
-              "masterId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_reschedule_master_lessons_masterId` ON `${TABLE_NAME}` (`masterId`)"
-          },
-          {
-            "name": "index_reschedule_master_lessons_lessonId",
-            "unique": false,
-            "columnNames": [
-              "lessonId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_reschedule_master_lessons_lessonId` ON `${TABLE_NAME}` (`lessonId`)"
-          }
-        ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b2c5d0c9e9ce7d024fadeacb18c61374')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '48e3ad7b105f920dcafbe2ac49dd17e9')"
     ]
   }
 }

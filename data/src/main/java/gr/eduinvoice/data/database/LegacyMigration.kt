@@ -18,13 +18,13 @@ object LegacyMigration {
                 null,
                 SQLiteDatabase.OPEN_READONLY
             ).use { }
+            // Use the new database configuration that only uses AutoMigrations
             val db = Room.databaseBuilder(
                 context,
                 EduInvoiceDatabase::class.java,
                 DatabaseConstants.DATABASE_NAME
             )
                 .fallbackToDestructiveMigration(false)
-                .addMigrations(MIGRATION_12_13)
                 .build()
             val repo = BackupRepository(context, db)
             val json = runBlocking(Dispatchers.IO) { repo.exportJson() }

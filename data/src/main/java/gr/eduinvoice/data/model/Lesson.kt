@@ -32,6 +32,7 @@ import java.time.LocalTime
 data class Lesson(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    @ColumnInfo(defaultValue = "0")
     val ownerId: Long = 0,
     val studentId: Long,
     val groupId: Long? = null,

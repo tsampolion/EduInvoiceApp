@@ -38,7 +38,7 @@ Run these *exact* commands before proposing code changes:
 * **Language level**: Kotlin JVM 17 (`kotlin.jvm.target=17` in *gradle.properties*)
 * **Formatting**: Use `ktfmt` or IntelliJ default; no tabs; 120-char line cap
 * **Compose**: Prefer `@Stable` data classes; pass `Modifier` as first optional param
-* **Room**: DAO methods return `Flow<>`; migrations handled via `autoMigrations`
+* **Room**: DAO methods return `Flow<>`; migrations handled via `autoMigrations` only (manual migrations banned)
 * **Dependency-Injection**: All ViewModels live under `gr.eduinvoice.ui.*` and are Hilt-annotated
 * **Error Handling**: Use ErrorBoundary, ErrorHandler, and RetryManager for robust error handling
 * **Concurrency**: Use ConcurrencyController for thread-safe database operations
@@ -112,7 +112,7 @@ Checklist:
 
 1. **ANDROID_HOME not set** – always source the profile written by `setup-android-sdk.sh`
 2. **Out-of-date Gradle wrapper** – update with `./gradlew wrapper --gradle-version 8.10.2` when bumping AGP
-3. **Room schema drift** – run `./gradlew test` after changing entities to auto-regenerate `/data/schemas`
+3. **Room schema drift** – run `./gradlew test` after changing entities to auto-regenerate `/data/schemas`; manual migrations are banned
 4. **Accidentally committed build output** – confirm `.gitignore` still excludes `build/`, `.gradle/`, `.idea/`
 5. **Robolectric memory leaks** – never keep global state in test classes; use `@Config` with `sdk = 34`
 6. **Missing error handling** – always wrap operations with appropriate error handling components

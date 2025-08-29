@@ -10,14 +10,6 @@ import gr.eduinvoice.data.dao.GroupDao
 import gr.eduinvoice.data.dao.LessonDao
 import gr.eduinvoice.data.dao.StudentDao
 import gr.eduinvoice.data.dao.UserDao
-import gr.eduinvoice.data.database.MIGRATION_12_13
-import gr.eduinvoice.data.database.MIGRATION_13_15
-import gr.eduinvoice.data.database.MIGRATION_14_15
-import gr.eduinvoice.data.database.MIGRATION_15_16
-import gr.eduinvoice.data.database.MIGRATION_18_19
-import gr.eduinvoice.data.database.MIGRATION_19_20
-import gr.eduinvoice.data.database.MIGRATION_20_21
-import gr.eduinvoice.data.database.MIGRATION_21_22
 import gr.eduinvoice.data.model.GroupStudentCrossRef
 import gr.eduinvoice.data.model.Lesson
 import gr.eduinvoice.data.model.Student
@@ -44,8 +36,16 @@ import java.util.concurrent.Executors
         AutoMigration(from = 9, to = 10),
         AutoMigration(from = 10, to = 11),
         AutoMigration(from = 11, to = 12),
+        AutoMigration(from = 12, to = 13, spec = AutoMigration12To13::class),
         AutoMigration(from = 13, to = 14),
-        AutoMigration(from = 14, to = 15)
+        AutoMigration(from = 14, to = 15),
+        AutoMigration(from = 15, to = 16, spec = AutoMigration15To16::class),
+        AutoMigration(from = 16, to = 17, spec = AutoMigration16To17::class),
+        AutoMigration(from = 17, to = 18, spec = AutoMigration17To18::class),
+        AutoMigration(from = 18, to = 19, spec = AutoMigration18To19::class),
+        AutoMigration(from = 19, to = 20, spec = AutoMigration19To20::class),
+        AutoMigration(from = 20, to = 21, spec = AutoMigration20To21::class),
+        AutoMigration(from = 21, to = 22, spec = AutoMigration21To22::class)
     ]
 )
 abstract class EduInvoiceDatabase : RoomDatabase() {
@@ -81,18 +81,6 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
                     .setQueryExecutor(queryExecutor)
                     .setTransactionExecutor(transactionExecutor)
                     .fallbackToDestructiveMigration(false)
-                    .addMigrations(
-                        MIGRATION_12_13,
-                        MIGRATION_13_15,
-                        MIGRATION_14_15,
-                        MIGRATION_15_16,
-                        MIGRATION_16_17,
-                        MIGRATION_17_18,
-                        MIGRATION_18_19,
-                        MIGRATION_19_20,
-                        MIGRATION_20_21,
-                        MIGRATION_21_22
-                    )
                     .build()
                 INSTANCE = instance
                 instance
