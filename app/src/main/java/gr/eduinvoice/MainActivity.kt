@@ -237,8 +237,8 @@ class MainActivity : ComponentActivity() {
                                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                                 )
 
-                                 // Admin-only Users management
-                                if (isLoggedIn && uiState.user?.username == "admin") {
+                                 // Role-based Users management
+                                if (isLoggedIn && uiState.user?.role?.let { it == gr.eduinvoice.domain.model.UserRole.ADMIN || it == gr.eduinvoice.domain.model.UserRole.TEACHER } == true) {
                                     NavigationDrawerItem(
                                         icon = { Icon(Icons.Default.Group, contentDescription = null) },
                                         label = { Text("User Management") },
@@ -300,8 +300,7 @@ class MainActivity : ComponentActivity() {
                                     is InitState.Loading -> LoadingScreen()
                                     is InitState.Failure -> ErrorScreen(
                                         error = state.error,
-                                        onRetry = { /* Re-trigger init */ },
-                                        onDismiss = { /* Dismiss error */ }
+                                        onRetry = { /* Re-trigger init */ }
                                     )
                                     is InitState.Success -> {
                                         ErrorBoundary(
@@ -336,7 +335,7 @@ class MainActivity : ComponentActivity() {
             setContent {
                 EduInvoiceTheme {
                     ErrorScreen(
-                        errorMessage = "A critical error occurred. Please restart the application.",
+                        error = Exception("A critical error occurred. Please restart the application."),
                         onRetry = { /* Could try to restart the activity */ }
                     )
                 }

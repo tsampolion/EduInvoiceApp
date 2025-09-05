@@ -57,7 +57,7 @@ class ResourceResolver @Inject constructor(
      */
     fun logResourceIssues() {
         try {
-            val packageId = context.packageManager.getPackageInfo(context.packageName, 0).applicationInfo.uid
+            val packageId = context.packageManager.getPackageInfo(context.packageName, 0).applicationInfo?.uid ?: 0
             Log.d(TAG, "Current package ID: $packageId")
 
             // Check for common resource issues

@@ -61,7 +61,7 @@ class UsersViewModel @Inject constructor(
                 val userToDelete = uiState.value.users.find { it.id == userId }
 
                 // Prevent admin deletion
-                if (userToDelete?.username == "admin") {
+                if (userToDelete?.role == gr.eduinvoice.domain.model.UserRole.ADMIN) {
                     _uiState.value = _uiState.value.copy(error = "Cannot delete admin profile. This is a system-critical account.")
                     return@launch
                 }

@@ -1,8 +1,8 @@
 package gr.eduinvoice.data.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 
@@ -17,11 +17,15 @@ import kotlinx.serialization.Serializable
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["groupLessonId"]), Index(value = ["studentId"])]
+    indices = [
+        androidx.room.Index(value = ["groupLessonId"]),
+        androidx.room.Index(value = ["studentId"])
+    ]
 )
 data class GroupLessonAbsence(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    @ColumnInfo(defaultValue = "0")
     val ownerId: Long = 0,
     val groupLessonId: Long,
     val studentId: Long

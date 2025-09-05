@@ -10,6 +10,8 @@ import gr.eduinvoice.domain.billing.calculateFeeWith
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.user.CurrentUserProvider
+import gr.eduinvoice.domain.user.PermissionChecker
+import gr.eduinvoice.domain.model.UserRole
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,7 +28,8 @@ class HomeMenuViewModel @Inject constructor(
     private val studentUseCases: StudentUseCases,
     private val lessonUseCases: LessonUseCases,
     private val userUseCases: gr.eduinvoice.domain.user.UserUseCases,
-    private val currentUserProvider: CurrentUserProvider
+    private val currentUserProvider: CurrentUserProvider,
+    private val permissionChecker: PermissionChecker
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeMenuUiState())
@@ -55,11 +58,16 @@ class HomeMenuViewModel @Inject constructor(
                         .distinct()
                         .size
 
+                    val userRole = user?.role ?: UserRole.TEACHER
+                    
                     HomeMenuUiState(
                         studentCount = students.size,
                         classCount = classCount,
                         lessonCount = lessons.size,
-                        isAdmin = user?.username == "admin"
+                        isAdmin = permissionChecker.isAdmin(userRole),
+                        canManageUsers = permissionChecker.canAccessUserManagement(userRole),
+                        canAccessSettings = permissionChecker.canAccessSystemSettings(userRole),
+                        canAccessRevenue = permissionChecker.canAccessRevenueAnalytics(userRole)
                     )
                 }
             }.collect { state ->
@@ -76,5 +84,8 @@ data class HomeMenuUiState(
     val studentCount: Int = 0,
     val classCount: Int = 0,
     val lessonCount: Int = 0,
-    val isAdmin: Boolean = false
+    val isAdmin: Boolean = false,
+    val canManageUsers: Boolean = false,
+    val canAccessSettings: Boolean = false,
+    val canAccessRevenue: Boolean = false
 )

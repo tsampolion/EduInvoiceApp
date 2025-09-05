@@ -9,5 +9,6 @@ data class DomainUser(
     val passwordHash: String,
     val fullName: String,
     val subjectSpecialty: String = "",
-    val yearsExperience: Int = 0
+    val yearsExperience: Int = 0,
+    val role: UserRole = UserRole.TEACHER
 )

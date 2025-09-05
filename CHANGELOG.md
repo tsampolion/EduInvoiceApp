@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.29.0] - 2025-08-22
+
+### Added
+- **Real RBAC (Role-Based Access Control)**: Comprehensive role-based security system
+  - **User Roles**: ADMIN, TEACHER, and ASSISTANT roles with granular permissions
+  - **Permission System**: Fine-grained access control for all app features
+  - **Database Migration**: Automatic migration from version 21 to 22 with role support
+  - **Role-Based UI**: Conditional visibility based on user permissions
+  - **Security Hardening**: Replaced hardcoded admin checks with role-based validation
+
+### Enhanced
+- **User Management**: Enhanced user repository with role-based operations
+  - **Permission Checking**: Centralized permission validation via PermissionChecker
+  - **Role Validation**: Prevents admin role downgrade and deletion
+  - **Security Policies**: Enforces role-based access control at repository level
+
+### Fixed
+- **Admin Security**: Eliminated deep link bypass vulnerabilities
+  - **Route Protection**: Admin routes now properly protected by role checks
+  - **UI Consistency**: All admin checks now use role-based validation
+  - **Data Integrity**: Prevents unauthorized access to admin functions
+
+### Technical
+- **Database Schema**: Updated users table with role field and proper indexing
+- **Migration System**: Added MIGRATION_21_22 for seamless role upgrade
+- **Domain Models**: Enhanced DomainUser with role support
+- **Repository Layer**: Updated UserRepository with role-based security
+- **Dependency Injection**: Added PermissionChecker to domain module
+
+### UX
+- **Role-Based Interface**: UI elements now respect user permissions
+- **Permission Feedback**: Clear indication of user capabilities
+- **Enhanced Security**: Professional-grade access control system
+
+### DevOps
+- Version bumped to 0.29.0 for RBAC implementation.
+
 ## [0.28.5] - 2025-08-22
 
 ### Added

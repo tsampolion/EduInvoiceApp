@@ -3,7 +3,7 @@
 
 ## 1. Project Overview
 EduInvoiceApp is a production-ready Android application for tutoring business management with enterprise-grade features.
-**Current Version:** 0.28.0 | **Status:** Production Ready with Enterprise Features
+**Current Version:** 0.29.0 | **Status:** Production Ready with Enterprise Features
 **Tech Stack:** Kotlin 2.1.10, Android Gradle Plugin 8.8.0, Jetpack Compose, Room with SQLCipher, Hilt, DataStore, Robolectric
 
 ## 2. Environment Setup
@@ -38,7 +38,7 @@ Run these *exact* commands before proposing code changes:
 * **Language level**: Kotlin JVM 17 (`kotlin.jvm.target=17` in *gradle.properties*)
 * **Formatting**: Use `ktfmt` or IntelliJ default; no tabs; 120-char line cap
 * **Compose**: Prefer `@Stable` data classes; pass `Modifier` as first optional param
-* **Room**: DAO methods return `Flow<>`; migrations handled via `autoMigrations`
+* **Room**: DAO methods return `Flow<>`; migrations handled via `autoMigrations` only (manual migrations banned)
 * **Dependency-Injection**: All ViewModels live under `gr.eduinvoice.ui.*` and are Hilt-annotated
 * **Error Handling**: Use ErrorBoundary, ErrorHandler, and RetryManager for robust error handling
 * **Concurrency**: Use ConcurrencyController for thread-safe database operations
@@ -112,7 +112,7 @@ Checklist:
 
 1. **ANDROID_HOME not set** – always source the profile written by `setup-android-sdk.sh`
 2. **Out-of-date Gradle wrapper** – update with `./gradlew wrapper --gradle-version 8.10.2` when bumping AGP
-3. **Room schema drift** – run `./gradlew test` after changing entities to auto-regenerate `/data/schemas`
+3. **Room schema drift** – run `./gradlew test` after changing entities to auto-regenerate `/data/schemas`; manual migrations are banned
 4. **Accidentally committed build output** – confirm `.gitignore` still excludes `build/`, `.gradle/`, `.idea/`
 5. **Robolectric memory leaks** – never keep global state in test classes; use `@Config` with `sdk = 34`
 6. **Missing error handling** – always wrap operations with appropriate error handling components
@@ -121,7 +121,7 @@ Checklist:
 
 ## 9. Changelog Management
 
-From version `0.27.0` onward, changelog entries use the full `[MAJOR.MINOR.PATCH]` format. Gather changes under the next release heading and bump `versionName` in `app/build.gradle` only when cutting a release (patch/minor/major). The current version is `0.28.0`.
+From version `0.27.0` onward, changelog entries use the full `[MAJOR.MINOR.PATCH]` format. Gather changes under the next release heading and bump `versionName` in `app/build.gradle` only when cutting a release (patch/minor/major). The current version is `0.29.0`.
 
 **IMPORTANT**: When updating the changelog, also bump version numbers as explicitly described in the documentation, and keep `README.md`, `AGENTS.md`, and `CHANGELOG.md` in sync.
 

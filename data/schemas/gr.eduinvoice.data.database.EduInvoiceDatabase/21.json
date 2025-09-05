@@ -1,834 +1,883 @@
-{
-  "formatVersion": 1,
-  "database": {
-    "version": 21,
-    "identityHash": "1158a0bf33e2ca4e4fe24760183209de",
-    "entities": [
-      {
-        "tableName": "students",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `name` TEXT NOT NULL, `surname` TEXT NOT NULL DEFAULT '', `parentMobile` TEXT NOT NULL DEFAULT '', `parentEmail` TEXT DEFAULT NULL, `className` TEXT NOT NULL DEFAULT '', `rate` REAL NOT NULL, `rateType` TEXT NOT NULL DEFAULT 'hourly', `isActive` INTEGER NOT NULL DEFAULT 1, `lastModified` INTEGER NOT NULL DEFAULT 0)",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "ownerId",
-            "columnName": "ownerId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "name",
-            "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "surname",
-            "columnName": "surname",
-            "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "''"
-          },
-          {
-            "fieldPath": "parentMobile",
-            "columnName": "parentMobile",
-            "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "''"
-          },
-          {
-            "fieldPath": "parentEmail",
-            "columnName": "parentEmail",
-            "affinity": "TEXT",
-            "defaultValue": "NULL"
-          },
-          {
-            "fieldPath": "className",
-            "columnName": "className",
-            "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "''"
-          },
-          {
-            "fieldPath": "rate",
-            "columnName": "rate",
-            "affinity": "REAL",
-            "notNull": true
-          },
-          {
-            "fieldPath": "rateType",
-            "columnName": "rateType",
-            "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "'hourly'"
-          },
-          {
-            "fieldPath": "isActive",
-            "columnName": "isActive",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "1"
-          },
-          {
-            "fieldPath": "lastModified",
-            "columnName": "lastModified",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": true,
-          "columnNames": [
-            "id"
-          ]
-        }
-      },
-      {
-        "tableName": "lessons",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `studentId` INTEGER NOT NULL, `groupId` INTEGER, `masterId` INTEGER, `invoiceMasterId` INTEGER, `paymentBatchId` INTEGER, `date` TEXT NOT NULL, `startTime` TEXT NOT NULL, `durationMinutes` INTEGER NOT NULL, `notes` TEXT, `isPaid` INTEGER NOT NULL DEFAULT 0, `isInvoiced` INTEGER NOT NULL DEFAULT 0, `lastModified` INTEGER NOT NULL DEFAULT 0, FOREIGN KEY(`studentId`) REFERENCES `students`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "ownerId",
-            "columnName": "ownerId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "studentId",
-            "columnName": "studentId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "groupId",
-            "columnName": "groupId",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "masterId",
-            "columnName": "masterId",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "invoiceMasterId",
-            "columnName": "invoiceMasterId",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "paymentBatchId",
-            "columnName": "paymentBatchId",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "date",
-            "columnName": "date",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "startTime",
-            "columnName": "startTime",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "durationMinutes",
-            "columnName": "durationMinutes",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "notes",
-            "columnName": "notes",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "isPaid",
-            "columnName": "isPaid",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          },
-          {
-            "fieldPath": "isInvoiced",
-            "columnName": "isInvoiced",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          },
-          {
-            "fieldPath": "lastModified",
-            "columnName": "lastModified",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": true,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_lessons_studentId",
-            "unique": false,
-            "columnNames": [
-              "studentId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_lessons_studentId` ON `${TABLE_NAME}` (`studentId`)"
-          },
-          {
-            "name": "index_lessons_date",
-            "unique": false,
-            "columnNames": [
-              "date"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_lessons_date` ON `${TABLE_NAME}` (`date`)"
-          },
-          {
-            "name": "index_lessons_masterId",
-            "unique": false,
-            "columnNames": [
-              "masterId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_lessons_masterId` ON `${TABLE_NAME}` (`masterId`)"
-          },
-          {
-            "name": "index_lessons_invoiceMasterId",
-            "unique": false,
-            "columnNames": [
-              "invoiceMasterId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_lessons_invoiceMasterId` ON `${TABLE_NAME}` (`invoiceMasterId`)"
-          },
-          {
-            "name": "index_lessons_paymentBatchId",
-            "unique": false,
-            "columnNames": [
-              "paymentBatchId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_lessons_paymentBatchId` ON `${TABLE_NAME}` (`paymentBatchId`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "students",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "studentId"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
-      },
-      {
-        "tableName": "student_groups",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `name` TEXT NOT NULL, `className` TEXT NOT NULL, `rate` REAL NOT NULL, `rateType` TEXT NOT NULL, `isActive` INTEGER NOT NULL)",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "ownerId",
-            "columnName": "ownerId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "name",
-            "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "className",
-            "columnName": "className",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "rate",
-            "columnName": "rate",
-            "affinity": "REAL",
-            "notNull": true
-          },
-          {
-            "fieldPath": "rateType",
-            "columnName": "rateType",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "isActive",
-            "columnName": "isActive",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": true,
-          "columnNames": [
-            "id"
-          ]
-        }
-      },
-      {
-        "tableName": "group_student_cross_ref",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`groupId` INTEGER NOT NULL, `studentId` INTEGER NOT NULL, `ownerId` INTEGER NOT NULL, PRIMARY KEY(`groupId`, `studentId`))",
-        "fields": [
-          {
-            "fieldPath": "groupId",
-            "columnName": "groupId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "studentId",
-            "columnName": "studentId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "ownerId",
-            "columnName": "ownerId",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "groupId",
-            "studentId"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_group_student_cross_ref_studentId",
-            "unique": false,
-            "columnNames": [
-              "studentId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_group_student_cross_ref_studentId` ON `${TABLE_NAME}` (`studentId`)"
-          },
-          {
-            "name": "index_group_student_cross_ref_groupId",
-            "unique": false,
-            "columnNames": [
-              "groupId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_group_student_cross_ref_groupId` ON `${TABLE_NAME}` (`groupId`)"
-          }
-        ]
-      },
-      {
-        "tableName": "users",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `username` TEXT NOT NULL, `passwordHash` TEXT NOT NULL, `fullName` TEXT NOT NULL, `subjectSpecialty` TEXT NOT NULL DEFAULT '', `yearsExperience` INTEGER NOT NULL DEFAULT 0)",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "username",
-            "columnName": "username",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "passwordHash",
-            "columnName": "passwordHash",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "fullName",
-            "columnName": "fullName",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "subjectSpecialty",
-            "columnName": "subjectSpecialty",
-            "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "''"
-          },
-          {
-            "fieldPath": "yearsExperience",
-            "columnName": "yearsExperience",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": true,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_users_username",
-            "unique": true,
-            "columnNames": [
-              "username"
-            ],
-            "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_users_username` ON `${TABLE_NAME}` (`username`)"
-          }
-        ]
-      },
-      {
-        "tableName": "group_lesson_master",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `groupId` INTEGER NOT NULL, `date` TEXT NOT NULL, `startTime` TEXT NOT NULL, `durationMinutes` INTEGER NOT NULL, `notes` TEXT, `lastModified` INTEGER NOT NULL DEFAULT 0)",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "ownerId",
-            "columnName": "ownerId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "groupId",
-            "columnName": "groupId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "date",
-            "columnName": "date",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "startTime",
-            "columnName": "startTime",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "durationMinutes",
-            "columnName": "durationMinutes",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "notes",
-            "columnName": "notes",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "lastModified",
-            "columnName": "lastModified",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": true,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_group_lesson_master_groupId",
-            "unique": false,
-            "columnNames": [
-              "groupId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_group_lesson_master_groupId` ON `${TABLE_NAME}` (`groupId`)"
-          },
-          {
-            "name": "index_group_lesson_master_date",
-            "unique": false,
-            "columnNames": [
-              "date"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_group_lesson_master_date` ON `${TABLE_NAME}` (`date`)"
-          }
-        ]
-      },
-      {
-        "tableName": "group_lesson_absences",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `groupLessonId` INTEGER NOT NULL, `studentId` INTEGER NOT NULL, FOREIGN KEY(`groupLessonId`) REFERENCES `group_lesson_master`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "ownerId",
-            "columnName": "ownerId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "groupLessonId",
-            "columnName": "groupLessonId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "studentId",
-            "columnName": "studentId",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": true,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_group_lesson_absences_groupLessonId",
-            "unique": false,
-            "columnNames": [
-              "groupLessonId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_group_lesson_absences_groupLessonId` ON `${TABLE_NAME}` (`groupLessonId`)"
-          },
-          {
-            "name": "index_group_lesson_absences_studentId",
-            "unique": false,
-            "columnNames": [
-              "studentId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_group_lesson_absences_studentId` ON `${TABLE_NAME}` (`studentId`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "group_lesson_master",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "groupLessonId"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
-      },
-      {
-        "tableName": "invoice_master",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `studentId` INTEGER NOT NULL, `invoiceNumber` TEXT NOT NULL, `invoiceDate` TEXT NOT NULL, `notes` TEXT, `isArchived` INTEGER NOT NULL DEFAULT 0, `lastModified` INTEGER NOT NULL DEFAULT 0)",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "ownerId",
-            "columnName": "ownerId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "studentId",
-            "columnName": "studentId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "invoiceNumber",
-            "columnName": "invoiceNumber",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "invoiceDate",
-            "columnName": "invoiceDate",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "notes",
-            "columnName": "notes",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "isArchived",
-            "columnName": "isArchived",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          },
-          {
-            "fieldPath": "lastModified",
-            "columnName": "lastModified",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": true,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_invoice_master_studentId",
-            "unique": false,
-            "columnNames": [
-              "studentId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_invoice_master_studentId` ON `${TABLE_NAME}` (`studentId`)"
-          },
-          {
-            "name": "index_invoice_master_invoiceDate",
-            "unique": false,
-            "columnNames": [
-              "invoiceDate"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_invoice_master_invoiceDate` ON `${TABLE_NAME}` (`invoiceDate`)"
-          },
-          {
-            "name": "index_invoice_master_invoiceNumber",
-            "unique": true,
-            "columnNames": [
-              "invoiceNumber"
-            ],
-            "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_invoice_master_invoiceNumber` ON `${TABLE_NAME}` (`invoiceNumber`)"
-          }
-        ]
-      },
-      {
-        "tableName": "payment_batch_master",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `studentId` INTEGER, `batchDate` TEXT NOT NULL, `notes` TEXT, `isArchived` INTEGER NOT NULL DEFAULT 0, `lastModified` INTEGER NOT NULL DEFAULT 0)",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "ownerId",
-            "columnName": "ownerId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "studentId",
-            "columnName": "studentId",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "batchDate",
-            "columnName": "batchDate",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "notes",
-            "columnName": "notes",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "isArchived",
-            "columnName": "isArchived",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          },
-          {
-            "fieldPath": "lastModified",
-            "columnName": "lastModified",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": true,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_payment_batch_master_studentId",
-            "unique": false,
-            "columnNames": [
-              "studentId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_payment_batch_master_studentId` ON `${TABLE_NAME}` (`studentId`)"
-          },
-          {
-            "name": "index_payment_batch_master_batchDate",
-            "unique": false,
-            "columnNames": [
-              "batchDate"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_payment_batch_master_batchDate` ON `${TABLE_NAME}` (`batchDate`)"
-          }
-        ]
-      },
-      {
-        "tableName": "reschedule_master",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `title` TEXT, `newDate` TEXT NOT NULL, `newStartTime` TEXT NOT NULL, `newDurationMinutes` INTEGER NOT NULL, `notes` TEXT, `lastModified` INTEGER NOT NULL DEFAULT 0)",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "ownerId",
-            "columnName": "ownerId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "title",
-            "columnName": "title",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "newDate",
-            "columnName": "newDate",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "newStartTime",
-            "columnName": "newStartTime",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "newDurationMinutes",
-            "columnName": "newDurationMinutes",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "notes",
-            "columnName": "notes",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "lastModified",
-            "columnName": "lastModified",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": true,
-          "columnNames": [
-            "id"
-          ]
-        }
-      },
-      {
-        "tableName": "reschedule_master_lessons",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`masterId` INTEGER NOT NULL, `lessonId` INTEGER NOT NULL, PRIMARY KEY(`masterId`, `lessonId`))",
-        "fields": [
-          {
-            "fieldPath": "masterId",
-            "columnName": "masterId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "lessonId",
-            "columnName": "lessonId",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "masterId",
-            "lessonId"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_reschedule_master_lessons_masterId",
-            "unique": false,
-            "columnNames": [
-              "masterId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_reschedule_master_lessons_masterId` ON `${TABLE_NAME}` (`masterId`)"
-          },
-          {
-            "name": "index_reschedule_master_lessons_lessonId",
-            "unique": false,
-            "columnNames": [
-              "lessonId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_reschedule_master_lessons_lessonId` ON `${TABLE_NAME}` (`lessonId`)"
-          }
-        ]
-      }
-    ],
-    "setupQueries": [
-      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1158a0bf33e2ca4e4fe24760183209de')"
-    ]
-  }
+﻿{
+    "formatVersion":  1,
+    "database":  {
+                     "version":  21,
+                     "identityHash":  "1158a0bf33e2ca4e4fe24760183209de",
+                     "entities":  [
+                                      {
+                                          "tableName":  "students",
+                                          "createSql":  "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `name` TEXT NOT NULL, `surname` TEXT NOT NULL DEFAULT \u0027\u0027, `parentMobile` TEXT NOT NULL DEFAULT \u0027\u0027, `parentEmail` TEXT DEFAULT NULL, `className` TEXT NOT NULL DEFAULT \u0027\u0027, `rate` REAL NOT NULL, `rateType` TEXT NOT NULL DEFAULT \u0027hourly\u0027, `isActive` INTEGER NOT NULL DEFAULT 1, `lastModified` INTEGER NOT NULL DEFAULT 0)",
+                                          "fields":  [
+                                                         {
+                                                             "fieldPath":  "id",
+                                                             "columnName":  "id",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "ownerId",
+                                                             "columnName":  "ownerId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "name",
+                                                             "columnName":  "name",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "surname",
+                                                             "columnName":  "surname",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "\u0027\u0027"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "parentMobile",
+                                                             "columnName":  "parentMobile",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "\u0027\u0027"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "parentEmail",
+                                                             "columnName":  "parentEmail",
+                                                             "affinity":  "TEXT",
+                                                             "defaultValue":  "NULL"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "className",
+                                                             "columnName":  "className",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "\u0027\u0027"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "rate",
+                                                             "columnName":  "rate",
+                                                             "affinity":  "REAL",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "rateType",
+                                                             "columnName":  "rateType",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "\u0027hourly\u0027"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "isActive",
+                                                             "columnName":  "isActive",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "1"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "lastModified",
+                                                             "columnName":  "lastModified",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         }
+                                                     ],
+                                          "primaryKey":  {
+                                                             "autoGenerate":  true,
+                                                             "columnNames":  [
+                                                                                 "id"
+                                                                             ]
+                                                         }
+                                      },
+                                      {
+                                          "tableName":  "lessons",
+                                          "createSql":  "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `studentId` INTEGER NOT NULL, `groupId` INTEGER, `masterId` INTEGER, `invoiceMasterId` INTEGER, `paymentBatchId` INTEGER, `date` TEXT NOT NULL, `startTime` TEXT NOT NULL, `durationMinutes` INTEGER NOT NULL, `notes` TEXT, `isPaid` INTEGER NOT NULL DEFAULT 0, `isInvoiced` INTEGER NOT NULL DEFAULT 0, `lastModified` INTEGER NOT NULL DEFAULT 0, FOREIGN KEY(`studentId`) REFERENCES `students`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+                                          "fields":  [
+                                                         {
+                                                             "fieldPath":  "id",
+                                                             "columnName":  "id",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "ownerId",
+                                                             "columnName":  "ownerId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "studentId",
+                                                             "columnName":  "studentId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "groupId",
+                                                             "columnName":  "groupId",
+                                                             "affinity":  "INTEGER"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "masterId",
+                                                             "columnName":  "masterId",
+                                                             "affinity":  "INTEGER"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "invoiceMasterId",
+                                                             "columnName":  "invoiceMasterId",
+                                                             "affinity":  "INTEGER"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "paymentBatchId",
+                                                             "columnName":  "paymentBatchId",
+                                                             "affinity":  "INTEGER"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "date",
+                                                             "columnName":  "date",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "startTime",
+                                                             "columnName":  "startTime",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "durationMinutes",
+                                                             "columnName":  "durationMinutes",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "notes",
+                                                             "columnName":  "notes",
+                                                             "affinity":  "TEXT"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "isPaid",
+                                                             "columnName":  "isPaid",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "isInvoiced",
+                                                             "columnName":  "isInvoiced",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "lastModified",
+                                                             "columnName":  "lastModified",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         }
+                                                     ],
+                                          "primaryKey":  {
+                                                             "autoGenerate":  true,
+                                                             "columnNames":  [
+                                                                                 "id"
+                                                                             ]
+                                                         },
+                                          "indices":  [
+                                                          {
+                                                              "name":  "index_lessons_studentId",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "studentId"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_lessons_studentId` ON `${TABLE_NAME}` (`studentId`)"
+                                                          },
+                                                          {
+                                                              "name":  "index_lessons_date",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "date"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_lessons_date` ON `${TABLE_NAME}` (`date`)"
+                                                          },
+                                                          {
+                                                              "name":  "index_lessons_masterId",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "masterId"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_lessons_masterId` ON `${TABLE_NAME}` (`masterId`)"
+                                                          },
+                                                          {
+                                                              "name":  "index_lessons_invoiceMasterId",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "invoiceMasterId"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_lessons_invoiceMasterId` ON `${TABLE_NAME}` (`invoiceMasterId`)"
+                                                          },
+                                                          {
+                                                              "name":  "index_lessons_paymentBatchId",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "paymentBatchId"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_lessons_paymentBatchId` ON `${TABLE_NAME}` (`paymentBatchId`)"
+                                                          }
+                                                      ],
+                                          "foreignKeys":  [
+                                                              {
+                                                                  "table":  "students",
+                                                                  "onDelete":  "CASCADE",
+                                                                  "onUpdate":  "NO ACTION",
+                                                                  "columns":  [
+                                                                                  "studentId"
+                                                                              ],
+                                                                  "referencedColumns":  [
+                                                                                            "id"
+                                                                                        ]
+                                                              }
+                                                          ]
+                                      },
+                                      {
+                                          "tableName":  "student_groups",
+                                          "createSql":  "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `name` TEXT NOT NULL, `className` TEXT NOT NULL, `rate` REAL NOT NULL, `rateType` TEXT NOT NULL, `isActive` INTEGER NOT NULL)",
+                                          "fields":  [
+                                                         {
+                                                             "fieldPath":  "id",
+                                                             "columnName":  "id",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "ownerId",
+                                                             "columnName":  "ownerId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "name",
+                                                             "columnName":  "name",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "className",
+                                                             "columnName":  "className",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "\u0027\u0027"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "rate",
+                                                             "columnName":  "rate",
+                                                             "affinity":  "REAL",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "rateType",
+                                                             "columnName":  "rateType",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "isActive",
+                                                             "columnName":  "isActive",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "1"
+                                                         }
+                                                     ],
+                                          "primaryKey":  {
+                                                             "autoGenerate":  true,
+                                                             "columnNames":  [
+                                                                                 "id"
+                                                                             ]
+                                                         }
+                                      },
+                                      {
+                                          "tableName":  "group_student_cross_ref",
+                                          "createSql":  "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`groupId` INTEGER NOT NULL, `studentId` INTEGER NOT NULL, `ownerId` INTEGER NOT NULL, PRIMARY KEY(`groupId`, `studentId`))",
+                                          "fields":  [
+                                                         {
+                                                             "fieldPath":  "groupId",
+                                                             "columnName":  "groupId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "studentId",
+                                                             "columnName":  "studentId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "ownerId",
+                                                             "columnName":  "ownerId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         }
+                                                     ],
+                                          "primaryKey":  {
+                                                             "autoGenerate":  false,
+                                                             "columnNames":  [
+                                                                                 "groupId",
+                                                                                 "studentId"
+                                                                             ]
+                                                         },
+                                          "indices":  [
+                                                          {
+                                                              "name":  "index_group_student_cross_ref_studentId",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "studentId"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_group_student_cross_ref_studentId` ON `${TABLE_NAME}` (`studentId`)"
+                                                          },
+                                                          {
+                                                              "name":  "index_group_student_cross_ref_groupId",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "groupId"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_group_student_cross_ref_groupId` ON `${TABLE_NAME}` (`groupId`)"
+                                                          }
+                                                      ]
+                                      },
+                                      {
+                                          "tableName":  "users",
+                                          "createSql":  "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `username` TEXT NOT NULL, `passwordHash` TEXT NOT NULL, `fullName` TEXT NOT NULL, `subjectSpecialty` TEXT NOT NULL DEFAULT \u0027\u0027, `yearsExperience` INTEGER NOT NULL DEFAULT 0)",
+                                          "fields":  [
+                                                         {
+                                                             "fieldPath":  "id",
+                                                             "columnName":  "id",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "username",
+                                                             "columnName":  "username",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "passwordHash",
+                                                             "columnName":  "passwordHash",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "fullName",
+                                                             "columnName":  "fullName",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "subjectSpecialty",
+                                                             "columnName":  "subjectSpecialty",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "\u0027\u0027"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "yearsExperience",
+                                                             "columnName":  "yearsExperience",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         }
+                                                     ],
+                                          "primaryKey":  {
+                                                             "autoGenerate":  true,
+                                                             "columnNames":  [
+                                                                                 "id"
+                                                                             ]
+                                                         },
+                                          "indices":  [
+                                                          {
+                                                              "name":  "index_users_username",
+                                                              "unique":  true,
+                                                              "columnNames":  [
+                                                                                  "username"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE UNIQUE INDEX IF NOT EXISTS `index_users_username` ON `${TABLE_NAME}` (`username`)"
+                                                          }
+                                                      ]
+                                      },
+                                      {
+                                          "tableName":  "group_lesson_master",
+                                          "createSql":  "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `groupId` INTEGER NOT NULL, `date` TEXT NOT NULL, `startTime` TEXT NOT NULL, `durationMinutes` INTEGER NOT NULL, `notes` TEXT, `lastModified` INTEGER NOT NULL DEFAULT 0)",
+                                          "fields":  [
+                                                         {
+                                                             "fieldPath":  "id",
+                                                             "columnName":  "id",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "ownerId",
+                                                             "columnName":  "ownerId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "groupId",
+                                                             "columnName":  "groupId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "date",
+                                                             "columnName":  "date",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "startTime",
+                                                             "columnName":  "startTime",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "durationMinutes",
+                                                             "columnName":  "durationMinutes",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "notes",
+                                                             "columnName":  "notes",
+                                                             "affinity":  "TEXT"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "lastModified",
+                                                             "columnName":  "lastModified",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         }
+                                                     ],
+                                          "primaryKey":  {
+                                                             "autoGenerate":  true,
+                                                             "columnNames":  [
+                                                                                 "id"
+                                                                             ]
+                                                         },
+                                          "indices":  [
+                                                          {
+                                                              "name":  "index_group_lesson_master_groupId",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "groupId"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_group_lesson_master_groupId` ON `${TABLE_NAME}` (`groupId`)"
+                                                          },
+                                                          {
+                                                              "name":  "index_group_lesson_master_date",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "date"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_group_lesson_master_date` ON `${TABLE_NAME}` (`date`)"
+                                                          }
+                                                      ]
+                                      },
+                                      {
+                                          "tableName":  "group_lesson_absences",
+                                          "createSql":  "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `groupLessonId` INTEGER NOT NULL, `studentId` INTEGER NOT NULL, FOREIGN KEY(`groupLessonId`) REFERENCES `group_lesson_master`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+                                          "fields":  [
+                                                         {
+                                                             "fieldPath":  "id",
+                                                             "columnName":  "id",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "ownerId",
+                                                             "columnName":  "ownerId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "groupLessonId",
+                                                             "columnName":  "groupLessonId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "studentId",
+                                                             "columnName":  "studentId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         }
+                                                     ],
+                                          "primaryKey":  {
+                                                             "autoGenerate":  true,
+                                                             "columnNames":  [
+                                                                                 "id"
+                                                                             ]
+                                                         },
+                                          "indices":  [
+                                                          {
+                                                              "name":  "index_group_lesson_absences_groupLessonId",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "groupLessonId"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_group_lesson_absences_groupLessonId` ON `${TABLE_NAME}` (`groupLessonId`)"
+                                                          },
+                                                          {
+                                                              "name":  "index_group_lesson_absences_studentId",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "studentId"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_group_lesson_absences_studentId` ON `${TABLE_NAME}` (`studentId`)"
+                                                          }
+                                                      ],
+                                          "foreignKeys":  [
+                                                              {
+                                                                  "table":  "group_lesson_master",
+                                                                  "onDelete":  "CASCADE",
+                                                                  "onUpdate":  "NO ACTION",
+                                                                  "columns":  [
+                                                                                  "groupLessonId"
+                                                                              ],
+                                                                  "referencedColumns":  [
+                                                                                            "id"
+                                                                                        ]
+                                                              }
+                                                          ]
+                                      },
+                                      {
+                                          "tableName":  "invoice_master",
+                                          "createSql":  "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `studentId` INTEGER NOT NULL, `invoiceNumber` TEXT NOT NULL, `invoiceDate` TEXT NOT NULL, `notes` TEXT, `isArchived` INTEGER NOT NULL DEFAULT 0, `lastModified` INTEGER NOT NULL DEFAULT 0)",
+                                          "fields":  [
+                                                         {
+                                                             "fieldPath":  "id",
+                                                             "columnName":  "id",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "ownerId",
+                                                             "columnName":  "ownerId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "studentId",
+                                                             "columnName":  "studentId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "invoiceNumber",
+                                                             "columnName":  "invoiceNumber",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "invoiceDate",
+                                                             "columnName":  "invoiceDate",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "notes",
+                                                             "columnName":  "notes",
+                                                             "affinity":  "TEXT"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "isArchived",
+                                                             "columnName":  "isArchived",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "lastModified",
+                                                             "columnName":  "lastModified",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         }
+                                                     ],
+                                          "primaryKey":  {
+                                                             "autoGenerate":  true,
+                                                             "columnNames":  [
+                                                                                 "id"
+                                                                             ]
+                                                         },
+                                          "indices":  [
+                                                          {
+                                                              "name":  "index_invoice_master_studentId",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "studentId"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_invoice_master_studentId` ON `${TABLE_NAME}` (`studentId`)"
+                                                          },
+                                                          {
+                                                              "name":  "index_invoice_master_invoiceDate",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "invoiceDate"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_invoice_master_invoiceDate` ON `${TABLE_NAME}` (`invoiceDate`)"
+                                                          },
+                                                          {
+                                                              "name":  "index_invoice_master_invoiceNumber",
+                                                              "unique":  true,
+                                                              "columnNames":  [
+                                                                                  "invoiceNumber"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE UNIQUE INDEX IF NOT EXISTS `index_invoice_master_invoiceNumber` ON `${TABLE_NAME}` (`invoiceNumber`)"
+                                                          }
+                                                      ]
+                                      },
+                                      {
+                                          "tableName":  "payment_batch_master",
+                                          "createSql":  "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `studentId` INTEGER, `batchDate` TEXT NOT NULL, `notes` TEXT, `isArchived` INTEGER NOT NULL DEFAULT 0, `lastModified` INTEGER NOT NULL DEFAULT 0)",
+                                          "fields":  [
+                                                         {
+                                                             "fieldPath":  "id",
+                                                             "columnName":  "id",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "ownerId",
+                                                             "columnName":  "ownerId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "studentId",
+                                                             "columnName":  "studentId",
+                                                             "affinity":  "INTEGER"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "batchDate",
+                                                             "columnName":  "batchDate",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "notes",
+                                                             "columnName":  "notes",
+                                                             "affinity":  "TEXT"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "isArchived",
+                                                             "columnName":  "isArchived",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "lastModified",
+                                                             "columnName":  "lastModified",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         }
+                                                     ],
+                                          "primaryKey":  {
+                                                             "autoGenerate":  true,
+                                                             "columnNames":  [
+                                                                                 "id"
+                                                                             ]
+                                                         },
+                                          "indices":  [
+                                                          {
+                                                              "name":  "index_payment_batch_master_studentId",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "studentId"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_payment_batch_master_studentId` ON `${TABLE_NAME}` (`studentId`)"
+                                                          },
+                                                          {
+                                                              "name":  "index_payment_batch_master_batchDate",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "batchDate"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_payment_batch_master_batchDate` ON `${TABLE_NAME}` (`batchDate`)"
+                                                          }
+                                                      ]
+                                      },
+                                      {
+                                          "tableName":  "reschedule_master",
+                                          "createSql":  "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ownerId` INTEGER NOT NULL, `title` TEXT, `newDate` TEXT NOT NULL, `newStartTime` TEXT NOT NULL, `newDurationMinutes` INTEGER NOT NULL, `notes` TEXT, `lastModified` INTEGER NOT NULL DEFAULT 0)",
+                                          "fields":  [
+                                                         {
+                                                             "fieldPath":  "id",
+                                                             "columnName":  "id",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "ownerId",
+                                                             "columnName":  "ownerId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "title",
+                                                             "columnName":  "title",
+                                                             "affinity":  "TEXT"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "newDate",
+                                                             "columnName":  "newDate",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "newStartTime",
+                                                             "columnName":  "newStartTime",
+                                                             "affinity":  "TEXT",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "newDurationMinutes",
+                                                             "columnName":  "newDurationMinutes",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "notes",
+                                                             "columnName":  "notes",
+                                                             "affinity":  "TEXT"
+                                                         },
+                                                         {
+                                                             "fieldPath":  "lastModified",
+                                                             "columnName":  "lastModified",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true,
+                                                             "defaultValue":  "0"
+                                                         }
+                                                     ],
+                                          "primaryKey":  {
+                                                             "autoGenerate":  true,
+                                                             "columnNames":  [
+                                                                                 "id"
+                                                                             ]
+                                                         }
+                                      },
+                                      {
+                                          "tableName":  "reschedule_master_lessons",
+                                          "createSql":  "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`masterId` INTEGER NOT NULL, `lessonId` INTEGER NOT NULL, PRIMARY KEY(`masterId`, `lessonId`))",
+                                          "fields":  [
+                                                         {
+                                                             "fieldPath":  "masterId",
+                                                             "columnName":  "masterId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         },
+                                                         {
+                                                             "fieldPath":  "lessonId",
+                                                             "columnName":  "lessonId",
+                                                             "affinity":  "INTEGER",
+                                                             "notNull":  true
+                                                         }
+                                                     ],
+                                          "primaryKey":  {
+                                                             "autoGenerate":  false,
+                                                             "columnNames":  [
+                                                                                 "masterId",
+                                                                                 "lessonId"
+                                                                             ]
+                                                         },
+                                          "indices":  [
+                                                          {
+                                                              "name":  "index_reschedule_master_lessons_masterId",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "masterId"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_reschedule_master_lessons_masterId` ON `${TABLE_NAME}` (`masterId`)"
+                                                          },
+                                                          {
+                                                              "name":  "index_reschedule_master_lessons_lessonId",
+                                                              "unique":  false,
+                                                              "columnNames":  [
+                                                                                  "lessonId"
+                                                                              ],
+                                                              "orders":  [
+
+                                                                         ],
+                                                              "createSql":  "CREATE INDEX IF NOT EXISTS `index_reschedule_master_lessons_lessonId` ON `${TABLE_NAME}` (`lessonId`)"
+                                                          }
+                                                      ]
+                                      }
+                                  ],
+                     "setupQueries":  [
+                                          "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+                                          "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \u00271158a0bf33e2ca4e4fe24760183209de\u0027)"
+                                      ]
+                 }
 }

@@ -9,3 +9,14 @@ style:
       - 'gr.eduinvoice.data.repository.*'
       - 'gr.eduinvoice.data.dao.*'
       - 'gr.eduinvoice.data.mapper.*'
+
+# Custom rules for preventing manual migrations
+custom-rules:
+  active: true
+  NoManualMigrations:
+    active: true
+    includes: ['**/database/**/*.kt']
+    excludes: ['**/AutoMigrations.kt']
+    pattern: 'class.*Migration.*:.*Migration'
+    message: 'Manual migrations are banned. Use AutoMigrationSpec instead.'
+    severity: ERROR
