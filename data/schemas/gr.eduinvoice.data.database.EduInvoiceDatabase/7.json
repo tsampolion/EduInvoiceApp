@@ -6,7 +6,7 @@
     "entities": [
       {
         "tableName": "students",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `rate` REAL NOT NULL, `isActive` INTEGER NOT NULL DEFAULT 1)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `rate` REAL NOT NULL DEFAULT 0.0, `isActive` INTEGER NOT NULL DEFAULT 1)",
         "fields": [
           {
             "fieldPath": "id",
@@ -24,7 +24,8 @@
             "fieldPath": "rate",
             "columnName": "rate",
             "affinity": "REAL",
-            "notNull": true
+            "notNull": true,
+            "defaultValue": "0.0"
           },
           {
             "fieldPath": "isActive",

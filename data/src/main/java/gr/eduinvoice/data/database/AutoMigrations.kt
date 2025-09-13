@@ -37,6 +37,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 )
 class AutoMigration5To6 : AutoMigrationSpec {
     override fun onPostMigrate(db: SupportSQLiteDatabase) {
+        db.execSQL("UPDATE students SET rate = 0.0 WHERE rate IS NULL")
         db.execSQL(
             """
             CREATE TABLE lessons_new (

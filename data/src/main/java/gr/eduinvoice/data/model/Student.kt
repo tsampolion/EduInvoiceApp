@@ -23,7 +23,8 @@ data class Student(
     val parentEmail: String? = null,
     @ColumnInfo(defaultValue = "''")
     val className: String,
-    val rate: Double,
+    @ColumnInfo(defaultValue = "0.0")
+    val rate: Double = 0.0,
     @ColumnInfo(defaultValue = "'hourly'")
     val rateType: String = RateTypes.HOURLY,
     @ColumnInfo(defaultValue = "1")
