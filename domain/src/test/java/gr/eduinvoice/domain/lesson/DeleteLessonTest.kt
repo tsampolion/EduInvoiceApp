@@ -37,7 +37,7 @@ class DeleteLessonTest {
         val lessonId = 101L
 
         // When
-        deleteLesson(lessonId)
+        deleteLesson(lessonId, 0)
 
         // Then
         coVerify { mockRepository.deleteLesson(lessonId, 0) }
