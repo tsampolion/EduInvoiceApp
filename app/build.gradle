@@ -40,8 +40,8 @@ android {
         applicationId "gr.eduinvoice"
         minSdk 26
         targetSdk 35
-        versionCode 48  // Increment version code
-        versionName "0.29.1"  // Increment version name for rate default fix
+        versionCode 49  // Increment version code
+        versionName "0.29.2"  // Increment version name for group rate default fix
         testInstrumentationRunner "com.google.dagger.hilt.android.testing.HiltTestRunner"
         buildConfigField "String", "FIREBASE_API_KEY", "\"${firebaseKey}\""
         buildConfigField "boolean", "LEGACY_ROUTES_ENABLED", "true"
