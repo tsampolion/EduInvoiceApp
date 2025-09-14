@@ -360,8 +360,7 @@ abstract class RepositoryModule {
 // SQLCipher configuration
 @Database(
     entities = [Student::class, Lesson::class],
-    version = 15,
-    autoMigrations = [/* ... */]
+    version = 1
 )
 abstract class EduInvoiceDatabase : RoomDatabase() {
     
@@ -373,6 +372,7 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
                 "eduinvoice.db"
             )
             .openHelperFactory(SQLiteOpenHelperFactory(passphrase))
+            .fallbackToDestructiveMigration(BuildConfig.DEBUG)
             .build()
         }
     }
