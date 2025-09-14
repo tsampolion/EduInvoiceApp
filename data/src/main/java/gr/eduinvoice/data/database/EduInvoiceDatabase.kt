@@ -26,7 +26,7 @@ import java.util.concurrent.Executors
 
 @Database(
     entities = [Student::class, Lesson::class, StudentGroup::class, GroupStudentCrossRef::class, User::class, GroupLessonMaster::class, GroupLessonAbsence::class, InvoiceMaster::class, PaymentBatchMaster::class, RescheduleMaster::class, RescheduleMasterLessonLink::class],
-    version = 23,
+    version = 24,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6, spec = AutoMigration5To6::class),
@@ -46,7 +46,8 @@ import java.util.concurrent.Executors
         AutoMigration(from = 19, to = 20, spec = AutoMigration19To20::class),
         AutoMigration(from = 20, to = 21, spec = AutoMigration20To21::class),
         AutoMigration(from = 21, to = 22, spec = AutoMigration21To22::class),
-        AutoMigration(from = 22, to = 23)
+        AutoMigration(from = 22, to = 23),
+        AutoMigration(from = 23, to = 24)
     ]
 )
 abstract class EduInvoiceDatabase : RoomDatabase() {
