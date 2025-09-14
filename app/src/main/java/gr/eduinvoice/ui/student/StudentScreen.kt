@@ -40,6 +40,7 @@ import gr.eduinvoice.ui.components.EdgeToEdgeScaffold
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import gr.eduinvoice.domain.model.DomainAbsence
+import gr.eduinvoice.domain.billing.calculateFeeWith
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -270,8 +271,9 @@ private fun StudentDetailView(
                 items = uiState.lessons,
                 key = { it.id }
             ) { lesson ->
-                val rate = uiState.rate.toDoubleOrNull() ?: 0.0
-                val fee = (lesson.durationMinutes / 60.0) * rate
+                val fee = uiState.student?.let { student ->
+                    lesson.calculateFeeWith(student)
+                } ?: 0.0
                 LessonCard(
                     lesson = lesson,
                     fee = fee,

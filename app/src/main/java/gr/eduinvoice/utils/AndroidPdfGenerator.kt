@@ -46,6 +46,7 @@ class AndroidPdfGenerator(
             val endY = components.drawLessonsTable(
                 canvas,
                 invoiceData.lessons,
+                invoiceData.student,
                 140f,
                 595f
             )

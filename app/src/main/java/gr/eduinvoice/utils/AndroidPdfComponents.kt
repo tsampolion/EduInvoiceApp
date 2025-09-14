@@ -3,7 +3,9 @@ package gr.eduinvoice.utils
 import android.graphics.*
 import gr.eduinvoice.domain.billing.DomainPdfTheme
 import gr.eduinvoice.domain.model.DomainLesson
+import gr.eduinvoice.domain.model.DomainStudent
 import gr.eduinvoice.domain.billing.BillingService
+import gr.eduinvoice.domain.billing.calculateFeeWith
 
 class AndroidPdfComponents(private val theme: DomainPdfTheme) {
 
@@ -45,6 +47,7 @@ class AndroidPdfComponents(private val theme: DomainPdfTheme) {
     fun drawLessonsTable(
         canvas: Canvas,
         lessons: List<DomainLesson>,
+        student: DomainStudent,
         startY: Float,
         width: Float
     ): Float {
@@ -59,9 +62,7 @@ class AndroidPdfComponents(private val theme: DomainPdfTheme) {
                 canvas.drawRect(0f, y - rowHeight + 4f, width, y + 4f, paint)
             }
 
-            // Note: We need student info for fee calculation, but we only have lessons here
-            // This is a limitation of the current design - we should pass student info or use a different approach
-            val fee = 0.0 // Placeholder - would need student info for proper calculation
+            val fee = lesson.calculateFeeWith(student)
 
             drawText(canvas, lesson.date ?: "", 24f, y, theme.typography.bodyLarge, theme.colorScheme.onSurface)
             drawText(canvas, "€%.2f".format(fee), width - 80f, y, theme.typography.bodyLarge, theme.colorScheme.onSurface)
