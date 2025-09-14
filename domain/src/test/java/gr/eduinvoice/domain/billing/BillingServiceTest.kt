@@ -2,45 +2,46 @@ package gr.eduinvoice.domain.billing
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
+import gr.eduinvoice.domain.model.DomainLesson
 
 class BillingServiceTest {
 
-    private val billingService = BillingService()
-
     @Test
-    fun `calculateTotal with single lesson returns correct total`() {
-        val lessons = listOf(
-            Fixtures.sampleDomainLesson(fee = 50.0)
-        )
-        val result = billingService.calculateTotal(lessons)
+    fun `fee with single lesson returns correct total`() {
+        val student = Fixtures.sampleDomainStudent(hourlyRate = null)
+        val lesson = Fixtures.sampleDomainLesson(defaultRate = 50.0, durationMinutes = 60)
+        val result = BillingService.fee(lesson, student)
         assertEquals(50.0, result, 0.001)
     }
 
     @Test
-    fun `calculateTotal with multiple lessons returns correct sum`() {
+    fun `sum of fees with multiple lessons returns correct sum`() {
+        val student = Fixtures.sampleDomainStudent(hourlyRate = null)
         val lessons = listOf(
-            Fixtures.sampleDomainLesson(fee = 50.0),
-            Fixtures.sampleDomainLesson(fee = 75.0),
-            Fixtures.sampleDomainLesson(fee = 25.0)
+            Fixtures.sampleDomainLesson(defaultRate = 50.0, durationMinutes = 60),
+            Fixtures.sampleDomainLesson(defaultRate = 75.0, durationMinutes = 60),
+            Fixtures.sampleDomainLesson(defaultRate = 25.0, durationMinutes = 60)
         )
-        val result = billingService.calculateTotal(lessons)
+        val result = lessons.sumOf { it.calculateFeeWith(student) }
         assertEquals(150.0, result, 0.001)
     }
 
     @Test
-    fun `calculateTotal with empty list returns zero`() {
+    fun `sum of fees with empty list returns zero`() {
+        val student = Fixtures.sampleDomainStudent(hourlyRate = null)
         val lessons = emptyList<DomainLesson>()
-        val result = billingService.calculateTotal(lessons)
+        val result = lessons.sumOf { it.calculateFeeWith(student) }
         assertEquals(0.0, result, 0.001)
     }
 
     @Test
-    fun `calculateTotal with zero fee lessons returns zero`() {
+    fun `sum of fees with zero rate lessons returns zero`() {
+        val student = Fixtures.sampleDomainStudent(hourlyRate = null)
         val lessons = listOf(
-            Fixtures.sampleDomainLesson(fee = 0.0),
-            Fixtures.sampleDomainLesson(fee = 0.0)
+            Fixtures.sampleDomainLesson(defaultRate = 0.0, durationMinutes = 60),
+            Fixtures.sampleDomainLesson(defaultRate = 0.0, durationMinutes = 60)
         )
-        val result = billingService.calculateTotal(lessons)
+        val result = lessons.sumOf { it.calculateFeeWith(student) }
         assertEquals(0.0, result, 0.001)
     }
 }
