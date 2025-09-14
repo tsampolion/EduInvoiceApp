@@ -226,13 +226,13 @@ class AutoMigration21To22 : AutoMigrationSpec {
     override fun onPostMigrate(db: SupportSQLiteDatabase) {
         // Add role column to users table
         db.execSQL("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'TEACHER'")
-        
+
         // Update existing admin user to have ADMIN role
         db.execSQL("UPDATE users SET role = 'ADMIN' WHERE username = 'admin'")
-        
+
         // Update all other existing users to have TEACHER role (if not already set)
         db.execSQL("UPDATE users SET role = 'TEACHER' WHERE role IS NULL OR role = ''")
-        
+
         // Create index on role column for better performance
         db.execSQL("CREATE INDEX IF NOT EXISTS index_users_role ON users(role)")
     }
