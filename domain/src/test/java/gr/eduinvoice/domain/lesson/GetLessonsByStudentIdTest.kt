@@ -28,7 +28,7 @@ class GetLessonsByStudentIdTest {
         val studentId = 123L
         val userId = 456L
         val lessons = listOf(Fixtures.sampleDomainLesson(studentId = studentId))
-        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(lessons)
+        coEvery { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(lessons)
 
         // When
         val result = getLessonsByStudentId(studentId, userId).first()
@@ -43,7 +43,7 @@ class GetLessonsByStudentIdTest {
         // Given
         val studentId = 101L
         val lessons = listOf(Fixtures.sampleDomainLesson(studentId = studentId))
-        coEvery { mockRepository.getLessonsByStudentId(studentId, 0) } returns flowOf(lessons)
+        coEvery { mockRepository.getStudentLessons(studentId, 0) } returns flowOf(lessons)
 
         // When
         val result = getLessonsByStudentId(studentId).first()
@@ -58,7 +58,7 @@ class GetLessonsByStudentIdTest {
         // Given
         val studentId = 999L
         val userId = 789L
-        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(emptyList())
+        coEvery { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(emptyList())
 
         // When
         val result = getLessonsByStudentId(studentId, userId).first()
@@ -77,7 +77,7 @@ class GetLessonsByStudentIdTest {
             Fixtures.sampleDomainLesson(id = 1, studentId = studentId),
             Fixtures.sampleDomainLesson(id = 2, studentId = studentId)
         )
-        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(lessons)
+        coEvery { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(lessons)
 
         // When
         val result = getLessonsByStudentId(studentId, userId).first()
@@ -92,7 +92,7 @@ class GetLessonsByStudentIdTest {
         // Given
         val studentId = 9999L
         val userId = 161718L
-        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(emptyList())
+        coEvery { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(emptyList())
 
         // When
         val result = getLessonsByStudentId(studentId, userId).first()
@@ -107,7 +107,7 @@ class GetLessonsByStudentIdTest {
         val studentId = 0L
         val userId = 192021L
         val lessons = listOf(Fixtures.sampleDomainLesson(studentId = studentId))
-        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(lessons)
+        coEvery { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(lessons)
 
         // When
         val result = getLessonsByStudentId(studentId, userId).first()
@@ -123,7 +123,7 @@ class GetLessonsByStudentIdTest {
         val studentId = -1L
         val userId = 222324L
         val lessons = listOf(Fixtures.sampleDomainLesson(studentId = studentId))
-        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(lessons)
+        coEvery { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(lessons)
 
         // When
         val result = getLessonsByStudentId(studentId, userId).first()
@@ -139,7 +139,7 @@ class GetLessonsByStudentIdTest {
         val studentId = Long.MAX_VALUE
         val userId = 252627L
         val lessons = listOf(Fixtures.sampleDomainLesson(studentId = studentId))
-        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(lessons)
+        coEvery { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(lessons)
 
         // When
         val result = getLessonsByStudentId(studentId, userId).first()
@@ -155,7 +155,7 @@ class GetLessonsByStudentIdTest {
         val studentId = 282930L
         val userId = 0L
         val lessons = listOf(Fixtures.sampleDomainLesson(studentId = studentId))
-        coEvery { mockRepository.getLessonsByStudentId(studentId, userId) } returns flowOf(lessons)
+        coEvery { mockRepository.getStudentLessons(studentId, userId) } returns flowOf(lessons)
 
         // When
         val result = getLessonsByStudentId(studentId, userId).first()
@@ -171,8 +171,8 @@ class GetLessonsByStudentIdTest {
         val studentId = 313233L
         val correctUserId = 343536L
         val wrongUserId = 373839L
-        coEvery { mockRepository.getLessonsByStudentId(studentId, correctUserId) } returns flowOf(listOf(Fixtures.sampleDomainLesson()))
-        coEvery { mockRepository.getLessonsByStudentId(studentId, wrongUserId) } returns flowOf(emptyList())
+        coEvery { mockRepository.getStudentLessons(studentId, correctUserId) } returns flowOf(listOf(Fixtures.sampleDomainLesson()))
+        coEvery { mockRepository.getStudentLessons(studentId, wrongUserId) } returns flowOf(emptyList())
 
         // When
         val result = getLessonsByStudentId(studentId, wrongUserId).first()

@@ -29,14 +29,15 @@ class AddGroupLessonTest {
         val userId = 456L
         val expectedLessonId = 789L
 
-        coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
+        val expectedLesson = lesson.copy(groupId = groupId)
+        coEvery { mockRepository.addGroupLesson(expectedLesson, userId) } returns expectedLessonId
 
         // When
         val result = addGroupLesson(groupId, lesson, userId)
 
         // Then
         assertEquals(expectedLessonId, result)
-        coVerify { mockRepository.addGroupLesson(lesson, userId) }
+        coVerify { mockRepository.addGroupLesson(expectedLesson, userId) }
     }
 
     @Test
@@ -46,14 +47,15 @@ class AddGroupLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val expectedLessonId = 202L
 
-        coEvery { mockRepository.addGroupLesson(lesson, 0) } returns expectedLessonId
+        val expectedLesson = lesson.copy(groupId = groupId)
+        coEvery { mockRepository.addGroupLesson(expectedLesson, 0) } returns expectedLessonId
 
         // When
         val result = addGroupLesson(groupId, lesson)
 
         // Then
         assertEquals(expectedLessonId, result)
-        coVerify { mockRepository.addGroupLesson(lesson, 0) }
+        coVerify { mockRepository.addGroupLesson(expectedLesson, 0) }
     }
 
     @Test
@@ -64,14 +66,15 @@ class AddGroupLessonTest {
         val userId = 303L
         val expectedLessonId = 404L
 
-        coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
+        val expectedLesson = lesson.copy(groupId = groupId)
+        coEvery { mockRepository.addGroupLesson(expectedLesson, userId) } returns expectedLessonId
 
         // When
         val result = addGroupLesson(groupId, lesson, userId)
 
         // Then
         assertEquals(expectedLessonId, result)
-        coVerify { mockRepository.addGroupLesson(lesson, userId) }
+        coVerify { mockRepository.addGroupLesson(expectedLesson, userId) }
     }
 
     @Test
@@ -82,14 +85,15 @@ class AddGroupLessonTest {
         val userId = 505L
         val expectedLessonId = 606L
 
-        coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
+        val expectedLesson = lesson.copy(groupId = groupId)
+        coEvery { mockRepository.addGroupLesson(expectedLesson, userId) } returns expectedLessonId
 
         // When
         val result = addGroupLesson(groupId, lesson, userId)
 
         // Then
         assertEquals(expectedLessonId, result)
-        coVerify { mockRepository.addGroupLesson(lesson, userId) }
+        coVerify { mockRepository.addGroupLesson(expectedLesson, userId) }
     }
 
     @Test
@@ -100,14 +104,15 @@ class AddGroupLessonTest {
         val userId = 707L
         val expectedLessonId = 808L
 
-        coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
+        val expectedLesson = lesson.copy(groupId = groupId)
+        coEvery { mockRepository.addGroupLesson(expectedLesson, userId) } returns expectedLessonId
 
         // When
         val result = addGroupLesson(groupId, lesson, userId)
 
         // Then
         assertEquals(expectedLessonId, result)
-        coVerify { mockRepository.addGroupLesson(lesson, userId) }
+        coVerify { mockRepository.addGroupLesson(expectedLesson, userId) }
     }
 
     @Test
@@ -118,14 +123,15 @@ class AddGroupLessonTest {
         val userId = 0L
         val expectedLessonId = 1010L
 
-        coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
+        val expectedLesson = lesson.copy(groupId = groupId)
+        coEvery { mockRepository.addGroupLesson(expectedLesson, userId) } returns expectedLessonId
 
         // When
         val result = addGroupLesson(groupId, lesson, userId)
 
         // Then
         assertEquals(expectedLessonId, result)
-        coVerify { mockRepository.addGroupLesson(lesson, userId) }
+        coVerify { mockRepository.addGroupLesson(expectedLesson, userId) }
     }
 
     @Test
@@ -136,14 +142,15 @@ class AddGroupLessonTest {
         val userId = -1L
         val expectedLessonId = 1212L
 
-        coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
+        val expectedLesson = lesson.copy(groupId = groupId)
+        coEvery { mockRepository.addGroupLesson(expectedLesson, userId) } returns expectedLessonId
 
         // When
         val result = addGroupLesson(groupId, lesson, userId)
 
         // Then
         assertEquals(expectedLessonId, result)
-        coVerify { mockRepository.addGroupLesson(lesson, userId) }
+        coVerify { mockRepository.addGroupLesson(expectedLesson, userId) }
     }
 
     @Test
@@ -154,14 +161,15 @@ class AddGroupLessonTest {
         val userId = Long.MAX_VALUE
         val expectedLessonId = 1414L
 
-        coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
+        val expectedLesson = lesson.copy(groupId = groupId)
+        coEvery { mockRepository.addGroupLesson(expectedLesson, userId) } returns expectedLessonId
 
         // When
         val result = addGroupLesson(groupId, lesson, userId)
 
         // Then
         assertEquals(expectedLessonId, result)
-        coVerify { mockRepository.addGroupLesson(lesson, userId) }
+        coVerify { mockRepository.addGroupLesson(expectedLesson, userId) }
     }
 
     @Test
@@ -172,14 +180,15 @@ class AddGroupLessonTest {
         val userId = Long.MIN_VALUE
         val expectedLessonId = Long.MAX_VALUE
 
-        coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
+        val expectedLesson = lesson.copy(groupId = groupId)
+        coEvery { mockRepository.addGroupLesson(expectedLesson, userId) } returns expectedLessonId
 
         // When
         val result = addGroupLesson(groupId, lesson, userId)
 
         // Then
         assertEquals(expectedLessonId, result)
-        coVerify { mockRepository.addGroupLesson(lesson, userId) }
+        coVerify { mockRepository.addGroupLesson(expectedLesson, userId) }
     }
 
     @Test
@@ -191,9 +200,12 @@ class AddGroupLessonTest {
         val lesson3 = Fixtures.sampleDomainLesson(durationMinutes = 90)
         val userId = 1616L
 
-        coEvery { mockRepository.addGroupLesson(lesson1, userId) } returns 1717L
-        coEvery { mockRepository.addGroupLesson(lesson2, userId) } returns 1818L
-        coEvery { mockRepository.addGroupLesson(lesson3, userId) } returns 1919L
+        val expectedLesson1 = lesson1.copy(groupId = groupId)
+        val expectedLesson2 = lesson2.copy(groupId = groupId)
+        val expectedLesson3 = lesson3.copy(groupId = groupId)
+        coEvery { mockRepository.addGroupLesson(expectedLesson1, userId) } returns 1717L
+        coEvery { mockRepository.addGroupLesson(expectedLesson2, userId) } returns 1818L
+        coEvery { mockRepository.addGroupLesson(expectedLesson3, userId) } returns 1919L
 
         // When
         val result1 = addGroupLesson(groupId, lesson1, userId)
@@ -206,9 +218,9 @@ class AddGroupLessonTest {
         assertEquals(1919L, result3)
 
         coVerify {
-            mockRepository.addGroupLesson(lesson1, userId)
-            mockRepository.addGroupLesson(lesson2, userId)
-            mockRepository.addGroupLesson(lesson3, userId)
+            mockRepository.addGroupLesson(expectedLesson1, userId)
+            mockRepository.addGroupLesson(expectedLesson2, userId)
+            mockRepository.addGroupLesson(expectedLesson3, userId)
         }
     }
 
@@ -220,7 +232,10 @@ class AddGroupLessonTest {
         val lesson = Fixtures.sampleDomainLesson()
         val userId = 2222L
 
-        coEvery { mockRepository.addGroupLesson(lesson, userId) } returns 2323L
+        val expectedLesson = lesson.copy(groupId = groupId1)
+        val expectedLesson2 = lesson.copy(groupId = groupId2)
+        coEvery { mockRepository.addGroupLesson(expectedLesson, userId) } returns 2323L
+        coEvery { mockRepository.addGroupLesson(expectedLesson2, userId) } returns 2323L
 
         // When
         val result1 = addGroupLesson(groupId1, lesson, userId)
@@ -230,7 +245,8 @@ class AddGroupLessonTest {
         assertEquals(2323L, result1)
         assertEquals(2323L, result2)
 
-        coVerify(exactly = 2) { mockRepository.addGroupLesson(lesson, userId) }
+        coVerify(exactly = 1) { mockRepository.addGroupLesson(expectedLesson, userId) }
+        coVerify(exactly = 1) { mockRepository.addGroupLesson(expectedLesson2, userId) }
     }
 
     @Test
@@ -250,14 +266,15 @@ class AddGroupLessonTest {
         val userId = 2828L
         val expectedLessonId = 2929L
 
-        coEvery { mockRepository.addGroupLesson(customLesson, userId) } returns expectedLessonId
+        val expectedCustomLesson = customLesson.copy(groupId = groupId)
+        coEvery { mockRepository.addGroupLesson(expectedCustomLesson, userId) } returns expectedLessonId
 
         // When
         val result = addGroupLesson(groupId, customLesson, userId)
 
         // Then
         assertEquals(expectedLessonId, result)
-        coVerify { mockRepository.addGroupLesson(customLesson, userId) }
+        coVerify { mockRepository.addGroupLesson(expectedCustomLesson, userId) }
     }
 
     @Test
@@ -268,14 +285,15 @@ class AddGroupLessonTest {
         val userId = 3131L
         val expectedLessonId = 3232L
 
-        coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
+        val expectedLesson = lesson.copy(groupId = groupId)
+        coEvery { mockRepository.addGroupLesson(expectedLesson, userId) } returns expectedLessonId
 
         // When
         val result = addGroupLesson(groupId, lesson, userId)
 
         // Then
         assertEquals(expectedLessonId, result)
-        coVerify { mockRepository.addGroupLesson(lesson, userId) }
+        coVerify { mockRepository.addGroupLesson(expectedLesson, userId) }
     }
 
     @Test
@@ -286,13 +304,14 @@ class AddGroupLessonTest {
         val userId = 3434L
         val expectedLessonId = 3535L
 
-        coEvery { mockRepository.addGroupLesson(lesson, userId) } returns expectedLessonId
+        val expectedLesson = lesson.copy(groupId = groupId)
+        coEvery { mockRepository.addGroupLesson(expectedLesson, userId) } returns expectedLessonId
 
         // When
         val result = addGroupLesson(groupId, lesson, userId)
 
         // Then
         assertEquals(expectedLessonId, result)
-        coVerify { mockRepository.addGroupLesson(lesson, userId) }
+        coVerify { mockRepository.addGroupLesson(expectedLesson, userId) }
     }
 }

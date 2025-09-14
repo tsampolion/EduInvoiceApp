@@ -26,7 +26,7 @@ class UpdateLessonInvoicedStatusTest {
         val isInvoiced = true
 
         // When
-        updateLessonInvoicedStatus(lessonId, isInvoiced, userId)
+        updateLessonInvoicedStatus(listOf(lessonId), isInvoiced, userId)
 
         // Then
         coVerify { mockRepository.updateLessonInvoicedStatus(lessonId, isInvoiced, userId) }
@@ -40,7 +40,7 @@ class UpdateLessonInvoicedStatusTest {
         val isInvoiced = false
 
         // When
-        updateLessonInvoicedStatus(lessonId, isInvoiced, userId)
+        updateLessonInvoicedStatus(listOf(lessonId), isInvoiced, userId)
 
         // Then
         coVerify { mockRepository.updateLessonInvoicedStatus(lessonId, isInvoiced, userId) }
@@ -53,7 +53,7 @@ class UpdateLessonInvoicedStatusTest {
         val isInvoiced = true
 
         // When
-        updateLessonInvoicedStatus(lessonId, isInvoiced)
+        updateLessonInvoicedStatus(listOf(lessonId), isInvoiced, 0)
 
         // Then
         coVerify { mockRepository.updateLessonInvoicedStatus(lessonId, isInvoiced, 0) }

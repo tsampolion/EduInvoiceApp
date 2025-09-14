@@ -27,10 +27,10 @@ class IsLessonInvoicedTest {
         // Given
         val lessonId = 123L
         val userId = 456L
-        coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns flowOf(true)
+        coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns true
 
         // When
-        val result = isLessonInvoiced(lessonId, userId).first()
+        val result = isLessonInvoiced(lessonId, userId)
 
         // Then
         assertTrue(result)
@@ -41,10 +41,10 @@ class IsLessonInvoicedTest {
         // Given
         val lessonId = 123L
         val userId = 456L
-        coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns flowOf(false)
+        coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns false
 
         // When
-        val result = isLessonInvoiced(lessonId, userId).first()
+        val result = isLessonInvoiced(lessonId, userId)
 
         // Then
         assertFalse(result)
@@ -54,10 +54,10 @@ class IsLessonInvoicedTest {
     fun `should work with default userId`() = runTest {
         // Given
         val lessonId = 101L
-        coEvery { mockRepository.isLessonInvoiced(lessonId, 0) } returns flowOf(true)
+        coEvery { mockRepository.isLessonInvoiced(lessonId, 0) } returns true
 
         // When
-        val result = isLessonInvoiced(lessonId).first()
+        val result = isLessonInvoiced(lessonId)
 
         // Then
         assertTrue(result)
@@ -68,10 +68,10 @@ class IsLessonInvoicedTest {
         // Given
         val lessonId = 999L
         val userId = 789L
-        coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns flowOf(false)
+        coEvery { mockRepository.isLessonInvoiced(lessonId, userId) } returns false
 
         // When
-        val result = isLessonInvoiced(lessonId, userId).first()
+        val result = isLessonInvoiced(lessonId, userId)
 
         // Then
         assertFalse(result)

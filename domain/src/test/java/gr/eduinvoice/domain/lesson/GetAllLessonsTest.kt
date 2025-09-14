@@ -110,7 +110,7 @@ class GetAllLessonsTest {
             Fixtures.sampleDomainLesson(isInvoiced = true),
             Fixtures.sampleDomainLesson(isPaid = true),
             Fixtures.sampleDomainLesson(durationMinutes = 0),
-            Fixtures.sampleDomainLesson(fee = 0.0)
+            Fixtures.sampleDomainLesson(defaultRate = 0.0)
         )
         coEvery { mockRepository.getAllLessons(userId) } returns flowOf(lessons)
 

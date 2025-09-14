@@ -49,7 +49,7 @@ class UpdateLessonTest {
         // Given
         val lesson = Fixtures.sampleDomainLesson(
             notes = "Updated notes",
-            fee = 100.0
+            defaultRate = 100.0
         )
         val userId = 789L
 

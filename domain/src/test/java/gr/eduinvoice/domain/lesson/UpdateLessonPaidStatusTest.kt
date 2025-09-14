@@ -26,7 +26,7 @@ class UpdateLessonPaidStatusTest {
         val isPaid = true
 
         // When
-        updateLessonPaidStatus(lessonId, isPaid, userId)
+        updateLessonPaidStatus(listOf(lessonId), isPaid, userId)
 
         // Then
         coVerify { mockRepository.updateLessonPaidStatus(lessonId, isPaid, userId) }
@@ -40,7 +40,7 @@ class UpdateLessonPaidStatusTest {
         val isPaid = false
 
         // When
-        updateLessonPaidStatus(lessonId, isPaid, userId)
+        updateLessonPaidStatus(listOf(lessonId), isPaid, userId)
 
         // Then
         coVerify { mockRepository.updateLessonPaidStatus(lessonId, isPaid, userId) }
@@ -53,7 +53,7 @@ class UpdateLessonPaidStatusTest {
         val isPaid = true
 
         // When
-        updateLessonPaidStatus(lessonId, isPaid)
+        updateLessonPaidStatus(listOf(lessonId), isPaid, 0)
 
         // Then
         coVerify { mockRepository.updateLessonPaidStatus(lessonId, isPaid, 0) }
