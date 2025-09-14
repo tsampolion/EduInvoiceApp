@@ -38,7 +38,7 @@ Run these *exact* commands before proposing code changes:
 * **Language level**: Kotlin JVM 17 (`kotlin.jvm.target=17` in *gradle.properties*)
 * **Formatting**: Use `ktfmt` or IntelliJ default; no tabs; 120-char line cap
 * **Compose**: Prefer `@Stable` data classes; pass `Modifier` as first optional param
-* **Room**: DAO methods return `Flow<>`; migrations handled via `autoMigrations` only (manual migrations banned)
+* **Room**: DAO methods return `Flow<>`. During development we have re-baselined to version 1 and removed migrations; debug builds use destructive migration. When preparing a release, add migrations starting from v1.
 * **Dependency-Injection**: All ViewModels live under `gr.eduinvoice.ui.*` and are Hilt-annotated
 * **Error Handling**: Use ErrorBoundary, ErrorHandler, and RetryManager for robust error handling
 * **Concurrency**: Use ConcurrencyController for thread-safe database operations
@@ -53,7 +53,7 @@ Run these *exact* commands before proposing code changes:
 | `/docs`                        | **NEW** - Comprehensive documentation |
 | `/app/src/main`                | Production code (namespace `gr.eduinvoice`) |
 | `/app/src/test`                | JVM unit tests (Robolectric) |
-| `/data/schemas`                | Room JSON schemas (auto-generated; keep under VC) |
+| `/data/schemas`                | Room JSON schemas (auto-generated). After re-baseline, Room regenerates `1.json` on build. |
 | `build/`, `.gradle/`, `.idea/` | **Ignored** – see `.gitignore` |
 | `local.properties`             | **Ignored** – SDK path, never commit |
 | `CHANGELOG.md`                 | Project changelog; start a new versioned section for each pull request |
@@ -112,7 +112,7 @@ Checklist:
 
 1. **ANDROID_HOME not set** – always source the profile written by `setup-android-sdk.sh`
 2. **Out-of-date Gradle wrapper** – update with `./gradlew wrapper --gradle-version 8.10.2` when bumping AGP
-3. **Room schema drift** – run `./gradlew test` after changing entities to auto-regenerate `/data/schemas`; manual migrations are banned
+3. **Room schema drift** – after re-baseline, run `./gradlew test` to regenerate `data/schemas/.../1.json`. For releases, add migrations and corresponding schemas incrementally from v1.
 4. **Accidentally committed build output** – confirm `.gitignore` still excludes `build/`, `.gradle/`, `.idea/`
 5. **Robolectric memory leaks** – never keep global state in test classes; use `@Config` with `sdk = 34`
 6. **Missing error handling** – always wrap operations with appropriate error handling components

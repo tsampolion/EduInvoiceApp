@@ -2,7 +2,6 @@ package gr.eduinvoice.data.database
 
 import android.content.Context
 import android.util.Log
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -26,29 +25,8 @@ import java.util.concurrent.Executors
 
 @Database(
     entities = [Student::class, Lesson::class, StudentGroup::class, GroupStudentCrossRef::class, User::class, GroupLessonMaster::class, GroupLessonAbsence::class, InvoiceMaster::class, PaymentBatchMaster::class, RescheduleMaster::class, RescheduleMasterLessonLink::class],
-    version = 24,
-    exportSchema = true,
-    autoMigrations = [
-        AutoMigration(from = 5, to = 6, spec = AutoMigration5To6::class),
-        AutoMigration(from = 6, to = 7),
-        AutoMigration(from = 7, to = 8),
-        AutoMigration(from = 8, to = 9),
-        AutoMigration(from = 9, to = 10),
-        AutoMigration(from = 10, to = 11),
-        AutoMigration(from = 11, to = 12),
-        AutoMigration(from = 12, to = 13, spec = AutoMigration12To13::class),
-        AutoMigration(from = 13, to = 14),
-        AutoMigration(from = 14, to = 15),
-        AutoMigration(from = 15, to = 16, spec = AutoMigration15To16::class),
-        AutoMigration(from = 16, to = 17, spec = AutoMigration16To17::class),
-        AutoMigration(from = 17, to = 18, spec = AutoMigration17To18::class),
-        AutoMigration(from = 18, to = 19, spec = AutoMigration18To19::class),
-        AutoMigration(from = 19, to = 20, spec = AutoMigration19To20::class),
-        AutoMigration(from = 20, to = 21, spec = AutoMigration20To21::class),
-        AutoMigration(from = 21, to = 22, spec = AutoMigration21To22::class),
-        AutoMigration(from = 22, to = 23),
-        AutoMigration(from = 23, to = 24)
-    ]
+    version = 1,
+    exportSchema = true
 )
 abstract class EduInvoiceDatabase : RoomDatabase() {
     abstract fun studentDao(): StudentDao
@@ -82,7 +60,7 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
                     .openHelperFactory(factory)
                     .setQueryExecutor(queryExecutor)
                     .setTransactionExecutor(transactionExecutor)
-                    .fallbackToDestructiveMigration(false)
+                    .fallbackToDestructiveMigration(gr.eduinvoice.data.BuildConfig.DEBUG)
                     .build()
                 INSTANCE = instance
                 instance
