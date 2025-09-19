@@ -32,6 +32,9 @@ if (googleServicesFile.exists()) {
     firebaseKey = "MOCK_KEY_FOR_DEVELOPMENT"
 }
 
+def isReleaseBuild = gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }
+def enableAbiSplits = (findProperty('ENABLE_ABI_SPLITS')?.toString()?.toBoolean() ?: false) || isReleaseBuild
+
 android {
     namespace "gr.eduinvoice"
     compileSdk 35
@@ -140,10 +143,10 @@ android {
         // This avoids mismatched variants that can trigger CPU variant warnings
     }
 
-    // Generate per-ABI APKs so emulators/devices get the exact native libs they need
+    // Gate ABI splits to release builds (or when explicitly enabled) to speed up debug builds
     splits {
         abi {
-            enable true
+            enable enableAbiSplits
             reset()
             include 'arm64-v8a', 'armeabi-v7a', 'x86_64'
             universalApk false

@@ -18,6 +18,9 @@ buildCache {
     local {
         directory = new File(rootDir, 'build-cache')
         removeUnusedEntriesAfterDays = 30
+        // Limit size to keep cache from growing unbounded in CI/dev boxes
+        // Gradle trims LRU entries as needed
+        // No explicit size API for local cache; rely on default cleanup
     }
 }
 
