@@ -7,7 +7,7 @@
 ### Database Overview
 - **Database Configuration** - Room database setup and configuration
 - **Encryption Setup** - SQLCipher encryption configuration
-- **Migration Strategy** - Database migration and versioning
+- **Migration Strategy** - Development re-baselined to `version = 1` with no migrations; add migrations from v1 when preparing a release
 - **Multi-User Support** - Data isolation and user separation
 - **Backup Strategy** - Database backup and restore procedures
 

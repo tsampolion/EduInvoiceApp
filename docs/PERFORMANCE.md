@@ -1,93 +1,44 @@
 # Performance Guide
 
-*This document is under development and will be updated throughout the development process.*
+## Overview
 
-## Planned Sections
+This guide describes our performance goals, current optimizations, and how to monitor and test them. It merges the prior Performance Optimization Report into a single living document.
 
-### Performance Overview
-- **Performance Architecture** - Overall performance design and principles
-- **Performance Metrics** - Key performance indicators and measurements
-- **Performance Goals** - Performance targets and benchmarks
-- **Performance Monitoring** - Real-time performance monitoring
-- **Performance Optimization** - Performance optimization strategies
+## Implemented optimizations (current state)
 
-### Memory Management
-- **Memory Architecture** - Memory usage patterns and optimization
-- **Memory Monitoring** - Real-time memory usage tracking
-- **Memory Leaks** - Memory leak detection and prevention
-- **Garbage Collection** - Garbage collection optimization
-- **Memory Pressure** - Memory pressure handling and recovery
+- Async startup and heavy work off the main thread
+  - Background processing via `BackgroundProcessor` for long-running tasks
+  - Reduced synchronous initialization in app startup paths
+- Database resilience and performance
+  - `DatabaseHealthMonitor` with integrity checks (`DatabaseIntegrityValidator`)
+  - `DatabaseFallbackManager` for graceful recovery
+- Memory awareness
+  - `MemoryMonitor` and `MemoryPressureHandler` for detection and mitigation
+- Concurrency infrastructure
+  - `TransactionManager`, `OperationQueueManager`, `ConcurrencyController`
 
-### Database Performance
-- **Query Optimization** - Database query performance optimization
-- **Indexing Strategy** - Database indexing for performance
-- **Connection Pooling** - Database connection management
-- **Caching Strategy** - Database query caching
-- **Large Dataset Handling** - Performance with large datasets
+## Targets (KPIs)
 
-### UI Performance
-- **Compose Performance** - Jetpack Compose performance optimization
-- **Rendering Optimization** - UI rendering performance
-- **Animation Performance** - Animation and transition optimization
-- **Layout Performance** - Layout calculation optimization
-- **Image Loading** - Image loading and caching optimization
+- Cold start: < 500 ms on mid-range devices
+- Jank during startup: 0 dropped frames
+- Initial memory: < 100 MB
+- Crash rate: < 0.1%
 
-### Background Processing
-- **Background Tasks** - Background task management and optimization
-- **Thread Management** - Thread pool and concurrency management
-- **Task Prioritization** - Background task prioritization
-- **Resource Management** - Background resource management
-- **Task Scheduling** - Background task scheduling optimization
+## How to test and monitor
 
-### Network Performance
-- **Network Optimization** - Network request optimization
-- **Caching Strategy** - Network response caching
-- **Request Batching** - Network request batching
-- **Compression** - Network data compression
-- **Connection Management** - Network connection optimization
+- Startup profiling: Android Profiler; custom logs around initialization phases
+- Memory: LeakCanary (debug), profiler sessions and stress tests
+- Database: run health and integrity checks via monitor utilities in data layer
 
-### Startup Performance
-- **Cold Start Optimization** - Application cold start performance
-- **Warm Start Optimization** - Application warm start performance
-- **Initialization Optimization** - Component initialization optimization
-- **Lazy Loading** - Lazy loading strategies
-- **Preloading** - Data and component preloading
+## Areas and practices
 
-### Battery Optimization
-- **Battery Usage** - Battery usage optimization
-- **Background Restrictions** - Background activity restrictions
-- **Wake Lock Management** - Wake lock usage optimization
-- **Location Services** - Location service optimization
-- **Sensor Usage** - Sensor usage optimization
-
-### Storage Performance
-- **File I/O Optimization** - File input/output optimization
-- **Database I/O** - Database input/output optimization
-- **Cache Management** - Storage cache management
-- **Compression** - Storage data compression
-- **Cleanup Strategies** - Storage cleanup and maintenance
-
-### Concurrency Performance
-- **Thread Safety** - Thread-safe operation optimization
-- **Lock Management** - Lock and synchronization optimization
-- **Deadlock Prevention** - Deadlock detection and prevention
-- **Resource Contention** - Resource contention management
-- **Concurrency Monitoring** - Concurrency performance monitoring
-
-### Performance Testing
-- **Performance Testing** - Performance testing procedures
-- **Benchmarking** - Performance benchmarking tools
-- **Profiling** - Performance profiling and analysis
-- **Load Testing** - Load testing and stress testing
-- **Performance Regression** - Performance regression testing
-
-### Performance Monitoring
-- **Real-time Monitoring** - Real-time performance monitoring
-- **Performance Alerts** - Performance alert systems
-- **Performance Analytics** - Performance data analytics
-- **Performance Reporting** - Performance reporting and dashboards
-- **Performance Trends** - Performance trend analysis
+- Memory Management: leak detection, pressure handling, GC-friendly patterns
+- Database Performance: indices, query avoidance, caching where appropriate
+- UI Performance: Compose recomposition control, list virtualization, image pipelines
+- Background Processing: prioritize, batch, and schedule non-UI work
+- Network Performance: caching, batching, compression where applicable
+- Testing & Regression: performance tests and regular profiling in CI plans
 
 ---
 
-*This document will be continuously updated as performance optimizations are implemented and refined.*
+This document will be continuously updated as performance optimizations are implemented and refined.

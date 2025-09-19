@@ -1,4 +1,14 @@
 # Changelog
+## [0.30.0] - 2025-09-14
+
+### Breaking (dev-only)
+- Re-baselined Room database to version 1. Removed all historical migrations and schema snapshots since the app has not been shipped yet.
+
+### Technical
+- `EduInvoiceDatabase`: set `version = 1` and removed `autoMigrations`. Enabled `.fallbackToDestructiveMigration(BuildConfig.DEBUG)` so debug builds auto-recreate the DB on schema changes.
+- Deleted `AutoMigrations.kt` and cleared `data/schemas/gr.eduinvoice.data.database.EduInvoiceDatabase/` to let Room regenerate a fresh `1.json`.
+- Updated README with the new “Database schema (Room) – Development policy”.
+
 
 All notable changes to this project will be documented in this file.
 

@@ -46,9 +46,9 @@ Keep using Hilt but provide modules in the data layer to expose DAOs and reposit
 
 ## 5. Database revisions
 
-1. Review the migration history in `EduInvoiceDatabase` and flatten earlier migrations into a single schema representing the latest version.
-2. Keep `AutoMigrationSpec` classes for users upgrading from an older version.
-3. Store generated schema JSON under `data/schemas` so it is tracked in version control.
+1. Re-baseline during development: set `@Database(version = 1)` and remove migrations. Enable destructive migration for debug builds.
+2. Delete old schema JSONs under `data/schemas/.../` and let Room regenerate `1.json` on build.
+3. When preparing a release, start adding migrations from v1 upward and commit each new schema JSON.
 
 ## 6. Compose UI refactoring
 

@@ -136,6 +136,18 @@ Comprehensive documentation is available in the [`docs/`](docs/) directory:
 - **[Testing Strategy](docs/TESTING_STRATEGY.md)** - Comprehensive testing approach
 - **[API Reference](docs/API_REFERENCE.md)** - Technical API documentation
 
+### Database schema (Room) – Development policy
+
+- We have re-baselined the Room database to version 1 during development (no shipped users). This removes all historical migrations and snapshots to simplify iteration.
+- Entities define the complete schema; `@Database(version = 1)` is the current baseline and Room exports `1.json` under `data/schemas/` on build.
+- For local development, destructive migration is enabled in debug builds so schema edits rebuild the DB automatically. Before releasing, this will be disabled and proper migrations will be added starting from v1.
+
+How to regenerate schemas:
+```bash
+./gradlew :data:kspDebugKotlin :data:testDebugUnitTest
+```
+Outputs to: `data/schemas/gr.eduinvoice.data.database.EduInvoiceDatabase/1.json`.
+
 ## 🏗️ Project Structure
 
 ```
