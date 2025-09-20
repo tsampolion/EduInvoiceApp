@@ -3,10 +3,16 @@ package gr.eduinvoice.data.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.Index
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Entity(tableName = "payment_batch_master")
+@Entity(
+    tableName = "payment_batch_master",
+    indices = [
+        Index(value = ["ownerId", "studentId", "batchDate"], name = "idx_payment_owner_student_date")
+    ]
+)
 data class PaymentBatchMaster(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
