@@ -9,7 +9,12 @@ class AppLayerDependenciesTest {
     fun `app must not import data layer types`() {
         val prohibited = listOf(
             "gr.eduinvoice.data.model",
-            "gr.eduinvoice.data.database"
+            "gr.eduinvoice.data.database",
+            "gr.eduinvoice.data.repository",
+            "gr.eduinvoice.data.dao",
+            "gr.eduinvoice.data.mapper",
+            "gr.eduinvoice.data.concurrency",
+            "gr.eduinvoice.data.adapter"
         )
         val files = Konsist.scopeFromProject()
             .files

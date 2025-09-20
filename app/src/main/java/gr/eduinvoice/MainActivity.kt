@@ -23,7 +23,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import gr.eduinvoice.analytics.ErrorReporter
 import gr.eduinvoice.analytics.PerformanceMonitor
 import gr.eduinvoice.analytics.StartupPerformanceMonitor
-import gr.eduinvoice.data.database.EduInvoiceDatabase
 import gr.eduinvoice.domain.user.UserUseCases
 import gr.eduinvoice.ui.components.ErrorBoundary
 import gr.eduinvoice.ui.components.ErrorScreen
@@ -42,7 +41,6 @@ import android.content.res.Resources
 class MainActivity : ComponentActivity() {
 
     private lateinit var errorReporter: ErrorReporter
-    @Inject lateinit var db: EduInvoiceDatabase
     @Inject lateinit var userUseCases: UserUseCases
     @Inject lateinit var startupPerformanceMonitor: StartupPerformanceMonitor
     @Inject lateinit var resourceResolver: ResourceResolver
@@ -88,12 +86,9 @@ class MainActivity : ComponentActivity() {
                     initState = InitState.Loading
 
                     try {
-                        // Move all database operations to background thread
+                        // Move initialization to background thread
                         withContext(Dispatchers.IO) {
-                            // Pre-warm database connection
-                            db.openHelper.writableDatabase.version
-
-                            // Create admin user if needed
+                            // Create admin user if needed (also warms up the data layer)
                             userUseCases.createAdminUserIfNotExists()
                         }
 

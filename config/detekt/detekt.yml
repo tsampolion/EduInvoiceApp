@@ -9,6 +9,7 @@ style:
       - 'gr.eduinvoice.data.repository.*'
       - 'gr.eduinvoice.data.dao.*'
       - 'gr.eduinvoice.data.mapper.*'
+    excludes: ['**/app/src/test/**']
 
 # Custom rules for preventing manual migrations
 custom-rules:
