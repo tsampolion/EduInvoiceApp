@@ -1,4 +1,12 @@
 # Changelog
+## [0.31.1] - 2025-09-19
+
+### Optimizations
+- Gradle: enabled build cache and configuration cache; reduced KSP incremental logging noise.
+- Packaging: limited ABI splits to 64-bit only (`arm64-v8a`, `x86_64`).
+- Room: set journal mode to WAL for higher write throughput.
+- Security: removed passphrase-length logging from database initialization.
+
 ## [0.31.0] - 2025-09-19
 
 ### Changed
