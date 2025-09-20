@@ -33,5 +33,15 @@ class StartupPerfSmokeTest {
         val duration = SystemClock.uptimeMillis() - start
         assertTrue("Cold start ${duration}ms exceeded budget ${budgetMs}ms", duration < budgetMs)
     }
+
+    @Test
+    fun initialMemory_underBudget() {
+        val args = InstrumentationRegistry.getArguments()
+        val budgetMb = args.getString("INITIAL_MEMORY_BUDGET_MB")?.toLongOrNull() ?: 150L
+
+        val runtime = Runtime.getRuntime()
+        val used = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024)
+        assertTrue("Initial memory ${used}MB exceeded budget ${budgetMb}MB", used < budgetMb)
+    }
 }
 
