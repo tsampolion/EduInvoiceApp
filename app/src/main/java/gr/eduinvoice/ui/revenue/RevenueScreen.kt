@@ -144,6 +144,32 @@ fun RevenueScreen(
                     }
                 }
             }
+
+            // Earnings by class section consistent with revenue tab styling
+            if (uiState.earningsByClass.isNotEmpty()) {
+                Text(
+                    text = "Earnings by Class",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium)
+                )
+                Spacer(Modifier.height(4.dp))
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.earningsByClass, key = { it.className ?: "" }) { row ->
+                        MetricCard(
+                            label = row.className ?: "Unknown",
+                            value = row.revenue.formatAsCurrency(
+                                settings?.currencySymbol ?: "€",
+                                settings?.roundingDecimals ?: 2
+                            ),
+                            modifier = Modifier.fillMaxWidth(),
+                            containerColor = AppColors.primaryContainer
+                        )
+                    }
+                }
+            }
         }
 
 
