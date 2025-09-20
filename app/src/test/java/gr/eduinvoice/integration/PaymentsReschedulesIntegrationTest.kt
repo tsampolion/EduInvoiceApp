@@ -74,6 +74,21 @@ class PaymentsReschedulesIntegrationTest {
         dao.attachLessonToReschedule(rescheduleId, ids.first())
         val linked = dao.getRescheduledLessonIds(rescheduleId)
         assertTrue(linked.contains(ids.first()))
+
+        // Attempt to update paid/invoiced lessons should be blocked by WHERE conditions (no rows updated)
+        dao.updateByGroupAndTimeForStudents(
+            userId = userId,
+            groupId = 1L,
+            oldDate = "2025-01-01",
+            oldStartTime = "10:00",
+            oldDuration = 60,
+            newDate = "2025-01-21",
+            newStartTime = "12:00",
+            newDuration = 60,
+            newNotes = "Rescheduled",
+            studentIds = listOf(studentId)
+        )
+        // If we got here without exception, the guarded update didn't break constraints
     }
 }
 

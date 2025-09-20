@@ -125,7 +125,7 @@ interface LessonDao {
     suspend fun deleteById(lessonId: Long, userId: Long)
 
     @Query(
-        "DELETE FROM lessons WHERE ownerId = :userId AND groupId = :groupId AND date = :date AND startTime = :startTime AND durationMinutes = :duration AND studentId IN (:studentIds)"
+        "DELETE FROM lessons WHERE ownerId = :userId AND groupId = :groupId AND date = :date AND startTime = :startTime AND durationMinutes = :duration AND studentId IN (:studentIds) AND isPaid = 0 AND isInvoiced = 0"
     )
     suspend fun deleteByGroupAndTimeForStudents(
         userId: Long,
@@ -137,7 +137,7 @@ interface LessonDao {
     )
 
     @Query(
-        "UPDATE lessons SET date = :newDate, startTime = :newStartTime, durationMinutes = :newDuration, notes = :newNotes WHERE ownerId = :userId AND groupId = :groupId AND date = :oldDate AND startTime = :oldStartTime AND durationMinutes = :oldDuration AND studentId IN (:studentIds)"
+        "UPDATE lessons SET date = :newDate, startTime = :newStartTime, durationMinutes = :newDuration, notes = :newNotes WHERE ownerId = :userId AND groupId = :groupId AND date = :oldDate AND startTime = :oldStartTime AND durationMinutes = :oldDuration AND studentId IN (:studentIds) AND isPaid = 0 AND isInvoiced = 0"
     )
     suspend fun updateByGroupAndTimeForStudents(
         userId: Long,
