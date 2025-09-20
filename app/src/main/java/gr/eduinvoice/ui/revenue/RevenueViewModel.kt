@@ -34,6 +34,8 @@ class RevenueViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(RevenueUiState())
     val uiState: StateFlow<RevenueUiState> = _uiState.asStateFlow()
+    private val _dateRange = MutableStateFlow(currentMonthRange())
+    val dateRange: StateFlow<DateRange> = _dateRange.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -43,24 +45,20 @@ class RevenueViewModel @Inject constructor(
                     combine(
                         studentUseCases.getActiveStudents(uid),
                         lessonUseCases.getAllLessons(uid),
-                        // also include earnings-by-class for current month
-                        getEarningsByClass(
-                            LocalDate.now().withDayOfMonth(1).toString(),
-                            LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth()).toString(),
-                            uid
-                        )
-                    ) { students, lessons, earningsByClass ->
-                        Triple(students, lessons, earningsByClass)
+                        dateRange,
+                        getEarningsByClass(dateRange.value.start, dateRange.value.end, uid)
+                    ) { students, lessons, range, earningsByClass ->
+                        Quad(students, lessons, range, earningsByClass)
                     }
                 }
-                .map { (students, lessons, earningsByClass) ->
+                .map { (students, lessons, range, earningsByClass) ->
                     val studentMap = students.associateBy { it.id }
 
                     val today = LocalDate.now()
                     val weekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                     val weekEnd = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
-                    val monthStart = today.withDayOfMonth(1)
-                    val monthEnd = today.withDayOfMonth(today.lengthOfMonth())
+                    val monthStart = LocalDate.parse(range.start)
+                    val monthEnd = LocalDate.parse(range.end)
 
                     val dayTotal = lessons.filter { it.date == today.toString() }
                         .sumOf { lesson ->
@@ -116,9 +114,7 @@ class RevenueViewModel @Inject constructor(
                         monthlyPaid = paidTotal,
                         monthlyUnpaid = unpaidTotal,
                         debts = debts,
-                        earningsByClass = earningsByClass.map { (clazz, revenue) ->
-                            gr.eduinvoice.data.database.EarningsByClassRow(clazz, revenue)
-                        }
+                        earningsByClass = earningsByClass.map { (clazz, revenue) -> UiEarningsByClass(clazz, revenue) }
                     )
                 }
                 .collect { state ->
@@ -139,6 +135,18 @@ class RevenueViewModel @Inject constructor(
             }
         }
     }
+
+    fun setCurrentMonth() {
+        _dateRange.value = currentMonthRange()
+    }
+
+    fun setPreviousMonth() {
+        val today = LocalDate.now().minusMonths(1)
+        _dateRange.value = DateRange(
+            today.withDayOfMonth(1).toString(),
+            today.withDayOfMonth(today.lengthOfMonth()).toString()
+        )
+    }
 }
 
 data class RevenueUiState(
@@ -148,5 +156,18 @@ data class RevenueUiState(
     val monthlyPaid: Double = 0.0,
     val monthlyUnpaid: Double = 0.0,
     val debts: List<StudentDebt> = emptyList(),
-    val earningsByClass: List<gr.eduinvoice.data.database.EarningsByClassRow> = emptyList()
+    val earningsByClass: List<UiEarningsByClass> = emptyList()
 )
+
+data class UiEarningsByClass(val className: String, val revenue: Double)
+
+data class DateRange(val start: String, val end: String)
+
+private fun currentMonthRange(): DateRange {
+    val today = LocalDate.now()
+    val start = today.withDayOfMonth(1).toString()
+    val end = today.withDayOfMonth(today.lengthOfMonth()).toString()
+    return DateRange(start, end)
+}
+
+private data class Quad<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)
