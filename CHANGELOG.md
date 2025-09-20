@@ -1,4 +1,15 @@
 # Changelog
+## [0.31.0] - 2025-09-19
+
+### Changed
+- Encrypted-only build: removed `flavorDimensions` and `productFlavors` (`encrypted`/`plain`) from `app` and `data` modules.
+- `DatabaseModule`: SQLCipher is now mandatory. Removed unencrypted fallback and `_plain` DB path; fail fast if SQLCipher native libs are unavailable. Retain destructive-migration recovery using `SupportFactory(passphrase)`.
+- Docs: updated `README.md` and `docs/INSTALLATION.md` with 64-bit emulator/device requirement (x86_64 or arm64) for SQLCipher.
+- Scripts: updated `fix_schemas.ps1` to use `:data:assembleDebug` instead of the removed plain variant.
+
+### DevOps
+- Build variants simplified to a single encrypted artifact; assemble and test targets no longer include flavor-specific tasks.
+
 ## [0.30.0] - 2025-09-14
 
 ### Breaking (dev-only)
