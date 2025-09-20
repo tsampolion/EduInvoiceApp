@@ -46,6 +46,18 @@ jobs:
       - name: Build and Unit Tests
         run: ./gradlew clean test --no-daemon --stacktrace --warning-mode all
 
+      - name: Generate Room schemas (KSP)
+        run: ./gradlew :data:kspDebugKotlin --no-daemon --stacktrace --warning-mode all
+
+      - name: Upload Room schemas
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: room-schemas
+          path: |
+            data/schemas/
+          retention-days: 30
+
       - name: Coverage verify (Kover)
         run: ./gradlew koverVerify --no-daemon --stacktrace --warning-mode all
 

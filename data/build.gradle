@@ -88,6 +88,10 @@ dependencies {
 
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.incremental", "true")
+    arg("room.expandProjection", "true")
+    arg("room.generateKotlin", "true")
+    arg("room.useK2", "true")
 }
 
 // Spotless configuration
