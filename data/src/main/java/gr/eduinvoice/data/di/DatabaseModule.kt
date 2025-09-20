@@ -75,7 +75,7 @@ object DatabaseModule {
                 require(pass.isNotBlank()) { "Database passphrase unavailable" }
                 val passphrase = SQLiteDatabase.getBytes(pass.toCharArray())
 
-                Log.d("DatabaseModule", "Passphrase length: ${passphrase.size}")
+                // Avoid logging passphrase or even its length for security hygiene
 
                 try {
                     EduInvoiceDatabase.getDatabase(context, passphrase)

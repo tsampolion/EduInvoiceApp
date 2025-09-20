@@ -58,6 +58,7 @@ abstract class EduInvoiceDatabase : RoomDatabase() {
                     DatabaseConstants.DATABASE_NAME
                 )
                     .openHelperFactory(factory)
+                    .setJournalMode(JournalMode.WRITE_AHEAD_LOGGING)
                     .setQueryExecutor(queryExecutor)
                     .setTransactionExecutor(transactionExecutor)
                     .fallbackToDestructiveMigration(gr.eduinvoice.data.BuildConfig.DEBUG)
