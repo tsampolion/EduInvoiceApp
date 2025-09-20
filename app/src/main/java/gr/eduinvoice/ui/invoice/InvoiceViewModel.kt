@@ -1,27 +1,30 @@
 package gr.eduinvoice.ui.invoice
 
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import gr.eduinvoice.domain.model.DomainStudent
-import gr.eduinvoice.ui.model.UiInvoiceLesson
+import gr.eduinvoice.analytics.PerformanceTraces
 import gr.eduinvoice.domain.lesson.LessonUseCases
+import gr.eduinvoice.domain.model.DomainStudent
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.user.CurrentUserProvider
+import gr.eduinvoice.invoice.InvoiceService
+import gr.eduinvoice.ui.model.UiInvoiceLesson
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.io.File
 import java.time.LocalDate
 import javax.inject.Inject
-import gr.eduinvoice.analytics.PerformanceTraces
 
 @HiltViewModel
 @kotlin.OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -29,7 +32,8 @@ class InvoiceViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val lessonUseCases: LessonUseCases,
     private val studentUseCases: StudentUseCases,
-    private val currentUserProvider: CurrentUserProvider
+    private val currentUserProvider: CurrentUserProvider,
+    private val invoiceService: InvoiceService
 ) : ViewModel() {
 
     private val defaultStudentId: Long? =
@@ -59,6 +63,12 @@ class InvoiceViewModel @Inject constructor(
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+    private val _isGenerating = MutableStateFlow(false)
+    val isGenerating: StateFlow<Boolean> = _isGenerating.asStateFlow()
+    private val _generatedInvoiceUri = MutableStateFlow<Uri?>(null)
+    val generatedInvoiceUri: StateFlow<Uri?> = _generatedInvoiceUri.asStateFlow()
+    private val _generatedInvoiceFile = MutableStateFlow<File?>(null)
+    val generatedInvoiceFile: StateFlow<File?> = _generatedInvoiceFile.asStateFlow()
 
     fun dismissError() { _errorMessage.value = null }
 
@@ -126,5 +136,44 @@ class InvoiceViewModel @Inject constructor(
                 _errorMessage.value = e.message ?: "Failed to finalize invoice"
             }
         }
+    }
+
+    fun setGenerating(generating: Boolean) {
+        _isGenerating.value = generating
+    }
+
+    fun generateAndFinalize(optionalInvoiceNumber: String? = null) {
+        viewModelScope.launch {
+            val uid = currentUserProvider.loggedInUserId.firstOrNull() ?: return@launch
+            val studentId = _selectedStudentId.value ?: return@launch
+            val selectedIds = _selectedLessons.value
+            val selectedLessons = _lessons.value.filter { selectedIds.contains(it.id) }.map { it.lesson }
+            if (selectedLessons.isEmpty()) {
+                _errorMessage.value = "Select at least one lesson"
+                return@launch
+            }
+            val student = students.value.firstOrNull { it.id == studentId } ?: return@launch
+            try {
+                _isGenerating.value = true
+                val result = invoiceService.generate(student, selectedLessons, optionalInvoiceNumber, null)
+                result.fold(
+                    onSuccess = { data ->
+                        _generatedInvoiceUri.value = data.uri
+                        _generatedInvoiceFile.value = data.file
+                        createInvoiceAndMark(selectedLessons.map { it.id }, data.invoiceNumber, LocalDate.now().toString(), null)
+                    },
+                    onFailure = { e ->
+                        _errorMessage.value = e.message ?: "Failed to create invoice"
+                    }
+                )
+            } finally {
+                _isGenerating.value = false
+            }
+        }
+    }
+
+    fun clearGenerated() {
+        _generatedInvoiceUri.value = null
+        _generatedInvoiceFile.value = null
     }
 }
