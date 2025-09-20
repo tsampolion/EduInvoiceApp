@@ -55,7 +55,13 @@ object DatabaseModule {
                     SQLiteDatabase.loadLibs(context)
                 } catch (t: Throwable) {
                     Log.e("DatabaseModule", "SQLCipher native library not available on this device/emulator", t)
-                    throw DatabaseInitException("SQLCipher native library not available. Use a 64-bit emulator/device (x86_64 or arm64).", t)
+                    val hint = buildString {
+                        append("SQLCipher native library could not be loaded. ")
+                        append("Ensure you're running on a 64-bit device/emulator (arm64-v8a or x86_64). ")
+                        append("If on Android 14/15 emulator, use a 64-bit system image. ")
+                        append("Make sure ABI filters include only 'arm64-v8a' and 'x86_64'.")
+                    }
+                    throw DatabaseInitException(hint, t)
                 }
 
                 // Get passphrase with better error handling (already on IO dispatcher)
