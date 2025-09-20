@@ -95,6 +95,7 @@ A professional Android application for managing tutoring sessions and generating
 
 - **JDK 17 or newer** installed and available on your `PATH`
 - **Android SDK** with API level 35 and build tools
+- 64-bit device/emulator requirement for SQLCipher: use x86_64 emulator system images or an arm64 device. 32-bit x86 emulators are not supported.
 - **Firebase API key** configured in `local.properties`
 
 ### Installation
@@ -116,7 +117,7 @@ A professional Android application for managing tutoring sessions and generating
    - Place it in the `app/` directory
    - Add your Firebase API key to `local.properties`
 
-4. **Build and run:**
+4. **Build and run (encrypted-only builds):**
    ```bash
    ./gradlew clean
    ./gradlew assemble

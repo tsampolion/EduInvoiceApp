@@ -1,7 +1,6 @@
 package gr.eduinvoice.data.di
 
 import android.content.Context
-import android.database.sqlite.SQLiteException
 import android.util.Log
 import dagger.Module
 import dagger.Provides
@@ -12,10 +11,8 @@ import gr.eduinvoice.data.BuildConfig
 import gr.eduinvoice.data.database.DatabaseConstants
 import gr.eduinvoice.data.database.DatabaseInitException
 import gr.eduinvoice.data.database.EduInvoiceDatabase
-import gr.eduinvoice.data.database.LegacyMigration
 import gr.eduinvoice.data.fallback.DatabaseFallbackManager
 import gr.eduinvoice.data.monitoring.DatabaseHealthMonitor
-import gr.eduinvoice.data.repository.BackupRepository
 import gr.eduinvoice.data.repository.OfflineDataManager
 import gr.eduinvoice.data.repository.SyncRepository
 import gr.eduinvoice.data.concurrency.ConcurrencyController
@@ -53,16 +50,12 @@ object DatabaseModule {
         // The `MainActivity` demonstrates the correct usage pattern for initialization.
         return runBlocking(Dispatchers.IO) {
             try {
-                val encryptionEnabled = BuildConfig.DB_ENCRYPTION_ENABLED
-                var sqlCipherAvailable = false
-
-                if (encryptionEnabled) {
-                    try {
-                        SQLiteDatabase.loadLibs(context)
-                        sqlCipherAvailable = true
-                    } catch (t: Throwable) {
-                        Log.w("DatabaseModule", "SQLCipher native library not available on this device/emulator", t)
-                    }
+                // Always require SQLCipher for database operations
+                try {
+                    SQLiteDatabase.loadLibs(context)
+                } catch (t: Throwable) {
+                    Log.e("DatabaseModule", "SQLCipher native library not available on this device/emulator", t)
+                    throw DatabaseInitException("SQLCipher native library not available. Use a 64-bit emulator/device (x86_64 or arm64).", t)
                 }
 
                 // Get passphrase with better error handling (already on IO dispatcher)
@@ -84,46 +77,34 @@ object DatabaseModule {
 
                 Log.d("DatabaseModule", "Passphrase length: ${passphrase.size}")
 
-                if (encryptionEnabled && sqlCipherAvailable) {
-                    try {
-                        EduInvoiceDatabase.getDatabase(context, passphrase)
-                    } catch (e: Exception) {
-                        Log.e("DatabaseModule", "Failed to create database", e)
+                try {
+                    EduInvoiceDatabase.getDatabase(context, passphrase)
+                } catch (e: Exception) {
+                    Log.e("DatabaseModule", "Failed to create database", e)
 
-                        // Try to recover by using destructive migration as last resort
-                        if (e.message?.contains("Migration didn't properly handle") == true) {
-                            Log.w("DatabaseModule", "Migration failed, attempting recovery with destructive migration")
-                            try {
-                                val factory = SupportFactory(passphrase)
-                                val recoveredInstance = Room.databaseBuilder(
-                                    context.applicationContext,
-                                    EduInvoiceDatabase::class.java,
-                                    DatabaseConstants.DATABASE_NAME
-                                )
-                                    .openHelperFactory(factory)
-                                    .fallbackToDestructiveMigration(true) // Allow destructive migration for recovery
-                                    .build()
+                    // Try to recover by using destructive migration as last resort
+                    if (e.message?.contains("Migration didn't properly handle") == true) {
+                        Log.w("DatabaseModule", "Migration failed, attempting recovery with destructive migration")
+                        try {
+                            val factory = SupportFactory(passphrase)
+                            val recoveredInstance = Room.databaseBuilder(
+                                context.applicationContext,
+                                EduInvoiceDatabase::class.java,
+                                DatabaseConstants.DATABASE_NAME
+                            )
+                                .openHelperFactory(factory)
+                                .fallbackToDestructiveMigration(true) // Allow destructive migration for recovery
+                                .build()
 
-                                Log.i("DatabaseModule", "Database recovered successfully with destructive migration")
-                                recoveredInstance
-                            } catch (recoveryException: Exception) {
-                                Log.e("DatabaseModule", "Recovery failed", recoveryException)
-                                throw DatabaseInitException("Database recovery failed", recoveryException)
-                            }
-                        } else {
-                            throw DatabaseInitException("Failed to create database", e)
+                            Log.i("DatabaseModule", "Database recovered successfully with destructive migration")
+                            recoveredInstance
+                        } catch (recoveryException: Exception) {
+                            Log.e("DatabaseModule", "Recovery failed", recoveryException)
+                            throw DatabaseInitException("Database recovery failed", recoveryException)
                         }
+                    } else {
+                        throw DatabaseInitException("Failed to create database", e)
                     }
-                } else {
-                    // Unencrypted path
-                    Log.w("DatabaseModule", "Using UNENCRYPTED Room database per flavor configuration")
-                    Room.databaseBuilder(
-                        context.applicationContext,
-                        EduInvoiceDatabase::class.java,
-                        DatabaseConstants.DATABASE_NAME + "_plain"
-                    )
-                        .fallbackToDestructiveMigration(true)
-                        .build()
                 }
             } catch (e: Exception) {
                 Log.e("DatabaseModule", "Critical database initialization error", e)

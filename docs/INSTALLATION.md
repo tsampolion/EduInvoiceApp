@@ -180,6 +180,12 @@ FIREBASE_API_KEY=your_firebase_api_key_here
 ```bash
 ./gradlew test
 ./gradlew lintDebug
+
+### SQLCipher and Emulator Requirements
+
+- Builds are encrypted-only. Ensure you run on a 64-bit emulator (x86_64) or an arm64 device.
+- 32-bit x86 emulator images are not supported by SQLCipher native libraries.
+- If you hit ABI errors, recreate your AVD as x86_64.
 ```
 
 #### Build Release

@@ -91,17 +91,7 @@ android {
         }
     }
 
-    flavorDimensions "security"
-    productFlavors {
-        encrypted {
-            dimension "security"
-            buildConfigField "boolean", "DB_ENCRYPTION_ENABLED", "true"
-        }
-        plain {
-            dimension "security"
-            buildConfigField "boolean", "DB_ENCRYPTION_ENABLED", "false"
-        }
-    }
+    // Single encrypted build; remove flavors to avoid unencrypted variants
 
     buildFeatures {
         // Explicitly generate BuildConfig to access BuildConfig.DEBUG
