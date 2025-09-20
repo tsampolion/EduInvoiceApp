@@ -111,4 +111,4 @@ foreach ($file in $files) {
 }
 
 Write-Host ("Patched " + $patchedCount + " file(s).")
-Write-Host "Next:  ./gradlew :data:clean :app:clean ; ./gradlew :data:assemblePlainDebug"
+Write-Host "Next:  ./gradlew :data:clean :app:clean ; ./gradlew :data:assembleDebug"

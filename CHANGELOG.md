@@ -1,4 +1,23 @@
 # Changelog
+## [0.31.1] - 2025-09-19
+
+### Optimizations
+- Gradle: enabled build cache and configuration cache; reduced KSP incremental logging noise.
+- Packaging: limited ABI splits to 64-bit only (`arm64-v8a`, `x86_64`).
+- Room: set journal mode to WAL for higher write throughput.
+- Security: removed passphrase-length logging from database initialization.
+
+## [0.31.0] - 2025-09-19
+
+### Changed
+- Encrypted-only build: removed `flavorDimensions` and `productFlavors` (`encrypted`/`plain`) from `app` and `data` modules.
+- `DatabaseModule`: SQLCipher is now mandatory. Removed unencrypted fallback and `_plain` DB path; fail fast if SQLCipher native libs are unavailable. Retain destructive-migration recovery using `SupportFactory(passphrase)`.
+- Docs: updated `README.md` and `docs/INSTALLATION.md` with 64-bit emulator/device requirement (x86_64 or arm64) for SQLCipher.
+- Scripts: updated `fix_schemas.ps1` to use `:data:assembleDebug` instead of the removed plain variant.
+
+### DevOps
+- Build variants simplified to a single encrypted artifact; assemble and test targets no longer include flavor-specific tasks.
+
 ## [0.30.0] - 2025-09-14
 
 ### Breaking (dev-only)
@@ -158,7 +177,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### DevOps
 - CI: deduplicated workflows; standardized JDK 17; added assembleRelease sanity step; instrumented tests on API 35.
-- Dependencies: keep SQLCipher `net.zetetic:android-database-sqlcipher` at 4.5.4 (latest available in repo). Add runtime fallback to unencrypted Room DB for debug builds when SQLCipher native libs are incompatible (e.g., 16KB page size devices/emulators).
+- Dependencies: keep SQLCipher `net.zetetic:android-database-sqlcipher` at 4.5.4 (latest available in repo). Encrypted-only builds; require 64-bit emulator/device. No unencrypted fallback.
 
 ## [0.28.0] - 2025-08-14
 
