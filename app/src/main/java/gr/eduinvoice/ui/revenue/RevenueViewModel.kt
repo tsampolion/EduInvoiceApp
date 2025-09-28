@@ -42,11 +42,14 @@ class RevenueViewModel @Inject constructor(
             currentUserProvider.loggedInUserId
                 .filterNotNull()
                 .flatMapLatest { uid ->
+                    val earningsByClassFlow = dateRange.flatMapLatest { range ->
+                        getEarningsByClass(range.start, range.end, uid)
+                    }
                     combine(
                         studentUseCases.getActiveStudents(uid),
                         lessonUseCases.getAllLessons(uid),
                         dateRange,
-                        getEarningsByClass(dateRange.value.start, dateRange.value.end, uid)
+                        earningsByClassFlow
                     ) { students, lessons, range, earningsByClass ->
                         Quad(students, lessons, range, earningsByClass)
                     }
