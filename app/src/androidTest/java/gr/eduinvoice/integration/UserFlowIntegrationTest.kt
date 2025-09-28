@@ -10,12 +10,12 @@ import org.junit.Assert.assertNotNull
 @RunWith(AndroidJUnit4::class)
 class UserFlowIntegrationTest {
 
-    @get:Rule
-    val databaseContainer = TestDatabaseContainer()
+	@get:Rule
+	val databaseContainer = TestDatabaseContainer()
 
-    @Test
-    fun database_initializes_with_sqlcipher() {
-        assertNotNull(databaseContainer.database)
-    }
+	@Test
+	fun database_initializes_with_sqlcipher() {
+		assertNotNull(databaseContainer.database)
+	}
 }
 
