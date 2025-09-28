@@ -26,7 +26,12 @@ import java.time.LocalTime
         Index(value = ["date"]),
         Index(value = ["masterId"]),
         Index(value = ["invoiceMasterId"]),
-        Index(value = ["paymentBatchId"])
+        Index(value = ["paymentBatchId"]),
+        Index(value = ["ownerId", "studentId", "date"], name = "idx_lessons_owner_student_date"),
+        Index(value = ["ownerId", "groupId", "date", "startTime", "durationMinutes"], name = "idx_lessons_group_time"),
+        Index(value = ["ownerId", "isPaid"], name = "idx_lessons_owner_paid"),
+        Index(value = ["ownerId", "isInvoiced"], name = "idx_lessons_owner_invoiced"),
+        Index(value = ["ownerId", "masterId"], name = "idx_lessons_owner_master")
     ]
 )
 data class Lesson(

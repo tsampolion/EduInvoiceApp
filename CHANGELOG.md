@@ -1,4 +1,28 @@
 # Changelog
+## [0.32.0] - 2025-09-20
+
+### Added
+- CI: Room schema export step and artifact upload (`:data:kspDebugKotlin`), tracked `data/schemas/`.
+- Perf: Instrumented perf smoke test for cold start budget and initial memory budget; CI passes `STARTUP_BUDGET_MS` and `INITIAL_MEMORY_BUDGET_MB`.
+- Architecture: Konsist/Detekt enforcement expanded; added forbidden imports across data packages and tests for app→data boundaries.
+- Resilience: Wired `MemoryMonitor` start in `EduInvoiceApplication`.
+- UI: Modern skeleton/empty/progress components (students, lessons, invoices) consistent with Material 3.
+- Testing: SQLCipher `TestDatabaseContainer` and integrity/maintenance/recovery tests.
+- Payments/Reschedules: Composite indices on `lessons`, `payment_batch_master`, `reschedule_master`; guarded reschedule/delete queries to skip paid/invoiced lessons; integration test for batch payments and reschedule linking.
+- Analytics: Domain `GetEarningsByClass` use case; Revenue tab shows Earnings by Class; date-range selector (This Month/Prev Month) driving aggregates and analytics.
+- Tests: RevenueViewModel unit tests (aggregation + earnings mapping); Compose smoke test for “Mark Paid”.
+
+### Changed
+- RevenueViewModel restored to domain-driven aggregation (daily/weekly/monthly, paid/unpaid, debts) using `StudentUseCases`, `LessonUseCases`, `CurrentUserProvider`.
+- Replaced app-layer `ReportingRepository` with domain use case to preserve boundaries.
+- Revenue UI updated with date-range buttons and list of earnings by class using `UiEarningsByClass` model.
+
+### Fixed
+- Architecture violations in app layer by removing direct DAO access for analytics.
+
+### DevOps
+- Version bumped to 0.32.0 (52).
+
 ## [0.31.1] - 2025-09-19
 
 ### Optimizations

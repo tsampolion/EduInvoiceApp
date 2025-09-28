@@ -22,6 +22,7 @@ class EduInvoiceApplication : Application() {
 
     @Inject lateinit var strictModeManager: StrictModeManager
     @Inject lateinit var startupPerformanceMonitor: StartupPerformanceMonitor
+    @Inject lateinit var memoryMonitor: gr.eduinvoice.utils.MemoryMonitor
 
     override fun onCreate() {
         super.onCreate()
@@ -38,6 +39,11 @@ class EduInvoiceApplication : Application() {
         // End startup trace after initialization
         try {
             startupPerformanceMonitor.endStartupTrace()
+        } catch (_: Throwable) {}
+
+        // Start memory monitoring in app process
+        try {
+            memoryMonitor.start()
         } catch (_: Throwable) {}
     }
 

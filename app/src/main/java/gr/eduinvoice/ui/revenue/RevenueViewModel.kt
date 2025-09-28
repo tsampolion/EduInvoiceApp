@@ -7,6 +7,7 @@ import gr.eduinvoice.domain.billing.calculateFeeWith
 import gr.eduinvoice.domain.lesson.LessonUseCases
 import gr.eduinvoice.domain.student.StudentUseCases
 import gr.eduinvoice.domain.user.CurrentUserProvider
+import gr.eduinvoice.domain.analytics.GetEarningsByClass
 import kotlinx.coroutines.flow.first
 import gr.eduinvoice.ui.revenue.StudentDebt
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,18 +23,19 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @HiltViewModel
-@OptIn(ExperimentalCoroutinesApi::class)
 class RevenueViewModel @Inject constructor(
     private val studentUseCases: StudentUseCases,
     private val lessonUseCases: LessonUseCases,
-    private val currentUserProvider: CurrentUserProvider
+    private val currentUserProvider: CurrentUserProvider,
+    private val getEarningsByClass: GetEarningsByClass
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RevenueUiState())
     val uiState: StateFlow<RevenueUiState> = _uiState.asStateFlow()
+    private val _dateRange = MutableStateFlow(currentMonthRange())
+    val dateRange: StateFlow<DateRange> = _dateRange.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -42,75 +44,78 @@ class RevenueViewModel @Inject constructor(
                 .flatMapLatest { uid ->
                     combine(
                         studentUseCases.getActiveStudents(uid),
-                        lessonUseCases.getAllLessons(uid)
-                    ) { students, lessons ->
-                        Pair(students, lessons)
+                        lessonUseCases.getAllLessons(uid),
+                        dateRange,
+                        getEarningsByClass(dateRange.value.start, dateRange.value.end, uid)
+                    ) { students, lessons, range, earningsByClass ->
+                        Quad(students, lessons, range, earningsByClass)
                     }
                 }
-                .map { (students, lessons) ->
-                val studentMap = students.associateBy { it.id }
+                .map { (students, lessons, range, earningsByClass) ->
+                    val studentMap = students.associateBy { it.id }
 
-                val today = LocalDate.now()
-                val weekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                val weekEnd = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
-                val monthStart = today.withDayOfMonth(1)
-                val monthEnd = today.withDayOfMonth(today.lengthOfMonth())
+                    val today = LocalDate.now()
+                    val weekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                    val weekEnd = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+                    val monthStart = LocalDate.parse(range.start)
+                    val monthEnd = LocalDate.parse(range.end)
 
-                val dayTotal = lessons.filter { it.date == today.toString() }
-                    .sumOf { lesson ->
+                    val dayTotal = lessons.filter { it.date == today.toString() }
+                        .sumOf { lesson ->
+                            val student = studentMap[lesson.studentId] ?: return@sumOf 0.0
+                            lesson.calculateFeeWith(student)
+                        }
+
+                    val weekTotal = lessons.filter { lesson ->
+                        val date = LocalDate.parse(lesson.date)
+                        !date.isBefore(weekStart) && !date.isAfter(weekEnd)
+                    }.sumOf { lesson ->
                         val student = studentMap[lesson.studentId] ?: return@sumOf 0.0
                         lesson.calculateFeeWith(student)
                     }
 
-                val weekTotal = lessons.filter { lesson ->
-                    val date = LocalDate.parse(lesson.date)
-                    !date.isBefore(weekStart) && !date.isAfter(weekEnd)
-                }.sumOf { lesson ->
-                    val student = studentMap[lesson.studentId] ?: return@sumOf 0.0
-                    lesson.calculateFeeWith(student)
-                }
-
-                val monthTotal = lessons.filter { lesson ->
-                    val date = LocalDate.parse(lesson.date)
-                    !date.isBefore(monthStart) && !date.isAfter(monthEnd)
-                }.sumOf { lesson ->
-                    val student = studentMap[lesson.studentId] ?: return@sumOf 0.0
-                    lesson.calculateFeeWith(student)
-                }
-
-                val (paidTotal, unpaidTotal) = lessons.filter { lesson ->
-                    val date = LocalDate.parse(lesson.date)
-                    !date.isBefore(monthStart) && !date.isAfter(monthEnd)
-                }.partition { it.isPaid }.let { (paid, unpaid) ->
-                    val paidSum = paid.sumOf { l ->
-                        val s = studentMap[l.studentId] ?: return@sumOf 0.0
-                        l.calculateFeeWith(s)
+                    val monthTotal = lessons.filter { lesson ->
+                        val date = LocalDate.parse(lesson.date)
+                        !date.isBefore(monthStart) && !date.isAfter(monthEnd)
+                    }.sumOf { lesson ->
+                        val student = studentMap[lesson.studentId] ?: return@sumOf 0.0
+                        lesson.calculateFeeWith(student)
                     }
-                    val unpaidSum = unpaid.sumOf { l ->
-                        val s = studentMap[l.studentId] ?: return@sumOf 0.0
-                        l.calculateFeeWith(s)
-                    }
-                    paidSum to unpaidSum
-                }
 
-                val debts = lessons
-                    .filter { !it.isPaid }
-                    .groupBy { it.studentId }
-                    .mapNotNull { (id, lns) ->
-                        val student = studentMap[id] ?: return@mapNotNull null
-                        val total = lns.sumOf { it.calculateFeeWith(student) }
-                        if (total > 0) StudentDebt(student, total) else null
+                    val (paidTotal, unpaidTotal) = lessons.filter { lesson ->
+                        val date = LocalDate.parse(lesson.date)
+                        !date.isBefore(monthStart) && !date.isAfter(monthEnd)
+                    }.partition { it.isPaid }.let { (paid, unpaid) ->
+                        val paidSum = paid.sumOf { l ->
+                            val s = studentMap[l.studentId] ?: return@sumOf 0.0
+                            l.calculateFeeWith(s)
+                        }
+                        val unpaidSum = unpaid.sumOf { l ->
+                            val s = studentMap[l.studentId] ?: return@sumOf 0.0
+                            l.calculateFeeWith(s)
+                        }
+                        paidSum to unpaidSum
                     }
-                    .sortedBy { it.student.name }
 
-                RevenueUiState(
-                    dailyRevenue = dayTotal,
-                    weeklyRevenue = weekTotal,
-                    monthlyRevenue = monthTotal,
-                    monthlyPaid = paidTotal,
-                    monthlyUnpaid = unpaidTotal,
-                    debts = debts
-                )
+                    val debts = lessons
+                        .filter { !it.isPaid }
+                        .groupBy { it.studentId }
+                        .mapNotNull { (id, lns) ->
+                            val student = studentMap[id] ?: return@mapNotNull null
+                            val total = lns.sumOf { it.calculateFeeWith(student) }
+                            if (total > 0) StudentDebt(student, total) else null
+                        }
+                        .sortedBy { it.student.name }
+
+                    RevenueUiState(
+                        dailyRevenue = dayTotal,
+                        weeklyRevenue = weekTotal,
+                        monthlyRevenue = monthTotal,
+                        monthlyPaid = paidTotal,
+                        monthlyUnpaid = unpaidTotal,
+                        debts = debts,
+                        earningsByClass = earningsByClass.map { (clazz, revenue) -> UiEarningsByClass(clazz, revenue) }
+                    )
                 }
                 .collect { state ->
                     _uiState.value = state
@@ -130,6 +135,18 @@ class RevenueViewModel @Inject constructor(
             }
         }
     }
+
+    fun setCurrentMonth() {
+        _dateRange.value = currentMonthRange()
+    }
+
+    fun setPreviousMonth() {
+        val today = LocalDate.now().minusMonths(1)
+        _dateRange.value = DateRange(
+            today.withDayOfMonth(1).toString(),
+            today.withDayOfMonth(today.lengthOfMonth()).toString()
+        )
+    }
 }
 
 data class RevenueUiState(
@@ -138,5 +155,19 @@ data class RevenueUiState(
     val monthlyRevenue: Double = 0.0,
     val monthlyPaid: Double = 0.0,
     val monthlyUnpaid: Double = 0.0,
-    val debts: List<StudentDebt> = emptyList()
+    val debts: List<StudentDebt> = emptyList(),
+    val earningsByClass: List<UiEarningsByClass> = emptyList()
 )
+
+data class UiEarningsByClass(val className: String, val revenue: Double)
+
+data class DateRange(val start: String, val end: String)
+
+private fun currentMonthRange(): DateRange {
+    val today = LocalDate.now()
+    val start = today.withDayOfMonth(1).toString()
+    val end = today.withDayOfMonth(today.lengthOfMonth()).toString()
+    return DateRange(start, end)
+}
+
+private data class Quad<A, B, C, D>(val a: A, val b: B, val c: C, val d: D)

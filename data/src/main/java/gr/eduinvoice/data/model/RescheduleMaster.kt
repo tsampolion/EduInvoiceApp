@@ -3,10 +3,16 @@ package gr.eduinvoice.data.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.Index
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Entity(tableName = "reschedule_master")
+@Entity(
+    tableName = "reschedule_master",
+    indices = [
+        Index(value = ["ownerId", "newDate", "newStartTime"], name = "idx_reschedule_owner_date_time")
+    ]
+)
 data class RescheduleMaster(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

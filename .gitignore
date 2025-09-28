@@ -48,6 +48,11 @@ gen/
 out/
 release/
 
+# Room schema exports (keep directory tracked, allow JSON files)
+!data/schemas/
+!data/schemas/**/
+!data/schemas/**.json
+
 # Gradle wrapper jar file
 gradle/wrapper/gradle-wrapper.jar
 

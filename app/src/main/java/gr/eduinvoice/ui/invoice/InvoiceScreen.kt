@@ -72,9 +72,10 @@ fun InvoiceScreen(
     val user = profileState.user
     val context = LocalContext.current
     val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
+    val isGenerating by viewModel.isGenerating.collectAsStateWithLifecycle()
     var showConfirm by remember { mutableStateOf(false) }
-    var generatedInvoice by remember { mutableStateOf<Uri?>(null) }
-    var generatedInvoiceFile by remember { mutableStateOf<File?>(null) }
+    val generatedInvoice by viewModel.generatedInvoiceUri.collectAsStateWithLifecycle()
+    val generatedInvoiceFile by viewModel.generatedInvoiceFile.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var showSheet by remember { mutableStateOf(false) }
@@ -185,34 +186,8 @@ fun InvoiceScreen(
                     val colors = MaterialTheme.colorScheme
                     val fonts = MaterialTheme.typography
                 TextButton(onClick = {
-                        val selected = lessons.filter { selectedLessons.contains(it.lesson.id) }
-                        val rawNumber = System.currentTimeMillis().toString()
-                        val invoiceNumber = rawNumber.replace(Regex("[^A-Za-z0-9_-]"), "_")
-                        val selectedStudent = students.firstOrNull { it.id == selectedStudentId } ?: return@TextButton
-                        val invoiceData = gr.eduinvoice.domain.billing.DomainInvoiceData(
-                            student = selectedStudent,
-                            lessons = selected.map { it.lesson }
-                        )
-                        val outDir = File(context.filesDir, "invoices").apply { mkdirs() }
-                        val outFile = File(outDir, "${invoiceNumber}.pdf")
-                        val theme = gr.eduinvoice.domain.billing.DomainPdfThemes.Default
-                        val result = gr.eduinvoice.utils.AndroidPdfGenerator(context, theme).generateInvoice(invoiceData, outFile)
-                        result.fold(
-                            onSuccess = { path ->
-                                val file = java.io.File(path)
-                                generatedInvoice = androidx.core.content.FileProvider.getUriForFile(
-                                    context,
-                                    "${context.packageName}.provider",
-                                    file
-                                )
-                                generatedInvoiceFile = file
-                                viewModel.createInvoiceAndMark(selected.map { it.lesson.id }, invoiceNumber, invoiceData.invoiceDate.toString(), null)
-                                showConfirm = false
-                            },
-                            onFailure = {
-                                scope.launch { snackbarHostState.showSnackbar("Failed to create invoice") }
-                            }
-                        )
+                        showConfirm = false
+                        viewModel.generateAndFinalize()
                     }) { Text("Create") }
                 },
                 dismissButton = {
@@ -220,9 +195,24 @@ fun InvoiceScreen(
                 }
             )
         }
+        if (isGenerating) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Surface(color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(24.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator()
+                        Spacer(Modifier.width(12.dp))
+                        Text("Generating PDF…")
+                    }
+                }
+            }
+        }
         generatedInvoice?.let { uri ->
             AlertDialog(
-                onDismissRequest = { generatedInvoice = null },
+                onDismissRequest = { viewModel.clearGenerated() },
                 title = { Text("Invoice Created") },
                 text = { Text("Share or print the invoice?") },
                 confirmButton = {
@@ -233,8 +223,7 @@ fun InvoiceScreen(
                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         }
                         context.startActivity(Intent.createChooser(share, null))
-                        generatedInvoice = null
-                        generatedInvoiceFile = null
+                        viewModel.clearGenerated()
                     }) { Text("Share") }
                 },
                 dismissButton = {
@@ -248,8 +237,7 @@ fun InvoiceScreen(
                                 gr.eduinvoice.utils.PdfFilePrintAdapter(context, file),
                                 null
                             )
-                            generatedInvoice = null
-                            generatedInvoiceFile = null
+                            viewModel.clearGenerated()
                         } else {
                             // Fallback: stream via temp file
                             val input = context.contentResolver.openInputStream(uri)
@@ -266,8 +254,7 @@ fun InvoiceScreen(
                                 gr.eduinvoice.utils.PdfFilePrintAdapter(context, temp),
                                 null
                             )
-                            generatedInvoice = null
-                            generatedInvoiceFile = null
+                            viewModel.clearGenerated()
                         }
                     }) { Text("Print") }
                 }

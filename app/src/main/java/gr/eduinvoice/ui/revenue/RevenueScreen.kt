@@ -116,17 +116,23 @@ fun RevenueScreen(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(
-                    onClick = { onInvoice(null) },
-                    modifier = Modifier.weight(1f)
-                ) { Text("New Invoice") }
-                OutlinedButton(
-                    onClick = onPastInvoices,
-                    modifier = Modifier.weight(1f)
-                ) { Text("Past Invoices") }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = { viewModel.setCurrentMonth() }) { Text("This Month") }
+                    OutlinedButton(onClick = { viewModel.setPreviousMonth() }) { Text("Prev Month") }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { onInvoice(null) },
+                        modifier = Modifier
+                    ) { Text("New Invoice") }
+                    OutlinedButton(
+                        onClick = onPastInvoices,
+                        modifier = Modifier
+                    ) { Text("Past Invoices") }
+                }
             }
 
             if (uiState.debts.isNotEmpty()) {
@@ -140,6 +146,32 @@ fun RevenueScreen(
                             onInvoice = { onInvoice(debt.student.id) },
                             onMarkPaid = { viewModel.markLessonsPaid(debt.student.id) },
                             modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+
+            // Earnings by class section consistent with revenue tab styling
+            if (uiState.earningsByClass.isNotEmpty()) {
+                Text(
+                    text = "Earnings by Class",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium)
+                )
+                Spacer(Modifier.height(4.dp))
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uiState.earningsByClass, key = { it.className }) { row ->
+                        MetricCard(
+                            label = row.className,
+                            value = row.revenue.formatAsCurrency(
+                                settings?.currencySymbol ?: "€",
+                                settings?.roundingDecimals ?: 2
+                            ),
+                            modifier = Modifier.fillMaxWidth(),
+                            containerColor = AppColors.primaryContainer
                         )
                     }
                 }
