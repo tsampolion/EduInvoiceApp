@@ -23,16 +23,5 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDomainPdfTheme(): DomainPdfTheme = DomainPdfThemes.Default
-
-    @Provides
-    @Singleton
-    fun provideDomainPdfGenerator(
-        @ApplicationContext context: Context,
-        theme: DomainPdfTheme
-    ): DomainPdfGenerator = AndroidPdfGenerator(context, theme)
-    
-    @Provides
-    @Singleton
     fun provideContext(@ApplicationContext context: Context): Context = context
 }

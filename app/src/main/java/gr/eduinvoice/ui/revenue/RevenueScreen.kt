@@ -40,149 +40,144 @@ fun RevenueScreen(
     Scaffold(
         topBar = { }
     ) { padding ->
-        Box(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(padding),
+            verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium),
+            contentPadding = PaddingValues(bottom = Dimensions.PaddingMedium)
         ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)
-        ) {
-            SlimHeader(
-                title = "Revenue",
-                onMenuClick = openDrawer
-            )
-            Spacer(Modifier.height(4.dp))
-            settings?.let { safeSettings ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                MetricCard(
-                    label = "Daily",
-                    value = uiState.dailyRevenue.formatAsCurrency(
-                        safeSettings.currencySymbol,
-                        safeSettings.roundingDecimals
-                    ),
-                    modifier = Modifier.weight(1f),
-                    containerColor = AppColors.primaryContainer
-                )
-                MetricCard(
-                    label = "Weekly",
-                    value = uiState.weeklyRevenue.formatAsCurrency(
-                        safeSettings.currencySymbol,
-                        safeSettings.roundingDecimals
-                    ),
-                    modifier = Modifier.weight(1f),
-                    containerColor = AppColors.successContainer
-                )
-                MetricCard(
-                    label = "Monthly",
-                    value = uiState.monthlyRevenue.formatAsCurrency(
-                        safeSettings.currencySymbol,
-                        safeSettings.roundingDecimals
-                    ),
-                    modifier = Modifier.weight(1f),
-                    containerColor = AppColors.tertiaryContainer
+            item {
+                SlimHeader(
+                    title = "Revenue",
+                    onMenuClick = openDrawer
                 )
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                MetricCard(
-                    label = "Unpaid",
-                    value = uiState.monthlyUnpaid.formatAsCurrency(
-                        safeSettings.currencySymbol,
-                        safeSettings.roundingDecimals
-                    ),
-                    modifier = Modifier.weight(1f),
-                    containerColor = AppColors.errorContainer
-                )
-                MetricCard(
-                    label = "Paid",
-                    value = uiState.monthlyPaid.formatAsCurrency(
-                        safeSettings.currencySymbol,
-                        safeSettings.roundingDecimals
-                    ),
-                    modifier = Modifier.weight(1f),
-                    containerColor = AppColors.successContainer
-                )
-            }
-            }
+            item {
+                settings?.let { safeSettings ->
+                    Column(verticalArrangement = Arrangement.spacedBy(Dimensions.PaddingMedium)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            MetricCard(
+                                label = "Daily",
+                                value = uiState.dailyRevenue.formatAsCurrency(
+                                    safeSettings.currencySymbol,
+                                    safeSettings.roundingDecimals
+                                ),
+                                modifier = Modifier.weight(1f),
+                                containerColor = AppColors.primaryContainer
+                            )
+                            MetricCard(
+                                label = "Weekly",
+                                value = uiState.weeklyRevenue.formatAsCurrency(
+                                    safeSettings.currencySymbol,
+                                    safeSettings.roundingDecimals
+                                ),
+                                modifier = Modifier.weight(1f),
+                                containerColor = AppColors.successContainer
+                            )
+                            MetricCard(
+                                label = "Period",
+                                value = uiState.monthlyRevenue.formatAsCurrency(
+                                    safeSettings.currencySymbol,
+                                    safeSettings.roundingDecimals
+                                ),
+                                modifier = Modifier.weight(1f),
+                                containerColor = AppColors.tertiaryContainer
+                            )
+                        }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = { viewModel.setCurrentMonth() }) { Text("This Month") }
-                    OutlinedButton(onClick = { viewModel.setPreviousMonth() }) { Text("Prev Month") }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            MetricCard(
+                                label = "Period Unpaid",
+                                value = uiState.monthlyUnpaid.formatAsCurrency(
+                                    safeSettings.currencySymbol,
+                                    safeSettings.roundingDecimals
+                                ),
+                                modifier = Modifier.weight(1f),
+                                containerColor = AppColors.errorContainer
+                            )
+                            MetricCard(
+                                label = "Period Paid",
+                                value = uiState.monthlyPaid.formatAsCurrency(
+                                    safeSettings.currencySymbol,
+                                    safeSettings.roundingDecimals
+                                ),
+                                modifier = Modifier.weight(1f),
+                                containerColor = AppColors.successContainer
+                            )
+                        }
+                    }
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(
-                        onClick = { onInvoice(null) },
-                        modifier = Modifier
-                    ) { Text("New Invoice") }
-                    OutlinedButton(
-                        onClick = onPastInvoices,
-                        modifier = Modifier
-                    ) { Text("Past Invoices") }
+            }
+
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = { viewModel.setCurrentMonth() }) { Text("This Month") }
+                        OutlinedButton(onClick = { viewModel.setPreviousMonth() }) { Text("Prev Month") }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = { onInvoice(null) },
+                            modifier = Modifier
+                        ) { Text("New Invoice") }
+                        OutlinedButton(
+                            onClick = onPastInvoices,
+                            modifier = Modifier
+                        ) { Text("Past Invoices") }
+                    }
                 }
             }
 
             if (uiState.debts.isNotEmpty()) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(uiState.debts, key = { it.student.id }) { debt ->
-                        StudentDebtRow(
-                            debt = debt,
-                            onInvoice = { onInvoice(debt.student.id) },
-                            onMarkPaid = { viewModel.markLessonsPaid(debt.student.id) },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                items(uiState.debts, key = { "debt-${it.student.id}" }) { debt ->
+                    StudentDebtRow(
+                        debt = debt,
+                        onInvoice = { onInvoice(debt.student.id) },
+                        onMarkPaid = { viewModel.markLessonsPaid(debt.student.id) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
 
-            // Earnings by class section consistent with revenue tab styling
             if (uiState.earningsByClass.isNotEmpty()) {
-                Text(
-                    text = "Earnings by Class",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium)
-                )
-                Spacer(Modifier.height(4.dp))
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(uiState.earningsByClass, key = { it.className }) { row ->
-                        MetricCard(
-                            label = row.className,
-                            value = row.revenue.formatAsCurrency(
-                                settings?.currencySymbol ?: "€",
-                                settings?.roundingDecimals ?: 2
-                            ),
-                            modifier = Modifier.fillMaxWidth(),
-                            containerColor = AppColors.primaryContainer
+                item {
+                    Column {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = "Earnings by Class",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(horizontal = Dimensions.PaddingMedium)
                         )
+                        Spacer(Modifier.height(4.dp))
                     }
                 }
+                items(uiState.earningsByClass, key = { "class-${it.className}" }) { row ->
+                    MetricCard(
+                        label = row.className,
+                        value = row.revenue.formatAsCurrency(
+                            settings?.currencySymbol ?: "€",
+                            settings?.roundingDecimals ?: 2
+                        ),
+                        modifier = Modifier.fillMaxWidth(),
+                        containerColor = AppColors.primaryContainer
+                    )
+                }
             }
-        }
-
-
         }
     }
 }
-
 
 @Composable
 private fun StudentDebtRow(
@@ -202,6 +197,7 @@ private fun StudentDebtRow(
                 Text(debt.student.name, style = MaterialTheme.typography.titleMedium)
                 Text(debt.amount.formatAsCurrency())
             }
+            Spacer(Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
