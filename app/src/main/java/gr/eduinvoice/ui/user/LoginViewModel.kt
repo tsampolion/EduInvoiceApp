@@ -1,10 +1,12 @@
 package gr.eduinvoice.ui.user
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import gr.eduinvoice.BuildConfig
 import gr.eduinvoice.R
 import gr.eduinvoice.domain.user.UserUseCases
 import gr.eduinvoice.domain.user.UserPreferencesRepository
@@ -71,22 +73,52 @@ class LoginViewModel @Inject constructor(
                 } else {
                     // Handle authentication error
                     val error = result.exceptionOrNull() ?: Exception("Unknown authentication error")
+                    
+                    // Log detailed error information
+                    Log.e("LoginViewModel", "Authentication failed for user: ${_uiState.value.username}", error)
+                    Log.e("LoginViewModel", "Error type: ${error.javaClass.simpleName}")
+                    Log.e("LoginViewModel", "Error message: ${error.message}")
+                    error.cause?.let { cause ->
+                        Log.e("LoginViewModel", "Caused by: ${cause.javaClass.simpleName} - ${cause.message}")
+                    }
+                    
                     val errorResult = errorHandler.handleError(error, "Authentication")
-
                     errorReporter.reportError(error, "LoginViewModel")
 
+                    // In debug builds, include exception details in the error message
+                    val userMessage = if (BuildConfig.DEBUG) {
+                        "${errorResult.userMessage}\n\nDebug Info:\n${error.javaClass.simpleName}: ${error.message}"
+                    } else {
+                        errorResult.userMessage
+                    }
+
                     _uiState.value = _uiState.value.copy(
-                        error = errorResult.userMessage,
+                        error = userMessage,
                         isLoading = false
                     )
                 }
             } catch (e: Exception) {
                 // Handle unexpected errors
+                Log.e("LoginViewModel", "Unexpected error during login for user: ${_uiState.value.username}", e)
+                Log.e("LoginViewModel", "Error type: ${e.javaClass.simpleName}")
+                Log.e("LoginViewModel", "Error message: ${e.message}")
+                Log.e("LoginViewModel", "Stack trace:", e)
+                e.cause?.let { cause ->
+                    Log.e("LoginViewModel", "Caused by: ${cause.javaClass.simpleName} - ${cause.message}")
+                }
+                
                 val errorResult = errorHandler.handleError(e, "LoginViewModel")
                 errorReporter.reportError(e, "LoginViewModel_Unexpected")
 
+                // In debug builds, include exception details in the error message
+                val userMessage = if (BuildConfig.DEBUG) {
+                    "${errorResult.userMessage}\n\nDebug Info:\n${e.javaClass.simpleName}: ${e.message}"
+                } else {
+                    errorResult.userMessage
+                }
+
                 _uiState.value = _uiState.value.copy(
-                    error = errorResult.userMessage,
+                    error = userMessage,
                     isLoading = false
                 )
             }
