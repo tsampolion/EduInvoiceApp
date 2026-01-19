@@ -25,7 +25,7 @@ class QueryProfilingTest {
         val studentDao = db.studentDao()
 
         val userId = 1L
-        val studentId = studentDao.insertStudent(
+        val studentId = studentDao.insert(
             Student(ownerId = userId, name = "Bob", surname = "B", parentMobile = "", className = "B1", rate = 12.0, rateType = "per_lesson")
         )
 

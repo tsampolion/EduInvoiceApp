@@ -26,7 +26,7 @@ class UnpaidLessonsDateRangeTest {
         val studentDao = db.studentDao()
 
         val userId = 1L
-        val studentId = studentDao.insertStudent(
+        val studentId = studentDao.insert(
             Student(
                 ownerId = userId,
                 name = "Alice",

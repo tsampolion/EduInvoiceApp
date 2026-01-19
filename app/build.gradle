@@ -240,6 +240,7 @@ configurations.configureEach { cfg ->
         androidTestImplementation libs.compose.ui.test.junit4
         androidTestImplementation libs.androidx.test.uiautomator
         androidTestImplementation libs.coroutines.test
+        androidTestImplementation libs.sqlcipher
         
         // Hilt Testing
         androidTestImplementation libs.dagger.hilt.android.testing
