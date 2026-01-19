@@ -43,8 +43,8 @@ android {
         applicationId "gr.eduinvoice"
         minSdk 26
         targetSdk 35
-        versionCode 52  // Payments/reschedules, architecture enforcement, analytics uplift
-        versionName "0.32.0"  // Schema CI, perf smoke tests, revenue analytics, date-range
+        versionCode 53  // Payments/reschedules, architecture enforcement, analytics uplift
+        versionName "0.32.1"  // Schema CI, perf smoke tests, revenue analytics, date-range, test infra fixes
         testInstrumentationRunner "com.google.dagger.hilt.android.testing.HiltTestRunner"
         buildConfigField "String", "FIREBASE_API_KEY", "\"${firebaseKey}\""
         buildConfigField "boolean", "LEGACY_ROUTES_ENABLED", "true"

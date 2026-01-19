@@ -1,4 +1,14 @@
 # Changelog
+## [0.32.1] - 2026-01-19
+
+### Fixed
+- Build: Restored missing `.kt` extension to `TestDatabaseContainer` in Android tests.
+- Dependencies: Added missing `libs.sqlcipher` dependency to `app` module for Android tests.
+- Tests: Fixed `insertStudent` references to `insert` in integration tests (`QueryProfilingTest`, `UnpaidLessonsDateRangeTest`).
+
+### DevOps
+- Version bumped to 0.32.1 (53).
+
 ## [0.32.0] - 2025-09-20
 
 ### Added
